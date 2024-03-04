@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 
 import { FaArrowRight } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
 
 export const About = ({
   image,
@@ -14,6 +15,7 @@ export const About = ({
   heading: string;
   content: string | undefined | null;
 }) => {
+  const router = useRouter()
   return (
     <article className="w-[100%] flex flex-col lg:flex-row justify-center items-center">
       <div
@@ -37,7 +39,7 @@ export const About = ({
         <p className="text-white h-[185px] lg:h-[150px] overflow-auto font-inter text-[18px] lg:text-[20px] text-center lg:text-left">
           {content}
         </p>
-        <button className="text-white font-inter text-[16px] flex items-center gap-2 text-left">
+        <button onClick={()=>router.push(`/about`)} className="text-white font-inter text-[16px] flex items-center gap-2 text-left">
           more info{" "}
           <div className="text-white font-inter text-[12px] p-[2px] rounded-full border border-[#ACACAC]">
             <FaArrowRight />

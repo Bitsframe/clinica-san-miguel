@@ -211,7 +211,7 @@ export const RequestAppointment = ({
       let { data, error } = await supabase.from(tableName).select("title");
 
       if (data) {
-        const serviceData = data.map((item) => item.title);
+        const serviceData = data.map((item:any) => item.title);
         setServices(serviceData);
       }
     };
@@ -413,7 +413,7 @@ export const RequestAppointment = ({
                   <Label htmlFor='locations' className='font-bold'>
                     State
                   </Label>
-                  <Select style={{ backgroundColor: '#f8f5f0', paddingTop: '9px', paddingBottom: '9px' }} className='flex-1 ' sizing='md' onChange={(e) => setState(e.target.value)} id="state" required>
+                  <Select style={{ backgroundColor: '#f8f5f0', paddingTop: '9px', paddingBottom: '9px' }} className='flex-1 ' sizing='md' onChange={(e:any) => setState(e.target.value)} id="state" required>
                     <option selected disabled value=''>State</option>
                     {usStates?.map(({ value, name }, index: any) => <option key={index} value={name}>{`${name} - ${value}`}</option>)}
                   </Select>

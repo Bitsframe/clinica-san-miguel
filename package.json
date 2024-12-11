@@ -43,7 +43,7 @@
     "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
-    "@types/node": "^20.10.4",
+    "@types/node": "^22.10.2",
     "@types/react": "^18",
     "@types/react-datepicker": "^4.19.3",
     "@types/react-dom": "^18",

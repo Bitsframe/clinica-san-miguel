@@ -30,11 +30,11 @@ export const ImageCarousel = ({
     setSelectedImage(image);
   };
 
-  const filteredImages = imagesData?.filter((item) => item !== selectedImage);
+  // const filteredImages = imagesData?.filter((item) => item !== selectedImage);
 
   return (
     <section
-      className="min-w-[320px] max-w-[1000px] min-h-[430px] h-full max-h-[650px] bg-[#D9D9D9] flex flex-col items-start justify-start gap-4 p-5 rounded-[10px] w-full"
+      className="min-w-[320px] max-w-[1000px] min-h-[430px] h-full  bg-[#D9D9D9] flex flex-col items-start justify-start gap-4 p-5 rounded-[10px] w-full"
       //   style={{ aspectRatio: "1:3" }}
     >
       <div className="w-full" style={{ aspectRatio: 1 }}>
@@ -44,13 +44,13 @@ export const ImageCarousel = ({
               src={selectedImage}
               alt={`location image`}
               layout="fill"
-              objectFit="contain"
+              objectFit="center"
             />
           </div>
         )}
       </div>
       <div className="flex gap-2 items-center">
-        {filteredImages?.map((item, index) => (
+        {imagesData?.map((item, index) => (
           <div
             key={index}
             onClick={() => handleClick(item)}

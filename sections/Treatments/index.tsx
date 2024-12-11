@@ -12,7 +12,6 @@ import { Link } from "@/navigation";
 import Image from "next/image";
 import { useSupabase } from "@/context/supabaseContext";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 
 export const Treatments = () => {
   const settings = {
@@ -87,6 +86,7 @@ export const Treatments = () => {
         </div>
       </Link>
       <div className="w-[100vw] md:w-[96vw] lg:w-[95vw] xl:w-[75vw] block justify-center h-auto mx-auto my-10">
+        {/* @ts-ignore */}
         <Slider {...settings}>
           {data
             .filter((elem) => elem.id !== 25)

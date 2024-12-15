@@ -242,7 +242,7 @@ const Home = () => {
         </div>
       </div>
       <p className="w-full text-2xl">
-      Sexually transmitted (STD) or (STD) testing at Clinca San Miguel
+      Sexually transmitted (STD) or (STD) testing at Clinica San Miguel
       </p>
       <section className="w-full space-y-3 text-xl">
   <h1 className="w-full text-2xl font-bold text-red-600">

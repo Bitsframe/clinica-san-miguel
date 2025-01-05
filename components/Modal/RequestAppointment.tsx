@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import ScheduleDateTime from "./ScheduleDateTime";
 import { validateFormData } from "@/utils/validationCheck";
 import { usStates } from "@/utils/us-states";
+import PhoneNumberInput from "../CSAForm/PhoneNumberInput";
 
 const RadioButton = ({ value, name, label, checked, onChange }: any) => (
   <div className="flex items-center justify-start gap-3">
@@ -211,7 +212,7 @@ export const RequestAppointment = ({
       let { data, error } = await supabase.from(tableName).select("title");
 
       if (data) {
-        const serviceData = data.map((item:any) => item.title);
+        const serviceData = data.map((item: any) => item.title);
         setServices(serviceData);
       }
     };
@@ -385,21 +386,26 @@ export const RequestAppointment = ({
                 value={email}
               />
               <article className="flex flex-col md:flex-row justify-center w-full gap-5 items-center">
-                <Input
+               
+                <div className="flex-1">
+                <PhoneNumberInput
                   label={t("form_f6")}
-                  placeholder="ex. (+92) 331 2566730"
-                  breakpoint={true}
+                  placeholder="ex. +1 (123) 456-7890"
+                  breakpoint={false}
                   onChange={setPhone}
                   value={phone}
                 />
+                </div>
+               <div className="flex-1 ">
                 {/* @ts-ignore */}
-                <DatePicker
+               <DatePicker
                   label={t("form_f7")}
                   placeholder="your date of birth"
-                  breakpoint={true}
+                  breakpoint={false}
                   onChange={setDob}
                   value={dob}
                 />
+               </div>
               </article>
               <RadioButtons
                 name="gender"
@@ -413,7 +419,7 @@ export const RequestAppointment = ({
                   <Label htmlFor='locations' className='font-bold'>
                     State
                   </Label>
-                  <Select style={{ backgroundColor: '#f8f5f0', paddingTop: '9px', paddingBottom: '9px' }} className='flex-1 ' sizing='md' onChange={(e:any) => setState(e.target.value)} id="state" required>
+                  <Select style={{ backgroundColor: '#f8f5f0', paddingTop: '9px', paddingBottom: '9px' }} className='flex-1 ' sizing='md' onChange={(e: any) => setState(e.target.value)} id="state" required>
                     <option selected disabled value=''>State</option>
                     {usStates?.map(({ value, name }, index: any) => <option key={index} value={name}>{`${name} - ${value}`}</option>)}
                   </Select>

@@ -20,7 +20,7 @@ const PhoneNumberInput = ({
     return (
         <div className={`flex ${breakpoint ? 'sm:flex-row' : 'flex-col'} items-start w-full`}>
             {/* Label for the phone input */}
-            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">
+            <label className="text-[16px] text-customGray font-poppins font-bold mb-1">
                 {label}:
             </label>
 

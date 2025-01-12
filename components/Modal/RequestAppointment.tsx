@@ -15,6 +15,8 @@ import ScheduleDateTime from "./ScheduleDateTime";
 import { validateFormData } from "@/utils/validationCheck";
 import { usStates } from "@/utils/us-states";
 import PhoneNumberInput from "../CSAForm/PhoneNumberInput";
+import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
+import { sendEmail } from "@/utils/emailService";
 
 const RadioButton = ({ value, name, label, checked, onChange }: any) => (
   <div className="flex items-center justify-start gap-3">
@@ -207,6 +209,10 @@ export const RequestAppointment = ({
   const patientType = [t("form_f2a"), t("form_f2b")];
   const genderOptions = [t("form_f8a"), t("form_f8b"), t("form_f8c")];
 
+  console.log(detailedData)
+
+
+
   useEffect(() => {
     const fetchServices = async () => {
       let { data, error } = await supabase.from(tableName).select("title");
@@ -286,6 +292,24 @@ export const RequestAppointment = ({
       }
       else { toast.error(`Error submitting appointment: ${error?.message}`); }
     } else {
+
+
+      const lang = locale
+      const emailType = EmailBodyTempEnum.APPOINTMENT_CONFIRMATION
+
+      const { email_address, first_name, last_name, service, date_and_time } = appointmentDetails
+      const data: any = {
+        email: email_address,
+        name: `${first_name} ${last_name}`,
+        location: detailedData[0],
+        service: service,
+        date: date_and_time ? date_and_time?.split?.('|')?.[1]?.split?.(' - ')?.[0] : '-',
+        time: date_and_time ? date_and_time?.split?.(' - ')?.[1] : '-'
+
+      }
+      await sendEmail({ lang, emailType, data })
+
+
       toast.success("Appointment Submitted");
       setFirstName("");
       setLastName("");
@@ -386,26 +410,26 @@ export const RequestAppointment = ({
                 value={email}
               />
               <article className="flex flex-col md:flex-row justify-center w-full gap-5 items-center">
-               
+
                 <div className="flex-1">
-                <PhoneNumberInput
-                  label={t("form_f6")}
-                  placeholder="ex. +1 (123) 456-7890"
-                  breakpoint={false}
-                  onChange={setPhone}
-                  value={phone}
-                />
+                  <PhoneNumberInput
+                    label={t("form_f6")}
+                    placeholder="ex. +1 (123) 456-7890"
+                    breakpoint={false}
+                    onChange={setPhone}
+                    value={phone}
+                  />
                 </div>
-               <div className="flex-1 ">
-                {/* @ts-ignore */}
-               <DatePicker
-                  label={t("form_f7")}
-                  placeholder="your date of birth"
-                  breakpoint={false}
-                  onChange={setDob}
-                  value={dob}
-                />
-               </div>
+                <div className="flex-1 ">
+                  {/* @ts-ignore */}
+                  <DatePicker
+                    label={t("form_f7")}
+                    placeholder="your date of birth"
+                    breakpoint={false}
+                    onChange={setDob}
+                    value={dob}
+                  />
+                </div>
               </article>
               <RadioButtons
                 name="gender"

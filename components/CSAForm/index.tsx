@@ -14,6 +14,8 @@ import LanguageChanger from "@/components/LanguageChanger";
 import { validateFormData } from "@/utils/validationCheck";
 import PhoneInput from "react-phone-input-2";
 import PhoneNumberInput from "./PhoneNumberInput";
+import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
+import { sendEmail } from "@/utils/emailService";
 
 const RadioButton = ({ value, name, label, checked, onChange }: any) => (
     <div className="flex items-center justify-start gap-3">
@@ -267,6 +269,19 @@ const Self_Appointment = ({ location }: any) => {
             }
             else { toast.error(`Error submitting appointment: ${error?.message}`); }
         } else {
+
+            const lang = locale
+            const emailType = EmailBodyTempEnum.CONFIRMATION_OF_FORM_SUBMISSION
+
+            const { email, firstname, lastname, treatmenttype } = appointmentDetails
+            const data: any = {
+                email,
+                name: `${firstname} ${lastname}`,
+                location: location,
+                service: treatmenttype,
+
+            }
+            await sendEmail({ lang, emailType, data })
             toast.success("Appointment Submitted");
             setFirstName("");
             setLastName("");

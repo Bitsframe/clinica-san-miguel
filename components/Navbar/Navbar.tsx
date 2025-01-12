@@ -15,6 +15,8 @@ export const Navbar = () => {
   const router = useRouter();
   const locale = useLocale();
 
+  console.log({locale})
+
   const navLinks = [
     { id: 1, heading: t("link_home"), route: "/" },
     { id: 2, heading: t("link_about"), route: "/about" },

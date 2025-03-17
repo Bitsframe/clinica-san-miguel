@@ -22,7 +22,7 @@ export const sendEmail = async ({
       html: emailHtml,
     };
 
-    const endpoint = `${process.env.EMAIL_SENDER_URL}/send-batch-email`; 
+    const endpoint = `${process.env.NEXT_PUBLIC_EMAIL_SENDER_URL}/send-batch-email`; 
 
     const response = await axios.post(endpoint, payload, {
       headers: {

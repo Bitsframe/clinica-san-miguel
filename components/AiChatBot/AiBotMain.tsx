@@ -45,7 +45,7 @@ export default function AiBotMain() {
         ]}
       </div>
 
-      <div className="flex flex-col items-center justify-center absolute bottom-1 right-4 ">
+      <div className="flex flex-col items-center justify-center fixed bottom-1 right-4 ">
         <div className="w-[351px] flex items-center my-2 justify-end">
           <div
             className="flex items-center  cursor-pointer justify-center bg-red-700 p-3 rounded-[50px]"

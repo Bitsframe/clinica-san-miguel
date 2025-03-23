@@ -300,103 +300,106 @@ const Self_Appointment = ({ location }: any) => {
     return (<>
 
 
-        <div className=" relative  w-screen h-screen flex justify-center items-center px-10 md:px-0">
+        <div className=" relative  w-screen md:h-screen">
 
-            <div className="absolute w-full flex justify-end top-6 right-6">
+            <div className="md:absolute px-5 md:px-0 pt-4 pb-5 md:py-0 w-full flex justify-end md:top-6 md:right-6">
                 <LanguageChanger locale={locale} />
             </div>
 
 
-            <div className="w-full max-w-[800px] rounded-[20px]  gap-y-5">
+            <div className="flex justify-center h-full items-center px-5 md:px-0">
+                <div className="w-full max-w-[800px] rounded-[20px] mt-8 gap-y-5">
 
-                <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9">
-                    <h1
-                        className={`${styles.sectionHeadText} `}
-                        style={{ textAlign: "left", color: "#C1001F" }}
-                    >
-                        {t("self_form_title")}
-                    </h1>
-                    <p className="text-[#767676]">{location.title}</p>
-                </div>
-                <section className="grid md:grid-cols-2 grid-cols-1 place-content-baseline gap-8">
-                    <Dropdown
-                        label={t("form_f10")}
-                        options={services}
-                        breakpoint={true}
-                        onChange={setService}
-                        value={service}
-                        startingSelectedOption={true}
-                    />
-                    <Input
-                        label={t("form_f5")}
-                        placeholder="Your current email address"
-                        type='email'
-                        breakpoint={false}
-                        onChange={setEmail}
-                        value={email}
-                    />
-                    <Input
-                        label={t("form_f3")}
-                        placeholder="Enter your first name"
-                        breakpoint={true}
-                        onChange={setFirstName}
-                        value={firstName}
-                    />
-                    <Input
-                        label={t("form_f4")}
-                        placeholder="Enter your last name"
-                        breakpoint={true}
-                        onChange={setLastName}
-                        value={lastName}
-                    />
-                    <PhoneNumberInput
-                        label={t("form_f6")}
-                        placeholder="ex. +1 (123) 456-7890"
-                        breakpoint={false}
-                        onChange={setPhone}
-                        value={phone}
-                    />
-                    <RadioButtons
-                        name="gender"
-                        options={genderOptions}
-                        label={t("form_f8")}
-                        onChange={setSex}
-                        selectedValue={sex}
-                    />
-
-
-                    <div className="w-full flex justify-between items-center col-span-full">
-                        <div className="space-y-2 w-2/3 ">
-                            <div className="flex space-x-2 items-center">
-                                <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
-                                    I agree to receive <strong>email</strong> updates from Clinica San Miguel, including appointment confirmations, health tips, promotional offers, and other important information.
-                                </h1>
-                            </div>
-                            <div className="flex space-x-2 items-center">
-                                <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
-                                    I agree to receive <strong>SMS</strong> notifications from Clinica San Miguel, including appointment reminders, health updates, and other related messages.
-                                </h1>
-                            </div>
-
-                        </div>
-                        <Button
-                            text={t("button_label")}
-
-                            size={{ width: "250px", height: "50px" }}
-                            route={""}
-                            bgColor={"#C1001F"}
-                            textColor={"#ffffff"}
-                            onClick={() => {
-                                submitAppointmentDetails();
-                            }}
-                        />
+                    <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9">
+                        <h1
+                            className={`${styles.sectionHeadText} `}
+                            style={{ textAlign: "left", color: "#C1001F" }}
+                        >
+                            {t("self_form_title")}
+                        </h1>
+                        <p className="text-[#767676]">{location.title}</p>
                     </div>
+                    <section className="grid md:grid-cols-2 grid-cols-1 place-content-baseline gap-8">
+                        <Dropdown
+                            label={t("form_f10")}
+                            options={services}
+                            breakpoint={true}
+                            onChange={setService}
+                            value={service}
+                            startingSelectedOption={true}
+                        />
+                        <Input
+                            label={t("form_f5")}
+                            placeholder="Your current email address"
+                            type='email'
+                            breakpoint={false}
+                            onChange={setEmail}
+                            value={email}
+                        />
+                        <Input
+                            label={t("form_f3")}
+                            placeholder="Enter your first name"
+                            breakpoint={true}
+                            onChange={setFirstName}
+                            value={firstName}
+                        />
+                        <Input
+                            label={t("form_f4")}
+                            placeholder="Enter your last name"
+                            breakpoint={true}
+                            onChange={setLastName}
+                            value={lastName}
+                        />
+                        <PhoneNumberInput
+                            label={t("form_f6")}
+                            placeholder="ex. +1 (123) 456-7890"
+                            breakpoint={false}
+                            onChange={setPhone}
+                            value={phone}
+                        />
+                        <RadioButtons
+                            name="gender"
+                            options={genderOptions}
+                            label={t("form_f8")}
+                            onChange={setSex}
+                            selectedValue={sex}
+                        />
 
-                </section>
+
+                        <div className="w-full md:flex justify-between items-center space-y-6 col-span-full mb-5">
+                            <div className="space-y-2 md:w-2/3 ">
+                                <div className="flex space-x-2 items-center">
+                                    <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
+                                        I agree to receive <strong>email</strong> updates from Clinica San Miguel, including appointment confirmations, health tips, promotional offers, and other important information.
+                                    </h1>
+                                </div>
+                                <div className="flex space-x-2 items-center">
+                                    <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
+                                        I agree to receive <strong>SMS</strong> notifications from Clinica San Miguel, including appointment reminders, health updates, and other related messages.
+                                    </h1>
+                                </div>
+
+                            </div>
+                            <Button
+                                text={t("button_label")}
+
+                                size={{ width: "250px", height: "50px" }}
+                                route={""}
+                                bgColor={"#C1001F"}
+                                textColor={"#ffffff"}
+                                onClick={() => {
+                                    submitAppointmentDetails();
+                                }}
+                            />
+                        </div>
+
+                    </section>
 
 
 
+                </div>
             </div>
+
         </div></>
     );
 };

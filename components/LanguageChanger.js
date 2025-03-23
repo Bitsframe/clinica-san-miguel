@@ -11,7 +11,7 @@ export default function LanguageChanger({ locale }) {
   };
 
   return (
-    <div className="relative">
+    <div className="">
       <select
         value={locale}
         onChange={handleChange}

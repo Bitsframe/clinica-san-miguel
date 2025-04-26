@@ -94,7 +94,7 @@ export const emailBodyContent: EmailBodyContent = {
     [EmailBodyTempEnum.CONFIRMATION_OF_FORM_SUBMISSION]: {
       subject: "Appointment Confirmation - Clinica San Miguel",
       body: (data: EmailBodyInterface): string => {
-        const { name, location, service} = data;
+        const { name, location, service } = data;
         return `
             <tbody>
           <tr>
@@ -121,9 +121,6 @@ export const emailBodyContent: EmailBodyContent = {
             <tbody>
               <tr>
                 <td style="padding: 20px;">
-                  <div style="margin-bottom: 20px;">
-                    <img src="https://myclinicmd.com/assets/discount-icon.png" alt="Discount Icon" style="width: 80px;">
-                  </div>
                   <h1 style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 16px;">
                     Thank You for Your Feedback – Enjoy ${discountPercentage}% Off on Your Next Visit!
                   </h1>
@@ -255,9 +252,7 @@ export const emailBodyContent: EmailBodyContent = {
             <tbody>
               <tr>
                 <td style="padding: 20px;">
-                  <div style="margin-bottom: 20px;">
-                    <img src="https://s3-alpha-sig.figma.com/img/ab61/d6d9/8fae1e02f5ed9616fd7c45a6867ca0cc?Expires=1736726400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=hD339LqFecLfKadoOII-UpYGFyT6EgPlqyhgkQBkf8QZXRm-iy9-hyZeftTJXiIaNteKAesrGjoZ-bPwXl-d3hA0KCRS64x2WU3WVkYCNA53uNlltpLxf1xReC5fNi3BNVv11v-vNIdDxooWaDj37Tz5E9OMSuWMytXeGmWsUCrZHv0VRPmJXxwheauZQ4Uz0fS7z0XH~mbRDThi33sI6ePlaoHUBTp35hbsUaxzVT70XLkpO4rkjckfb5zRBo55VnakwtKIGnhbXAG331jOjvC1fbj4L7KDqYXJCOLAjN6mL4SXZPnjLJmfvtqXxaNaHk4xtwTqfOb4hsjpFm~rfQ__" alt="Icono de Descuento" style="width: 80px;">
-                  </div>
+                  
                   <h1 style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 16px;">
                     Gracias por su Comentario – ¡Disfrute de un ${discountPercentage}% de Descuento en su Próxima Visita!
                   </h1>
@@ -314,14 +309,6 @@ export const getEmailTemplates = ({
   <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #ffff;">
     <table
       style="width: 100%; max-width: 800px; margin: 20px auto; background-color: #ffff; overflow: hidden;">
-      <thead>
-        <tr style="background-color: #ffff; text-align: center;">
-          <th style="padding: 20px 0;">
-            <img src="https://s3-alpha-sig.figma.com/img/ab61/d6d9/8fae1e02f5ed9616fd7c45a6867ca0cc?Expires=1736726400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=hD339LqFecLfKadoOII-UpYGFyT6EgPlqyhgkQBkf8QZXRm-iy9-hyZeftTJXiIaNteKAesrGjoZ-bPwXl-d3hA0KCRS64x2WU3WVkYCNA53uNlltpLxf1xReC5fNi3BNVv11v-vNIdDxooWaDj37Tz5E9OMSuWMytXeGmWsUCrZHv0VRPmJXxwheauZQ4Uz0fS7z0XH~mbRDThi33sI6ePlaoHUBTp35hbsUaxzVT70XLkpO4rkjckfb5zRBo55VnakwtKIGnhbXAG331jOjvC1fbj4L7KDqYXJCOLAjN6mL4SXZPnjLJmfvtqXxaNaHk4xtwTqfOb4hsjpFm~rfQ__"
-            alt="Clinica San Miguel" style="max-width: 250px;">
-          </th>
-        </tr>
-      </thead>
       ${emailBody}
     </table>
   </body>

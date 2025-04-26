@@ -6,6 +6,9 @@ import { Textarea } from 'flowbite-react';
 import { supabase } from '@/supabaseClient';
 import { toast } from 'react-toastify';
 import { useParams, useRouter } from 'next/navigation';
+import { sendEmail } from '@/utils/emailService';
+import { EmailBodyTempEnum } from '@/utils/emailService/templateDetails';
+import { useLocale } from 'next-intl';
 
 const initialForm = {
   rating: 0,
@@ -18,8 +21,10 @@ const PatientFeedback = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true); // State to manage fetching
+  const [patientDetails, setPatientDetails] = useState<any>(null);
   const route = useRouter();
   const { id } = useParams();
+  const locale = useLocale();
 
   // Function to fetch order details by ID
   const fetchOrderDetails = async () => {
@@ -36,6 +41,21 @@ const PatientFeedback = () => {
       }
 
       setOrderDetails(data);
+
+      // Fetch patient details
+      if (data.patient_id) {
+        const { data: patientData, error: patientError } = await supabase
+          .from('pos')
+          .select('*')
+          .eq('id', data.patient_id)
+          .single();
+
+        if (patientError) {
+          throw patientError;
+        }
+
+        setPatientDetails(patientData);
+      }
     } catch (err) {
       setError('Order not found or an error occurred while fetching order details.');
     } finally {
@@ -59,6 +79,36 @@ const PatientFeedback = () => {
     setError('');
   };
 
+  // Generate a unique promo code
+  const generatePromoCode = async () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const prefix = 'FBK';
+    let isUnique = false;
+    let code = '';
+    
+    // Keep generating codes until we find a unique one
+    while (!isUnique) {
+      code = prefix;
+      
+      for (let i = 0; i < 6; i++) {
+        code += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      
+      // Check if this code already exists in the database
+      const { data, error } = await supabase
+        .from('promocodes')
+        .select('id')
+        .eq('code', code);
+      
+      // If no data returned or empty array, the code is unique
+      if (!error && (!data || data.length === 0)) {
+        isUnique = true;
+      }
+    }
+    
+    return code;
+  };
+
   // Function to submit the feedback
   const submitHandle = async () => {
     const { rating, feedback_text } = formData;
@@ -72,26 +122,111 @@ const PatientFeedback = () => {
     // Proceed with submission to Supabase
     setError('');
     setLoading(true);
-    const postData = {
-      rating,
-      feedback_text,
-      order_id: id,
-      patient_id: orderDetails.patient_id // This should ideally come from user context or props
-    };
-
+    
     try {
-      const { data, error } = await supabase
+      // 1. Insert feedback
+      const postData = {
+        rating,
+        feedback_text,
+        order_id: id,
+        patient_id: orderDetails.patient_id
+      };
+
+      const { data: feedbackData, error: feedbackError } = await supabase
         .from('feedback')
         .insert([postData])
         .select();
 
-      if (error) {
-        throw error;
+      if (feedbackError) {
+        throw feedbackError;
       }
 
-      route.push('/feedback/success');
+      // 2. Get feedback promocode type id and percentage
+      const { data: promoTypeData, error: promoTypeError } = await supabase
+        .from('promotype')
+        .select('id, percentage')
+        .eq('typename', 'Feedback')
+        .single();
+
+      if (promoTypeError) {
+        throw promoTypeError;
+      }
+
+      // Store the percentage for email and redirect
+      const discountPercentage = promoTypeData.percentage || 10; // Default to 10% if not set
+
+      // 3. Generate and insert promocode (with guaranteed uniqueness)
+      const promoCode = await generatePromoCode();
+      const promoData = {
+        code: promoCode,
+        type: promoTypeData.id,
+        assign: orderDetails.patient_id
+      };
+
+      const { data: promocodeData, error: promocodeError } = await supabase
+        .from('promocodes')
+        .insert([promoData])
+        .select();
+
+      if (promocodeError) {
+        throw promocodeError;
+      }
+
+      // 4. Update order with promocode_id
+      const { error: orderUpdateError } = await supabase
+        .from('orders')
+        .update({ promo_code_id: promocodeData[0].id })
+        .eq('order_id', id);
+
+      if (orderUpdateError) {
+        throw orderUpdateError;
+      }
+
+      // 5. Send email with promocode
+      if (patientDetails && patientDetails.email) {
+        // Fetch location details if needed
+        const { data: locationData, error: locationError } = await supabase
+          .from('Locations')
+          .select('*')
+          .eq('id', patientDetails.locationid)
+          .single();
+
+        let locationDetails = {
+          title: 'Clinica San Miguel',
+          address: 'Main Address',
+          phone: '1-800-CLINICA'
+        };
+
+        if (!locationError && locationData) {
+          locationDetails = {
+            title: locationData.title || 'Clinica San Miguel',
+            address: locationData.address || 'Main Address',
+            phone: locationData.phone || '1-800-CLINICA'
+          };
+        }
+
+        await sendEmail({
+          lang: locale as any,
+          emailType: EmailBodyTempEnum.FEEDBACK_SUBMISSION_SUCCESS,
+          data: {
+            email: patientDetails.email,
+            name: `${patientDetails.firstname || ''} ${patientDetails.lastname || ''}`.trim(),
+            location: locationDetails,
+            service: patientDetails.treatmenttype || 'Medical Services',
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString(),
+            promoCode: promoCode,
+            discountPercentage: discountPercentage
+          }
+        });
+      }
+
+      // 6. Show success toast and redirect to home page
+      toast.success(`Thank you for your feedback! A ${discountPercentage}% discount code has been sent to your email.`);
+      route.push(`/${locale}`);
       clearFormHandle(); // Reset the form
-    } catch (err) {
+    } catch (err: any) {
+      console.error('Error:', err);
       setError('An error occurred while submitting feedback. Please try again.');
     } finally {
       setLoading(false);

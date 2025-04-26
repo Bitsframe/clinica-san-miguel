@@ -12,18 +12,22 @@ export interface EmailBodyInterface {
 
   oldDate?: string;
   oldTime?: string;
+  promoCode?: string;
+  discountPercentage?: number;
 }
 
 export enum EmailBodyTempEnum {
   APPOINTMENT_CONFIRMATION = "appointmentConfirmation",
   UPDATE_TO_YOUR_APPOINTMENT_DETAILS = 'updateToYourAppointmentDetails',
-  CONFIRMATION_OF_FORM_SUBMISSION = 'confirmationOfFormSubmission'
+  CONFIRMATION_OF_FORM_SUBMISSION = 'confirmationOfFormSubmission',
+  FEEDBACK_SUBMISSION_SUCCESS = 'feedbackSubmissionSuccess'
 }
 
 export const emailFromDetails = {
   [EmailBodyTempEnum.APPOINTMENT_CONFIRMATION]: 'Appoinment@alerts.myclinicmd.com',
   [EmailBodyTempEnum.UPDATE_TO_YOUR_APPOINTMENT_DETAILS]: 'Appoinment@alerts.myclinicmd.com',
   [EmailBodyTempEnum.CONFIRMATION_OF_FORM_SUBMISSION]: 'POS@alerts.myclinicmd.com',
+  [EmailBodyTempEnum.FEEDBACK_SUBMISSION_SUCCESS]: 'Feedback@alerts.myclinicmd.com'
 }
 
 export interface EmailContent {
@@ -55,7 +59,7 @@ export const emailBodyContent: EmailBodyContent = {
                     <li>Date: <strong>${date}</strong></li>
                     <li>Time: <strong>${time}</strong></li>
                   </ul>
-                  <p>Our team looks forward to welcoming you and ensuring you receive the best care possible. If you have any questions or need to make changes to your appointment, please don’t hesitate to contact us at <a href="mailto:contact@clinicsanmiguel.com">contact@clinicsanmiguel.com</a> or at ${location.phone}.</p>
+                  <p>Our team looks forward to welcoming you and ensuring you receive the best care possible. If you have any questions or need to make changes to your appointment, please don't hesitate to contact us at <a href="mailto:contact@clinicsanmiguel.com">contact@clinicsanmiguel.com</a> or at ${location.phone}.</p>
                   <p>Thank you for trusting us with your care.</p>
                   <p>Best regards,<br><strong>Clinica San Miguel Team</strong></p>
                 </td>
@@ -79,7 +83,7 @@ export const emailBodyContent: EmailBodyContent = {
                         <li>Date: <strong>${date}</strong></li>
                         <li>Time: <strong>${time}</strong></li>
                     </ul>
-                    <p>Our team looks forward to welcoming you and ensuring you receive the best care possible. If you have any questions or need to make changes to your appointment, please don’t hesitate to contact us at <a href="mailto:contact@clinicsanmiguel.com">contact@clinicsanmiguel.com</a> or at ${location.phone}.</p>
+                    <p>Our team looks forward to welcoming you and ensuring you receive the best care possible. If you have any questions or need to make changes to your appointment, please don't hesitate to contact us at <a href="mailto:contact@clinicsanmiguel.com">contact@clinicsanmiguel.com</a> or at ${location.phone}.</p>
                     <p>Thank you for trusting us with your care.</p>
                     <p>Best regards,<br><strong>Clinica San Miguel Team</strong></p>
                 </td>
@@ -101,12 +105,52 @@ export const emailBodyContent: EmailBodyContent = {
                 <li>Location: <strong>${location.title}, ${location.address}</strong></li>
                 <li>Service: <strong>${service}</strong></li>
               </ul>
-              <p>Our team looks forward to welcoming you and ensuring you receive the best care possible. If you have any questions or need to make changes to your appointment, please don’t hesitate to contact us at <a href="mailto:contact@clinicsanmiguel.com">contact@clinicsanmiguel.com</a> or at ${location.phone}.</p>
+              <p>Our team looks forward to welcoming you and ensuring you receive the best care possible. If you have any questions or need to make changes to your appointment, please don't hesitate to contact us at <a href="mailto:contact@clinicsanmiguel.com">contact@clinicsanmiguel.com</a> or at ${location.phone}.</p>
               <p>Thank you for trusting us with your care.</p>
               <p>Best regards,<br><strong>Clinica San Miguel Team</strong></p>
             </td>
           </tr>
         </tbody>`;
+      },
+    },
+    [EmailBodyTempEnum.FEEDBACK_SUBMISSION_SUCCESS]: {
+      subject: "Thank You for Your Feedback - Enjoy Discount on Your Next Visit!",
+      body: (data: EmailBodyInterface): string => {
+        const { name, promoCode, location, discountPercentage = 10 } = data;
+        return `
+            <tbody>
+              <tr>
+                <td style="padding: 20px;">
+                  <div style="margin-bottom: 20px;">
+                    <img src="https://myclinicmd.com/assets/discount-icon.png" alt="Discount Icon" style="width: 80px;">
+                  </div>
+                  <h1 style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 16px;">
+                    Thank You for Your Feedback – Enjoy ${discountPercentage}% Off on Your Next Visit!
+                  </h1>
+                  <p>Dear <strong>${name}</strong>,</p>
+                  <p>
+                    We sincerely appreciate you taking the time to share your feedback with us. 
+                    Your input helps us improve and deliver the best possible care at Clínica San Miguel.
+                  </p>
+                  <p>
+                    As a token of our gratitude, we are pleased to offer you <strong>${discountPercentage}% off</strong> 
+                    on your next visit! Simply use the promo code <strong>${promoCode}</strong> 
+                    when you schedule your appointment or make your next purchase.
+                  </p>
+                  <p>
+                    We look forward to welcoming you back soon!
+                  </p>
+                  <p>
+                    Warm regards,<br />
+                    Team,<br />
+                    <strong>Clínica San Miguel</strong>
+                  </p>
+                  <div style="margin-top: 32px; color: #666;">
+                    Manage by MyClinicMD
+                  </div>
+                </td>
+              </tr>
+            </tbody>`;
       },
     },
   },
@@ -201,6 +245,46 @@ export const emailBodyContent: EmailBodyContent = {
             </td>
           </tr>
         </tbody>`;
+      },
+    },
+    [EmailBodyTempEnum.FEEDBACK_SUBMISSION_SUCCESS]: {
+      subject: "Gracias por su Comentario - ¡Disfrute de Descuento en su Próxima Visita!",
+      body: (data: EmailBodyInterface): string => {
+        const { name, promoCode, location, discountPercentage = 10 } = data;
+        return `
+            <tbody>
+              <tr>
+                <td style="padding: 20px;">
+                  <div style="margin-bottom: 20px;">
+                    <img src="https://s3-alpha-sig.figma.com/img/ab61/d6d9/8fae1e02f5ed9616fd7c45a6867ca0cc?Expires=1736726400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=hD339LqFecLfKadoOII-UpYGFyT6EgPlqyhgkQBkf8QZXRm-iy9-hyZeftTJXiIaNteKAesrGjoZ-bPwXl-d3hA0KCRS64x2WU3WVkYCNA53uNlltpLxf1xReC5fNi3BNVv11v-vNIdDxooWaDj37Tz5E9OMSuWMytXeGmWsUCrZHv0VRPmJXxwheauZQ4Uz0fS7z0XH~mbRDThi33sI6ePlaoHUBTp35hbsUaxzVT70XLkpO4rkjckfb5zRBo55VnakwtKIGnhbXAG331jOjvC1fbj4L7KDqYXJCOLAjN6mL4SXZPnjLJmfvtqXxaNaHk4xtwTqfOb4hsjpFm~rfQ__" alt="Icono de Descuento" style="width: 80px;">
+                  </div>
+                  <h1 style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 16px;">
+                    Gracias por su Comentario – ¡Disfrute de un ${discountPercentage}% de Descuento en su Próxima Visita!
+                  </h1>
+                  <p>Estimado/a <strong>${name}</strong>,</p>
+                  <p>
+                    Agradecemos sinceramente que se haya tomado el tiempo de compartir su opinión con nosotros.
+                    Sus comentarios nos ayudan a mejorar y brindar la mejor atención posible en Clínica San Miguel.
+                  </p>
+                  <p>
+                    ¡Como muestra de nuestro agradecimiento, nos complace ofrecerle un <strong>${discountPercentage}% de descuento</strong>
+                    en su próxima visita! Simplemente use el código promocional <strong>${promoCode}</strong>
+                    cuando programe su cita o realice su próxima compra.
+                  </p>
+                  <p>
+                    ¡Esperamos darle la bienvenida pronto!
+                  </p>
+                  <p>
+                    Saludos cordiales,<br />
+                    Equipo,<br />
+                    <strong>Clínica San Miguel</strong>
+                  </p>
+                  <div style="margin-top: 32px; color: #666;">
+                    Administrado por MyClinicMD
+                  </div>
+                </td>
+              </tr>
+            </tbody>`;
       },
     },
   },

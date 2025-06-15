@@ -255,10 +255,11 @@ const Self_Appointment = ({ location }: any) => {
 
 
         const postData = {
-            ...appointmentDetails
+            ...appointmentDetails,
+            onsite: true
         }
         const { data, error } = await supabase
-            .from("pos")
+            .from("allpatients")
             .insert([postData])
             .select();
 

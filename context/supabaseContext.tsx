@@ -204,7 +204,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchDataCallback("Mission", setMission);
     fetchDataCallback("Mission_es", setMission_es);
     fetchDataCallback("Blog", setBlogs);
-    fetchDataCallback("Additional_Services", setAdditionalServices);
+    // fetchDataCallback("Additional_Services", setAdditionalServices);
     fetchDataCallback("FAQs", setFaqs);
     fetchDataCallback("FAQs_es", setFaqs_es);
     fetchDataCallback("Hero_Section", setHeroSection);

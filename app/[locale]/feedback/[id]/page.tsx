@@ -45,7 +45,7 @@ const PatientFeedback = () => {
       // Fetch patient details
       if (data.patient_id) {
         const { data: patientData, error: patientError } = await supabase
-          .from('pos')
+          .from('allpatients')
           .select('*')
           .eq('id', data.patient_id)
           .single();

@@ -110,7 +110,7 @@ export const GroupedLocations = () => {
             </div>
 
             <article className="flex flex-col items-start justify-start gap-5 pr-2 overflow-auto w-full max-w-[83%]
-  max-h-[60vh] sm:max-h-[55vh] md:max-h-[50vh] lg:max-h-[45vh] xl:max-h-[55vh]">
+  max-h-[60vh] sm:max-h-[55vh] md:max-h-[50vh] lg:max-h-[45vh] xl:max-h-[80vh]">
 
 
 

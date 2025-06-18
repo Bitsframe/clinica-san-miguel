@@ -27,12 +27,13 @@ export default function Home({
         <HeroTopSection />
       </div>
       <GroupedLocations />
+      <Treatments />
       <AboutProfessionals />
       <Hero />
       <Testimonials headingFlag={true} mode={"dark"} />
       <CommunityMission />
       <AboutSection />
-      <Treatments />
+      
       <Locations />
       <FAQs />
     </main>

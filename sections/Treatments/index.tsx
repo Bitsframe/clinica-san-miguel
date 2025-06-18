@@ -64,18 +64,18 @@ export const Treatments = () => {
   const data = locale === "es" ? services_es : services;
 
   return (
-    <section className="flex flex-col  justify-center gap-10 my-[5%] mx-14 w-[100vw] md:w-[96vw] lg:w-[95vw] xl:w-[75vw]">
-      <article className="flex w-full flex-col gap-5 items-center">
-        <h1 className={`${styles.sectionHeadText} text-[#C1001F]`}>
-          {t("treatments_title")}
-        </h1>
-        <p className={`${styles.sectionSubText} text-[#19192C]`}>
-          &quot;
-          {t("treatments_sub_title")}
-          &quot;
-        </p>
-      </article>
-      <Link href={"/services"}>
+    <section className="flex flex-col justify-center gap-10 my-[5%] mx-0 px-4 md:px-8 lg:px-10 xl:px-0 w-[100vw] md:w-[96vw] lg:w-[95vw] xl:w-[75vw] mx-auto bg-red-500">
+  <article className="flex w-full flex-col gap-5 items-start text-left">
+    <h1 className="text-[40px] font-semibold leading-[100%] tracking-[0] text-[#1B2432] font-[Inter]">
+      {t("treatments_title")}
+      <br />
+      {t("treatments_title2")}
+    </h1>
+    <p className="text-[16px] font-normal leading-[100%] tracking-[0] text-[#6C7582] font-[Poppins]">
+      {t("treatments_sub_title")}
+    </p>
+  </article>
+      {/* <Link href={"/services"}>
         <div className="flex justify-end items-end flex-col mr-10">
           <p className="text-[14px] text-[#626262] font-poppins">View more</p>
           <Image
@@ -84,7 +84,7 @@ export const Treatments = () => {
             className="w-[75px] aspect-auto"
           />
         </div>
-      </Link>
+      </Link> */}
       <div className="w-[100vw] md:w-[96vw] lg:w-[95vw] xl:w-[75vw] block justify-center h-auto mx-auto my-10">
         {/* @ts-ignore */}
         <Slider {...settings}>

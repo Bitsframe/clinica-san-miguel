@@ -75,20 +75,20 @@ export const HeroTopSection = () => {
   return (
     <main className="flex flex-col relative gap-6 w-[100vw]">
 <article className="w-full min-h-screen m-0 px-4">
-  <div className="relative w-full h-[100vh] overflow-hidden rounded-3xl">
-    {/* Gradient Overlay */}
-    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-10 rounded-2xl" />
+  <div className="relative w-full h-[80vh] sm:h-[90vh] md:h-[100vh] overflow-hidden rounded-3xl">
+  {/* Gradient Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent z-10 rounded-3xl" />
 
-    {/* Background Image */}
-    <Image
-      src={HomeBackground}
-      alt="Home Background"
-      fill
-      sizes="100vw"
-      priority
-      className="object-cover rounded-2xl"
-    />
-  </div>
+  {/* Background Image */}
+  <Image
+    src={HomeBackground}
+    alt="Home Background"
+    fill
+    sizes="100vw"
+    priority
+    className="object-cover rounded-3xl"
+  />
+</div>
 
         {/* <article className="w-full md:w-1/2 flex justify-start order-1 md:order-2">
           <div className="w-[100%]  flex flex-col items-center justify-center gap-5">

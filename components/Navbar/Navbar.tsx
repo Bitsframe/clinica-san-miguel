@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Link } from "@/navigation";
 import Hamburger from "hamburger-react";
 import { Logo } from "@/assets/images";
+import { Globe } from "@/assets/images";
 import { useRouter } from "next/navigation";
 import LanguageChanger from "../LanguageChanger";
 import { useLocale, useTranslations } from "next-intl";
@@ -81,9 +82,24 @@ export const Navbar = () => {
       )}
 
       <div className="flex gap-4 sm:gap-7 items-center">
-        <div className="z-50">
-          <LanguageChanger locale={locale} />
-        </div>
+        <div className="flex items-center space-x-4">
+  {/* Globe Icon in Circle */}
+  <div className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full">
+    <Image
+      src={Globe}
+      alt="Globe"
+      width={18}
+      height={18}
+    />
+  </div>
+
+  {/* Book Button */}
+  <button className="bg-[#C1001F] text-white font-medium text-[15px] leading-[100%] tracking-[0] font-poppins px-12 py-6 rounded-full hover:bg-red-700 transition">
+    Book Your Visit
+  </button>
+</div>
+
+        
         <div className="z-50 tablet:hidden">
           <Hamburger toggled={isOpen} toggle={setOpen} size={20} />
         </div>

@@ -1,3 +1,4 @@
+"use client";
 import { direction } from "@/assets/images";
 import { Button, OutlinedButton } from "@/utils";
 import Image from "next/image";

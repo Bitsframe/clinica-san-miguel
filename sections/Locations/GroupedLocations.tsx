@@ -59,23 +59,49 @@ export const GroupedLocations = () => {
 
   return (
     <main className="flex flex-col relative gap-6 my-10 p-3 w-[100vw] md:w-[90vw] lg:w-[85vw] xl:w-[75vw]">
-      <h1 className={`${styles.sectionHeadText} text-[#C1001F] `}>
-        {t("section2_title")}
+      <h1 className="font-inter font-semibold text-[40px] leading-[100%] tracking-[0] text-[#1B2432]">
+        {t("section2_title2")}
       </h1>
 
-      <section className="flex w-full justify-center flex-col gap-3 lg:gap-0 lg:flex-row">
-        <article className="flex justify-end w-full lg:w-1/2">
+      <p className="font-poppins font-normal text-[16px] leading-[130%] tracking-[0] text-[#6B7280]">
+         {t("section2_p1")}
+        <br />
+        
+        {t("section2_p2")}
+      </p>
+
+      <section className="flex w-full justify-center flex-col gap-3 lg:gap-0 lg:flex-row bg-[#F4F5F6]">
+        <article className="flex justify-end w-full lg:w-1/2 ">
           <article className="flex flex-col items-center lg:items-start gap-6 w-full">
-            <div className="flex justify-start gap-3 items-center">
+            {/* Input Field - Now Above Tabs */}
+      <div className="w-full sm:w-[90%] md:w-[80%] lg:w-[75%] py-6">
+        <input
+          type="text"
+          placeholder="Search clinics near by you..."
+           className="w-full bg-[#FFFFFF] text-[#6C7582] placeholder-[#6C7582] font-poppins font-normal text-[16px] leading-[100%] tracking-[0] px-4 py-3 rounded-xl border border-white focus:ring-0 focus:outline-none shadow-sm"
+        />
+      </div>
+
+
+
+
+
+           <div className="flex justify-start items-center gap-3">
+    
+
               {tabs.map((tab, index) => (
                 <div
                   key={tab.id}
-                  className="rounded-lg py-[5px] px-[6px] text-[20px] font-semibold cursor-pointer"
-                  style={{
-                    background:
-                      selectedTab === tab.value ? "#C1001F" : "#D9D9D9",
-                    color: selectedTab === tab.value ? "#F8F5F0" : "#C1001F",
-                  }}
+                  className={`rounded-full 
+                    py-2 sm:py-2.5 md:py-3 
+                    px-3 sm:px-4 md:px-5 
+                    text-sm sm:text-base md:text-[1rem] 
+                    font-normal text-center leading-none 
+                    font-poppins cursor-pointer`}
+                    style={{
+                      background: selectedTab === tab.value ? "#C1001F" : "#FFFFFF",
+                      color: selectedTab === tab.value ? "#F8F5F0" : "#6C7582",
+                    }}
                   onClick={() => handleTabChange(tab.value)}
                 >
                   {tab.name}
@@ -83,7 +109,11 @@ export const GroupedLocations = () => {
               ))}
             </div>
 
-            <article className="flex flex-col items-start justify-start gap-5 pr-2 overflow-auto max-h-[500px]">
+            <article className="flex flex-col items-start justify-start gap-5 pr-2 overflow-auto w-full max-w-[83%]
+  max-h-[60vh] sm:max-h-[55vh] md:max-h-[50vh] lg:max-h-[45vh] xl:max-h-[55vh]">
+
+
+
               {locationData?.map((location, index) => (
                 <LocationDetailedCard
                   key={location.id}

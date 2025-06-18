@@ -9,10 +9,10 @@ export default function RootLayout({
   // const router = useRouter()
   return (
     <main>
-      <article className="h-[43px] w-full bg-[#19192C] flex justify-center items-center text-[12px] sm:text-[16px] text-center text-[#F8F5F0]">
-        {/* {t("common:language_selection_description")} */}
+      {/* <article className="h-[43px] w-full bg-[#19192C] flex justify-center items-center text-[12px] sm:text-[16px] text-center text-[#F8F5F0]">
+        {t("common:language_selection_description")}
         <RenderTicker />
-      </article>
+      </article> */}
       <Navbar />
       {children}
       <Footer />

@@ -12,6 +12,7 @@ import {
   Locations,
   Testimonials,
   Treatments,
+  WeCare
 } from "@/sections";
 
 export default function Home({
@@ -28,12 +29,12 @@ export default function Home({
       </div>
       <GroupedLocations />
       <Treatments />
+      <CommunityMission />
+      <WeCare />
       <AboutProfessionals />
       <Hero />
       <Testimonials headingFlag={true} mode={"dark"} />
-      <CommunityMission />
       <AboutSection />
-      
       <Locations />
       <FAQs />
     </main>

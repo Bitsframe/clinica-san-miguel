@@ -10,6 +10,7 @@ import { Services } from "./Services";
 import { Blog } from "./Blog";
 import { FAQs } from "./FAQs";
 import { AboutProfessionals } from "./About/AboutProfessionals";
+import { WeCare } from "./WeCare"
 
 export {
   Testimonials,
@@ -25,4 +26,6 @@ export {
   Blog,
   FAQs,
   AboutProfessionals,
+  WeCare,
+
 };

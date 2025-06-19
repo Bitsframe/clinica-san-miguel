@@ -19,6 +19,7 @@
     "hamburger-react": "^2.5.0",
     "i18next": "^23.10.1",
     "i18next-resources-to-backend": "^1.2.0",
+    "lucide-react": "^0.518.0",
     "moment": "^2.30.1",
     "next": "^15.3.3",
     "next-i18n-router": "^5.3.1",

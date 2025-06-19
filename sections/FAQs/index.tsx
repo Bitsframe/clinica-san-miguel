@@ -3,12 +3,11 @@
 import { styles } from "@/app/[locale]/styles";
 import { useSupabase } from "@/context/supabaseContext";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { IoIosArrowUp } from "react-icons/io";
-import { IoIosArrowDown } from "react-icons/io";
+import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 
+// Accordion item component
 const AccordionItem = ({
   question,
   answer,
@@ -21,45 +20,35 @@ const AccordionItem = ({
   toggleAccordion: () => void;
 }) => {
   return (
-    <div
-      className={`bg-[#C1001F] w-full flex justify-end rounded-[2px] relative`}
-    >
-      <div
-        className={`bg-[#19192C] w-[99.5%] p-4 pr-7 rounded-[2px] transition-all delay-75 ease-in-out flex flex-col justify-center items-start`}
+    <div className="w-full rounded-md bg-[#E1E3E6] border border-[#D1D5DB] shadow-sm transition-all">
+      <button
         onClick={toggleAccordion}
+        className="w-full flex justify-between items-center p-4 text-left"
       >
-        <div className="cursor-pointer bg-transparent px-2 py-3 rounded-md">
-          <div className="flex justify-between items-center">
-            <h4
-              className={`text-[18px] font-poppins font-semibold text-[#F8F5F0]`}
-            >
-              {question}
-            </h4>
-            {isOpen ? (
-              <IoIosArrowUp className="text-[16px] text-[#F8F5F0] absolute right-5" />
-            ) : (
-              <IoIosArrowDown className="text-[16px] text-[#F8F5F0] absolute right-5" />
-            )}
-          </div>
-        </div>
-        {isOpen && (
-          <div
-            className={`mt-2 text-[16px] px-2 py-3 font-poppins transition-all delay-75 ease-in-out text-[#F8F5F0]`}
-          >
-            {answer}
-          </div>
+        <h4 className="text-[16px] font-poppins font-medium text-[#0D0D28]">
+          {question}
+        </h4>
+        {isOpen ? (
+          <IoIosArrowUp className="text-[16px] text-[#0D0D28]" />
+        ) : (
+          <IoIosArrowDown className="text-[16px] text-[#0D0D28]" />
         )}
-      </div>
+      </button>
+      {isOpen && (
+        <div className="px-4 pb-4 text-[15px] text-[#444] font-poppins transition-all">
+          {answer}
+        </div>
+      )}
     </div>
   );
 };
 
+// Main FAQs component
 export const FAQs = () => {
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
 
   const t = useTranslations("home");
   const locale = useLocale();
-
   const { faqs, faqs_es } = useSupabase();
 
   const data = locale === "es" ? faqs_es : faqs;
@@ -69,14 +58,14 @@ export const FAQs = () => {
   };
 
   return (
-    <section className="flex w-full flex-col items-center py-[4%]">
-      <h1 className={`${styles.sectionHeadText} text-[#C1001F]`}>
-        {t("faqs_title")}
+    <section className="flex w-full flex-col items-center py-[4%] bg-[#F4F5F6]">
+      <h1 className={`${styles.sectionHeadText} text-[#0D0D28]`}>
+        Frequently Asked Questions
       </h1>
-      <h3 className={`${styles.sectionSubText}  text-[#000000]`}>
-        {t("faqs_sub_title")}
+       <h3 className="text-base text-[#606877] text-center max-w-xl mt-2 leading-relaxed">
+        Have questions about your visit? Need health tips? Explore our resources to feel prepared and supported.
       </h3>
-      <div className="flex flex-col w-[80%] items-center gap-6 my-5">
+      <div className="flex flex-col w-full max-w-2xl gap-4 mt-10">
         {data &&
           data.map(
             (

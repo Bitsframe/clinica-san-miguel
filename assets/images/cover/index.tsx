@@ -7,6 +7,8 @@ import HomeBackground from "./HomeBackground.jpg";
 import mission from "./mission.jpg"
 import elderly_right from "./elderly-right.jpg";
 import elderly_left from "./elderly-left.jpg";
+import family from "./family.jpg"
+import doctor from "./doctors.jpg"
 
 export {
   career_cover,
@@ -18,5 +20,8 @@ export {
   mission,
   elderly_left,
   elderly_right,
+  family,
+  doctor,
   
+
 };

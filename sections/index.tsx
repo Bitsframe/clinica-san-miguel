@@ -11,6 +11,9 @@ import { Blog } from "./Blog";
 import { FAQs } from "./FAQs";
 import { AboutProfessionals } from "./About/AboutProfessionals";
 import { WeCare } from "./WeCare"
+import { PatientStories } from "./PatientStories"
+import { TrustedPartner } from "./TrustedPartner"
+import { AboveFooter } from "./AboveFooter";
 
 export {
   Testimonials,
@@ -27,5 +30,9 @@ export {
   FAQs,
   AboutProfessionals,
   WeCare,
+  PatientStories,
+  TrustedPartner,
+  AboveFooter,
+
 
 };

@@ -12,7 +12,11 @@ import {
   Locations,
   Testimonials,
   Treatments,
-  WeCare
+  WeCare,
+  PatientStories,
+  TrustedPartner,
+  AboveFooter,
+
 } from "@/sections";
 
 export default function Home({
@@ -31,12 +35,16 @@ export default function Home({
       <Treatments />
       <CommunityMission />
       <WeCare />
-      <AboutProfessionals />
-      <Hero />
-      <Testimonials headingFlag={true} mode={"dark"} />
-      <AboutSection />
-      <Locations />
+      <PatientStories />
+      <TrustedPartner />
+      
+      {/* <AboutProfessionals /> */}
+      {/* <Hero /> */}
+      {/* <Testimonials headingFlag={true} mode={"dark"} /> */}
+      {/* <AboutSection /> */}
+      {/* <Locations /> */}
       <FAQs />
+      <AboveFooter />
     </main>
   );
 }

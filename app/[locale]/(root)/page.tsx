@@ -28,7 +28,7 @@ export default function Home({
 
   return (
     <main className="flex flex-col justify-center items-center overflow-x-hidden gap-10">
-      <div className="w-full bg-[#F1F1F1]">
+      <div className="w-full bg-[#FFFFFF]">
         <HeroTopSection />
       </div>
       <GroupedLocations />

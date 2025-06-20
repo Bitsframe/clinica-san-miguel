@@ -1,17 +1,23 @@
+// GroupedLocations.tsx
 "use client";
 
 import { styles } from "@/app/[locale]/styles";
 import { locationCover } from "@/assets/images/cover";
 import { LocationDetailedCard } from "@/components";
-import { GroupedMap } from "@/components/Map";
+import { GroupedMap, Map } from "@/components/Map";
 import { useSupabase } from "@/context/supabaseContext";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const MapModal = dynamic(() => import("@/components/MapModal"), { ssr: false });
 
 export const GroupedLocations = () => {
   const t = useTranslations("home");
   const [selectedTab, setSelectedTab] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalLocation, setModalLocation] = useState<string | null>(null);
 
   const tabs = [
     {
@@ -57,6 +63,16 @@ export const GroupedLocations = () => {
     }
   }, [locations, selectedTab, searchedData]);
 
+  const handleOpenMap = (location: string) => {
+    setModalLocation(location);
+    setShowModal(true);
+  };
+
+  const handleCloseMap = () => {
+    setShowModal(false);
+    setModalLocation(null);
+  };
+
   return (
     <main className="flex flex-col relative gap-4 my-2 p-1 w-[100vw] md:w-[90vw] lg:w-[85vw] xl:w-[75vw]">
       <h1 className="font-inter font-semibold text-[40px] leading-[100%] tracking-[0] text-[#1B2432]">
@@ -87,17 +103,10 @@ export const GroupedLocations = () => {
               {tabs.map((tab) => (
                 <div
                   key={tab.id}
-                  className={`rounded-full 
-                    py-2 sm:py-2.5 md:py-3 
-                    px-3 sm:px-4 md:px-5 
-                    text-sm sm:text-base md:text-[1rem] 
-                    font-normal text-center leading-none 
-                    font-poppins cursor-pointer`}
+                  className={`rounded-full py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 text-sm sm:text-base md:text-[1rem] font-normal text-center leading-none font-poppins cursor-pointer`}
                   style={{
-                    background:
-                      selectedTab === tab.value ? "#C1001F" : "#FFFFFF",
-                    color:
-                      selectedTab === tab.value ? "#F8F5F0" : "#6C7582",
+                    background: selectedTab === tab.value ? "#C1001F" : "#FFFFFF",
+                    color: selectedTab === tab.value ? "#F8F5F0" : "#6C7582",
                   }}
                   onClick={() => handleTabChange(tab.value)}
                 >
@@ -115,6 +124,7 @@ export const GroupedLocations = () => {
                   address={location.address}
                   name={location.title}
                   phone={location.phone}
+                  onMapClick={() => handleOpenMap(location.direction)}
                 />
               ))}
             </article>
@@ -126,12 +136,14 @@ export const GroupedLocations = () => {
           <GroupedMap
             height={600}
             width={400}
-            location={
-              tabs.find((tab) => tab.value === selectedTab)?.location
-            }
+            location={tabs.find((tab) => tab.value === selectedTab)?.location || ""}
           />
         </article>
       </section>
+
+      {showModal && modalLocation && (
+        <MapModal location={modalLocation} onClose={handleCloseMap} />
+      )}
     </main>
   );
 };

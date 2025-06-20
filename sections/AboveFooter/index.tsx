@@ -2,17 +2,12 @@
 
 import Image from "next/image";
 import { AiFillStar } from "react-icons/ai";
-import { mission } from "@/assets/images/cover";
-import { elderly_left } from "@/assets/images/cover"
-import { elderly_right } from "@/assets/images/cover"
-import { family } from "@/assets/images/cover"
-import { HomeBackground } from "@/assets/images/cover"
-import { doctor } from "@/assets/images/cover"
+import { mission, elderly_left, elderly_right, family, HomeBackground, doctor } from "@/assets/images/cover";
 
 export function AboveFooter() {
   return (
-    <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center">
-      <div className="relative w-full max-w-7xl bg-[#0F172A] text-white rounded-2xl px-8 py-10 overflow-hidden">
+    <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center overflow-visible mt-20">
+      <div className="relative w-full max-w-7xl bg-[#0F172A] text-white rounded-2xl px-8 py-10 overflow-visible">
         {/* Text Content */}
         <div className="max-w-xl z-10 relative">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
@@ -44,12 +39,36 @@ export function AboveFooter() {
         </div>
 
         {/* Floating Images */}
-        <Image src={family} alt="img1" className="absolute top-4 right-[10%] w-20 h-20 object-cover rounded-xl" />
-        <Image src={mission} alt="img2" className="absolute top-4 right-[2%] w-20 h-20 object-cover rounded-xl" />
-        <Image src={HomeBackground} alt="img3" className="absolute top-[50%] right-[15%] w-14 h-14 object-cover rounded-xl" />
-        <Image src={doctor} alt="img4" className="absolute top-[45%] right-[5%] w-20 h-20 object-cover rounded-xl" />
-        <Image src={elderly_right} alt="img5" className="absolute bottom-4 right-[20%] w-20 h-20 object-cover rounded-xl" />
-        <Image src={elderly_left} alt="img6" className="absolute bottom-4 right-[5%] w-14 h-14 object-cover rounded-xl" />
+        <Image
+          src={elderly_left}
+          alt="img1"
+          className="absolute -top-4 right-[20%] w-24 h-24 object-cover rounded-xl"
+        />
+        <Image
+          src={family}
+          alt="img2"
+          className="absolute -top-8 right-[5%] w-36 h-40 object-cover rounded-xl"
+        />
+        <Image
+          src={mission}
+          alt="img3"
+          className="absolute top-[50%] right-[17%] w-14 h-14 object-cover rounded-xl"
+        />
+        <Image
+          src={elderly_right}
+          alt="img4"
+          className="absolute top-[52%] right-[5%] w-24 h-24 object-cover rounded-xl"
+        />
+        <Image
+          src={HomeBackground}
+          alt="img5"
+          className="absolute -bottom-6 right-[23%] w-24 h-24 object-cover rounded-xl"
+        />
+        <Image
+          src={doctor}
+          alt="img6"
+          className="absolute -bottom-6 right-[15%] w-16 h-16 object-cover rounded-xl"
+        />
       </div>
     </section>
   );

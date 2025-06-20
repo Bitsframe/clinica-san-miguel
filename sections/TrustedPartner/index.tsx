@@ -31,8 +31,7 @@ export function TrustedPartner() {
   ];
 
   return (
-    <section className="w-full max-w-[90vw] bg-gray-300 px-6 py-16 md:px-20 lg:px-32 rounded-lg mx-6">
-
+    <section className="w-full max-w-[90vw] bg-[#E1E3E6] px-6 py-16 md:px-20 lg:px-32 rounded-3xl mx-6 overflow-visible relative">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
         {/* LEFT SIDE */}
         <div>
@@ -62,28 +61,33 @@ export function TrustedPartner() {
         </div>
 
         {/* RIGHT SIDE IMAGES */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2 rounded-xl overflow-hidden">
+        <div className="grid grid-cols-2 gap-4 relative">
+          {/* Top full-width image */}
+          <div className="col-span-2 overflow-hidden -mt-32 rounded-xl h-[18.75rem] sm:h-[25rem] md:h-[31.25rem] lg:h-[37.5rem] xl:h-[30rem]">
             <Image
               src={family}
               alt="Family running"
-              className="w-full h-full object-cover rounded-xl"
+              className="w-full h-full object-cover rounded-xl shadow-md"
             />
           </div>
-          <div className="rounded-xl overflow-hidden">
-            <Image
-              src={mission}
-              alt="mission"
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </div>
-          <div className="w-[160px] h-[120px] rounded-xl overflow-hidden">
+
+          {/* Bottom-left image (moved down using absolute) */}
+        <div className="absolute left-0 -bottom-64 rounded-xl overflow-hidden w-[20rem] h-[10rem] sm:h-[12rem] md:h-[13.5rem] lg:h-[15rem]">
+          <Image
+            src={mission}
+            alt="Mission"
+            className="w-full h-full object-cover rounded-xl"
+          />
+        </div>
+
+          <div className="absolute right-0 -bottom-44 w-[6rem] h-[4rem] sm:w-[8rem] sm:h-[5rem] md:w-[15rem] md:h-[10rem] rounded-xl overflow-hidden">
             <Image
               src={elderly_right}
-              alt="elderly_right"
+              alt="Elderly"
               className="w-full h-full object-cover rounded-xl"
             />
           </div>
+    
         </div>
       </div>
     </section>

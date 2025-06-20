@@ -20,7 +20,7 @@ const AccordionItem = ({
   toggleAccordion: () => void;
 }) => {
   return (
-    <div className="w-full rounded-md bg-[#E1E3E6] border border-[#D1D5DB] shadow-sm transition-all">
+    <div className="w-full rounded-md bg-[#E1E3E6] border border-[#D1D5DB] shadow-sm transition-all ">
       <button
         onClick={toggleAccordion}
         className="w-full flex justify-between items-center p-4 text-left"
@@ -58,7 +58,7 @@ export const FAQs = () => {
   };
 
   return (
-    <section className="flex w-full flex-col items-center py-[4%] bg-[#F4F5F6]">
+    <section className="flex w-full flex-col items-center py-[4%] bg-[#F4F5F6] mt-20">
       <h1 className={`${styles.sectionHeadText} text-[#0D0D28]`}>
         Frequently Asked Questions
       </h1>

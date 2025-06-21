@@ -3,6 +3,8 @@
 import { styles } from "@/app/[locale]/styles";
 import { viewAllArrow } from "@/assets/images";
 import { Treatment } from "@/components";
+import { useEffect } from "react";
+
 
 // Slick Slider
 import "slick-carousel/slick/slick.css";
@@ -113,7 +115,7 @@ export const Treatments = () => {
                   type="button"
                   className="mt-6 inline-flex w-fit items-center gap-2 rounded-full border border-zinc-200 bg-gray-200 px-5 py-2 text-sm font-medium text-zinc-900 hover:bg-gray-300 transition"
                 >
-                  View Details
+                  {t("treatments_view_details")}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-4 w-4"
@@ -139,7 +141,7 @@ export const Treatments = () => {
   {/* CTA Button */}
   <div className="w-[90%] sm:w-[70%] md:w-[50%] lg:w-[35%] xl:w-[25%] mx-auto py-4">
     <button className="w-full h-[60px] bg-[#C1001F] hover:bg-[#a30019] text-white font-medium text-base rounded-full transition">
-      Explore All Services
+         {t("treatments_cta_button")}
     </button>
   </div>
 </section>

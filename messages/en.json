@@ -1,1 +1,68 @@
-{"appoinment_form":{"button_label":"Book now","form_f1":"Visit Type","form_f10":"Service","form_f1a":"In-Office Visit","form_f1b":"Virtual Visit","form_f2":"Are you a new or returning patient?\n","form_f2a":"new","form_f2b":"returning","form_f3":"First Name","form_f4":"Last Name","form_f5":"Email Address","form_f6":"Mobile Number","form_f7":"Date of Birth","form_f8":"Sex","form_f8a":"Male","form_f8b":"Female","form_f8c":"Other","form_f9":"Address","form_title":"Appointment Request","location_label":"Location","select_label":"Select","self_form_title":"Welcome to Clinic San Miguel!"},"Contact":{"main_title":"OUR LOCATIONS","sub_title":"Choose your preferred location","test_subtitle":"Real Stories, Real Impact: The Voice of Satisfied Clients","test_title":"Testimonials"},"services":{"s1":"DOT Test","s10":"Parental Care","s11":"EKG","s12":"Pap Smear","s13":"Diabetes","s14":"Dentist","s15":"Ingrown Toenail Removval","s16":"Primary Care","s17":"Ultrasound","s18":"Thyroid Care","s19":"Pregnancy Services","s2":"Immigration Medical Exams","s20":"School Physical","s21":"STD Test","s22":"Vitamin B-12","s23":"Abscess Drainage","s24":"Hypertension","s25":"High Cholestrol And Triglycerides","s3":"Wart Removal","s4":"Weight Loss Program","s5":"Blood Tests","s6":"Seniors","s7":"Ear Cleaning","s8":"Children Healthcare","s9":"PSA Test"},"location":{"str1":"Phone","str2":"Timings","str3":"Address","str4":"Testimonials","str5":"Our Services","str6":"Find us","str7":"Book an appoinment"},"home":{"community_mission_sub_title":"Our community","community_mission_title":"mission","faqs_sub_title":"Questions that are asked most frequently","faqs_title":"FAQ’s","hero_image_title":"Proper care, happy life.","hero_section_button":"Get Appointment","section1_button":"Book now!","section1_button1":"Book Your Visit","section1_button2":"Find a Clinic Near You","section1_h1":"Quality Care for Just $19 at Clinica San Miguel","section1_span":" 4.8/5 | 40+ Reviews","section1_p":"Affordable, compassionate care starts at just $19. No appointment needed, no insurance required.We’re here to help you feel your best, every step of the way.","section1_subtitle":"Experience affordable care at our clinic.","section1_title":"Office visits for only","section2_all":"All","section2_title":"Find Nearest Clinic","section2_title2":"Find Your Nearest Clinica San Miguel","section2_p1":"With 17 locations across Texas, quality care is always close by. Use our","section2_p2":" map or filter by city to find the clinic that’s right for you.","section3_text":"At Clinic San Miguel, our skilled healthcare professionals offer innovative preventive and general health treatments for maintaining healthy and vibrant lives. Patients of every age can receive comprehensive healthcare services to detect and prevent further issues before they develop. Through regular health check-ups and screenings, you can experience improved overall well-being, contributing to restorative and aesthetic results.","section3_title":"We care about you","treatments_sub_title":"Discover our most popular treatments, starting at just $19, designed to keep you and your family healthy.","treatments_title":"Revitalize Your Well-being with","treatments_title2":" Affordable, Trusted Care"},"career":{"career_description":"Thanks for your interest in job opportunities at Clinica San Miguel","career_sub_title":"Join Our Team!","career_title":"Career","opportunities_title":"Current Opportunities:"},"common":{"about_us_title":"About Us","footer_connect_socials":"connect with us","footer_copyright_text":"© Copyright 2023 myclinicmd Inc.","footer_email_input_placeholder":"Enter Your Email","footer_news_letter_title":"Join Our Newsletter","footer_rating_review_title":"Rating and review","footer_review_title":"Reviews","language_selection_description":"Select language from the dropdown on the right corner","link_about":"About","link_accessibility_notice":"accessiblity notice","link_career":"Career","link_contact":"Contact","link_contact_us":"contact us","link_home":"Home","link_privacy_policy":"privacy policy","link_services":"Services","link_specials":"Specials","link_terms_and_conditions":"terms and conditions","location_sub_title":"Choose your preferred location","location_title":"Our locations","services_sub_title":"What we Offer","services_title":"Services","testimonial_heading":"Testimonials","testimonial_sub_heading":"Real Stories, Real Impact: The Voice of Satisfied Clients"},"specials":{"first_special_title":"Special","fourth_special_title":"D.O.T + Urine Test","second_special_title":"consulta","specials_sub_title":"Summer Specials","specials_title":"Specials","third_special_title":"immigration medical exam\n"}}
+{"appoinment_form":{"button_label":"Book now","form_f1":"Visit Type","form_f10":"Service","form_f1a":"In-Office Visit","form_f1b":"Virtual Visit","form_f2":"Are you a new or returning patient?\n","form_f2a":"new","form_f2b":"returning","form_f3":"First Name","form_f4":"Last Name","form_f5":"Email Address","form_f6":"Mobile Number","form_f7":"Date of Birth","form_f8":"Sex","form_f8a":"Male","form_f8b":"Female","form_f8c":"Other","form_f9":"Address","form_title":"Appointment Request","location_label":"Location","select_label":"Select","self_form_title":"Welcome to Clinic San Miguel!"},"Contact":{"main_title":"OUR LOCATIONS","sub_title":"Choose your preferred location","test_subtitle":"Real Stories, Real Impact: The Voice of Satisfied Clients","test_title":"Testimonials"},"services":{"s1":"DOT Test","s10":"Parental Care","s11":"EKG","s12":"Pap Smear","s13":"Diabetes","s14":"Dentist","s15":"Ingrown Toenail Removval","s16":"Primary Care","s17":"Ultrasound","s18":"Thyroid Care","s19":"Pregnancy Services","s2":"Immigration Medical Exams","s20":"School Physical","s21":"STD Test","s22":"Vitamin B-12","s23":"Abscess Drainage","s24":"Hypertension","s25":"High Cholestrol And Triglycerides","s3":"Wart Removal","s4":"Weight Loss Program","s5":"Blood Tests","s6":"Seniors","s7":"Ear Cleaning","s8":"Children Healthcare","s9":"PSA Test"},"location":{"str1":"Phone","str2":"Timings","str3":"Address","str4":"Testimonials","str5":"Our Services","str6":"Find us","str7":"Book an appoinment"},
+
+
+
+"home": {
+  "community_mission_title": "Our Mission",
+  "community_mission_description": "We believe everyone deserves quality care. Proudly serving Texas communities, especially the Hispanic population, we provide affordable, compassionate healthcare starting at just $19—no insurance needed. Our mission is to make health a right, not a privilege, for every patient we welcome.",
+  "feature_1_title": "Inclusive Community Care",
+  "feature_1_desc": "We open our doors to everyone, creating a warm, welcoming space for all.",
+  "feature_2_title": "No Insurance, No Problem",
+  "feature_2_desc": "Affordable visits without insurance barriers, starting at just $19.",
+  "feature_3_title": "Walk-In Convenience",
+  "feature_3_desc": "Accessible care when you need it, with no appointments required.",
+  "feature_4_title": "You Are Our Priority",
+  "feature_4_desc": "Every patient is at the heart of our care, treated with respect and compassion.",
+  "book_your_visit": "Book Your Visit",
+
+
+
+
+"faq_title": "Frequently Asked Questions",
+"faq_subtitle": "Have questions about your visit? Need health tips? Explore our resources to feel prepared and supported.",
+
+"hero_image_title":"Proper care, happy life.","hero_section_button":"Get Appointment","section1_button":"Book now!","section1_button1":"Book Your Visit","section1_button2":"Find a Clinic Near You",
+"section1_h1":"Quality Care for Just $19 at Clinica San Miguel",
+"section1_span":" 4.8/5 | 40+ Reviews","section1_p":"Affordable, compassionate care starts at just $19. No appointment needed, no insurance required.We’re here to help you feel your best, every step of the way.","section1_subtitle":"Experience affordable care at our clinic.","section1_title":"Office visits for only",
+
+
+"section2_all":"All","section2_title":"Find Nearest Clinic","section2_title2":"Find Your Nearest Clinica San Miguel","section2_p1":"With 17 locations across Texas, quality care is always close by. Use our","section2_p2":" map or filter by city to find the clinic that’s right for you.",
+"section2_search_placeholder": "Search clinics near you...",
+"section3_text":"At Clinic San Miguel, our skilled healthcare professionals offer innovative preventive and general health treatments for maintaining healthy and vibrant lives. Patients of every age can receive comprehensive healthcare services to detect and prevent further issues before they develop. Through regular health check-ups and screenings, you can experience improved overall well-being, contributing to restorative and aesthetic results.","section3_title":"We care about you","treatments_sub_title":"Discover our most popular treatments, starting at just $19, designed to keep you and your family healthy.","treatments_title":"Revitalize Your Well-being with","treatments_title2":" Affordable, Trusted Care", "treatments_view_details": "View Details","treatments_cta_button": "Explore All Services"},"career":{"career_description":"Thanks for your interest in job opportunities at Clinica San Miguel","career_sub_title":"Join Our Team!","career_title":"Career","opportunities_title":"Current Opportunities:"},"common":{"about_us_title":"About Us","footer_connect_socials":"connect with us","footer_email_input_placeholder":"Enter Your Email","footer_news_letter_title":"Join Our Newsletter","footer_rating_review_title":"Rating and review","footer_review_title":"Reviews","language_selection_description":"Select language from the dropdown on the right corner","link_about":"About","link_accessibility_notice":"accessiblity notice","footer_copyright_text": "© 2025 Clinica San Miguel. All Rights Reserved.","link_career":"Career","link_contact":"Contact","link_contact_us":"contact us","link_home":"Home","link_privacy_policy":"privacy policy","link_services":"Services","link_specials":"Specials","link_terms_and_conditions":"terms and conditions","location_sub_title":"Choose your preferred location","location_title":"Our locations","services_sub_title":"What we Offer","services_title":"Services","testimonial_heading":"Testimonials","testimonial_sub_heading":"Real Stories, Real Impact: The Voice of Satisfied Clients"},"specials":{"first_special_title":"Special","fourth_special_title":"D.O.T + Urine Test","second_special_title":"consulta","specials_sub_title":"Summer Specials","specials_title":"Specials","third_special_title":"immigration medical exam\n"},
+
+"wecare": {
+    "heading": "Care that fits your needs",
+    "paragraph": "From check-ups to screenings, our services are designed to keep you healthy at an affordable price. Explore how we can support you and your family.",
+    "sub_heading": "General health check-ups",
+    "sub_paragraph": "Stay on top of your health with routine visits for only $19. Our caring team checks your vitals, answers your questions, and helps you feel your best."
+  },
+
+
+  "trusted": {
+    "heading": "Your Trusted Partner in Affordable Care",
+    "paragraph": "We’re dedicated to making healthcare simple, welcoming, and affordable for everyone. Discover why families across Texas choose us.",
+    "features": {
+      "affordable_title": "Affordable Care",
+      "affordable_desc": "Office visits for only $19, with transparent pricing.",
+      "welcoming_title": "Welcoming to All",
+      "welcoming_desc": "Walk-ins welcome, no insurance needed.",
+      "community_title": "Community Focused",
+      "community_desc": "Proudly serving the Hispanic community with bilingual support.",
+      "locations_title": "Convenient Locations",
+      "locations_desc": "17 clinics across Texas, open for you."
+    }
+  },
+
+   "above_footer": {
+    "title": "Don’t let healthcare worries hold you back",
+    "description": "High costs, no insurance, or long waits? Get $19 visits, no insurance needed, and walk-in care. Our bilingual team welcomes you like family. Act now.",
+    "cta_book": "Book Your Visit",
+    "cta_find": "Find a Clinic Near You",
+    "reviews": "4.8/5 | 40+ Reviews"
+  }
+
+
+
+
+
+}

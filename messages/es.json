@@ -1,1 +1,89 @@
-{"appoinment_form":{"button_label":"Reservar ahora","form_f1":"Tipo de visita","form_f10":"Servicio","form_f1a":"Visita al consultorio","form_f1b":"Visita Virtual","form_f2":"¿Es usted un paciente nuevo o recurrente?\n","form_f2a":"nuevo","form_f2b":"regresando","form_f3":"Nombre de pila","form_f4":"Apellido","form_f5":"Dirección de correo electrónico","form_f6":"Número de teléfono móvil","form_f7":"Fecha de nacimiento","form_f8":"Sexo","form_f8a":"Masculino","form_f8b":"Femenino","form_f8c":"Otro","form_f9":"DIRECCIÓN","form_title":"Solicitud de cita","location_label":"Ubicación","select_label":"Seleccionar","self_form_title":"¡Bienvenidos a Clínica San Miguel!"},"Contact":{"main_title":"NUESTRAS UBICACIONES","sub_title":"Elige tu ubicación preferida","test_subtitle":"Historias reales, impacto real: la voz de clientes satisfechos","test_title":"Testimonios"},"services":{"s1":"Prueba PUNTO","s10":"Cuidado de padres","s11":"ECG","s12":"Prueba de Papanicolaou","s13":"Diabetes","s14":"Dentista","s15":"Eliminación de uñas encarnadas","s16":"Atención primaria","s17":"Ultrasonido","s18":"Cuidado de la tiroides","s19":"Servicios de embarazo","s2":"Exámenes médicos de inmigración","s20":"examen físico escolar","s21":"Prueba de ETS","s22":"Vitamina B12","s23":"Drenaje de abscesos","s24":"Hipertensión","s25":"Colestrol y triglicéridos altos","s3":"Eliminación de verrugas","s4":"Programa de pérdida de peso","s5":"Análisis de sangre","s6":"personas mayores","s7":"Limpieza de oídos","s8":"Atención sanitaria infantil","s9":"Prueba de PSA"},"location":{"str1":"Teléfono","str2":"Horarios","str3":"DIRECCIÓN","str4":"Testimonios","str5":"Nuestros servicios","str6":"Encuéntranos","str7":"Reserva una cita"},"home":{"community_mission_sub_title":"Nuestra comunidad","community_mission_title":"Misión","faqs_sub_title":"Preguntas que se hacen con más frecuencia","faqs_title":"Preguntas frecuentes","hero_image_title":"Cuidado adecuado, vida feliz.","hero_section_button":"Obtener cita","section1_button":"Reserva ahora!","section1_subtitle":"Ofrecemos Atención Médica A Su Alcance","section1_title":"Consulta por solo","section2_all":"Todo","section2_title":"Encuentre la clínica más cercana","section3_text":"En Clínica San Miguel, nuestros profesionales de la salud capacitados ofrecen innovadores tratamientos preventivos y de salud general para mantener una vida saludable y vibrante. Los pacientes de todas las edades pueden recibir servicios de atención médica integrales para detectar y prevenir problemas antes de que se desarrollen. A través de controles y exámenes de salud periódicos, puede experimentar un mejor bienestar general, lo que contribuye a Resultados Satisfactorios","section3_title":"TU SALUD NOS IMPORTA!","treatments_sub_title":"Revitaliza tu bienestar con los tratamientos mejor recomendados","treatments_title":"Nuestros Tratamientos"},"career":{"career_description":"Gracias por su interés en las oportunidades laborales en Clínica San Miguel","career_sub_title":"¡Unete a nuestro equipo!","career_title":"Carrera","opportunities_title":"Oportunidades corrientes:"},"common":{"about_us_title":"Sobre Nosotros","footer_connect_socials":"Conéctate con nosotros","footer_copyright_text":"© Copyright 2023 myclinicmd Inc.","footer_email_input_placeholder":"Introduce tu correo electrónico","footer_news_letter_title":"Unase A Nuestro Boletin","footer_rating_review_title":"Calificacion y Opiniones","footer_review_title":"Reseñas","language_selection_description":"Seleccione el idioma en el menú desplegable de la esquina derecha","link_about":"Acerca de","link_accessibility_notice":"aviso de accesibilidad","link_career":"Carrera","link_contact":"Contacto","link_contact_us":"Contáctenos","link_home":"Inicio","link_privacy_policy":"política de privacidad","link_services":"Servicios","link_specials":"Especiales","link_terms_and_conditions":"Términos y condiciones","location_sub_title":"Elige tu ubicación preferida","location_title":"Nuestras ubicaciones","services_sub_title":"Lo que Ofrecemos","services_title":"Servicios","testimonial_heading":"Testimonios","testimonial_sub_heading":"Historias reales, impacto real: la voz de clientes satisfechos"},"specials":{"first_special_title":"Especial","fourth_special_title":"DOT + prueba de orina","second_special_title":"Consultar","specials_sub_title":"Especiales de verano","specials_title":"Especiales","third_special_title":"Examen médico de inmigración\n"}}
+{"appoinment_form":{"button_label":"Reservar ahora","form_f1":"Tipo de visita","form_f10":"Servicio","form_f1a":"Visita al consultorio","form_f1b":"Visita Virtual","form_f2":"¿Es usted un paciente nuevo o recurrente?\n","form_f2a":"nuevo","form_f2b":"regresando","form_f3":"Nombre de pila","form_f4":"Apellido","form_f5":"Dirección de correo electrónico","form_f6":"Número de teléfono móvil","form_f7":"Fecha de nacimiento","form_f8":"Sexo","form_f8a":"Masculino","form_f8b":"Femenino","form_f8c":"Otro","form_f9":"DIRECCIÓN","form_title":"Solicitud de cita","location_label":"Ubicación","select_label":"Seleccionar","self_form_title":"¡Bienvenidos a Clínica San Miguel!"},"Contact":{"main_title":"NUESTRAS UBICACIONES","sub_title":"Elige tu ubicación preferida","test_subtitle":"Historias reales, impacto real: la voz de clientes satisfechos","test_title":"Testimonios"},"services":{"s1":"Prueba PUNTO","s10":"Cuidado de padres","s11":"ECG","s12":"Prueba de Papanicolaou","s13":"Diabetes","s14":"Dentista","s15":"Eliminación de uñas encarnadas","s16":"Atención primaria","s17":"Ultrasonido","s18":"Cuidado de la tiroides","s19":"Servicios de embarazo","s2":"Exámenes médicos de inmigración","s20":"examen físico escolar","s21":"Prueba de ETS","s22":"Vitamina B12","s23":"Drenaje de abscesos","s24":"Hipertensión","s25":"Colestrol y triglicéridos altos","s3":"Eliminación de verrugas","s4":"Programa de pérdida de peso","s5":"Análisis de sangre","s6":"personas mayores","s7":"Limpieza de oídos","s8":"Atención sanitaria infantil","s9":"Prueba de PSA"},"location":{"str1":"Teléfono","str2":"Horarios","str3":"DIRECCIÓN","str4":"Testimonios","str5":"Nuestros servicios","str6":"Encuéntranos","str7":"Reserva una cita"},
+
+
+
+"home": {
+  "community_mission_title": "Nuestra Misión",
+  "community_mission_description": "Creemos que todos merecen atención de calidad. Al servicio de las comunidades de Texas, especialmente la población hispana, ofrecemos atención médica compasiva y asequible desde solo $19, sin necesidad de seguro. Nuestra misión es hacer de la salud un derecho, no un privilegio.",
+  "feature_1_title": "Atención Comunitaria Inclusiva",
+  "feature_1_desc": "Abrimos nuestras puertas a todos, creando un espacio cálido y acogedor.",
+  "feature_2_title": "Sin Seguro, No Hay Problema",
+  "feature_2_desc": "Visitas asequibles sin barreras de seguro, desde solo $19.",
+  "feature_3_title": "Comodidad de Llegadas sin Cita",
+  "feature_3_desc": "Atención accesible cuando la necesite, sin necesidad de cita.",
+  "feature_4_title": "Usted es Nuestra Prioridad",
+  "feature_4_desc": "Cada paciente es el corazón de nuestra atención, tratado con respeto y compasión.",
+  "book_your_visit": "Reserva Tu Visita",
+
+
+
+
+
+
+"faq_title": "Preguntas Frecuentes",
+"faq_subtitle": "¿Tienes preguntas sobre tu visita? ¿Necesitas consejos de salud? Explora nuestros recursos para sentirte preparado y apoyado.",
+
+
+
+"hero_image_title":"Cuidado adecuado, vida feliz.",
+"hero_section_button":"Obtener cita","section1_button":"Reserva ahora!", "section1_h1": "Atención de calidad por solo $19 en Clínica San Miguel",
+  "section1_span": "4.8/5 | Más de 40 reseñas",
+  "section1_p": "La atención compasiva y asequible comienza desde solo $19. No se necesita cita ni seguro. Estamos aquí para ayudarte a sentirte mejor en cada paso del camino.",
+  "section1_subtitle": "Descubre atención asequible en nuestra clínica.",
+  "section1_title": "Visitas en consultorio por solo",
+  
+"section2_all":"Todo","section2_title":"Encuentre la clínica más cercana","section3_text":"En Clínica San Miguel, nuestros profesionales de la salud capacitados ofrecen innovadores tratamientos preventivos y de salud general para mantener una vida saludable y vibrante. Los pacientes de todas las edades pueden recibir servicios de atención médica integrales para detectar y prevenir problemas antes de que se desarrollen. A través de controles y exámenes de salud periódicos, puede experimentar un mejor bienestar general, lo que contribuye a Resultados Satisfactorios",
+ "section2_title2": "Encuentra tu Clínica San Miguel más cercana",
+  "section2_p1": "Con 17 ubicaciones en Texas, la atención de calidad está siempre cerca. Usa nuestro",
+  "section2_p2": " mapa o filtra por ciudad para encontrar la clínica adecuada para ti.",
+  "section2_search_placeholder": "Busca clínicas cercanas a ti...",
+
+
+
+
+"section3_title":"TU SALUD NOS IMPORTA!",
+"treatments_sub_title": "Descubra nuestros tratamientos más populares, desde solo $19, diseñados para mantenerlo a usted y a su familia saludables.",
+  "treatments_title": "Revitalice su bienestar con",
+  "treatments_title2": " atención asequible y de confianza",
+  "treatments_view_details": "Ver detalles",
+  "treatments_cta_button": "Explorar todos los servicios"
+},"career":{"career_description":"Gracias por su interés en las oportunidades laborales en Clínica San Miguel","career_sub_title":"¡Unete a nuestro equipo!","career_title":"Carrera","opportunities_title":"Oportunidades corrientes:"},"common":{"about_us_title":"Sobre Nosotros","footer_connect_socials":"Conéctate con nosotros","footer_copyright_text":"© 2025 Clínica San Miguel. Todos los derechos reservados.","footer_email_input_placeholder":"Introduce tu correo electrónico","footer_news_letter_title":"Unase A Nuestro Boletin","footer_rating_review_title":"Calificacion y Opiniones","footer_review_title":"Reseñas","language_selection_description":"Seleccione el idioma en el menú desplegable de la esquina derecha","link_about":"Acerca de","link_accessibility_notice":"aviso de accesibilidad","link_career":"Carrera","link_contact":"Contacto","link_contact_us":"Contáctenos","link_home":"Inicio","link_privacy_policy":"política de privacidad","link_services":"Servicios","link_specials":"Especiales","link_terms_and_conditions":"Términos y condiciones","location_sub_title":"Elige tu ubicación preferida","location_title":"Nuestras ubicaciones","services_sub_title":"Lo que Ofrecemos","services_title":"Servicios","testimonial_heading":"Testimonios","testimonial_sub_heading":"Historias reales, impacto real: la voz de clientes satisfechos"},"specials":{"first_special_title":"Especial","fourth_special_title":"DOT + prueba de orina","second_special_title":"Consultar","specials_sub_title":"Especiales de verano","specials_title":"Especiales","third_special_title":"Examen médico de inmigración\n"},
+
+"wecare": {
+    "heading": "Atención que se adapta a sus necesidades",
+    "paragraph": "Desde chequeos hasta exámenes, nuestros servicios están diseñados para mantenerlo saludable a un precio accesible. Descubra cómo podemos apoyar a usted y a su familia.",
+    "sub_heading": "Chequeos generales de salud",
+    "sub_paragraph": "Manténgase al tanto de su salud con visitas de rutina por solo $19. Nuestro amable equipo revisa sus signos vitales, responde a sus preguntas y lo ayuda a sentirse mejor."
+  },
+
+
+   "trusted": {
+    "heading": "Su socio confiable en atención médica asequible",
+    "paragraph": "Estamos dedicados a hacer que la atención médica sea simple, acogedora y asequible para todos. Descubra por qué las familias en Texas nos eligen.",
+    "features": {
+      "affordable_title": "Atención asequible",
+      "affordable_desc": "Visitas por solo $19, con precios transparentes.",
+      "welcoming_title": "Bienvenidos todos",
+      "welcoming_desc": "Aceptamos visitas sin cita, sin necesidad de seguro.",
+      "community_title": "Enfoque comunitario",
+      "community_desc": "Sirviendo con orgullo a la comunidad hispana con apoyo bilingüe.",
+      "locations_title": "Ubicaciones convenientes",
+      "locations_desc": "17 clínicas en todo Texas, abiertas para usted."
+    }
+  },
+
+  "above_footer": {
+    "title": "No dejes que las preocupaciones médicas te detengan",
+    "description": "¿Altos costos, sin seguro o largas esperas? Obtén visitas por $19, sin necesidad de seguro, y atención sin cita. Nuestro equipo bilingüe te da la bienvenida como en familia. Actúa ahora.",
+    "cta_book": "Reserva Tu Visita",
+    "cta_find": "Encuentra una Clínica Cerca de Ti",
+    "reviews": "4.8/5 | 40+ Reseñas"
+  }
+
+
+
+
+
+
+
+}

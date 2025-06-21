@@ -4,7 +4,6 @@ import { styles } from "@/app/[locale]/styles";
 import { useSupabase } from "@/context/supabaseContext";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 
 // Accordion item component
@@ -60,10 +59,10 @@ export const FAQs = () => {
   return (
     <section className="flex w-full flex-col items-center py-[4%] bg-[#F4F5F6] mt-20">
       <h1 className={`${styles.sectionHeadText} text-[#0D0D28]`}>
-        Frequently Asked Questions
+        {t("faq_title")}
       </h1>
-       <h3 className="text-base text-[#606877] text-center max-w-xl mt-2 leading-relaxed">
-        Have questions about your visit? Need health tips? Explore our resources to feel prepared and supported.
+      <h3 className="text-base text-[#606877] text-center max-w-xl mt-2 leading-relaxed">
+        {t("faq_subtitle")}
       </h3>
       <div className="flex flex-col w-full max-w-2xl gap-4 mt-10">
         {data &&

@@ -93,7 +93,7 @@ export const GroupedLocations = () => {
             <div className="w-full sm:w-[90%] md:w-[80%] lg:w-[75%] py-4">
               <input
                 type="text"
-                placeholder="Search clinics near by you..."
+                placeholder={t("section2_search_placeholder")}
                 className="w-full bg-[#FFFFFF] text-[#6C7582] placeholder-[#6C7582] font-poppins font-normal text-[16px] leading-[100%] tracking-[0] px-4 py-3 rounded-xl border border-white focus:ring-0 focus:outline-none shadow-sm"
               />
             </div>

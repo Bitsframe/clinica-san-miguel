@@ -2,28 +2,38 @@
 
 import Image from "next/image";
 import { AiFillStar } from "react-icons/ai";
-import { mission, elderly_left, elderly_right, family, HomeBackground, doctor } from "@/assets/images/cover";
+import {
+  mission,
+  elderly_left,
+  elderly_right,
+  family,
+  HomeBackground,
+  doctor,
+} from "@/assets/images/cover";
+import { useTranslations } from "next-intl";
 
 export function AboveFooter() {
+  const t = useTranslations("above_footer");
+
   return (
     <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center overflow-visible mt-20">
       <div className="relative w-full max-w-7xl bg-[#0F172A] text-white rounded-2xl px-8 py-10 overflow-visible">
         {/* Text Content */}
         <div className="max-w-xl z-10 relative">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
-            Don’t let healthcare worries hold you back
+            {t("title")}
           </h2>
           <p className="text-base text-gray-300 mb-6">
-            High costs, no insurance, or long waits? Get $19 visits, no insurance needed, and walk-in care. Our bilingual team welcomes you like family. Act now.
+            {t("description")}
           </p>
 
           {/* Buttons */}
           <div className="flex gap-4 mb-6 flex-wrap">
             <button className="bg-[#C1001F] hover:bg-red-800 text-white px-6 py-3 rounded-full text-sm font-medium">
-              Book Your Visit
+              {t("cta_book")}
             </button>
             <button className="border border-white text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-white hover:text-[#0F172A] transition">
-              Find a Clinic Near You
+              {t("cta_find")}
             </button>
           </div>
 
@@ -34,7 +44,7 @@ export function AboveFooter() {
                 <AiFillStar key={idx} size={16} />
               ))}
             </div>
-            <span className="text-white">4.8/5 | 40+ Reviews</span>
+            <span className="text-white">{t("reviews")}</span>
           </div>
         </div>
 

@@ -39,22 +39,23 @@ export function PatientStories() {
         </div>
       </div>
 
-      {/* Testimonials Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-0">
+      {/* Testimonials Flex Layout */}
+      <div className="flex flex-col md:flex-row md:gap-4">
+
         {testimonials.map((t, index) => (
           <div
             key={index}
-            className="bg-[#F4F5F6] p-4 rounded-xl relative overflow-hidden shadow-sm min-h-[200px] w-full flex flex-col justify-start"
+            className="bg-[#F4F5F6] p-6 rounded-xl relative overflow-hidden shadow-sm min-h-[220px] max-w-md w-full flex flex-col justify-start md:mx-1"
           >
             {/* Star Rating */}
-           <div className="flex gap-1 mb-2 mt-6" style={{ color: "#C1001F" }}>
+            <div className="flex gap-1 mb-2 mt-2 text-[#C1001F]">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} fill="currentColor" stroke="none" className="w-4 h-4" />
               ))}
             </div>
 
-            {/* Quote (4-line clamp with tight spacing) */}
-            <p className="text-gray-800 font-medium text-base line-clamp-4 leading-snug mb-1">
+            {/* Quote */}
+            <p className="text-gray-800 font-medium text-base line-clamp-3 leading-snug mb-2">
               “{t.quote}”
             </p>
 
@@ -62,7 +63,7 @@ export function PatientStories() {
             <p className="text-sm text-gray-500 font-medium">{t.author}</p>
 
             {/* Decorative Quote Symbol */}
-            <div className="absolute bottom-0 right-0 opacity-40 text-[120px] leading-none font-extrabold text-gray-500 select-none">
+            <div className="absolute bottom-0 right-2 opacity-40 text-[120px] leading-none font-extrabold text-gray-300 select-none">
               //
             </div>
           </div>

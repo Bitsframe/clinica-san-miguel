@@ -91,47 +91,50 @@ export const Treatments = () => {
           <div key={treatment.id} className="px-4 py-6 mb-6">
            <div className="flex flex-col justify-between w-full max-w-sm mx-auto min-h-[430px] overflow-hidden rounded-xl border bg-white shadow-sm hover:shadow-md transition">
 
-              <div className="w-full h-[200px] pt-4 px-4 overflow-hidden rounded-md">
-                <Image
-                  src={treatment.image}
-                  alt={treatment.title}
-                  width={500}
-                  height={300}
-                  className="w-full h-full object-cover rounded-md"
-                />
-              </div>
-
-              {/* Content */}
-              <div className="flex flex-col  flex-1 p-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-zinc-900">
-                    {treatment.title}
-                  </h3>
-                  <p className="text-sm text-zinc-600 line-clamp-4 overflow-hidden">
-                    {treatment.description}
-                  </p>
+                <div className="w-full h-[200px] pt-4 px-4 overflow-hidden rounded-md">
+                  <Image
+                    src={treatment.image}
+                    alt={treatment.title}
+                    width={500}
+                    height={300}
+                    className="w-full h-full object-cover rounded-md"
+                  />
                 </div>
-                <button
-                  type="button"
-                  className="mt-6 inline-flex w-fit items-center gap-2 rounded-full border border-zinc-200 bg-gray-200 px-5 py-2 text-sm font-medium text-zinc-900 hover:bg-gray-300 transition"
-                >
-                  {t("treatments_view_details")}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17 8l4 4m0 0-4 4m4-4H3"
-                    />
-                  </svg>
-                </button>
-              </div>
+    <div className="flex flex-col justify-between min-h-[270px] flex-1 p-4 bg-white rounded-lg shadow-md">
+      {/* Card Content Section */}
+      <div>
+        <h3 className="text-lg font-semibold text-zinc-900">
+          {treatment.title}
+        </h3>
+        <p className="text-sm text-zinc-600 mt-2 line-clamp-4 overflow-hidden">
+          {treatment.description}
+        </p>
+      </div>
+
+      {/* View Details Button */}
+      <div className="mt-6">
+        <button
+          type="button"
+          className="inline-flex w-fit items-center gap-2 rounded-full border border-zinc-200 bg-gray-200 px-5 py-2 text-sm font-medium text-zinc-900 hover:bg-gray-300 transition"
+        >
+          {t("treatments_view_details")}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M17 8l4 4m0 0-4 4m4-4H3"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
             </div>
           </div>
         ))}

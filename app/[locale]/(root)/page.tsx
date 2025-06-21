@@ -25,6 +25,7 @@ export default function Home({
   params: { locale: string };
 }) {
   const t = useTranslations("home");
+  
 
   return (
     <main className="flex flex-col justify-center items-center overflow-x-hidden gap-10">
@@ -48,3 +49,4 @@ export default function Home({
     </main>
   );
 }
+

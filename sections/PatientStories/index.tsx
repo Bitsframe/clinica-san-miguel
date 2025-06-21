@@ -14,6 +14,11 @@ export function PatientStories() {
         "I wasn’t sure what to expect, but the entire staff made me feel at ease. It’s rare to find such compassionate care at such an affordable price.",
       author: "James L., Dallas",
     },
+    {
+      quote:
+        "Clinica San Miguel provides dependable, affordable care for the entire family — we’re proud to be part of your wellness journey.",
+      author: "Team Clinica San Miguel",
+    },
   ];
 
   return (
@@ -39,13 +44,12 @@ export function PatientStories() {
         </div>
       </div>
 
-      {/* Testimonials Flex Layout */}
-      <div className="flex flex-col md:flex-row md:gap-4">
-
+      {/* Horizontal Scrollable Fixed-Width Cards */}
+      <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
         {testimonials.map((t, index) => (
           <div
             key={index}
-            className="bg-[#F4F5F6] p-6 rounded-xl relative overflow-hidden shadow-sm min-h-[220px] max-w-md w-full flex flex-col justify-start md:mx-1"
+            className="w-[380px] bg-[#F4F5F6] p-6 rounded-xl relative overflow-hidden shadow-sm flex-shrink-0 flex flex-col justify-start"
           >
             {/* Star Rating */}
             <div className="flex gap-1 mb-2 mt-2 text-[#C1001F]">
@@ -55,7 +59,7 @@ export function PatientStories() {
             </div>
 
             {/* Quote */}
-            <p className="text-gray-800 font-medium text-base line-clamp-3 leading-snug mb-2">
+            <p className="text-gray-800 font-medium text-base leading-snug mb-2 line-clamp-3">
               “{t.quote}”
             </p>
 

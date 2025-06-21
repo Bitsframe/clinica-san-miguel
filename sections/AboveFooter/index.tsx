@@ -32,9 +32,9 @@ export function AboveFooter() {
             <button className="bg-[#C1001F] hover:bg-red-800 text-white px-6 py-3 rounded-full text-sm font-medium">
               {t("cta_book")}
             </button>
-            <button className="border border-white text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-white hover:text-[#0F172A] transition">
+            {/* <button className="border border-white text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-white hover:text-[#0F172A] transition">
               {t("cta_find")}
-            </button>
+            </button> */}
           </div>
 
           {/* Rating */}
@@ -62,7 +62,7 @@ export function AboveFooter() {
         <Image
           src={mission}
           alt="img3"
-          className="absolute top-[50%] right-[17%] w-14 h-14 object-cover rounded-xl"
+          className="absolute top-[50%] right-[17%] w-20 h-20 object-cover rounded-xl"
         />
         <Image
           src={elderly_right}

@@ -32,65 +32,65 @@ export function TrustedPartner() {
   ];
 
   return (
-   <section className="w-full max-w-[90vw] bg-[#E1E3E6] px-6 py-16 md:px-20 lg:px-32 rounded-3xl mx-6 overflow-visible relative lg:mt-20">
+    <section className="w-full bg-[#E1E3E6] py-16 lg:mt-20 max-w-[90%] mx-auto rounded-xl h-auto">
+      <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-20 rounded-xl overflow-visible relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              {t("heading")}
+            </h2>
+            <p className="text-gray-600 text-base md:text-lg mb-8 max-w-xl">
+              {t("paragraph")}
+            </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-        <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            {t("heading")}
-          </h2>
-          <p className="text-gray-600 text-base md:text-lg mb-8 max-w-xl">
-            {t("paragraph")}
-          </p>
+            <div className="space-y-6">
+              {features.map((f, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <div className="bg-[#C1001F] rounded-full w-10 h-10 flex items-center justify-center">
+                    {f.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-base md:text-lg text-gray-900">
+                      {f.title}
+                    </h4>
+                    <p className="text-sm text-gray-600">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <div className="space-y-6">
-            {features.map((f, i) => (
-              <div key={i} className="flex items-start gap-4">
-                <div className="bg-[#C1001F] rounded-full w-10 h-10 flex items-center justify-center">
-                  {f.icon}
-                </div>
-                <div>
-                  <h4 className="font-semibold text-base md:text-lg text-gray-900">
-                    {f.title}
-                  </h4>
-                  <p className="text-sm text-gray-600">{f.desc}</p>
-                </div>
-              </div>
-            ))}
+          {/* Image Section */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative">
+            {/* First Image */}
+            <div className="overflow-hidden mt-10 sm:mt-10 lg:-mt-40 rounded-xl h-[20rem] sm:h-[25rem] md:h-[31.25rem] lg:h-[37.5rem] xl:h-[30rem]">
+              <Image
+                src={family}
+                alt="Family running"
+                className="w-full h-full object-cover rounded-xl shadow-md"
+              />
+            </div>
+
+            {/* Second Image */}
+            <div className="sm:col-span-1 lg:absolute lg:left-0 lg:-bottom-[21rem] lg:w-[50%] aspect-square lg:aspect-square rounded-xl overflow-hidden">
+              <Image
+                src={mission}
+                alt="Mission"
+                className="w-full h-full object-cover rounded-xl"
+              />
+            </div>
+
+            {/* Third Image */}
+            <div className="sm:col-span-1 lg:absolute lg:right-0 lg:-bottom-[11rem] lg:w-[50%] lg:h-[10rem] lg:ml-4 aspect-square lg:aspect-auto rounded-xl overflow-hidden">
+              <Image
+                src={elderly_right}
+                alt="Elderly"
+                className="w-full h-full object-cover rounded-xl"
+              />
+            </div>
           </div>
         </div>
-
-     <div className="grid grid-cols-2 gap-4 relative">
-  {/* First Image */}
-  <div className="col-span-2 overflow-hidden mt-10 sm:mt-10 lg:-mt-40 rounded-xl h-[20rem] sm:h-[25rem] md:h-[31.25rem] lg:h-[37.5rem] xl:h-[30rem]">
-    <Image
-      src={family}
-      alt="Family running"
-      className="w-full h-full object-cover rounded-xl shadow-md"
-    />
-  </div>
-
-  {/* Second Image */}
-  <div className="col-span-1 sm:col-span-1 lg:absolute lg:left-0 lg:-bottom-[19rem] lg:w-[50%] aspect-square lg:aspect-square rounded-xl overflow-hidden">
-    <Image
-      src={mission}
-      alt="Mission"
-      className="w-full h-full object-cover rounded-xl"
-    />
-  </div>
-
-  {/* Third Image */}
-  <div className="col-span-1 sm:col-span-1 lg:absolute lg:right-0 lg:-bottom-[11rem] lg:w-[45%] lg:h-[10rem] lg:ml-4 aspect-square lg:aspect-auto rounded-xl overflow-hidden">
-    <Image
-      src={elderly_right}
-      alt="Elderly"
-      className="w-full h-full object-cover rounded-xl"
-    />
-  </div>
-</div>
-</div>
-
-      
+      </div>
     </section>
   );
 }

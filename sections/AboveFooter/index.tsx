@@ -17,7 +17,8 @@ export function AboveFooter() {
 
   return (
     <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center overflow-visible mt-20">
-      <div className="relative w-full max-w-7xl bg-[#0F172A] text-white rounded-2xl px-8 py-10 overflow-visible">
+     <div className="relative w-full max-w-[80vw] bg-[#0F172A] text-white rounded-2xl px-4 py-10 lg:px-20 lg:py-16 lg:h-[26rem] overflow-visible">
+
         {/* Text Content */}
         <div className="max-w-xl z-10 relative">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
@@ -48,57 +49,42 @@ export function AboveFooter() {
           </div>
         </div>
 
-        {/* Floating Images */}
-       <div className="hidden lg:block">
-    <Image
-      src={elderly_left}
-      alt="img1"
-      className="absolute -top-4 right-[20%] w-24 h-24 object-cover rounded-xl"
-    />
-    <Image
-      src={family}
-      alt="img2"
-      className="absolute -top-8 right-[5%] w-36 h-40 object-cover rounded-xl"
-    />
-    <Image
-      src={mission}
-      alt="img3"
-      className="absolute top-[50%] right-[17%] w-20 h-20 object-cover rounded-xl"
-    />
-    <Image
-      src={elderly_right}
-      alt="img4"
-      className="absolute top-[52%] right-[5%] w-24 h-24 object-cover rounded-xl"
-    />
-    <Image
-      src={HomeBackground}
-      alt="img5"
-      className="absolute -bottom-6 right-[23%] w-24 h-24 object-cover rounded-xl"
-    />
-    <Image
-      src={doctor}
-      alt="img6"
-      className="absolute -bottom-6 right-[15%] w-16 h-16 object-cover rounded-xl"
-    />
-  </div>
-{/* Mobile Images Grid */}
-<div className="block lg:hidden mt-12 px-4">
-  <div className="grid grid-cols-2 gap-4">
-    {[family, elderly_right, elderly_left, mission, HomeBackground, doctor].map((img, i) => (
-      <div key={i} className="w-full aspect-square overflow-hidden rounded-xl">
-        <Image
-          src={img}
-          alt={`mobile-img-${i}`}
-          className="w-full h-full object-cover rounded-xl"
-        />
+        {/* Floating Images - Hidden on phones (sm) and visible on larger screens (lg) */}
+        <div className="hidden sm:block lg:block">
+          <Image
+            src={elderly_left}
+            alt="img1"
+            className="absolute -top-4 right-[20%] w-24 h-24 object-cover rounded-xl"
+          />
+          <Image
+            src={family}
+            alt="img2"
+            className="absolute -top-8 right-[5%] w-36 h-40 object-cover rounded-xl"
+          />
+          <Image
+            src={mission}
+            alt="img3"
+            className="absolute top-[50%] right-[17%] w-20 h-20 object-cover rounded-xl"
+          />
+          <Image
+            src={elderly_right}
+            alt="img4"
+            className="absolute top-[52%] right-[5%] w-28 h-28 object-cover rounded-xl"
+          />
+          <Image
+            src={HomeBackground}
+            alt="img5"
+            className="absolute -bottom-6 right-[23%] w-32 h-32 object-cover rounded-xl"
+          />
+          <Image
+            src={doctor}
+            alt="img6"
+            className="absolute -bottom-6 right-[15%] w-16 h-16 object-cover rounded-xl"
+          />
+        </div>
+
+        
       </div>
-    ))}
-  </div>
-</div>
-    </div>
-    
-
-
     </section>
   );
 }

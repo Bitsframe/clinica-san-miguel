@@ -17,7 +17,7 @@ export function AboveFooter() {
 
   return (
     <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center overflow-visible mt-20">
-     <div className="relative w-full max-w-[80vw] bg-[#0F172A] text-white rounded-2xl px-4 py-10 lg:px-20 lg:py-16 lg:h-[26rem] overflow-visible">
+     <div className="relative w-full max-w-[85vw] bg-[#0F172A] text-white rounded-2xl px-4 py-10 lg:px-20 lg:py-16 lg:h-[26rem] overflow-visible">
 
         {/* Text Content */}
         <div className="max-w-xl z-10 relative">

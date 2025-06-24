@@ -17,7 +17,7 @@ export const CommunityMission = () => {
   return (
     <section className="bg-[#0F172A] text-white rounded-2xl px-6 py-12 md:px-10 md:py-16 w-full mx-auto flex flex-col lg:flex-row gap-10 max-w-[75vw] sm:px-0 sm:py-0">
       {/* Left Side - Mission */}
-      <div className="flex-1 space-y-0 relative">
+      <div className="flex-1 space-y-0 relative lg:pt-8">
         <div>
           <h2 className="text-3xl font-bold mb-4">{t("community_mission_title")}</h2>
           <p className="text-base text-gray-300 leading-relaxed">
@@ -40,7 +40,7 @@ export const CommunityMission = () => {
       </div>
 
       {/* Right Side - Features (Dynamic from DB) */}
-      <div className="flex-1 pt-40 lg:pt-0">
+      <div className="flex-1 pt-40 lg:pt-8 lg:ml-24">
         <div className="space-y-12">
           {data?.sort((a, b) => a.id - b.id).map((item) => (
             <div key={item.id} className="flex items-center gap-4">

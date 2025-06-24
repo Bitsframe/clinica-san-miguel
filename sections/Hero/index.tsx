@@ -78,10 +78,10 @@ export const HeroTopSection = () => {
     <main className="flex flex-col relative w-full">
       <article className="w-full min-h-[80vh] sm:min-h-screen relative">
         {/* Remove padding on left and right only on large screens */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-40 lg:max-w-full relative h-full">
+        <div className="container mx-auto px-4 sm:px-6 lg:mx-12 lg:max-w-full relative h-full">
           
           {/* Image + Overlay + Content Layer */}
-          <div className="relative w-full lg:w-[100rem]  h-[80vh] sm:h-[90vh] md:h-[100vh] lg:h-[90vh] overflow-hidden rounded-md sm:rounded-3xl">
+          <div className="relative w-full lg:w-[110rem]  h-[80vh] sm:h-[90vh] md:h-[100vh] lg:h-[90vh] overflow-hidden rounded-md sm:rounded-3xl">
 
             {/* Background Image */}
             <Image
@@ -128,19 +128,21 @@ export const HeroTopSection = () => {
           </p>
 
               {/* Desktop Buttons */}
-              <div className="hidden sm:flex flex-wrap gap-4">
-                <button
-                  onClick={redirectToContact}
-                   className="bg-[#C1001F] text-white font-medium text-[15px] md:text-[16px] py-3 px-6 rounded-full hover:bg-red-700 transition"
-                >
-                  {t("section1_button1")}
-                </button>
-                <button
-                  className="border border-white text-white font-medium text-[15px] md:text-[16px] py-3 px-6 rounded-full hover:bg-white hover:text-black transition"
-                >
-                  {t("section1_button2")}
-                </button>
-              </div>
+           
+          <div className="hidden sm:flex flex-wrap gap-4 lg:mt-8">
+          <button
+          onClick={redirectToContact}
+          className="bg-[#C1001F] text-white font-medium text-[15px] md:text-[16px] py-4 px-8 rounded-full hover:bg-red-700 transition"
+          >
+          {t("section1_button1")}
+          </button>
+          <button
+          className="border border-white text-white font-medium text-[15px] md:text-[16px] py-4 px-12 rounded-full hover:bg-white hover:text-black transition"
+          >
+          {t("section1_button2")}
+          </button>
+          </div>
+
             </div>
           </div>
         </div>

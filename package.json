@@ -16,6 +16,7 @@
     "animate.css": "^4.1.1",
     "axios": "^1.6.2",
     "flowbite-react": "^0.7.8",
+    "framer-motion": "^12.19.1",
     "hamburger-react": "^2.5.0",
     "i18next": "^23.10.1",
     "i18next-resources-to-backend": "^1.2.0",

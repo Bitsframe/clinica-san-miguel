@@ -14,6 +14,16 @@
   "feature_4_title": "Usted es Nuestra Prioridad",
   "feature_4_desc": "Cada paciente es el corazón de nuestra atención, tratado con respeto y compasión.",
   "book_your_visit": "Reserva Tu Visita",
+   "section1_h1_part1": "Atención de calidad por solo $19",
+  "section1_h1_part2": "en Clínica San Miguel",
+    "section1_button1": "Reserva tu cita",
+    "section1_button2": "Encuentra una clínica cerca de ti",
+         "all": "Todas",
+    "dallas": "Dallas",
+    "houston": "Houston",
+    "sanAntonio": "San Antonio",
+
+
 
 
 
@@ -27,7 +37,7 @@
 
 "hero_image_title":"Cuidado adecuado, vida feliz.",
 "hero_section_button":"Obtener cita","section1_button":"Reserva ahora!", "section1_h1": "Atención de calidad por solo $19 en Clínica San Miguel",
-  "section1_span": "4.8/5 | Más de 40 reseñas",
+  "section1_span": "4.8/5 | Más de 100 reseñas",
   "section1_p": "La atención compasiva y asequible comienza desde solo $19. No se necesita cita ni seguro. Estamos aquí para ayudarte a sentirte mejor en cada paso del camino.",
   "section1_subtitle": "Descubre atención asequible en nuestra clínica.",
   "section1_title": "Visitas en consultorio por solo",
@@ -78,7 +88,17 @@
     "cta_book": "Reserva Tu Visita",
     "cta_find": "Encuentra una Clínica Cerca de Ti",
     "reviews": "4.8/5 | 40+ Reseñas"
+  },
+
+    "location_buttons": {
+    "viewDetails": "Ver detalles",
+    "getDirections": "Obtener direcciones"
+  },
+  "testimonies": {
+    "title": "Historias reales de nuestros pacientes",
+    "description": "En Clínica San Miguel, tu salud es nuestra prioridad. Conoce a otros que han encontrado atención y consuelo con nosotros."
   }
+
 
 
 

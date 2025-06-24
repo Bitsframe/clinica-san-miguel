@@ -1,10 +1,5 @@
 "use client";
 
-import { styles } from "@/app/[locale]/styles";
-import { viewAllArrow } from "@/assets/images";
-import { Treatment } from "@/components";
-import { useEffect } from "react";
-
 
 // Slick Slider
 import "slick-carousel/slick/slick.css";
@@ -81,65 +76,71 @@ export const Treatments = () => {
 
   {/* Treatments Slider */}
   <div className="w-full max-w-[100vw] md:max-w-[96vw] lg:max-w-[95vw] xl:max-w-[75vw] mx-auto my-10">
-    {/* @ts-ignore */}
-    <Slider {...settings}>
-      {data
-        .filter((elem) => elem.id !== 25)
-        .sort((a, b) => a.id - b.id)
-        .slice(0, 6)
-        .map((treatment) => (
-          <div key={treatment.id} className="px-4 py-6 mb-6">
-           <div className="flex flex-col justify-between w-full max-w-sm mx-auto min-h-[430px] overflow-hidden rounded-xl border bg-white shadow-sm hover:shadow-md transition">
+  {/* @ts-ignore */}
+  <Slider {...settings}>
+    {data
+      .filter((elem) => elem.id !== 25)
+      .sort((a, b) => a.id - b.id)
+      .slice(0, 6)
+      .map((treatment) => (
+        <div key={treatment.id} className="px-4 py-4 mb-4">
+            <div className="flex flex-col w-full max-w-sm mx-auto 
+                h-72 sm:h-72 md:h-60 lg:h-[24rem]
+                overflow-hidden rounded-xl border bg-white shadow-sm hover:shadow-md transition">
 
-                <div className="w-full h-[200px] pt-4 px-4 overflow-hidden rounded-md">
-                  <Image
-                    src={treatment.image}
-                    alt={treatment.title}
-                    width={500}
-                    height={300}
-                    className="w-full h-full object-cover rounded-md"
-                  />
+            {/* Reduced image height */}
+            <div className="w-full h-48 pt-3 px-3 overflow-hidden rounded-md">
+              <Image
+                src={treatment.image}
+                alt={treatment.title}
+                width={500}
+                height={700}
+                className="w-full h-full object-cover rounded-md"
+              />
+            </div>
+
+            {/* Content Section */}
+            <div className="flex flex-col flex-1 py-3 px-3 bg-white rounded-lg shadow-md">
+              {/* Card Content */}
+              <div className="flex flex-col items-start text-left">
+                <h3 className="text-base font-semibold text-zinc-900">
+                  {treatment.title}
+                </h3>
+                <p className="text-sm text-zinc-600 mt-2 line-clamp-3 overflow-hidden">
+                  {treatment.description}
+                </p>
+
+                {/* View Details Button */}
+                <div className="mt-auto pt-4">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-gray-200 px-4 py-1.5 text-sm font-medium text-zinc-900 hover:bg-gray-300 transition"
+                  >
+                    {t("treatments_view_details")}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M17 8l4 4m0 0-4 4m4-4H3"
+                      />
+                    </svg>
+                  </button>
                 </div>
-    <div className="flex flex-col justify-between min-h-[270px] flex-1 p-4 bg-white rounded-lg shadow-md">
-      {/* Card Content Section */}
-      <div>
-        <h3 className="text-lg font-semibold text-zinc-900">
-          {treatment.title}
-        </h3>
-        <p className="text-sm text-zinc-600 mt-2 line-clamp-4 overflow-hidden">
-          {treatment.description}
-        </p>
-      </div>
-
-      {/* View Details Button */}
-      <div className="mt-6">
-        <button
-          type="button"
-          className="inline-flex w-fit items-center gap-2 rounded-full border border-zinc-200 bg-gray-200 px-5 py-2 text-sm font-medium text-zinc-900 hover:bg-gray-300 transition"
-        >
-          {t("treatments_view_details")}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M17 8l4 4m0 0-4 4m4-4H3"
-            />
-          </svg>
-        </button>
-      </div>
-    </div>
+              </div>
             </div>
           </div>
-        ))}
-    </Slider>
-  </div>
+        </div>
+      ))}
+  </Slider>
+</div>
+
 
   {/* CTA Button */}
   <div className="w-[90%] sm:w-[70%] md:w-[50%] lg:w-[35%] xl:w-[25%] mx-auto py-4">

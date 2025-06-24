@@ -32,7 +32,8 @@ export function TrustedPartner() {
   ];
 
   return (
-    <section className="w-full max-w-[90vw] bg-[#E1E3E6] px-6 py-16 md:px-20 lg:px-32 rounded-3xl mx-6 overflow-visible relative">
+   <section className="w-full max-w-[90vw] bg-[#E1E3E6] px-6 py-16 md:px-20 lg:px-32 rounded-3xl mx-6 overflow-visible relative lg:mt-20">
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
         <div>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -59,32 +60,37 @@ export function TrustedPartner() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 relative">
-          <div className="col-span-2 overflow-hidden -mt-32 rounded-xl h-[18.75rem] sm:h-[25rem] md:h-[31.25rem] lg:h-[37.5rem] xl:h-[30rem]">
-            <Image
-              src={family}
-              alt="Family running"
-              className="w-full h-full object-cover rounded-xl shadow-md"
-            />
-          </div>
+     <div className="grid grid-cols-2 gap-4 relative">
+  {/* First Image */}
+  <div className="col-span-2 overflow-hidden mt-10 sm:mt-10 lg:-mt-40 rounded-xl h-[20rem] sm:h-[25rem] md:h-[31.25rem] lg:h-[37.5rem] xl:h-[30rem]">
+    <Image
+      src={family}
+      alt="Family running"
+      className="w-full h-full object-cover rounded-xl shadow-md"
+    />
+  </div>
 
-          <div className="absolute left-0 -bottom-64 rounded-xl overflow-hidden w-[20rem] h-[10rem] sm:h-[12rem] md:h-[13.5rem] lg:h-[15rem]">
-            <Image
-              src={mission}
-              alt="Mission"
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </div>
+  {/* Second Image */}
+  <div className="col-span-1 sm:col-span-1 lg:absolute lg:left-0 lg:-bottom-[19rem] lg:w-[50%] aspect-square lg:aspect-square rounded-xl overflow-hidden">
+    <Image
+      src={mission}
+      alt="Mission"
+      className="w-full h-full object-cover rounded-xl"
+    />
+  </div>
 
-          <div className="absolute right-0 -bottom-44 w-[6rem] h-[4rem] sm:w-[8rem] sm:h-[5rem] md:w-[15rem] md:h-[10rem] rounded-xl overflow-hidden">
-            <Image
-              src={elderly_right}
-              alt="Elderly"
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </div>
-        </div>
-      </div>
+  {/* Third Image */}
+  <div className="col-span-1 sm:col-span-1 lg:absolute lg:right-0 lg:-bottom-[11rem] lg:w-[45%] lg:h-[10rem] lg:ml-4 aspect-square lg:aspect-auto rounded-xl overflow-hidden">
+    <Image
+      src={elderly_right}
+      alt="Elderly"
+      className="w-full h-full object-cover rounded-xl"
+    />
+  </div>
+</div>
+</div>
+
+      
     </section>
   );
 }

@@ -4,9 +4,9 @@ import { styles } from "@/app/[locale]/styles";
 import { useSupabase } from "@/context/supabaseContext";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
+import { motion, AnimatePresence } from "framer-motion";
+import { IoIosAdd, IoIosRemove } from "react-icons/io";
 
-// Accordion item component
 const AccordionItem = ({
   question,
   answer,
@@ -19,30 +19,41 @@ const AccordionItem = ({
   toggleAccordion: () => void;
 }) => {
   return (
-    <div className="w-full rounded-md bg-[#E1E3E6] border border-[#D1D5DB] shadow-sm transition-all ">
+    <div className="w-full rounded-md bg-gradient-to-r from-[#D3D4D6] to-[#F4F5F6] border border-[#D1D5DB] shadow-sm transition-all">
+
       <button
         onClick={toggleAccordion}
-        className="w-full flex justify-between items-center p-4 text-left"
+        className="w-full flex justify-between items-center px-6 py-5 text-left transition-colors hover:bg-[#D1D5DB]/20"
       >
-        <h4 className="text-[16px] font-poppins font-medium text-[#0D0D28]">
+      <h4 className="text-[16px] font-poppins font-normal text-[#0D0D28]">
           {question}
         </h4>
-        {isOpen ? (
-          <IoIosArrowUp className="text-[16px] text-[#0D0D28]" />
-        ) : (
-          <IoIosArrowDown className="text-[16px] text-[#0D0D28]" />
-        )}
+        <motion.div
+          initial={{ rotate: 0 }}
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="text-[#0D0D28] text-2xl"
+        >
+          {isOpen ? <IoIosRemove /> : <IoIosAdd />}
+        </motion.div>
       </button>
-      {isOpen && (
-        <div className="px-4 pb-4 text-[15px] text-[#444] font-poppins transition-all">
-          {answer}
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="px-6 pb-5 text-[#444] font-poppins text-base"
+          >
+            {answer}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
-// Main FAQs component
 export const FAQs = () => {
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
 

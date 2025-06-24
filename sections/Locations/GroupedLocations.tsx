@@ -20,31 +20,31 @@ export const GroupedLocations = () => {
   const [modalLocation, setModalLocation] = useState<string | null>(null);
 
   const tabs = [
-    {
-      id: 1,
-      name: "All",
-      value: "",
-      location: "14oe73P17wHPAV_L6R1DmmLVw3JDw60k&ehbc=2E312F",
-    },
-    {
-      id: 2,
-      name: "Dallas",
-      value: "A",
-      location: "1vaZ0nzB6WqN9P4gHZedwyx0tGmVDSjE&ehbc=2E312F",
-    },
-    {
-      id: 3,
-      name: "Houston",
-      value: "B",
-      location: "1vrLm72whzL6KBgr7n_C2RfoeO1fH1u8&ehbc=2E312F",
-    },
-    {
-      id: 4,
-      name: "San Antonio",
-      value: "C",
-      location: "1cwsxmz-1Sm0zYTFaNizGELErRpCQf_I&ehbc=2E312F",
-    },
-  ];
+  {
+    id: 1,
+    name: t("all"),
+    value: "",
+    location: "14oe73P17wHPAV_L6R1DmmLVw3JDw60k&ehbc=2E312F",
+  },
+  {
+    id: 2,
+    name: t("dallas"),
+    value: "A",
+    location: "1vaZ0nzB6WqN9P4gHZedwyx0tGmVDSjE&ehbc=2E312F",
+  },
+  {
+    id: 3,
+    name: t("houston"),
+    value: "B",
+    location: "1vrLm72whzL6KBgr7n_C2RfoeO1fH1u8&ehbc=2E312F",
+  },
+  {
+    id: 4,
+    name: t("sanAntonio"),
+    value: "C",
+    location: "1cwsxmz-1Sm0zYTFaNizGELErRpCQf_I&ehbc=2E312F",
+  },
+];
 
   const [locationData, setLocationData] = useState<any[]>([]);
 
@@ -87,58 +87,66 @@ export const GroupedLocations = () => {
 
       <section className="flex w-full justify-center flex-col gap-3 lg:gap-0 lg:flex-row bg-[#F4F5F6]">
         {/* LEFT SECTION */}
-        <article className="flex justify-end w-full lg:w-1/2 h-[600px]">
-          <article className="flex flex-col items-center lg:items-start gap-6 w-full h-full">
-            {/* Input */}
-            <div className="w-full sm:w-[90%] md:w-[80%] lg:w-[75%] py-4">
-              <input
-                type="text"
-                placeholder={t("section2_search_placeholder")}
-                className="w-full bg-[#FFFFFF] text-[#6C7582] placeholder-[#6C7582] font-poppins font-normal text-[16px] leading-[100%] tracking-[0] px-4 py-3 rounded-xl border border-white focus:ring-0 focus:outline-none shadow-sm"
-              />
-            </div>
+<article className="w-full lg:w-[40%] lg:mr-4 h-auto lg:h-[600px] flex flex-col items-center lg:items-start lg:pr-4 sm:pr-6 pr-4 pl-4 lg:pl-0">
 
-            {/* Tabs */}
-            <div className="flex justify-start items-center gap-3">
-              {tabs.map((tab) => (
-                <div
-                  key={tab.id}
-                  className={`rounded-full py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 text-sm sm:text-base md:text-[1rem] font-normal text-center leading-none font-poppins cursor-pointer`}
-                  style={{
-                    background: selectedTab === tab.value ? "#C1001F" : "#FFFFFF",
-                    color: selectedTab === tab.value ? "#F8F5F0" : "#6C7582",
-                  }}
-                  onClick={() => handleTabChange(tab.value)}
-                >
-                  {tab.name}
-                </div>
-              ))}
-            </div>
 
-            {/* Locations List */}
-            <article className="flex flex-col items-start justify-start gap-5 pr-2 overflow-auto w-full max-w-[83%] flex-grow">
-              {locationData?.map((location) => (
-                <LocationDetailedCard
-                  key={location.id}
-                  id={location.id}
-                  address={location.address}
-                  name={location.title}
-                  phone={location.phone}
-                  onMapClick={() => handleOpenMap(location.direction)}
-                />
-              ))}
-            </article>
-          </article>
-        </article>
+
+  <div className="w-full max-w-[700px] flex flex-col gap-6 h-full">
+
+    {/* Input */}
+    <div className="w-full py-4">
+      <input
+        type="text"
+        placeholder={t("section2_search_placeholder")}
+        className="w-full bg-white text-[#6C7582] placeholder-[#6C7582] font-poppins text-[16px] px-4 py-3 rounded-xl border border-white focus:ring-0 focus:outline-none shadow-sm"
+      />
+    </div>
+
+    {/* Tabs */}
+    <div className="flex flex-wrap gap-2">
+      {tabs.map((tab) => (
+        <div
+          key={tab.id}
+          className={`rounded-full px-4 py-2 text-sm font-poppins cursor-pointer transition`}
+          style={{
+            background: selectedTab === tab.value ? "#C1001F" : "#FFFFFF",
+            color: selectedTab === tab.value ? "#F8F5F0" : "#6C7582",
+            border: "1px solid #E5E7EB",
+          }}
+          onClick={() => handleTabChange(tab.value)}
+        >
+          {tab.name}
+        </div>
+      ))}
+    </div>
+
+    {/* Locations List */}
+    <div className="flex flex-col gap-4 overflow-auto w-full max-h-[400px] pr-1">
+      {locationData?.map((location) => (
+        <LocationDetailedCard
+          key={location.id}
+          id={location.id}
+          address={location.address}
+          name={location.title}
+          phone={location.phone}
+          onMapClick={() => handleOpenMap(location.direction)}
+        />
+      ))}
+    </div>
+  </div>
+</article>
+
 
         {/* RIGHT MAP SECTION */}
-        <article className="flex justify-center items-start w-full lg:w-1/2 h-[600px]">
-          <GroupedMap
-            height={600}
-            width={400}
-            location={tabs.find((tab) => tab.value === selectedTab)?.location || ""}
-          />
-        </article>
+  
+      <article className="hidden lg:flex justify-center items-start w-full lg:w-1/2 h-[600px]">
+        <GroupedMap
+          height={600}
+          width={400}
+          location={tabs.find((tab) => tab.value === selectedTab)?.location || ""}
+        />
+      </article>
+
       </section>
 
       {showModal && modalLocation && (

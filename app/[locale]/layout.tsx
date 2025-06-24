@@ -133,7 +133,9 @@ export default async function RootLayout(props: {
         <link rel="icon" href="/favicon.png" />
       </head>
       <NextIntlClientProvider locale={locale} messages={messages}>
-        <body className="font-inter bg-[#F8F5F0] relative overflow-x-hidden w-[100vw]">
+      <body className="font-inter bg-[#F4F5F6] sm:bg-[#F8F5F0] relative overflow-x-hidden w-[100vw]">
+
+
           <Providers>
             <ToastProvider>
               {children}

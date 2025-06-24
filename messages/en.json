@@ -14,6 +14,10 @@
   "feature_4_title": "You Are Our Priority",
   "feature_4_desc": "Every patient is at the heart of our care, treated with respect and compassion.",
   "book_your_visit": "Book Your Visit",
+   "all": "All",
+    "dallas": "Dallas",
+    "houston": "Houston",
+    "sanAntonio": "San Antonio",
 
 
 
@@ -22,8 +26,9 @@
 "faq_subtitle": "Have questions about your visit? Need health tips? Explore our resources to feel prepared and supported.",
 
 "hero_image_title":"Proper care, happy life.","hero_section_button":"Get Appointment","section1_button":"Book now!","section1_button1":"Book Your Visit","section1_button2":"Find a Clinic Near You",
-"section1_h1":"Quality Care for Just $19 at Clinica San Miguel",
-"section1_span":" 4.8/5 | 40+ Reviews","section1_p":"Affordable, compassionate care starts at just $19. No appointment needed, no insurance required.We’re here to help you feel your best, every step of the way.","section1_subtitle":"Experience affordable care at our clinic.","section1_title":"Office visits for only",
+"section1_h1_part1":"Quality Care for Just $19",
+"section1_h1_part2":"at Clinica San Miguel",
+"section1_span":" 4.8/5 | 100+ Reviews","section1_p":"Affordable, compassionate care starts at just $19. No appointment needed, no insurance required.We’re here to help you feel your best, every step of the way.","section1_subtitle":"Experience affordable care at our clinic.","section1_title":"Office visits for only",
 
 
 "section2_all":"All","section2_title":"Find Nearest Clinic","section2_title2":"Find Your Nearest Clinica San Miguel","section2_p1":"With 17 locations across Texas, quality care is always close by. Use our","section2_p2":" map or filter by city to find the clinic that’s right for you.",
@@ -59,6 +64,17 @@
     "cta_book": "Book Your Visit",
     "cta_find": "Find a Clinic Near You",
     "reviews": "4.8/5 | 40+ Reviews"
+  },
+
+
+   "location_buttons": {
+    "viewDetails": "View Details",
+    "getDirections": "Get Directions"
+  },
+
+   "testimonies": {
+    "title": "Real Stories from Our Patients",
+    "description": "At Clinica San Miguel, your health is our priority. Hear from others who’ve found care and comfort with us."
   }
 
 

@@ -1,25 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { ImPhone } from "react-icons/im";
-import { IoIosArrowForward } from "react-icons/io";
-import { FaMapLocationDot } from "react-icons/fa6";
-import { HiOutlineMap } from "react-icons/hi";
 import { BsTelephone } from "react-icons/bs";
+import { HiOutlineMap } from "react-icons/hi";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 export const LocationDetailedCard = ({
   id,
   name,
   address,
   phone,
-   onMapClick,
+  onMapClick,
 }: {
   id: number | null;
   name: string | undefined | null;
   address: string | undefined | null;
   phone?: string | null;
-   onMapClick?: () => void;
+  onMapClick?: () => void;
 }) => {
   const router = useRouter();
   const [showMap, setShowMap] = useState(false);
@@ -27,10 +25,12 @@ export const LocationDetailedCard = ({
   const handleLocation = () => {
     router.push(`/contact/${id}`);
   };
+  const t = useTranslations("location_buttons");
 
   return (
     <>
-      <main className="bg-[#FFFEFC] rounded-[13px] min-w-[320px] w-full max-w-2xl min-h-[179px] px-[10px] pt-[16px] pb-[10px] flex flex-col gap-0 justify-start relative">
+      <main className="bg-[#FFFEFC] rounded-[13px] min-w-[320px] w-full max-w-2xl min-h-56 sm:min-h-44 py-4 sm:py-3 flex flex-col gap-0 justify-start relative pl-4 sm:pl-6 lg:pl-8">
+        {/* Added padding on mobile (pl-4), tablets and up (sm:pl-6), and laptops (lg:pl-8) */}
 
         <h4 className="font-poppins font-normal text-[16px] leading-[100%] tracking-[0] text-[#1B2432] mb-0 pb-0">
           {name || "Clinica San Miguel Dallas, TX Office"}
@@ -53,21 +53,23 @@ export const LocationDetailedCard = ({
           </article>
         </div>
 
-        <div className="flex flex-wrap gap-4 mt-4">
-          <button
-            onClick={handleLocation}
-            className="flex items-center gap-2 px-6 py-3 bg-[#C1001F] text-white text-[13px] font-normal font-poppins rounded-full hover:bg-[#a6001a] transition"
-          >
-            View Details <span className="text-[15px]">→</span>
-          </button>
+        
+        <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full pb-32 sm:pb-0">
+  <button
+    onClick={handleLocation}
+    className="w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 bg-[#C1001F] text-white text-[13px] font-normal font-poppins rounded-full hover:bg-[#a6001a] transition"
+  >
+    {t("viewDetails")} <span className="text-[15px]">→</span>
+  </button>
 
-          <button
-            onClick={() => setShowMap(true)}
-            className="flex items-center gap-2 px-6 py-3 border border-[#6C7582] text-[#6C7582] text-[13px] font-normal font-poppins rounded-full hover:bg-[#f4f5f6] transition"
-          >
-            Get Directions <span className="text-[15px]">→</span>
-          </button>
-        </div>
+  <button
+    onClick={() => setShowMap(true)}
+    className="w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 border border-[#6C7582] text-[#6C7582] text-[13px] font-normal font-poppins rounded-full hover:bg-[#f4f5f6] transition"
+  >
+    {t("getDirections")} <span className="text-[15px]">→</span>
+  </button>
+</div>
+
       </main>
 
       {showMap && (

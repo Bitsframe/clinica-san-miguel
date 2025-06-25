@@ -11,6 +11,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { FaPhoneFlip } from "react-icons/fa6";
+import { useRef, useEffect, useState } from "react";
+import { GroupedLocations } from "@/sections/Locations/GroupedLocations";  
 
 export const Hero = () => {
   const t = useTranslations("home");
@@ -167,3 +169,4 @@ export const HeroTopSection = () => {
     </main>
   );
 };
+

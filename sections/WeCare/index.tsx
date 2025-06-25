@@ -21,18 +21,20 @@ export function WeCare() {
           </div>
 
           <div className="h-[500px] md:h-[600px] rounded-2xl overflow-hidden shadow">
-            <Image
-              src={elderly_right}
-              alt="Elderly woman with caregiver"
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={elderly_right.src}
+            alt="Elderly woman with caregiver"
+            className="w-full h-full object-cover"
+          />
+        </div>
         </div>
 
         <div className="flex flex-col gap-6">
           <div className="h-[500px] md:h-[600px] rounded-2xl overflow-hidden shadow">
-            <Image
-              src={elderly_left}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={elderly_left.src}
               alt="Doctor performing check-up"
               className="w-full h-full object-cover"
             />

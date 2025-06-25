@@ -5,8 +5,9 @@
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
-import { Link } from "@/navigation";
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
+import  Link from "next/link";
+
 import { useSupabase } from "@/context/supabaseContext";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -88,16 +89,13 @@ export const Treatments = () => {
                 h-72 sm:h-72 md:h-60 lg:h-[24rem]
                 overflow-hidden rounded-xl border bg-white shadow-sm hover:shadow-md transition">
 
-            {/* Reduced image height */}
             <div className="w-full h-48 pt-3 px-3 overflow-hidden rounded-md">
-              <Image
-                src={treatment.image}
-                alt={treatment.title}
-                width={500}
-                height={700}
-                className="w-full h-full object-cover rounded-md"
-              />
-            </div>
+            <SafeImage
+              src={treatment.image}        
+              alt={treatment.title}        
+              className="w-full h-full object-cover rounded-md" 
+            />
+          </div>
 
             {/* Content Section */}
             <div className="flex flex-col flex-1 py-3 px-3 bg-white rounded-lg shadow-md">
@@ -143,11 +141,14 @@ export const Treatments = () => {
 
 
   {/* CTA Button */}
+
+   <Link href="/services">
   <div className="w-[90%] sm:w-[70%] md:w-[50%] lg:w-[35%] xl:w-[25%] mx-auto py-4">
     <button className="w-full h-[60px] bg-[#C1001F] hover:bg-[#a30019] text-white font-medium text-base rounded-full transition">
          {t("treatments_cta_button")}
     </button>
   </div>
+  </Link>
 </section>
 
   );

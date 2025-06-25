@@ -230,6 +230,10 @@ export interface Database {
           Text: string | null;
         };
       };
+
+      
+
+
       Appoinments: {
         Row: {
           // the data expected from .select()
@@ -247,6 +251,25 @@ export interface Database {
           service: string | null;
         };
       };
+      features: {
+        Row: {
+          id: number; 
+          created_at: string; 
+          title: string | null; 
+          description: string | null; 
+          icon: string | null; 
+        };
+      };
+
+      features_es: {
+          Row: {
+            id: number; 
+            created_at: string; 
+            title: string | null; 
+            description: string | null; 
+            icon: string | null; 
+          };
+        };
     };
   };
 }

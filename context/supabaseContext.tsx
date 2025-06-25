@@ -36,6 +36,8 @@ interface SupabaseContextType {
   testinomial: Database["public"]["Tables"]["Testinomial"]["Row"][];
   career: Database["public"]["Tables"]["career"]["Row"][];
   career_es: Database["public"]["Tables"]["career_es"]["Row"][];
+  features: Database["public"]["Tables"]["features"]["Row"][]; // <-- Add this
+  features_es: Database["public"]["Tables"]["features_es"]["Row"][];
   fetchDetailedData: (table: string, id: number) => Promise<void>;
   fetchFilteredData: (
     table: string,
@@ -104,6 +106,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
   const [services_es, setServices_es] = useState<
     Database["public"]["Tables"]["services_es"]["Row"][]
   >([]);
+  
   // const [detailData, setDetailData] = useState<
   //   Database["public"]["Tables"]["services"]["Row"][]
   // >([]);
@@ -119,6 +122,13 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
   const [career, setCareer] = useState<
     Database["public"]["Tables"]["career"]["Row"][]
   >([]);
+
+  const [features, setFeatures] = useState<
+    Database["public"]["Tables"]["features"]["Row"][]
+  >([]);
+
+  const [features_es, setFeatures_es] = useState<Database["public"]["Tables"]["features_es"]["Row"][]>([]);
+
   const [career_es, setCareer_es] = useState<
     Database["public"]["Tables"]["career_es"]["Row"][]
   >([]);
@@ -217,6 +227,8 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchDataCallback("Testinomial", setTestinomial);
     fetchDataCallback("career", setCareer);
     fetchDataCallback("career_es", setCareer_es);
+    fetchDataCallback("features", setFeatures);
+    fetchDataCallback("features_es", setFeatures_es);
   }, [fetchDataCallback]);
 
   return (
@@ -246,6 +258,8 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
         detailData,
         filteredData,
         searchedData,
+        features, 
+        features_es,
         fetchDetailedData: fetchDetailedDataCallback,
         fetchFilteredData: fetchFilteredDataCallback,
         fetchSearchedData: fetchSearchedDataCallback,

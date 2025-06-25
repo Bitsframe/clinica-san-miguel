@@ -4,7 +4,8 @@ import { useSupabase } from "@/context/supabaseContext";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { mission as missionImage } from "@/assets/images/cover";
-import Image from "next/image";
+
+import  SafeImage from "@/components/SafeImage"
 
 export const CommunityMission = () => {
   const t = useTranslations("home");
@@ -27,13 +28,11 @@ export const CommunityMission = () => {
 
         <div className="relative w-full h-[500px] z-20 translate-y-28">
           <div className="relative h-full w-full rounded-xl overflow-hidden shadow-lg">
-            <Image
-              src={missionImage}
+            {/* Using SafeImage instead of <img> */}
+            <SafeImage
+              src={missionImage}  // Pass the imported image (or URL)
               alt="Mission"
-              fill
-              className="object-cover rounded-xl"
-              sizes="100vw"
-              priority
+              className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
             />
           </div>
         </div>
@@ -45,14 +44,16 @@ export const CommunityMission = () => {
           {data?.sort((a, b) => a.id - b.id).map((item) => (
             <div key={item.id} className="flex items-center gap-4">
               <div className="w-[67px] h-[67px] rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                <Image
-                  src={item.Icon}
-                  alt={item.Title}
-                  width={24}
-                  height={24}
-                  className="object-contain filter brightness-0 invert"
-                />
-              </div>
+              
+              <SafeImage
+                src={item.Icon}  // Pass either URL or StaticImageData
+                alt={item.Title}
+                width={24}
+                height={24}
+                className="object-contain filter brightness-0 invert"
+              />
+            </div>
+
               <div className="flex flex-col justify-center">
                 <h3 className="font-semibold text-lg text-white">{item.Title}</h3>
                 <p className="text-sm text-gray-400">{item.Text}</p>

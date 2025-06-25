@@ -17,20 +17,20 @@ export function AboveFooter() {
 
   return (
     <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center overflow-visible mt-20">
-     <div className="relative w-full max-w-[85vw] bg-[#0F172A] text-white rounded-2xl px-4 py-10 lg:px-20 lg:py-16 lg:h-[26rem] overflow-visible">
+     <div className="relative w-full max-w-[85vw] bg-[#0F172A] text-white rounded-2xl px-4 py-10 lg:px-20 lg:py-16 lg:h-[30rem] overflow-visible">
 
         {/* Text Content */}
         <div className="max-w-xl z-10 relative">
-          <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold leading-tight lg:leading-snug mb-4">
             {t("title")}
           </h2>
-          <p className="text-base text-gray-300 mb-6">
+          <p className="text-base text-gray-300 mb-6 lg:leading-relaxed">
             {t("description")}
           </p>
 
           {/* Buttons */}
           <div className="flex gap-4 mb-6 flex-wrap">
-            <button className="bg-[#C1001F] hover:bg-red-800 text-white px-6 py-3 rounded-full text-sm font-medium">
+            <button className="bg-[#C1001F] hover:bg-red-800 text-white px-12 py-4 rounded-full text-sm font-medium">
               {t("cta_book")}
             </button>
             {/* <button className="border border-white text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-white hover:text-[#0F172A] transition">

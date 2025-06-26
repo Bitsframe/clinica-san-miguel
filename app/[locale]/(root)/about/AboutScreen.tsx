@@ -6,12 +6,16 @@ import { Divider } from "@/utils";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { family  } from "@/assets/images/cover/"
+import React, { Fragment } from "react";
+
 
 const customLoader = ({ src, width, quality }: any) => {
   const urlWithoutQuery = src.split("?")[0];
   const qualityParam = quality ? `&q=${quality}` : "";
   return `${urlWithoutQuery}?w=${width}${qualityParam}`;
 };
+
 
 const Expertise = ({
   image,
@@ -102,7 +106,7 @@ const AboutScreen = () => {
 
         <article className="w-[95%] md:w-[75%] lg:w-[50%] flex justify-center items-center">
           <Image
-            src={data?.image_1 || ""}
+            src={data?.image_1 || family}
             alt={""}
             width={100}
             height={100}
@@ -137,16 +141,15 @@ const AboutScreen = () => {
       <Divider />
 
       {expertise.map((item, index) => (
-        <>
-          <Expertise
-            image={item.image}
-            heading={item.heading}
-            description={item.description}
-            key={item.id}
-          />
-          {index !== expertise.length - 1 && <Divider />}
-        </>
-      ))}
+  <Fragment key={item.id}>
+    <Expertise
+      image={item.image}
+      heading={item.heading}
+      description={item.description}
+    />
+    {index !== expertise.length - 1 && <Divider />}
+  </Fragment>
+))}
     </main>
   );
 };

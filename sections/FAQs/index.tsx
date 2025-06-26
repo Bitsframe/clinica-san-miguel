@@ -19,7 +19,7 @@ const AccordionItem = ({
   toggleAccordion: () => void;
 }) => {
   return (
-    <div className="w-full rounded-md bg-gradient-to-r from-[#D3D4D6] to-[#F4F5F6] border border-[#D1D5DB] shadow-sm transition-all">
+    <div className="w-full rounded-md bg-gradient-to-r from-[#A9A9A9] to-[#D1D3D4] border border-[#D1D5DB] shadow-sm transition-all">
 
       <button
         onClick={toggleAccordion}

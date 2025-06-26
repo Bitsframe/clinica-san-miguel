@@ -26,16 +26,16 @@ export const CommunityMission = () => {
           </p>
         </div>
 
-        <div className="relative w-full h-[500px] z-20 translate-y-28">
-          <div className="relative h-full w-full rounded-xl overflow-hidden shadow-lg">
-            {/* Using SafeImage instead of <img> */}
-            <SafeImage
-              src={missionImage}  // Pass the imported image (or URL)
-              alt="Mission"
-              className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
-            />
-          </div>
-        </div>
+        <div className="relative w-full h-[500px] z-20 translate-y-28 md:block sm:hidden">
+  <div className="relative h-full w-full rounded-xl overflow-hidden shadow-lg">
+    {/* Using SafeImage instead of <img> */}
+    <SafeImage
+      src={missionImage}  // Pass the imported image (or URL)
+      alt="Mission"
+      className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
+    />
+  </div>
+</div>
       </div>
 
       {/* Right Side - Features (Dynamic from DB) */}
@@ -50,7 +50,7 @@ export const CommunityMission = () => {
                 alt={item.Title}
                 width={24}
                 height={24}
-                className="object-contain filter brightness-0 invert"
+                 className="object-contain filter brightness-0 invert "
               />
             </div>
 

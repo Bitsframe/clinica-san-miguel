@@ -32,7 +32,12 @@ export function TrustedPartner() {
               {data.map((f, i) => ( // Map over the fetched data
                 <div key={i} className="flex items-start gap-4">
                   <div className="bg-[#C1001F] rounded-full w-10 h-10 flex items-center justify-center">
-                    <DollarSign className="w-5 h-5 text-white" />
+                    <SafeImage
+                      src={f.icon}  
+                      alt={`Icon for ${f.title}`}
+                      className="w-8 h-8"  // Adjust the size as needed
+                    />
+
                   </div>
                   <div>
                     <h4 className="font-semibold text-base md:text-lg text-gray-900 lg:text-2xl">

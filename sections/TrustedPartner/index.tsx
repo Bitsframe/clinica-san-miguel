@@ -11,9 +11,12 @@ export function TrustedPartner() {
   const t = useTranslations("trusted");
   const locale = useLocale();  
   const { features, features_es } = useSupabase(); 
+
   
 
   const data = locale === "es" ? features_es : features;
+
+
  
 
   return (
@@ -31,14 +34,13 @@ export function TrustedPartner() {
             <div className="space-y-6">
               {data.map((f, i) => ( // Map over the fetched data
                 <div key={i} className="flex items-start gap-4">
-                  <div className="bg-[#C1001F] rounded-full w-10 h-10 flex items-center justify-center">
-                    <SafeImage
-                      src={f.icon}  
-                      alt={`Icon for ${f.title}`}
-                      className="w-8 h-8"  // Adjust the size as needed
-                    />
-
-                  </div>
+                  <div className="bg-[#C1001F] rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
+                <SafeImage
+                  src={f.icon || ""}
+                  alt={`Icon for ${f.title}`}
+                  className="w-10 h-10 sm:w-6 sm:h-6 object-contain"
+                />
+              </div>
                   <div>
                     <h4 className="font-semibold text-base md:text-lg text-gray-900 lg:text-2xl">
                       {f.title}

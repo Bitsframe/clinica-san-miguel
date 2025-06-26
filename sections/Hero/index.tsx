@@ -21,10 +21,28 @@ export const Hero = () => {
   const { heroSection, heroSection_es } = useSupabase();
 
   const data = locale === "es" ? heroSection_es[0] : heroSection[0];
+  const [shouldScroll, setShouldScroll] = useState(false);
 
   const go_to_contact_handle = () => {
     router.push(`/contact`);
   };
+
+   useEffect(() => {
+    if (shouldScroll) {
+      const timeout = setTimeout(() => {
+        const target = document.getElementById("grouped-locations");
+        if (target) {
+          
+          target.scrollIntoView({ behavior: "smooth" });
+        } else {
+         
+        }
+        setShouldScroll(false); 
+      }, 100); 
+
+      return () => clearTimeout(timeout);
+    }
+  }, [shouldScroll]);
 
   return (
     <section className="flex flex-col gap-20 justify-center md:justify-start items-center md:items-start">
@@ -67,24 +85,37 @@ export const Hero = () => {
 };
 
 
-
 export const HeroTopSection = () => {
   const t = useTranslations("home");
   const router = useRouter();
+  const [shouldScroll, setShouldScroll] = useState(false);
 
   const redirectToContact = () => {
     router.push(`/contact`);
   };
 
+  useEffect(() => {
+    if (shouldScroll) {
+      const timeout = setTimeout(() => {
+        const target = document.getElementById("grouped-locations");
+        if (target) {
+          console.log("✅ Scrolling to #grouped-locations...");
+          target.scrollIntoView({ behavior: "smooth" });
+        } else {
+          console.warn("⚠️ Target not found");
+        }
+        setShouldScroll(false);
+      }, 100); // delay ensures DOM is ready
+
+      return () => clearTimeout(timeout);
+    }
+  }, [shouldScroll]);
+
   return (
     <main className="flex flex-col relative w-full">
       <article className="w-full min-h-[80vh] sm:min-h-screen relative">
-        {/* Remove padding on left and right only on large screens */}
         <div className="container mx-auto px-4 sm:px-6 lg:mx-12 lg:max-w-full relative h-full">
-          
-          {/* Image + Overlay + Content Layer */}
-          <div className="relative w-full lg:w-[110rem]  h-[80vh] sm:h-[90vh] md:h-[100vh] lg:h-[90vh] overflow-hidden rounded-md sm:rounded-3xl">
-
+          <div className="relative w-full lg:w-[110rem] h-[80vh] sm:h-[90vh] md:h-[100vh] lg:h-[90vh] overflow-hidden rounded-md sm:rounded-3xl">
             {/* Background Image */}
             <Image
               src={HomeBackground}
@@ -98,9 +129,8 @@ export const HeroTopSection = () => {
             {/* Overlay */}
             <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-md sm:rounded-3xl" />
 
-            {/* Text Content Over Image */}
-           <div className="absolute inset-x-0 bottom-0 lg:top-[40%] z-20 text-white px-4 sm:px-8 flex flex-col items-start justify-start lg:justify-start pb-8 pt-12 lg:w-[45%] lg:ml-32 md:w-[60%] md:ml-16">
-
+            {/* Text Content */}
+            <div className="absolute inset-x-0 bottom-0 lg:top-[40%] z-20 text-white px-4 sm:px-8 flex flex-col items-start justify-start pb-8 pt-12 lg:w-[45%] lg:ml-32 md:w-[60%] md:ml-16">
               {/* Star Rating */}
               <div className="flex items-center mb-2 gap-2">
                 {[...Array(5)].map((_, i) => (
@@ -121,30 +151,30 @@ export const HeroTopSection = () => {
               {/* Heading */}
               <h1 className="text-[22px] sm:text-[32px] md:text-[40px] lg:text-[48px] font-bold leading-snug font-inter max-w-[90%] mb-2">
                 {t("section1_h1_part1")}{" "}
+                <span className="text-[#C1001F]">{t("section_h1_h19")}</span>{" "}
                 <span className="block lg:block">{t("section1_h1_part2")}</span>
               </h1>
 
-              {/* Paragraph (Clamp only on phones) */}
-          <p className="text-sm sm:text-base md:text-lg leading-snug text-white w-full break-words mb-4 tracking-wide lg:line-clamp-3 sm:line-clamp-none overflow-hidden">
-            {t("section1_p")}
-          </p>
+              {/* Paragraph */}
+              <p className="text-sm sm:text-base md:text-lg leading-snug text-white w-full break-words mb-4 tracking-wide lg:line-clamp-3 sm:line-clamp-none overflow-hidden">
+                {t("section1_p")}
+              </p>
 
               {/* Desktop Buttons */}
-           
-          <div className="hidden sm:flex flex-wrap gap-4 lg:mt-8">
-          <button
-          onClick={redirectToContact}
-          className="bg-[#C1001F] text-white font-medium text-[15px] md:text-[16px] py-4 px-8 rounded-full hover:bg-red-700 transition"
-          >
-          {t("section1_button1")}
-          </button>
-          <button
-          className="border border-white text-white font-medium text-[15px] md:text-[16px] py-4 px-12 rounded-full hover:bg-white hover:text-black transition"
-          >
-          {t("section1_button2")}
-          </button>
-          </div>
-
+              <div className="hidden sm:flex flex-wrap gap-4 lg:mt-8">
+                <button
+                  onClick={redirectToContact}
+                  className="bg-[#C1001F] text-white font-medium text-[15px] md:text-[16px] py-4 px-8 rounded-full hover:bg-red-700 transition"
+                >
+                  {t("section1_button1")}
+                </button>
+                <button
+                  onClick={() => setShouldScroll(true)}
+                  className="border border-white text-white font-medium text-[15px] md:text-[16px] py-4 px-12 rounded-full hover:bg-white hover:text-black transition"
+                >
+                  {t("section1_button2")}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -160,6 +190,7 @@ export const HeroTopSection = () => {
             {t("section1_button1")}
           </button>
           <button
+            onClick={() => setShouldScroll(true)}
             className="bg-[#0F172A] text-white font-medium text-sm py-3 px-6 rounded-full w-[85%] max-w-xs"
           >
             {t("section1_button2")}
@@ -169,4 +200,3 @@ export const HeroTopSection = () => {
     </main>
   );
 };
-

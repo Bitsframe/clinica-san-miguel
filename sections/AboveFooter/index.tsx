@@ -17,10 +17,11 @@ export function AboveFooter() {
 
   return (
     <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center overflow-visible mt-20">
-     <div className="relative w-full max-w-[85vw] bg-[#0F172A] text-white rounded-2xl px-4 py-10 lg:px-20 lg:py-16 lg:h-[30rem] overflow-visible">
+     <div className="relative w-full max-w-[95vw] sm:max-w-[90vw] lg:max-w-[85vw] bg-[#0F172A] text-white rounded-2xl px-2 sm:px-4 lg:px-20 py-10 lg:py-16 lg:h-[30rem] overflow-visible">
+
 
         {/* Text Content */}
-        <div className="max-w-xl z-10 relative">
+        <div className="max-w-xl z-10 relative px-4 sm:px-6 md:px-10">
           <h2 className="text-3xl md:text-4xl font-bold leading-tight lg:leading-snug mb-4">
             {t("title")}
           </h2>
@@ -64,7 +65,7 @@ export function AboveFooter() {
           <Image
             src={mission}
             alt="img3"
-            className="absolute top-[50%] right-[17%] w-20 h-20 object-cover rounded-xl"
+            className="absolute top-[48%] right-[17%] w-24 h-24 object-cover rounded-xl"
           />
           <Image
             src={elderly_right}

@@ -14,6 +14,7 @@ import { WeCare } from "./WeCare"
 import { PatientStories } from "./PatientStories"
 import { TrustedPartner } from "./TrustedPartner"
 import { AboveFooter } from "./AboveFooter";
+import  StickyMobileButton  from "./Stickybutton";
 
 export {
   Testimonials,
@@ -33,6 +34,7 @@ export {
   PatientStories,
   TrustedPartner,
   AboveFooter,
+  StickyMobileButton,
 
 
 };

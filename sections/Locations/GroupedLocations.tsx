@@ -76,7 +76,7 @@ export const GroupedLocations = () => {
   };
 
   return (
-    <main className="flex flex-col relative gap-4 my-2 p-1 w-[100vw] md:w-[90vw] lg:w-[85vw] xl:w-[75vw]">
+    <main  id="grouped-locations"  className="flex flex-col relative gap-4 my-2 p-1 w-[100vw] md:w-[90vw] lg:w-[85vw] xl:w-[75vw]">
       <h1  className="font-inter font-semibold text-[40px] leading-[100%] tracking-[0] text-[#1B2432]">
         {t("section2_title2")}
       </h1>

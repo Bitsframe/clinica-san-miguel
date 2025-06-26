@@ -75,7 +75,8 @@ export const FAQs = () => {
       <h3 className="text-base text-[#606877] text-center max-w-xl mt-2 leading-relaxed">
         {t("faq_subtitle")}
       </h3>
-      <div className="flex flex-col w-full max-w-2xl gap-4 mt-10">
+      <div className="flex flex-col w-full max-w-2xl gap-4 mt-10 px-4 sm:px-0">
+
         {data &&
           data.map(
             (

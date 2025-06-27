@@ -20,12 +20,12 @@ import {
 } from "@/sections";
 
 export default async function Home() {
-  const locale = await getLocale(); // ✅ Instead of using params.locale
+  const locale = await getLocale(); 
   const t = await getTranslations({ locale, namespace: "home" });
 
   return (
     <main className="flex flex-col justify-center items-center overflow-x-hidden gap-10">
-      <div className="w-full bg-[#FFFFFF]">
+      <div id="hero-section" className="w-full bg-[#FFFFFF] ">
         <HeroTopSection />
       </div>
       <GroupedLocations />

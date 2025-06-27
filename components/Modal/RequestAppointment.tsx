@@ -224,7 +224,7 @@ export const RequestAppointment = ({
     };
 
     fetchServices();
-  }, []);
+  }, [tableName]);
 
   const submitAppointmentDetails = async () => {
     let appointmentDetails: any = {

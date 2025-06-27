@@ -26,7 +26,7 @@ const PatientFeedback = () => {
   const { id } = useParams();
   const locale = useLocale();
 
-  // Function to fetch order details by ID
+  useEffect(() => {
   const fetchOrderDetails = async () => {
     setFetching(true);
     try {
@@ -34,7 +34,7 @@ const PatientFeedback = () => {
         .from('orders')
         .select('*')
         .eq('order_id', id)
-        .single(); // Fetch a single order
+        .single();
 
       if (error) {
         throw error;
@@ -42,7 +42,6 @@ const PatientFeedback = () => {
 
       setOrderDetails(data);
 
-      // Fetch patient details
       if (data.patient_id) {
         const { data: patientData, error: patientError } = await supabase
           .from('allpatients')
@@ -63,10 +62,9 @@ const PatientFeedback = () => {
     }
   };
 
-  // Fetch order details on component mount
-  useEffect(() => {
-    fetchOrderDetails();
-  }, [id]);
+  fetchOrderDetails();
+}, [id]);
+
 
   // Function to handle input changes
   const onChangeHandle = (key: string, val: string | number) => {

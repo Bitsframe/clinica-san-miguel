@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 const Home = () => {
+  const imageSrc = "https://vsvueqtgulraaczqnnvh.supabase.co/storage/v1/object/public/services_images/School%20Physical.png?t=2024-02-11T07%3A02%3A06.700Z";
+  const isrc= "https://vsvueqtgulraaczqnnvh.supabase.co/storage/v1/object/public/services_images/School%20Physical.png?t=2024-02-11T07%3A02%3A06.700Z"
   const locale = useLocale();
 
   return locale === "es" ? (
@@ -11,13 +13,15 @@ const Home = () => {
         Examen Médico Escolar
       </h1>
       <div className="flex w-full flex-col lg:flex-row">
-        <img
-          src="https://vsvueqtgulraaczqnnvh.supabase.co/storage/v1/object/public/services_images/School%20Physical.png?t=2024-02-11T07%3A02%3A06.700Z"
-          width={1000}
-          height={1000}
-          alt="cover"
-          className="aspect-square w-full bg-black/10 object-cover lg:w-1/3 lg:rounded-lg"
-        />
+       {imageSrc ? (
+      <Image
+        src={imageSrc}
+        alt=""
+        width={1000}
+        height={1000}
+        className="aspect-square w-full bg-black/10 object-cover lg:w-1/3 lg:rounded-lg"
+      />
+    ) : null}
         <div className="w-full space-y-8 bg-black/60 p-3 text-white lg:my-10 lg:w-2/3 lg:p-8">
           <h1 className="text-4xl font-semibold lg:text-6xl">Acerca de</h1>
           <p className="text-2xl font-light lg:text-3xl">
@@ -149,13 +153,15 @@ const Home = () => {
     <div className="mx-auto flex flex-col items-center gap-10 px-5 py-5 font-semibold text-black lg:w-4/5 xl:px-20">
       <h1 className="text-center text-6xl text-red-600">School Physical</h1>
       <div className="flex w-full flex-col lg:flex-row">
-        <img
-          src="https://vsvueqtgulraaczqnnvh.supabase.co/storage/v1/object/public/services_images/School%20Physical.png?t=2024-02-11T07%3A02%3A06.700Z"
-          width={1000}
-          height={1000}
-          alt="cover"
-          className="aspect-square w-full bg-black/10 object-cover lg:w-1/3 lg:rounded-lg"
-        />
+        {isrc && (
+      <Image
+        src={isrc}
+        alt=""
+        width={1000}
+        height={1000}
+        className="aspect-square w-full bg-black/10 object-cover lg:w-1/3 lg:rounded-lg"
+      />
+    )}
         <div className="w-full space-y-8 bg-black/60 p-3 text-white lg:my-10 lg:w-2/3 lg:p-8">
           <h1 className="text-4xl font-semibold lg:text-6xl">About</h1>
           <p className="text-2xl font-light lg:text-3xl">

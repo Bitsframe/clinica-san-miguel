@@ -38,6 +38,8 @@ export function TrustedPartner() {
                 <Image
                   src={f.icon || ""}
                   alt={`Icon for ${f.title}`|| ""}
+                   width={300}
+                  height={200}
                   className="w-10 h-10 sm:w-6 sm:h-6 object-contain"
                 />
               </div>
@@ -58,6 +60,8 @@ export function TrustedPartner() {
               <Image
                 src={family}
                 alt="Family running"
+                width={300}
+                height={200}
                 className="w-full h-full object-cover rounded-xl shadow-md"
               />
             </div>
@@ -67,6 +71,8 @@ export function TrustedPartner() {
               <Image
                 src={mission}
                 alt="Mission"
+                 width={300}
+                height={200}
                 className="w-full h-full object-cover rounded-xl"
               />
             </div>
@@ -76,6 +82,8 @@ export function TrustedPartner() {
               <Image
                 src={elderly_right}
                 alt="Elderly"
+                 width={300}
+                  height={200}
                 className="w-full h-full object-cover rounded-xl"
               />
             </div>

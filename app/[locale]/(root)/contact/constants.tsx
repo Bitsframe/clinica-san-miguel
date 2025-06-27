@@ -15,14 +15,14 @@ export const LocationsData = () => {
     { id: 4, name: "San Antonio", value: "C" },
   ];
 
-  useEffect(() => {
-    if (selectedLocationGroup === "") {
-      setLocationData(locations);
-    } else {
-      fetchSearchedData("Locations", "Group", selectedLocationGroup);
-      setLocationData(searchedData);
-    }
-  }, [locations, selectedLocationGroup, searchedData]);
+useEffect(() => {
+  if (selectedLocationGroup === "") {
+    setLocationData(locations);
+  } else {
+    fetchSearchedData("Locations", "Group", selectedLocationGroup);
+    setLocationData(searchedData);
+  }
+}, [locations, selectedLocationGroup, searchedData, fetchSearchedData]);
 
   return (
     <div className="flex flex-col w-full gap-4">

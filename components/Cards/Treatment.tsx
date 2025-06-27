@@ -48,25 +48,17 @@ export const Treatment = ({
     >
       <div className="flex justify-between items-center h-[50px]">
         <div className="flex items-center gap-3">
-          <div className="w-10">
-            {/* <div
-              className="rounded-full flex w-10 h-10 justify-center items-center"
-              style={{ border: `2px solid ${theme.iconColor}` }} // Replace 'red' with any color
-            > */}
-            <img
-              src={icon}
-              alt={"service icon"}
-              className="object-contain w-10 h-10 aspect-auto"
-              style={{
-                // filter: `hue-rotate(${
-                //   mode === "dark" ? "0deg" : "180deg" // Rotate 180 degrees for dark mode
-                // })`,
-                color: mode === "dark" ? "#F8F5F0" : "#3D3D3C",
-              }}
-              // width={40}
-              // height={40}
-            />
-            {/* </div> */}
+         <div className="w-10">
+          <Image
+            src={icon}
+            alt="service icon"
+            width={40}
+            height={40}
+            className="object-contain w-10 h-10 aspect-auto"
+            style={{
+              color: mode === "dark" ? "#F8F5F0" : "#3D3D3C",
+            }}
+          />
           </div>
           <h1
             className="font-semibold font-poppins text-[25px] capitalize text-left"

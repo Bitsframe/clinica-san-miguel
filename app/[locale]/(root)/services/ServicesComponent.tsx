@@ -14,7 +14,7 @@ export const ServicesComponent = () => {
 
   const sortedData = useMemo(() => {
     return [...data].sort((a, b) => a.id - b.id);
-  }, [data, locale]);
+  }, [data]);
 
 
   useMemo

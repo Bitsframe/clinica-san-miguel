@@ -213,7 +213,7 @@ const Self_Appointment = ({ location }: any) => {
         };
 
         fetchServices();
-    }, []);
+    }, [tableName]);
 
     const submitAppointmentDetails = async () => {
         let appointmentDetails: any = {

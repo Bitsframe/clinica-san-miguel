@@ -4,7 +4,7 @@ import React from "react";
 import { DollarSign } from "lucide-react"; 
 import { useSupabase } from "@/context/supabaseContext"; 
 import { useTranslations, useLocale } from "next-intl";
-import SafeImage from "@/components/SafeImage"; 
+import Image from "next/image";
 import { elderly_right, family, mission } from "@/assets/images/cover"; 
 
 export function TrustedPartner() {
@@ -35,9 +35,9 @@ export function TrustedPartner() {
               {data.map((f, i) => ( // Map over the fetched data
                 <div key={i} className="flex items-start gap-4">
                   <div className="bg-[#C1001F] rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
-                <SafeImage
+                <Image
                   src={f.icon || ""}
-                  alt={`Icon for ${f.title}`}
+                  alt={`Icon for ${f.title}`|| ""}
                   className="w-10 h-10 sm:w-6 sm:h-6 object-contain"
                 />
               </div>
@@ -55,7 +55,7 @@ export function TrustedPartner() {
           <div className="grid grid-cols-2 gap-4 relative justify-items-end">
             {/* First Image */}
             <div className="col-span-2 overflow-hidden mt-10 sm:mt-10 lg:-mt-40 rounded-xl h-[20rem] sm:h-[25rem] md:h-[31.25rem] lg:h-[37.5rem] xl:h-[30rem] hidden sm:block">
-              <SafeImage
+              <Image
                 src={family}
                 alt="Family running"
                 className="w-full h-full object-cover rounded-xl shadow-md"
@@ -64,7 +64,7 @@ export function TrustedPartner() {
 
             {/* Second Image */}
             <div className="col-span-1 sm:col-span-1 lg:absolute lg:left-0 lg:-bottom-[21rem] lg:w-[50%] aspect-square lg:aspect-square rounded-xl overflow-hidden hidden sm:block">
-              <SafeImage
+              <Image
                 src={mission}
                 alt="Mission"
                 className="w-full h-full object-cover rounded-xl"
@@ -73,7 +73,7 @@ export function TrustedPartner() {
 
             {/* Third Image */}
             <div className="col-span-1 sm:col-span-1 lg:absolute lg:right-0 lg:-bottom-[11rem] lg:w-[45%] lg:h-[10rem] lg:ml-4 aspect-square lg:aspect-auto rounded-xl overflow-hidden hidden sm:block">
-              <SafeImage
+              <Image
                 src={elderly_right}
                 alt="Elderly"
                 className="w-full h-full object-cover rounded-xl"

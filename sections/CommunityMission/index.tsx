@@ -4,8 +4,9 @@ import { useSupabase } from "@/context/supabaseContext";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { mission as missionImage } from "@/assets/images/cover";
+import Image from "next/image";
 
-import  SafeImage from "@/components/SafeImage"
+
 
 export const CommunityMission = () => {
   const t = useTranslations("home");
@@ -32,7 +33,7 @@ export const CommunityMission = () => {
 
 
             <div className="relative h-full w-full rounded-xl overflow-hidden shadow-lg">
-              <SafeImage
+              <Image
                 src={missionImage}
                 alt="Mission"
                 className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
@@ -45,24 +46,27 @@ export const CommunityMission = () => {
         <div className="flex-1 pt-8 lg:pt-8 lg:ml-24">
 
           <div className="space-y-12">
-            {data?.sort((a, b) => a.id - b.id).map((item) => (
-              <div key={item.id} className="flex items-center gap-4">
-                <div className="w-[67px] h-[67px] rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                  <SafeImage
-                    src={item.Icon}
-                    alt={item.Title}
-                    width={24}
-                    height={24}
-                    className="object-contain filter brightness-0 invert"
-                  />
-                </div>
-                <div className="flex flex-col justify-center">
-                  <h3 className="font-semibold text-lg text-white">{item.Title}</h3>
-                  <p className="text-sm text-gray-400">{item.Text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+  {data?.sort((a, b) => a.id - b.id).map((item) =>
+    item.Icon ? (
+      <div key={item.id} className="flex items-center gap-4">
+        <div className="w-[67px] h-[67px] rounded-full bg-white/10 flex items-center justify-center shrink-0">
+          <Image
+            src={item.Icon}
+           alt={item.Title || ""}
+            width={24}
+            height={24}
+            className="object-contain filter brightness-0 invert"
+          />
+        </div>
+        <div className="flex flex-col justify-center">
+          <h3 className="font-semibold text-lg text-white">{item.Title}</h3>
+          <p className="text-sm text-gray-400">{item.Text}</p>
+        </div>
+      </div>
+    ) : null
+  )}
+</div>
+
 
           {/* CTA button if needed in future */}
           {/* <div className="mt-20">

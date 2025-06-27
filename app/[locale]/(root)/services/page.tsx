@@ -2,7 +2,13 @@ import { styles } from "@/app/[locale]/styles";
 import { ServicesComponent } from "./ServicesComponent";
 import { useTranslations } from "next-intl";
 
-const Services = ({ params: { locale } }: { params: { locale: string } }) => {
+const Services = ({
+  params,
+}: {
+  params: Promise<{ locale: string }>; 
+}) => {
+  // Destructure inside the body to "await" it manually
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const t = useTranslations("common");
 
   return (

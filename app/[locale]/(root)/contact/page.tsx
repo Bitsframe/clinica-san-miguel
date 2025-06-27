@@ -1,11 +1,15 @@
 import { Testimonials } from "@/sections";
 import { styles } from "@/app/[locale]/styles";
-
 import { LocationsData } from "./constants";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-const Contact = ({ params: { locale } }: { params: { locale: string } }) => {
-  const t = useTranslations("common");
+const Contact = async ({
+  params,
+}: {
+  params: Promise<{ locale: string }>; // ✅ Fake Promise type
+}) => {
+  const { locale } = await params; // ✅ Await it once
+  const t = await getTranslations({ locale, namespace: "common" });
 
   return (
     <main className="flex flex-col gap-5">

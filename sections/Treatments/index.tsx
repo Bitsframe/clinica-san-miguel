@@ -5,7 +5,7 @@
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
-import SafeImage from "@/components/SafeImage";
+import Image from "next/image";
 import  Link from "next/link";
 import { ExternalLink } from "lucide-react"; 
 
@@ -104,13 +104,15 @@ return (
                   h-72 sm:h-72 md:h-60 lg:h-[24rem]
                   overflow-hidden rounded-xl border bg-white shadow-sm hover:shadow-md transition">
 
-                <div className="w-full h-48 pt-3 px-3 overflow-hidden rounded-md">
-                  <SafeImage
-                    src={treatment.image}
-                    alt={treatment.title}
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                </div>
+                  <div className="w-full h-48 pt-3 px-3 overflow-hidden rounded-md">
+            {treatment.image ? (
+              <Image
+                src={treatment.image}
+                alt={treatment.title || ""}
+                className="w-full h-full object-cover rounded-md"
+              />
+            ) : null}
+          </div>
 
                 {/* Content Section */}
                 <div className="flex flex-col flex-1 py-3 px-3 bg-white rounded-lg shadow-md">

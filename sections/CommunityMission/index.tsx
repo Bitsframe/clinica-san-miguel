@@ -17,7 +17,7 @@ export const CommunityMission = () => {
   const data = locale === "es" ? mission_es : mission;
 
   return (
-<section className="bg-[#0F172A] text-white py-12 md:py-20 rounded-2xl mt-8 mx-4 sm:mx-0">
+<section className="bg-[#0F172A] text-white py-12 md:py-2 rounded-2xl mt-8 mx-4 sm:mx-0">
 
       <div className="container mx-auto px-4 md:px-10 lg:px-16 flex flex-col lg:flex-row gap-10">
         {/* Left Side - Mission */}
@@ -28,18 +28,31 @@ export const CommunityMission = () => {
               {t("community_mission_description")}
             </p>
           </div>
+       <div className="relative w-full 
+  sm:max-w-screen-sm   // Small screens
+  md:max-w-screen-md   // Medium screens
+  lg:max-w-screen-lg   // Large screens
+  xl:max-w-screen-xl   // Extra-large
+  2xl:max-w-[1600px]   // Ultra-wide custom max
+  mx-auto              // Center horizontally
 
-        <div className="relative w-full h-[500px] z-20 hidden sm:block sm:translate-y-28">
 
-
-            <div className="relative h-full w-full rounded-xl overflow-hidden shadow-lg">
-              <Image
-                src={missionImage}
-                alt="Mission"
-                className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
-              />
-            </div>
-          </div>
+  h-[40vh]        // base (phones)
+  sm:h-[50vh]     // small screens
+  md:h-[60vh]     // tablets
+  lg:h-[80vh]     // laptops
+  xl:h-[100vh]    // large desktops
+  2xl:h-[110vh]   // ultra-wide
+  z-20 hidden sm:block sm:translate-y-16"
+>
+  <div className="relative h-full w-full rounded-xl overflow-hidden shadow-lg">
+    <Image
+      src={missionImage}
+      alt="Mission"
+      className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
+    />
+  </div>
+</div>
         </div>
 
         {/* Right Side - Features */}

@@ -6,20 +6,33 @@ export default function LanguageChanger({ locale }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleChange = (e) => {
-    router.push(pathname, { locale: e.target.value });
+  const handleChange = (newLocale) => {
+    router.push(pathname, { locale: newLocale });
   };
 
   return (
-    <div className="">
-      <select
-        value={locale}
-        onChange={handleChange}
-        className="cursor-pointer appearance-none bg-transparent flex justify-between gap-3 items-center"
+    <div className="flex gap-2">
+      <button
+        onClick={() => handleChange("en")}
+        className={`px-3 py-1 rounded-md border text-sm ${
+          locale === "en"
+            ? "bg-[#C1001F] text-white border-[#C1001F]"
+            : "bg-white text-gray-800 border-gray-300"
+        }`}
       >
-        <option value="en">en</option>
-        <option value="es">es</option>
-      </select>
+        EN
+      </button>
+
+      <button
+        onClick={() => handleChange("es")}
+        className={`px-3 py-1 rounded-md border text-sm ${
+          locale === "es"
+            ? "bg-[#C1001F] text-white border-[#C1001F]"
+            : "bg-white text-gray-800 border-gray-300"
+        }`}
+      >
+        ES
+      </button>
     </div>
   );
 }

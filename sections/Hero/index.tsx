@@ -85,6 +85,19 @@ export const Hero = () => {
 };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const HeroTopSection = () => {
   const t = useTranslations("home");
   const router = useRouter();
@@ -99,89 +112,91 @@ export const HeroTopSection = () => {
       const timeout = setTimeout(() => {
         const target = document.getElementById("grouped-locations");
         if (target) {
-          console.log("✅ Scrolling to #grouped-locations...");
           target.scrollIntoView({ behavior: "smooth" });
-        } else {
-          console.warn("⚠️ Target not found");
         }
         setShouldScroll(false);
-      }, 100); // delay ensures DOM is ready
-
+      }, 100);
       return () => clearTimeout(timeout);
     }
   }, [shouldScroll]);
 
   return (
-    <main className="flex flex-col relative w-full">
-      <article className="w-full min-h-[80vh] sm:min-h-screen relative">
-        <div className="container mx-auto px-4 sm:px-6 lg:mx-12 lg:max-w-full relative h-full">
-          <div className="relative w-full lg:w-[110rem] h-[80vh] sm:h-[90vh] md:h-[100vh] lg:h-[90vh] overflow-hidden rounded-md sm:rounded-3xl">
-            {/* Background Image */}
-            <Image
-              src={HomeBackground}
-              alt="Home Background"
-              fill
-              sizes="100vw"
-              priority
-              className="object-cover object-center rounded-md sm:rounded-3xl w-full lg:w-full lg:h-[50vh] sm:h-[90vh] md:h-[100vh]"
-            />
+   <main className="flex flex-col w-full relative">
+  <article className="w-full relative min-h-[80vh] sm:min-h-screen lg:pt-4">
+    <div className="w-full px-4 sm:px-6 lg:px-12">
 
-            {/* Overlay */}
-            <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-md sm:rounded-3xl" />
+      {/* ✅ Mobile Image (only on small screens) */}
+      <div className="relative w-full mx-auto block sm:hidden h-[80vh] max-w-screen-xl overflow-hidden rounded-3xl">
+        <Image
+          src={HomeBackground}
+          alt="Mobile Home"
+          width={300}
+          height={600}
+          className="w-full h-full object-cover object-[60%_40%] rounded-3xl"
+        />
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-3xl" />
+      </div>
 
-            {/* Text Content */}
-            <div className="absolute inset-x-0 bottom-0 lg:top-[40%] z-20 text-white px-4 sm:px-8 flex flex-col items-start justify-start pb-8 pt-12 lg:w-[45%] lg:ml-32 md:w-[60%] md:ml-16">
-              {/* Star Rating */}
-              <div className="flex items-center mb-2 gap-2">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className="w-5 h-5 sm:w-6 sm:h-6 text-[#ffbd66]"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.39 2.463a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.39-2.462a1 1 0 00-1.176 0l-3.39 2.462c-.785.57-1.84-.197-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.17 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
-                  </svg>
-                ))}
-                <span className="text-sm sm:text-base font-extralight font-poppins">
-                  {t("section1_span")}
-                </span>
-              </div>
+      {/* ✅ Tablet & Desktop Image (from sm and up) */}
+      <div
+        className="relative w-full mx-auto hidden sm:block
+                   h-[80vh] md:h-[90vh] lg:h-[120vh] xl:h-[100vh] 2xl:h-[110vh]
+                   max-w-screen-xl overflow-hidden rounded-3xl"
+      >
+        <Image
+          src={HomeBackground}
+          alt="Home Background"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center rounded-3xl"
+        />
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-3xl" />
+      </div>
 
-              {/* Heading */}
-              <h1 className="text-[22px] sm:text-[32px] md:text-[40px] lg:text-[48px] font-bold leading-snug font-inter max-w-[90%] mb-2">
-                {t("section1_h1_part1")}{" "}
-                <span className="text-[#C1001F]">{t("section_h1_h19")}</span>{" "}
-                <span className="block lg:block">{t("section1_h1_part2")}</span>
-              </h1>
-
-              {/* Paragraph */}
-              <p className="text-sm sm:text-base md:text-lg leading-snug text-white w-full break-words mb-4 tracking-wide lg:line-clamp-3 sm:line-clamp-none overflow-hidden">
-                {t("section1_p")}
-              </p>
-
-              {/* Desktop Buttons */}
-              <div className="hidden sm:flex flex-wrap gap-4 lg:mt-8">
-                <button
-                  onClick={redirectToContact}
-                  className="bg-[#C1001F] text-white font-medium text-[15px] md:text-[16px] py-4 px-8 rounded-full hover:bg-red-700 transition"
-                >
-                  {t("section1_button1")}
-                </button>
-                <button
-                  onClick={() => setShouldScroll(true)}
-                  className="border border-white text-white font-medium text-[15px] md:text-[16px] py-4 px-12 rounded-full hover:bg-white hover:text-black transition"
-                >
-                  {t("section1_button2")}
-                </button>
-              </div>
-            </div>
-          </div>
+      {/* ✅ Text Content (Shared) */}
+      <div className="absolute z-20 top-[50%] sm:top-[55%] md:top-[50%] lg:top-[40%] left-6 sm:left-10 md:left-16 lg:left-28 text-white max-w-md space-y-4 px-2 sm:px-0">
+        {/* ⭐ Star Rating */}
+        <div className="flex items-center gap-2">
+          {[...Array(5)].map((_, i) => (
+            <svg key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-[#ffbd66]" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.39 2.463a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.39-2.462a1 1 0 00-1.176 0l-3.39 2.462c-.785.57-1.84-.197-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.17 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
+            </svg>
+          ))}
+          <span className="text-xs sm:text-sm font-light">{t("section1_span")}</span>
         </div>
-      </article>
 
-      {/* Mobile Buttons */}
-      <div className="block sm:hidden w-full bg-white pt-6 pb-8">
+        {/* 🧭 Heading */}
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-snug">
+          {t("section1_h1_part1")}{" "}
+          <span className="text-[#C1001F]">{t("section_h1_h19")}</span>{" "}
+          <span className="block">{t("section1_h1_part2")}</span>
+        </h1>
+
+        {/* 📖 Paragraph */}
+        <p className="text-sm sm:text-base md:text-lg leading-snug text-white tracking-wide line-clamp-4">
+          {t("section1_p")}
+        </p>
+
+        {/* 🖱️ Desktop Buttons */}
+        <div className="hidden sm:flex flex-wrap gap-4 pt-4">
+          <button
+            onClick={redirectToContact}
+            className="bg-[#C1001F] text-white font-medium text-sm py-3 px-6 rounded-full hover:bg-red-700 transition"
+          >
+            {t("section1_button1")}
+          </button>
+          <button
+            onClick={() => setShouldScroll(true)}
+            className="border border-white text-white font-medium text-sm py-3 px-6 rounded-full hover:bg-white hover:text-black transition"
+          >
+            {t("section1_button2")}
+          </button>
+        </div>
+      </div>
+
+      {/* 📱 Mobile Buttons */}
+      <div className="block sm:hidden w-full mt-8">
         <div className="flex flex-col items-center space-y-3">
           <button
             onClick={redirectToContact}
@@ -197,6 +212,10 @@ export const HeroTopSection = () => {
           </button>
         </div>
       </div>
-    </main>
+    </div>
+  </article>
+</main>
+
+
   );
 };

@@ -20,76 +20,84 @@ export function TrustedPartner() {
  
 
   return (
-<section className="w-full bg-[#E1E3E6] py-16 lg:mt-20 max-w-[90%] mx-auto rounded-xl min-h-[40rem] pb-16">
-      <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-16 rounded-xl overflow-visible relative">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start lg:ml-0">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {t("heading")}
-            </h2>
-            <p className="text-gray-600 text-base md:text-lg mb-8 max-w-xl">
-              {t("paragraph")}
-            </p>
+<section className="w-full bg-[#E1E3E6] py-10 lg:py-14 max-w-[95%] mx-auto rounded-lg min-h-[30rem]">
+  <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 rounded-xl overflow-visible relative">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      {/* Text Content */}
+      <div>
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+          {t("heading")}
+        </h2>
+        <p className="text-gray-600 text-sm md:text-base mb-6 max-w-lg">
+          {t("paragraph")}
+        </p>
 
-            <div className="space-y-6">
-              {data.map((f, i) => ( // Map over the fetched data
-                <div key={i} className="flex items-start gap-4">
-                  <div className="bg-[#C1001F] rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
+        <div className="space-y-5">
+          {data.map((f, i) => (
+            <div key={i} className="flex items-start gap-4">
+              <div className="bg-[#C1001F] rounded-full w-8 h-8 flex items-center justify-center shrink-0">
                 <Image
                   src={f.icon || ""}
-                  alt={`Icon for ${f.title}`|| ""}
-                   width={300}
-                  height={200}
-                  className="w-10 h-10 sm:w-6 sm:h-6 object-contain"
+                  alt={`Icon for ${f.title}` || ""}
+                  width={24}
+                  height={24}
+                  className="w-5 h-5 object-contain"
                 />
               </div>
-                  <div>
-                    <h4 className="font-semibold text-base md:text-lg text-gray-900 lg:text-2xl">
-                      {f.title}
-                    </h4>
-                    <p className="text-sm text-gray-600 lg:text-xl">{f.description}</p> {/* Display description */}
-                  </div>
-                </div>
-              ))}
+              <div>
+                <h4 className="font-semibold text-sm md:text-base text-gray-900">
+                  {f.title}
+                </h4>
+                <p className="text-xs text-gray-600">{f.description}</p>
+              </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 relative justify-items-end">
-            {/* First Image */}
-            <div className="col-span-2 overflow-hidden mt-10 sm:mt-10 lg:-mt-40 rounded-xl h-[20rem] sm:h-[25rem] md:h-[31.25rem] lg:h-[37.5rem] xl:h-[30rem] hidden sm:block">
-              <Image
-                src={family}
-                alt="Family running"
-                width={300}
-                height={200}
-                className="w-full h-full object-cover rounded-xl shadow-md"
-              />
-            </div>
-
-            {/* Second Image */}
-            <div className="col-span-1 sm:col-span-1 lg:absolute lg:left-0 lg:-bottom-[21rem] lg:w-[50%] aspect-square lg:aspect-square rounded-xl overflow-hidden hidden sm:block">
-              <Image
-                src={mission}
-                alt="Mission"
-                 width={300}
-                height={200}
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-
-            {/* Third Image */}
-            <div className="col-span-1 sm:col-span-1 lg:absolute lg:right-0 lg:-bottom-[11rem] lg:w-[45%] lg:h-[10rem] lg:ml-4 aspect-square lg:aspect-auto rounded-xl overflow-hidden hidden sm:block">
-              <Image
-                src={elderly_right}
-                alt="Elderly"
-                 width={300}
-                  height={200}
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-          </div>
+          ))}
         </div>
       </div>
-    </section>
+
+      {/* Images */}
+      <div className="grid grid-cols-2 gap-3 relative justify-items-end">
+        {/* First Image */}
+        <div className="col-span-2 overflow-hidden rounded-lg h-[18rem] sm:h-[22rem] md:h-[26rem] hidden sm:block
+  md:-translate-y-6 lg:-translate-y-28 xl:-translate-y-14 transform">
+          <Image
+            src={family}
+            alt="Family running"
+            width={300}
+            height={200}
+            className="w-full h-full object-cover rounded-lg shadow"
+          />
+        </div>
+
+        {/* Second Image */}
+       <div className="col-span-1 lg:absolute lg:left-0 lg:-bottom-[14rem] lg:w-[50%] aspect-square rounded-lg overflow-hidden hidden sm:block 
+  md:-translate-y-6 lg:-translate-y-24 xl:-translate-y-14 transform">
+
+          <Image
+            src={mission}
+            alt="Mission"
+            width={300}
+            height={200}
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
+
+        {/* Third Image */}
+        <div className="col-span-1 lg:absolute lg:right-0 lg:-bottom-[8rem] lg:w-[45%] lg:h-[8rem] rounded-lg overflow-hidden hidden sm:block 
+  md:-translate-y-4 lg:-translate-y-24 xl:-translate-y-10 transform">
+
+          <Image
+            src={elderly_right}
+            alt="Elderly"
+            width={300}
+            height={200}
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
   );
 }

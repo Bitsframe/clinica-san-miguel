@@ -17,21 +17,20 @@ export function AboveFooter() {
 
   return (
     <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center overflow-visible mt-20">
-     <div className="relative w-full max-w-[95vw] sm:max-w-[90vw] lg:max-w-[85vw] bg-[#0F172A] text-white rounded-2xl px-2 sm:px-4 lg:px-20 py-10 lg:py-16 lg:h-[30rem] overflow-visible">
+      <div className="relative w-full max-w-[95vw] sm:max-w-[90vw] lg:max-w-[85vw] bg-[#0F172A] text-white rounded-2xl px-4 sm:px-6 md:px-10 lg:px-20 py-10 md:py-14 lg:py-16 lg:h-[30rem] overflow-visible">
 
-
-        {/* Text Content */}
-        <div className="max-w-xl z-10 relative px-4 sm:px-6 md:px-10">
-          <h2 className="text-3xl md:text-4xl font-bold leading-tight lg:leading-snug mb-4">
+        {/* ✅ Text Content */}
+        <div className="max-w-xl z-10 relative px-2 sm:px-4 md:px-6 lg:px-0">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight md:leading-snug mb-4">
             {t("title")}
           </h2>
-          <p className="text-base text-gray-300 mb-6 lg:leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg text-gray-300 mb-6 md:leading-relaxed">
             {t("description")}
           </p>
 
-          {/* Buttons */}
+          {/* ✅ Buttons */}
           <div className="flex gap-4 mb-6 flex-wrap">
-            <button className="bg-[#C1001F] hover:bg-red-800 text-white px-12 py-4 rounded-full text-sm font-medium">
+            <button className="bg-[#C1001F] hover:bg-red-800 text-white px-8 sm:px-10 md:px-12 py-3 sm:py-4 rounded-full text-sm font-medium">
               {t("cta_book")}
             </button>
             {/* <button className="border border-white text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-white hover:text-[#0F172A] transition">
@@ -39,7 +38,7 @@ export function AboveFooter() {
             </button> */}
           </div>
 
-          {/* Rating */}
+          {/* ✅ Rating */}
           <div className="flex items-center gap-2 text-sm text-white">
             <div className="flex gap-1 text-yellow-400">
               {Array.from({ length: 5 }).map((_, idx) => (
@@ -51,7 +50,7 @@ export function AboveFooter() {
         </div>
 
         {/* Floating Images - Hidden on phones (sm) and visible on larger screens (lg) */}
-        <div className="hidden sm:block lg:block">
+         <div className="hidden lg:block">
           <Image
             src={elderly_left}
             alt="img1"

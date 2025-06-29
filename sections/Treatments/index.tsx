@@ -71,20 +71,20 @@ return (
     <div className="container mx-auto">
       <article className="w-full flex flex-col gap-5 text-left">
         <div className="w-full flex items-center justify-between">
-          <h1 className="text-[40px] font-semibold leading-[100%] tracking-[0] text-[#1B2432] font-[Inter] lg:ml-16">
+          <h1 className="text-[40px] font-semibold leading-[100%] tracking-[0] text-[#1B2432] font-[Inter] lg:ml-8">
             {t("treatments_title")}
             <br />
             {t("treatments_title2")}
           </h1>
 
           <Link href="/services"  className="hidden md:block">
-          <button className="p-3 bg-[#C1001F] hover:bg-[#a30019] text-white rounded-full transition flex items-center justify-center mr-[4rem]">
-              <ExternalLink className="w-8 h-8 text-white" />
+          <button className="p-3 bg-[#C1001F] hover:bg-[#a30019] text-white rounded-full transition flex items-center justify-center mr-[2rem]">
+              <ExternalLink className="w-6 h-6 text-white" />
             </button>
           </Link>
         </div>
 
-        <p className="text-[16px] font-normal leading-[100%] tracking-[0] text-[#6C7582] font-[Poppins] lg:ml-16">
+        <p className="text-[16px] font-normal leading-[100%] tracking-[0] text-[#6C7582] font-[Poppins] lg:ml-8">
           {t("treatments_sub_title")}
         </p>
       </article>

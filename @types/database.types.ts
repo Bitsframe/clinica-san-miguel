@@ -273,3 +273,7 @@ export interface Database {
     };
   };
 }
+
+export type TableRow<
+  T extends keyof Database["public"]["Tables"]
+> = Database["public"]["Tables"][T]["Row"];

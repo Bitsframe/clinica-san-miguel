@@ -156,44 +156,45 @@ export const HeroTopSection = () => {
 
       {/* ✅ Text Content (Shared) */}
       <div className="absolute z-20 top-[50%] sm:top-[55%] md:top-[50%] lg:top-[40%] left-6 sm:left-10 md:left-16 lg:left-28 text-white max-w-md space-y-4 px-2 sm:px-0">
-        {/* ⭐ Star Rating */}
-        <div className="flex items-center gap-2">
-          {[...Array(5)].map((_, i) => (
-            <svg key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-[#ffbd66]" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.39 2.463a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.39-2.462a1 1 0 00-1.176 0l-3.39 2.462c-.785.57-1.84-.197-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.17 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
-            </svg>
-          ))}
-          <span className="text-xs sm:text-sm font-light">{t("section1_span")}</span>
-        </div>
+  {/* ⭐ Star Rating */}
+  <div className="flex items-center gap-2">
+    {[...Array(5)].map((_, i) => (
+      <svg key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-[#ffbd66]" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.39 2.463a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.39-2.462a1 1 0 00-1.176 0l-3.39 2.462c-.785.57-1.84-.197-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.17 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
+      </svg>
+    ))}
+    <span className="text-xs sm:text-sm md:text-base font-light">{t("section1_span")}</span>
+  </div>
 
-        {/* 🧭 Heading */}
-        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-snug">
-          {t("section1_h1_part1")}{" "}
-          <span className="text-[#C1001F]">{t("section_h1_h19")}</span>{" "}
-          <span className="block">{t("section1_h1_part2")}</span>
-        </h1>
+  {/* 🧭 Heading */}
+  <h1 className="text-lg sm:text-xl md:text-2xl lg:text-4xl font-bold leading-snug">
+    {t("section1_h1_part1")}{" "}
+    <span className="text-[#C1001F]">{t("section_h1_h19")}</span>{" "}
+    <span className="block">{t("section1_h1_part2")}</span>
+  </h1>
 
-        {/* 📖 Paragraph */}
-        <p className="text-sm sm:text-base md:text-lg leading-snug text-white tracking-wide line-clamp-4">
-          {t("section1_p")}
-        </p>
+  {/* 📖 Paragraph */}
+  <p className="text-sm sm:text-base md:text-lg lg:text-xl leading-snug text-white tracking-wide line-clamp-4">
+    {t("section1_p")}
+  </p>
 
-        {/* 🖱️ Desktop Buttons */}
-        <div className="hidden sm:flex flex-wrap gap-4 pt-4">
-          <button
-            onClick={redirectToContact}
-            className="bg-[#C1001F] text-white font-medium text-sm py-3 px-6 rounded-full hover:bg-red-700 transition"
-          >
-            {t("section1_button1")}
-          </button>
-          <button
-            onClick={() => setShouldScroll(true)}
-            className="border border-white text-white font-medium text-sm py-3 px-6 rounded-full hover:bg-white hover:text-black transition"
-          >
-            {t("section1_button2")}
-          </button>
-        </div>
-      </div>
+  {/* 🖱️ Desktop Buttons */}
+  <div className="hidden sm:flex flex-wrap gap-4 pt-4">
+    <button
+      onClick={redirectToContact}
+      className="bg-[#C1001F] text-white font-medium text-sm sm:text-base py-3 px-6 rounded-full hover:bg-red-700 transition"
+    >
+      {t("section1_button1")}
+    </button>
+    <button
+      onClick={() => setShouldScroll(true)}
+      className="border border-white text-white font-medium text-sm sm:text-base py-3 px-6 rounded-full hover:bg-white hover:text-black transition"
+    >
+      {t("section1_button2")}
+    </button>
+  </div>
+</div>
+
 
       {/* 📱 Mobile Buttons */}
       <div className="block sm:hidden w-full mt-8">

@@ -1,4 +1,4 @@
-// GroupedLocations.tsx
+
 "use client";
 
 import { styles } from "@/app/[locale]/styles";
@@ -160,3 +160,4 @@ export const GroupedLocations = () => {
     </main>
   );
 };
+

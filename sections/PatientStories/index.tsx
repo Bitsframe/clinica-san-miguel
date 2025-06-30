@@ -1,15 +1,38 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Slider from "react-slick";
 import { Star, StarHalf, Star as StarOutline, ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSupabase } from "@/context/supabaseContext";
-import { useRef } from "react";
+import { fetchTableRows } from "@/context/supabaseContext";
+import { TableRow } from "@/@types/database.types";
+import { useLazyLoad } from "@/hooks/useLazyLoad";  // Importing the lazy load hook
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+type Testimonial = TableRow<"Testinomial">;
 
 export function PatientStories() {
   const t = useTranslations("testimonies");
-  const { testinomial } = useSupabase();
   const sliderRef = useRef<any>(null);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [hasFetched, setHasFetched] = useState(false);
+
+  // Lazy loading hook
+  const { ref, isVisible } = useLazyLoad({ triggerOnce: true });
+
+  useEffect(() => {
+    if (isVisible && !hasFetched) {
+      // Fetch testimonials when the section is visible
+      fetchTableRows("Testinomial")
+        .then((rows) => {
+          setTestimonials(rows);
+          setHasFetched(true);
+          console.log("👀 Testimonials fetched");
+        })
+        .catch((err) => console.error("Error fetching testimonials:", err));
+    }
+  }, [isVisible, hasFetched]);
 
   const settings = {
     dots: false,
@@ -21,20 +44,13 @@ export function PatientStories() {
     autoplaySpeed: 3000,
     arrows: false,
     responsive: [
-      {
-        breakpoint: 1024,
-        settings: { slidesToShow: 2 },
-      },
-      {
-        breakpoint: 768,
-        settings: { slidesToShow: 1 },
-      },
+      { breakpoint: 1024, settings: { slidesToShow: 2 } },
+      { breakpoint: 768, settings: { slidesToShow: 1 } },
     ],
   };
 
   return (
-    <section className="w-full bg-white px-6 py-16 md:px-20 lg:px-32">
-      {/* Section Header */}
+    <section ref={ref} className="w-full bg-white px-6 py-16 md:px-20 lg:px-32">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
@@ -44,8 +60,6 @@ export function PatientStories() {
             {t("description")}
           </p>
         </div>
-
-        {/* Arrows */}
         <div className="flex gap-2">
           <button
             onClick={() => sliderRef.current?.slickPrev()}
@@ -62,48 +76,43 @@ export function PatientStories() {
         </div>
       </div>
 
-      {/* Slider */}
-      <Slider ref={sliderRef} {...settings}>
-        {testinomial.map((testimonial, index) => {
-          const rating = parseFloat(String(testimonial.rating || "0"));
-          const fullStars = Math.floor(rating);
-          const hasHalfStar = rating % 1 >= 0.5;
-          const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+      {hasFetched && testimonials.length > 0 ? (
+        <Slider ref={sliderRef} {...settings}>
+          {testimonials.map((testimonial, index) => {
+            const rating = parseFloat(String(testimonial.rating || "0"));
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
-          return (
-            <div key={index} className="px-2">
-             <div className="bg-[#F4F5F6] p-6 rounded-xl relative overflow-hidden shadow-sm h-[13rem] flex flex-col justify-start items-start text-left">
-
-                {/* Star Rating */}
-                <div className="flex gap-1 mb-2 mt-2 text-[#C1001F]">
-                  {[...Array(fullStars)].map((_, i) => (
-                    <Star key={`full-${i}`} fill="currentColor" stroke="none" className="w-4 h-4" />
-                  ))}
-                  {hasHalfStar && (
-                    <StarHalf key="half" fill="currentColor" stroke="none" className="w-4 h-4" />
-                  )}
-                  {[...Array(emptyStars)].map((_, i) => (
-                    <StarOutline key={`empty-${i}`} className="w-4 h-4 text-gray-300" />
-                  ))}
-                </div>
-
-                {/* Quote */}
-                <p className="text-gray-800 font-medium text-base leading-snug mb-2 line-clamp-3">
-                  “{testimonial.review}”
-                </p>
-
-                {/* Author */}
-                <p className="text-sm text-gray-500 font-medium">{testimonial.name}</p>
-
-                {/* Decorative Symbol */}
-                <div className="absolute bottom-0 right-2 opacity-40 text-[120px] leading-none font-extrabold text-gray-300 select-none">
-                  //
+            return (
+              <div key={index} className="px-2">
+                <div className="bg-[#F4F5F6] p-6 rounded-xl relative overflow-hidden shadow-sm h-[13rem] flex flex-col justify-start items-start text-left">
+                  <div className="flex gap-1 mb-2 mt-2 text-[#C1001F]">
+                    {[...Array(fullStars)].map((_, i) => (
+                      <Star key={`full-${i}`} fill="currentColor" stroke="none" className="w-4 h-4" />
+                    ))}
+                    {hasHalfStar && (
+                      <StarHalf key="half" fill="currentColor" stroke="none" className="w-4 h-4" />
+                    )}
+                    {[...Array(emptyStars)].map((_, i) => (
+                      <StarOutline key={`empty-${i}`} className="w-4 h-4 text-gray-300" />
+                    ))}
+                  </div>
+                  <p className="text-gray-800 font-medium text-base leading-snug mb-2 line-clamp-3">
+                    “{testimonial.review ?? "No review provided"}”
+                  </p>
+                  <p className="text-sm text-gray-500 font-medium">{testimonial.name ?? "Anonymous"}</p>
+                  <div className="absolute bottom-0 right-2 opacity-40 text-[120px] leading-none font-extrabold text-gray-300 select-none pointer-events-none z-0">
+                    //
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </Slider>
+            );
+          })}
+        </Slider>
+      ) : (
+        <p className="text-center text-gray-400">Loading testimonials...</p>
+      )}
     </section>
   );
 }

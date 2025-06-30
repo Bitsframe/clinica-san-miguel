@@ -1,24 +1,47 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useSupabase } from "@/context/supabaseContext";
 import { useLocale } from "next-intl";
+import { useLazyLoad } from "@/hooks/useLazyLoad";  // Import the lazy load hook
 
 export const Opportunities = () => {
   const locale = useLocale();
+  const { fetchLocalizedTable } = useSupabase();
+  const [opportunities, setOpportunities] = useState<any[]>([]);  // State to hold the fetched data
+  const [hasFetched, setHasFetched] = useState(false);
 
-  const { career, career_es } = useSupabase();
+  const { ref, isVisible } = useLazyLoad({ triggerOnce: true });  // Using lazy load hook
 
-  const opportunities = locale === "es" ? career_es : career;
+  useEffect(() => {
+    if (isVisible && !hasFetched) {
+      // Fetch data only when the section becomes visible
+      fetchLocalizedTable("career", locale)
+        .then((rows) => {
+          setOpportunities(rows);
+          setHasFetched(true);
+          console.log("✅ Opportunities data fetched");
+        })
+        .catch((err) => console.error("❌ Opportunities fetch error:", err));
+    }
+  }, [isVisible, hasFetched, fetchLocalizedTable, locale]);
+
   return (
-    <>
-      {opportunities.map((item, index) => (
-        <li
-          className="list-disc text-[16px] xl:text-[20px] text-[#000000] font-poppins"
-          key={index}
-        >
-          {item.Text}
-        </li>
-      ))}
-    </>
+    <section ref={ref}>
+      <ul>
+        {hasFetched && opportunities.length > 0 ? (
+          opportunities.map((item, index) => (
+            <li
+              className="list-disc text-[16px] xl:text-[20px] text-[#000000] font-poppins"
+              key={index}
+            >
+              {item.Text}
+            </li>
+          ))
+        ) : (
+          <p>Loading opportunities...</p>  // Show loading message until data is fetched
+        )}
+      </ul>
+    </section>
   );
 };

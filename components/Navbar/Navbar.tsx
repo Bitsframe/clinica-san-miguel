@@ -45,7 +45,7 @@ export const Navbar = () => {
   const renderNavLinks = () =>
     navLinks.map((link) => (
       <li key={link.id} className={styles.text}>
-        <Link href={link.route}  prefetch={false}>{link.heading}</Link>
+        <Link href={link.route} prefetch={false}>{link.heading}</Link>
       </li>
     ));
 
@@ -97,15 +97,18 @@ export const Navbar = () => {
             )}
           </div>
 
-          <button className="mt-6 bg-[#C1001F] text-white font-medium text-[15px] px-10 py-3 rounded-full hover:bg-red-700 transition">
-            Book Your Visit
-          </button>
+          {/* Book Button (Mobile) */}
+          <Link href="/contact" prefetch={false}>
+            <button className="mt-6 bg-[#C1001F] text-white font-medium text-[15px] px-10 py-3 rounded-full hover:bg-red-700 transition">
+              Book Your Visit
+            </button>
+          </Link>
         </div>
       )}
 
       {/* Desktop Right Side */}
       <div className="hidden tablet:flex gap-4 sm:gap-7 items-center">
-        {/* Globe + Dropdown only */}
+        {/* Globe + Dropdown */}
         <div className="relative" ref={langRef}>
           <button
             onClick={() => setShowLangMenu((prev) => !prev)}
@@ -121,10 +124,12 @@ export const Navbar = () => {
           )}
         </div>
 
-        {/* Book Button */}
-        <button className="bg-[#C1001F] text-white font-medium text-[15px] px-6 py-3 rounded-full hover:bg-red-700 transition whitespace-nowrap">
-          Book Your Visit
-        </button>
+        {/* Book Button (Desktop) */}
+        <Link href="/contact" prefetch={false}>
+          <button className="bg-[#C1001F] text-white font-medium text-[15px] px-6 py-3 rounded-full hover:bg-red-700 transition whitespace-nowrap">
+            Book Your Visit
+          </button>
+        </Link>
       </div>
 
       {/* Hamburger */}

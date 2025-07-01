@@ -21,12 +21,12 @@ export const Treatments = () => {
   const [data, setData] = useState<TreatmentRow[]>([]);
   const [hasFetched, setHasFetched] = useState(false);
 
-  // Using the custom useLazyLoad hook
+
   const { ref, isVisible } = useLazyLoad({ triggerOnce: true });
 
   useEffect(() => {
     if (isVisible && !hasFetched) {
-      // Fetch data when section is visible
+     
       fetchLocalizedTable("services", locale)
         .then((rows) => {
           setData(rows);
@@ -68,7 +68,7 @@ export const Treatments = () => {
 
   return (
     <section
-      ref={ref}  // Adding the ref from the useLazyLoad hook
+      ref={ref}  
       className="flex flex-col justify-center gap-10 my-[5%] w-full px-4 md:px-8 xl:px-0"
     >
       {/* Header */}

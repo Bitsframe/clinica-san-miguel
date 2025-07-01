@@ -45,7 +45,7 @@ export const Navbar = () => {
   const renderNavLinks = () =>
     navLinks.map((link) => (
       <li key={link.id} className={styles.text}>
-        <Link href={link.route}>{link.heading}</Link>
+        <Link href={link.route}  prefetch={false}>{link.heading}</Link>
       </li>
     ));
 

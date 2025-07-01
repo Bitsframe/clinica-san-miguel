@@ -42,7 +42,7 @@ export const Footer = () => {
       <div className="container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Logo and Newsletter */}
         <div className="space-y-4">
-          <Image src={logo} alt="Logo" width={160} height={60} />
+          <Image src={logo} alt="Logo" width={160} height={60}  />
           <p className="font-semibold">{t("footer_news_letter_title")}</p>
           <NewsletterSignup />
         </div>

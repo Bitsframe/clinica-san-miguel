@@ -48,11 +48,11 @@ const Career = () => {
           </div>
         </article>
       </section>
-      <div className="w-full flex justify-center">
+      {/* <div className="w-full flex justify-center">
         <Services />
-      </div>
-      <Locations />
-      <Testimonials headingFlag={true} mode={"light"} />
+      </div> */}
+      {/* <Locations />
+      <Testimonials headingFlag={true} mode={"light"} /> */}
     </main>
   );
 };

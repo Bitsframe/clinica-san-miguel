@@ -73,11 +73,11 @@ const Special = ({
         </article>
       </section>
 
-      <div className="w-full flex justify-center">
+      {/* <div className="w-full flex justify-center">
         <Services />
       </div>
-      <Locations />
-      <Testimonials headingFlag={true} mode={"light"} />
+      <Locations /> */}
+      {/* <Testimonials headingFlag={true} mode={"light"} /> */}
     </main>
   );
 };

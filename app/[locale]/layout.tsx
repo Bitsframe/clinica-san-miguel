@@ -140,8 +140,9 @@ export default async function RootLayout(props: {
             <ToastProvider>
               {children}
               <div className="sticky z-[999999] bottom-10 right-10">
-                <AiBotMain />
+                {/* <AiBotMain /> */}
                 <Analytics mode="production" />
+                
               </div>
             </ToastProvider>
           </Providers>

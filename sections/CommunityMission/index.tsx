@@ -75,6 +75,7 @@ export default function CommunityMission() {
                         alt={item.Title ?? ""}
                         width={24}
                         height={24}
+                
                         className="object-contain filter brightness-0 invert"
                       />
                     </div>

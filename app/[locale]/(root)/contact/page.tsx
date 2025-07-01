@@ -8,7 +8,7 @@ const Contact = async ({
 }: {
   params: Promise<{ locale: string }>; // ✅ Fake Promise type
 }) => {
-  const { locale } = await params; // ✅ Await it once
+  const { locale } = await params; 
   const t = await getTranslations({ locale, namespace: "common" });
 
   return (
@@ -27,7 +27,7 @@ const Contact = async ({
         </article>
       </section>
 
-      <Testimonials headingFlag={true} mode={"light"} />
+      {/* <Testimonials headingFlag={true} mode={"light"} /> */}
     </main>
   );
 };

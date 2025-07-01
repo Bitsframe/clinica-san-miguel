@@ -1,6 +1,6 @@
 import { useLocale } from "next-intl";
 import Image from "next/image";
-import Link from "next/link";
+
 
 const Home = () => {
   const locale = useLocale();

@@ -13,7 +13,7 @@ export default function RootLayout({
       {/* <div className="w-full flex justify-center">
         <Services />
       </div> */}
-      <Testimonials headingFlag={true} mode={"light"} />
+      {/* <Testimonials headingFlag={true} mode={"light"} /> */}
     </main>
   );
 }

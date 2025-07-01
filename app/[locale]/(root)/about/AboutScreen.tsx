@@ -7,8 +7,8 @@ import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { family  } from "@/assets/images/cover/"
-import React, { Fragment } from "react";
-import { useEffect, useState, } from "react";
+import React, { useEffect, useState, Fragment } from "react";
+
 
 
 const customLoader = ({ src, width, quality }: any) => {
@@ -166,13 +166,13 @@ const AboutScreen = () => {
   const locale = useLocale();
   const { fetchLocalizedTable } = useSupabase();
 
-  const [data, setData] = useState<any>(null);  // State to store fetched data
+  const [data, setData] = useState<any>(null);  
 
-  // Fetch data from Supabase when the component mounts or when locale changes
+  
   useEffect(() => {
     fetchLocalizedTable("about", locale)
       .then((rows) => {
-        setData(rows[0]);  // Assuming the first entry contains the required data
+        setData(rows[0]); 
       })
       .catch((err) => console.error("Error fetching about data:", err));
   }, [locale, fetchLocalizedTable]);
@@ -227,6 +227,7 @@ const AboutScreen = () => {
           <Image
             src={data?.image_1 || family}
             alt={""}
+            loading="lazy"
             width={100}
             height={100}
             className="w-[100%] aspect-auto object-contain"
@@ -240,6 +241,7 @@ const AboutScreen = () => {
               src={data?.image_2 || earth_care}
               width={60}
               height={60}
+              loading="lazy"
               className="w-[60px] aspect-auto"
               alt={""}
               loader={customLoader}

@@ -111,17 +111,19 @@ const AboutScreen = () => {
           </p>
         </article>
 
-        <article className="w-[95%] md:w-[75%] lg:w-[50%] flex justify-center items-center">
+          <article className="w-[95%] md:w-[75%] lg:w-[50%] flex justify-center items-center">
+          {data?.image_1 ? (
           <Image
-            src={data?.image_1 || family}
-            alt={""}
-            loading="lazy"
-            width={100}
-            height={100}
-            className="w-[100%] aspect-auto object-contain"
-            loader={customLoader}
+          src={data.image_1}
+          alt=""
+          loading="lazy"
+          width={100}
+          height={100}
+          className="w-[100%] aspect-auto object-contain"
+          loader={customLoader}
           />
-        </article>
+          ) : null}
+          </article>
 
         <article className="flex flex-col md:flex-row justify-center gap-6 items-start w-full">
           <div className="flex items-start flex-col gap-2">

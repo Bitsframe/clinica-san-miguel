@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { Link } from "@/navigation";
 import Hamburger from "hamburger-react";
@@ -8,6 +8,7 @@ import { Logo, Globe } from "@/assets/images";
 import { useRouter } from "next/navigation";
 import LanguageChanger from "../LanguageChanger";
 import { useLocale, useTranslations } from "next-intl";
+import Spinner from "@/components/Spinner"; 
 
 export const Navbar = () => {
   const t = useTranslations("common");
@@ -17,6 +18,7 @@ export const Navbar = () => {
   const [isOpen, setOpen] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -45,24 +47,49 @@ export const Navbar = () => {
   const renderNavLinks = () =>
     navLinks.map((link) => (
       <li key={link.id} className={styles.text}>
-        <Link href={link.route} prefetch={false}>{link.heading}</Link>
+        <button
+          onClick={() =>
+            startTransition(() => {
+              router.push(link.route);
+            })
+          }
+        >
+          {link.heading}
+        </button>
       </li>
     ));
 
   const SM_Screen_renderNavLinks = () =>
     navLinks.map((link) => (
       <li key={link.id} onClick={() => setOpen(false)} className="my-3">
-        <Link href={link.route} className="text-[20px] text-primary font-medium">
+        <button
+          onClick={() =>
+            startTransition(() => {
+              router.push(link.route);
+            })
+          }
+          className="text-[20px] text-primary font-medium"
+        >
           {link.heading}
-        </Link>
+        </button>
       </li>
     ));
 
   return (
     <header className="h-[90px] w-full flex justify-between items-center px-6 md:px-10 lg:px-14">
+      {isPending && (
+        <div className="fixed inset-0 bg-white z-[999] flex items-center justify-center">
+          <Spinner />
+        </div>
+      )}
+
       {/* Logo */}
       <Image
-        onClick={() => router.push(`/`)}
+        onClick={() =>
+          startTransition(() => {
+            router.push(`/`);
+          })
+        }
         src={Logo}
         alt="Logo"
         className="cursor-pointer w-[150px] md:w-[170px] lg:w-[200px] xl:w-[233px] object-contain"
@@ -98,11 +125,16 @@ export const Navbar = () => {
           </div>
 
           {/* Book Button (Mobile) */}
-          <Link href="/contact" prefetch={false}>
-            <button className="mt-6 bg-[#C1001F] text-white font-medium text-[15px] px-10 py-3 rounded-full hover:bg-red-700 transition">
-              Book Your Visit
-            </button>
-          </Link>
+          <button
+          onClick={() =>
+          startTransition(() => {
+          router.push("/contact");
+          })
+          }
+          className="mt-6 bg-[#C1001F] text-white font-medium text-[15px] px-10 py-3 rounded-full hover:bg-red-700 transition"
+          >
+          Book Your Visit
+          </button>
         </div>
       )}
 
@@ -122,14 +154,19 @@ export const Navbar = () => {
               <LanguageChanger locale={locale} />
             </div>
           )}
-        </div>
+    </div>
 
-        {/* Book Button (Desktop) */}
-        <Link href="/contact" prefetch={false}>
-          <button className="bg-[#C1001F] text-white font-medium text-[15px] px-6 py-3 rounded-full hover:bg-red-700 transition whitespace-nowrap">
-            Book Your Visit
+          {/* Book Button (Desktop) */}
+          <button
+          onClick={() =>
+          startTransition(() => {
+          router.push("/contact");
+          })
+          }
+          className="bg-[#C1001F] text-white font-medium text-[15px] px-6 py-3 rounded-full hover:bg-red-700 transition whitespace-nowrap"
+          >
+          Book Your Visit
           </button>
-        </Link>
       </div>
 
       {/* Hamburger */}

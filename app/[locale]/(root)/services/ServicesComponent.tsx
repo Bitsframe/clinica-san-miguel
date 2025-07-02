@@ -4,6 +4,7 @@ import { CompactService } from "@/components";
 import { useSupabase } from "@/context/supabaseContext";
 import { useLocale } from "next-intl";
 import { useState, useEffect, useMemo } from "react";
+import { CompactServiceSkeleton } from "@/components/CompactServiceSkeleton";
 
 export const ServicesComponent = () => {
   const locale = useLocale();
@@ -40,7 +41,11 @@ export const ServicesComponent = () => {
           />
         ))
       ) : (
-        <p>Loading services...</p>  
+        <>
+  {[...Array(4)].map((_, index) => (
+    <CompactServiceSkeleton key={index} />
+  ))}
+</>
       )}
     </article>
   );

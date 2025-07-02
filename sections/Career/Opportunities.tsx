@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { useSupabase } from "@/context/supabaseContext";
 import { useLocale } from "next-intl";
-import { useLazyLoad } from "@/hooks/useLazyLoad";  // Import the lazy load hook
+import { useLazyLoad } from "@/hooks/useLazyLoad";  
+import Spinner from "@/components/Spinner";
+
 
 export const Opportunities = () => {
   const locale = useLocale();
@@ -39,7 +41,9 @@ export const Opportunities = () => {
             </li>
           ))
         ) : (
-          <p>Loading opportunities...</p>  // Show loading message until data is fetched
+         <div className="flex justify-center items-center py-10">
+  <Spinner />
+</div>
         )}
       </ul>
     </section>

@@ -254,7 +254,7 @@ const fetchLocalizedTable = useCallback(
     // fetchDataCallback("Hero_Section", setHeroSection);
     // fetchDataCallback("Hero_Section_es", setHeroSection_es);
     // fetchDataCallback("Locations", setLocations);
-    // fetchDataCallback("Images", setLocationImages);
+    fetchDataCallback("Images", setLocationImages);
     // fetchDataCallback("services", setServices);
     // fetchDataCallback("services_es", setServices_es);
     // fetchDataCallback("Specials", setSpecials);

@@ -4,7 +4,17 @@ import { useState } from "react";
 import { BsTelephone } from "react-icons/bs";
 import { HiOutlineMap } from "react-icons/hi";
 import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
+import { LocationCardSkeleton } from "@/components/LocationCardSkeleton";
+
+type LocationCardProps = {
+  id: number | null;
+  name?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  onMapClick?: () => void;
+  loading?: boolean;
+};
 
 export const LocationDetailedCard = ({
   id,
@@ -12,26 +22,23 @@ export const LocationDetailedCard = ({
   address,
   phone,
   onMapClick,
-}: {
-  id: number | null;
-  name: string | undefined | null;
-  address: string | undefined | null;
-  phone?: string | null;
-  onMapClick?: () => void;
-}) => {
+  loading,
+}: LocationCardProps) => {
   const router = useRouter();
   const [showMap, setShowMap] = useState(false);
+  const t = useTranslations("location_buttons");
 
   const handleLocation = () => {
     router.push(`/contact/${id}`);
   };
-  const t = useTranslations("location_buttons");
+
+  if (loading) {
+    return <LocationCardSkeleton />;
+  }
 
   return (
     <>
       <main className="bg-[#FFFEFC] rounded-[13px] min-w-[320px] w-full max-w-2xl min-h-56 sm:min-h-44 py-4 sm:py-3 flex flex-col gap-0 justify-start relative pl-4 sm:pl-6 lg:pl-8">
-        {/* Added padding on mobile (pl-4), tablets and up (sm:pl-6), and laptops (lg:pl-8) */}
-
         <h4 className="font-poppins font-normal text-[16px] leading-[100%] tracking-[0] text-[#1B2432] mb-0 pb-0">
           {name || "Clinica San Miguel Dallas, TX Office"}
         </h4>
@@ -53,23 +60,21 @@ export const LocationDetailedCard = ({
           </article>
         </div>
 
-        
         <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full pb-32 sm:pb-0">
-  <button
-    onClick={handleLocation}
-    className="w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 bg-[#C1001F] text-white text-[13px] font-normal font-poppins rounded-full hover:bg-[#a6001a] transition"
-  >
-    {t("viewDetails")} <span className="text-[15px]">→</span>
-  </button>
+          <button
+            onClick={handleLocation}
+            className="w-full sm:w-auto min-w-[140px] flex justify-center items-center py-2 px-2 sm:px-2 bg-[#C1001F] text-white text-sm font-normal font-poppins rounded-full hover:bg-[#a6001a] transition"
+          >
+            {t("viewDetails")} <span className="text-base">→</span>
+          </button>
 
-  <button
-    onClick={() => setShowMap(true)}
-    className="w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 border border-[#6C7582] text-[#6C7582] text-[13px] font-normal font-poppins rounded-full hover:bg-[#f4f5f6] transition"
-  >
-    {t("getDirections")} <span className="text-[15px]">→</span>
-  </button>
-</div>
-
+          <button
+            onClick={() => setShowMap(true)}
+            className="w-full sm:w-auto min-w-[140px] flex justify-center items-center py-2 sm:px-2 px-2 border border-[#6C7582] text-[#6C7582] text-[13px] font-poppins rounded-full hover:bg-[#f4f5f6] transition"
+          >
+            {t("getDirections")} <span className="text-base">→</span>
+          </button>
+        </div>
       </main>
 
       {showMap && (
@@ -82,7 +87,9 @@ export const LocationDetailedCard = ({
               ✕
             </button>
             <iframe
-              src={`https://www.google.com/maps?q=${encodeURIComponent(address || "")}&output=embed`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent(
+                address || ""
+              )}&output=embed`}
               height="400"
               className="w-full rounded-md"
               allowFullScreen

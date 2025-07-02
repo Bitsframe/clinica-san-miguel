@@ -6,7 +6,8 @@ import { Star, StarHalf, Star as StarOutline, ArrowLeft, ArrowRight } from "luci
 import { useTranslations } from "next-intl";
 import { fetchTableRows } from "@/context/supabaseContext";
 import { TableRow } from "@/@types/database.types";
-import { useLazyLoad } from "@/hooks/useLazyLoad";  // Importing the lazy load hook
+import { useLazyLoad } from "@/hooks/useLazyLoad";  
+import { LoadingSkeletonTestimonials } from "@/components/LoadingSkeletonTestimonials";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -111,7 +112,8 @@ export function PatientStories() {
           })}
         </Slider>
       ) : (
-        <p className="text-center text-gray-400">Loading testimonials...</p>
+        <LoadingSkeletonTestimonials />
+
       )}
     </section>
   );

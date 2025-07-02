@@ -6,6 +6,8 @@ import { ExternalLink } from "lucide-react";
 import Slider from "react-slick";
 import Image from "next/image";
 import Link from "next/link";
+import { TreatmentSliderSkeleton } from "@/components/TreatmentSliderSkeleton";
+
 
 import { useSupabase } from "@/context/supabaseContext";
 import { TableRow } from "@/@types/database.types";
@@ -20,22 +22,24 @@ export const Treatments = () => {
 
   const [data, setData] = useState<TreatmentRow[]>([]);
   const [hasFetched, setHasFetched] = useState(false);
+  const [loading, setLoading] = useState(true);  
 
 
   const { ref, isVisible } = useLazyLoad({ triggerOnce: true });
 
   useEffect(() => {
-    if (isVisible && !hasFetched) {
-     
-      fetchLocalizedTable("services", locale)
-        .then((rows) => {
-          setData(rows);
-          setHasFetched(true);
-          console.log("✅ Treatments data fetched");
-        })
-        .catch((err) => console.error("❌ Treatments fetch error:", err));
-    }
-  }, [isVisible, hasFetched, fetchLocalizedTable, locale]);
+  if (isVisible && !hasFetched) {
+    setLoading(true);                                
+    fetchLocalizedTable("services", locale)
+      .then((rows) => {
+        setData(rows);
+        setHasFetched(true);
+      })
+      .catch((err) => console.error("❌ Treatments fetch error:", err))
+      .finally(() => setLoading(false));             // stop spinner
+  }
+}, [isVisible, hasFetched, fetchLocalizedTable, locale]);
+
 
   const settings = {
     dots: true,
@@ -92,11 +96,13 @@ export const Treatments = () => {
         </article>
       </div>
 
-      {/* Slider */}
-      {isVisible && (  // Only render the slider if section is visible
-        <div className="container mx-auto">
-          {/* @ts-ignore */}
-          <Slider {...settings}>
+     {isVisible && (
+  <div className="container mx-auto">
+    {loading ? (
+      <TreatmentSliderSkeleton />          
+    ) : (
+      /* @ts-ignore */
+      <Slider {...settings}>
             {data
               .filter((elem) => elem.id !== 25)
               .sort((a, b) => a.id - b.id)
@@ -155,6 +161,7 @@ export const Treatments = () => {
                 </div>
               ))}
           </Slider>
+               )}
         </div>
       )}
 

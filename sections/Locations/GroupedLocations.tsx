@@ -9,7 +9,7 @@ import { GroupedMap } from "@/components/Map";
 import { useSupabase } from "@/context/supabaseContext";
 import { useTranslations, useLocale } from "next-intl";
 import dynamic from "next/dynamic";
-import { LocationCardSkeleton } from "@/components/LocationCardSkeleton";
+import { LocationCardSkeleton } from "@/components/loading/LocationCardSkeleton";
 
 const MapModal = dynamic(() => import("@/components/MapModal"), { ssr: false });
 

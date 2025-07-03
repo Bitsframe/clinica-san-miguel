@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoIosAdd, IoIosRemove } from "react-icons/io";
 import { useLazyLoad } from "@/hooks/useLazyLoad";
-import FAQsLoadingSkeleton from "@/components/FAQsLoadingSkeleton"; // ✅ Import here
+import FAQsLoadingSkeleton from "@/components/loading/FAQsLoadingSkeleton"; // ✅ Import here
 
 const AccordionItem = ({
   question,

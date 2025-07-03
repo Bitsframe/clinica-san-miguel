@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { family  } from "@/assets/images/cover/"
 import React, { useEffect, useState, Fragment } from "react";
+import LoadingSkeletonAboutScreen from "@/components/loading/LoadingSkeletonAboutScreen";
 
 
 
@@ -96,6 +97,10 @@ const AboutScreen = () => {
         "What sets Clinica San Miguel apart is our commitment to comprehensive healthcare. We are your one-stop destination for a wide range of services, including preventive care, sick care, and chronic disease management. Our state-of-the-art facilities are equipped with the latest technology and our dedicated physicians have the expertise to perform on-site procedures such as abscess drainage, electrocardiograms (EKGs), ultrasounds, and bloodwork.",
     },
   ];
+
+  if (!data) {
+  return <LoadingSkeletonAboutScreen />;
+}
 
   return (
     <main className="py-[5%] flex flex-col gap-20 px-2 lg:px-[20px] items-center justify-center">

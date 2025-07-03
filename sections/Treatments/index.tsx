@@ -6,7 +6,7 @@ import { ExternalLink } from "lucide-react";
 import Slider from "react-slick";
 import Image from "next/image";
 import Link from "next/link";
-import { TreatmentSliderSkeleton } from "@/components/TreatmentSliderSkeleton";
+import { TreatmentSliderSkeleton } from "@/components/loading/TreatmentSliderSkeleton";
 
 
 import { useSupabase } from "@/context/supabaseContext";

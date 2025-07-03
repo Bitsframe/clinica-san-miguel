@@ -10,10 +10,10 @@ import Spinner from "@/components/Spinner";
 export const Opportunities = () => {
   const locale = useLocale();
   const { fetchLocalizedTable } = useSupabase();
-  const [opportunities, setOpportunities] = useState<any[]>([]);  // State to hold the fetched data
+  const [opportunities, setOpportunities] = useState<any[]>([]); 
   const [hasFetched, setHasFetched] = useState(false);
 
-  const { ref, isVisible } = useLazyLoad({ triggerOnce: true });  // Using lazy load hook
+  const { ref, isVisible } = useLazyLoad({ triggerOnce: true });  
 
   useEffect(() => {
     if (isVisible && !hasFetched) {

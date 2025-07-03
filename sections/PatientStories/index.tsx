@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { fetchTableRows } from "@/context/supabaseContext";
 import { TableRow } from "@/@types/database.types";
 import { useLazyLoad } from "@/hooks/useLazyLoad";  
-import { LoadingSkeletonTestimonials } from "@/components/LoadingSkeletonTestimonials";
+import { LoadingSkeletonTestimonials } from "@/components/loading/LoadingSkeletonTestimonials";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 

@@ -5,7 +5,7 @@ import { BsTelephone } from "react-icons/bs";
 import { HiOutlineMap } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { LocationCardSkeleton } from "@/components/LocationCardSkeleton";
+import { LocationCardSkeleton } from "@/components/loading/LocationCardSkeleton";
 
 type LocationCardProps = {
   id: number | null;

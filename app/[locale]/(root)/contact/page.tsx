@@ -1,4 +1,4 @@
-import { Testimonials } from "@/sections";
+
 import { styles } from "@/app/[locale]/styles";
 import { LocationsData } from "./constants";
 import { getTranslations } from "next-intl/server";

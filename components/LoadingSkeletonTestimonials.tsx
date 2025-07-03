@@ -45,7 +45,7 @@ export  function LoadingSkeletonTestimonials() {
               highlightColor="#F3F4F6"
             />
 
-            {/* Decorative // */}
+          
             <div className="absolute bottom-0 right-2 opacity-30 text-[100px] text-gray-300 select-none pointer-events-none">
               //
             </div>

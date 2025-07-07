@@ -54,7 +54,7 @@ export const Footer = () => {
         </div>
 
         {/* Right Column: Links and Socials */}
-        <div className="flex flex-col sm:flex-row justify-between gap-10 text-center md:text-left w-full md:w-2/3">
+        <div className="flex flex-col sm:flex-row justify-between gap-10 text-center md:text-left w-full md:w-2/3 md:pl-8 lg:pl-0">
           {/* Quick Links */}
           <div className="flex-1">
             <h4 className="font-semibold mb-3">Quick Links</h4>

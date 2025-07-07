@@ -270,6 +270,40 @@ export interface Database {
             icon: string | null; 
           };
         };
+
+        allservices: {
+  Row: {
+    id: number;
+    title: string;
+    about_content: string | null;
+    subheading: string | null;
+    sub_content: any | null; // assuming JSON object or array
+    question_answers: any | null; // typically array of Q&A objects
+    faqs: any | null; // typically array of { question, answer } objects
+    end_tagline: string | null;
+    note: string | null;
+    image_url: string | null;
+  };
+};
+
+allservices_es: {
+  Row: {
+    id: number;
+    title: string;
+    about_content: string | null;
+    subheading: string | null;
+    sub_content: any | null; // assuming JSON object or array
+    question_answers: any | null; // typically array of Q&A objects
+    faqs: any | null; // typically array of { question, answer } objects
+    end_tagline: string | null;
+    note: string | null;
+    image_url: string | null;
+  };
+};
+
+
+
+        
     };
   };
 }

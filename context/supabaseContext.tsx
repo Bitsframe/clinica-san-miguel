@@ -38,6 +38,13 @@ interface SupabaseContextType {
   career_es: Database["public"]["Tables"]["career_es"]["Row"][];
   features: Database["public"]["Tables"]["features"]["Row"][]; // <-- Add this
   features_es: Database["public"]["Tables"]["features_es"]["Row"][];
+
+  fetchLocalizedRowById: <T extends TableName>(
+  baseTable: T,
+  locale: string,
+  id: number
+) => Promise<Database["public"]["Tables"][T]["Row"] | null>;
+
   fetchDetailedData: (table: string, id: number) => Promise<void>;
   fetchFilteredData: (
     table: string,
@@ -61,6 +68,8 @@ interface SupabaseContextType {
     locale: string
   ) => Promise<Database["public"]["Tables"][T]["Row"][]>;
 }
+
+
 
 
 
@@ -214,6 +223,41 @@ const fetchLocalizedTable = useCallback(
 );
 
 
+const fetchLocalizedRowById = useCallback(
+  async <T extends TableName>(
+    baseTable: T,
+    locale: string,
+    id: number
+  ): Promise<Database["public"]["Tables"][T]["Row"] | null> => {
+    const tableName = (locale === "es" ? `${baseTable}_es` : baseTable) as T;
+
+    const { data, error } = await supabase
+      .from(tableName)
+      .select("*")
+      .eq("id", id);
+
+    console.log(`🟢 Supabase response from ${tableName} for id=${id}:`, {
+      data,
+      error,
+    });
+
+    if (error) {
+      console.error(`❌ Error fetching from ${tableName}:`, error);
+      return null;
+    }
+
+    if (!data || data.length === 0) {
+      console.warn(`⚠️ No records found in ${tableName} for id=${id}`);
+      return null;
+    }
+
+    return data[0];
+  },
+  []
+);
+
+
+
 
 
   const fetchSearchedData = async (
@@ -295,6 +339,7 @@ const fetchLocalizedTable = useCallback(
         features, 
         features_es,
          fetchTableRows: getRows,
+         fetchLocalizedRowById,
         fetchLocalizedTable,
         fetchDetailedData: fetchDetailedDataCallback,
         fetchFilteredData: fetchFilteredDataCallback,

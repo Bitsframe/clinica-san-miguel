@@ -14,31 +14,25 @@ export default function AboutService({
   image_url,
 }: AboutServiceProps) {
   return (
-    <section className="relative  rounded-lg overflow-hidden ">
-      {/* Image container */}
-<div className="relative flex flex-col md:flex-row ">
-  {image_url && (
-    <div className="relative w-full md:w-2/5 h-64 md:h-[400px] rounded-lg overflow-hidden">
-      <Image
-        src={image_url}
-        alt={title}
-        fill
-        className="object-cover"
-        sizes="(max-width: 768px) 100vw, 40vw"
-      />
-    </div>
-  )}
-</div>
+    <section className="w-full flex flex-col md:flex-row items-stretch md:gap-0">
+      {/* Image */}
+      {image_url && (
+        <div className="relative w-full md:w-1/3 h-64 md:h-[400px] flex-shrink-0 overflow-hidden rounded-lg md:rounded-r-none">
+          <Image
+            src={image_url}
+            alt={title}
+            fill
+            className="object-cover rounded-lg"
+            sizes="(max-width: 768px) 100vw, 30vw"
+          />
+        </div>
+      )}
 
-
-      {/* Absolutely positioned About box on image's right side */}
-      <div
-  className="absolute top-1/2 md:right-[4.45rem] -translate-y-1/2 px-8 py-6 max-w-md"
-  style={{ backgroundColor: '#6b6b6a' }}
->
-  <h2 className="text-4xl font-extrabold text-white mb-4">About</h2>
+    {/* About box */}
+<div className="w-full md:w-2/3 max-w-prose px-4 py-4 md:px-6 md:py-4 flex flex-col gap-4 bg-neutral-700 text-white md:mt-20 self-start">
+  <h2 className="text-2xl md:text-5xl font-bold">About</h2>
   {about_content && (
-    <p className="text-white text-2xl font-light leading-snug">
+    <p className="text-base md:text-3xl font-extralight leading-relaxed">
       {about_content}
     </p>
   )}

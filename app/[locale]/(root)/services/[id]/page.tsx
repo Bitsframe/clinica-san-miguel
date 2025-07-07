@@ -9,6 +9,9 @@ import SubContentSection from "@/components/services/SubContentSection";
 import QuestionAnswers from "@/components/services/QuestionAnswers";
 import FAQs from "@/components/services/FAQs";
 import EndNote from "@/components/services/EndNote";
+import ServiceSkeleton from "@/components/services/ServiceSkeleton";
+
+
 
 export default function ServicePage() {
   const { fetchLocalizedRowById } = useSupabase();
@@ -41,36 +44,54 @@ export default function ServicePage() {
     fetchData();
   }, [locale, id, fetchLocalizedRowById]);
 
-  if (loading) return <div className="p-10 text-center">Loading...</div>;
-  if (!combined) return <div className="p-10 text-center">Service not found.</div>;
+  if (loading)
+    return (
+     <ServiceSkeleton />
+    );
+
+  if (!combined)
+    return (
+      <div className="p-10 flex justify-center items-center min-h-screen text-lg text-red-600">
+        Service not found.
+      </div>
+    );
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10 space-y-6">
-    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center text-red-700">
-      {combined.title}
-    </h1>
+    <main className="w-full px-4 py-10 md:px-6 lg:px-8 max-w-screen-xl mx-auto space-y-10">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center text-red-700 leading-tight">
+        {combined.title}
+      </h1>
 
+      <section>
+        <AboutService
+          title={combined.title}
+          about_content={combined.description}
+          image_url={combined.image}
+        />
+      </section>
 
-      <AboutService
-        title={combined.title} // still passed for alt text, not rendered
-        about_content={combined.description}
-        image_url={combined.image}
-      />
-
-      <SubContentSection
-        subheading={combined.subheading}
-        sub_content={combined.sub_content}
-      />
+      <section>
+        <SubContentSection
+          subheading={combined.subheading}
+          sub_content={combined.sub_content}
+        />
+      </section>
 
       {combined.question_answers && (
-        <QuestionAnswers items={combined.question_answers} />
+        <section>
+          <QuestionAnswers items={combined.question_answers} />
+        </section>
       )}
 
       {combined.faqs && (
-        <FAQs faqs={combined.faqs} />
+        <section>
+          <FAQs faqs={combined.faqs} />
+        </section>
       )}
 
-      <EndNote end_tagline={combined.end_tagline} note={combined.note} />
-    </div>
+      <section>
+        <EndNote end_tagline={combined.end_tagline} note={combined.note} />
+      </section>
+    </main>
   );
 }

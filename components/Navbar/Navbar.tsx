@@ -24,7 +24,6 @@ export const Navbar = () => {
         setShowLangMenu(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -64,7 +63,7 @@ export const Navbar = () => {
     ));
 
   return (
-    <header className="h-[90px] w-full flex justify-between items-center px-6 md:px-10 lg:px-14">
+    <header className="h-[90px] w-full flex justify-between items-center px-4 sm:px-6 md:px-10 lg:px-14">
       {/* Logo */}
       <Image
         onClick={() => router.push("/")}
@@ -80,10 +79,8 @@ export const Navbar = () => {
 
       {/* Mobile Modal Menu */}
       {isOpen && (
-        <div className="fixed inset-0 bg-white z-40 flex flex-col items-center px-6 pt-24 pb-10 tablet:hidden overflow-y-auto">
-          <button onClick={() => setOpen(false)} className="self-end text-[24px] mb-4">
-            ✕
-          </button>
+        <div className="fixed inset-0 bg-white z-40 flex flex-col items-center px-4 sm:px-6 pt-24 pb-10 tablet:hidden overflow-y-auto overflow-x-hidden transition-transform duration-300 ease-in-out">
+          
 
           <ul className="flex flex-col items-center w-full gap-4">
             {SM_Screen_renderNavLinks()}
@@ -106,7 +103,10 @@ export const Navbar = () => {
 
           {/* Book Button (Mobile) */}
           <button
-            onClick={() => router.push("/contact")}
+            onClick={() => {
+              router.push("/contact");
+              setOpen(false);
+            }}
             className="mt-6 bg-[#C1001F] text-white font-medium text-[15px] px-10 py-3 rounded-full hover:bg-red-700 transition"
           >
             Book Your Visit

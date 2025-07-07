@@ -224,9 +224,9 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
                   <h3 className="text-[18px] font-bold text-black capitalize">
                     {t("str2")}:
                   </h3>
-                  <p className="text-[16px] text-black font-normal">
-                    {displayTimings}
-                  </p>
+                <div className="text-[16px] text-black font-normal space-y-1">
+              {displayTimings}
+            </div>
                 </div>
 
                 <div className="flex flex-col">

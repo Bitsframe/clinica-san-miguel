@@ -39,15 +39,16 @@ export const Footer = () => {
 
   return (
     <footer className="bg-white border-t border-gray-200 text-[#0F172A] mt-12">
-      <div className="container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
         {/* Logo and Newsletter */}
-        <div className="space-y-4">
-          <Image src={logo} alt="Logo" width={160} height={60}  />
+        <div className="space-y-4 text-center md:text-left">
+          <Image src={logo} alt="Logo" width={160} height={60} className="mx-auto md:mx-0" />
           <p className="font-semibold">{t("footer_news_letter_title")}</p>
           <NewsletterSignup />
         </div>
 
-        <div className="md:col-span-3 flex flex-col sm:flex-row gap-36 justify-end ml-6">
+        {/* Links + Socials */}
+        <div className="md:col-span-3 flex flex-col sm:flex-col md:flex-row gap-6 md:gap-36 justify-end items-center md:items-start text-center md:text-left">
           {/* Quick Links */}
           <div>
             <h4 className="font-semibold mb-3">Quick Links</h4>
@@ -76,7 +77,7 @@ export const Footer = () => {
             <h4 className="font-semibold mb-3">Socials</h4>
             <ul className="space-y-2 text-sm text-gray-700">
               {socialLinks.map((social) => (
-                <li key={social.id} className="flex items-center gap-2">
+                <li key={social.id} className="flex items-center gap-2 justify-center md:justify-start">
                   <a
                     href={social.route}
                     target="_blank"
@@ -96,16 +97,14 @@ export const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="mt-10 border-t border-gray-200 px-6 py-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
-        <p className="md:ml-24 text-center md:text-left mb-2 md:mb-0">
-            {t("footer_copyright_text")}
-          </p>
-          <div className="md:mr-24 text-center md:text-right space-x-4">
-            <a href="#">{t("link_privacy_policy")}</a>
-            <a href="#">{t("link_terms_and_conditions")}</a>
-            <a href="#">{t("link_accessibility_notice")}</a>
-          </div>
-                </div>
+      <div className="mt-10 border-t border-gray-200 px-6 py-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500 gap-4 md:gap-0">
+        <p className="text-center md:text-left">{t("footer_copyright_text")}</p>
+        <div className="space-x-4 text-center md:text-right">
+          <a href="#">{t("link_privacy_policy")}</a>
+          <a href="#">{t("link_terms_and_conditions")}</a>
+          <a href="#">{t("link_accessibility_notice")}</a>
+        </div>
+      </div>
     </footer>
   );
 };

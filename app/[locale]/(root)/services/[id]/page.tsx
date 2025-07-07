@@ -46,9 +46,9 @@ export default function ServicePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-6">
-   <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center sm:text-left text-red-700">
-  {combined.title}
-</h1>
+    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center text-red-700">
+      {combined.title}
+    </h1>
 
 
       <AboutService

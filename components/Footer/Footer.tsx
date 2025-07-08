@@ -106,16 +106,22 @@ export const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="mt-10 border-t border-gray-200 px-6 py-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500 gap-4 md:gap-0">
-        <p className="text-center md:text-left">
-          {t("footer_copyright_text")}
-        </p>
-        <div className="space-x-4 text-center md:text-right">
-          <a href="#">{t("link_privacy_policy")}</a>
-          <a href="#">{t("link_terms_and_conditions")}</a>
-          <a href="#">{t("link_accessibility_notice")}</a>
-        </div>
-      </div>
+    <div className="mt-10 border-t border-gray-200 px-6 py-6 flex flex-col md:flex-row items-center text-sm text-gray-500 gap-4 md:gap-0">
+  <p className="text-center md:text-left">
+    {t("footer_copyright_text")}
+  </p>
+
+  <p className="md:ml-auto text-center md:text-right">
+    All Rights Reserved.
+  </p>
+</div>
+  {/* Uncomment if needed
+  <div className="space-x-4 text-center md:text-right">
+    <a href="#">{t("link_privacy_policy")}</a>
+    <a href="#">{t("link_terms_and_conditions")}</a>
+    <a href="#">{t("link_accessibility_notice")}</a>
+  </div>
+  */}
     </footer>
   );
 };

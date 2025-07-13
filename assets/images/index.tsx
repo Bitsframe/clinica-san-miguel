@@ -1,6 +1,9 @@
 // Logo
 import Logo from "./logo/logo.png";
 
+//icon 
+import Globe from "@/assets/images/icons/Frame.png"
+
 // Locations
 import Arlington from "./locations/arlington.png";
 import Dallas from "./locations/dallas.png";
@@ -95,6 +98,7 @@ import { direction, viewAllArrow, form } from "./icons";
 
 export {
   Logo,
+  Globe,
   Arlington,
   Dallas,
   FortWorth,

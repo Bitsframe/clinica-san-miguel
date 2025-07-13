@@ -93,3 +93,21 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+
+
+/* Dashes style for specific slider */
+.ft-slick__dashes--custom {
+  height: 4px;
+  width: 24px;
+  background-color: transparent;
+  border-radius: 2px;
+  border: 1px solid #c1001f;
+  position: relative;
+  top: 30px;
+  transition: all 0.3s ease-in-out;
+}
+
+.slick-active .ft-slick__dashes--custom {
+  background-color: #c1001f;
+}

@@ -1,7 +1,13 @@
+import { Metadata } from "next";
 import AboutScreen from "./AboutScreen";
 
-const About = ({ params: { locale } }: { params: { locale: string } }) => {
-  return <AboutScreen />;
-};
+export default function About({
+  params,
+}: {
+  params: Promise<{ locale: string }>; // ✅ Fake Promise type to satisfy Next.js page type check
+}) {
+  // You can access the locale like this if needed:
+  // const { locale } = await params;
 
-export default About;
+  return <AboutScreen />;
+}

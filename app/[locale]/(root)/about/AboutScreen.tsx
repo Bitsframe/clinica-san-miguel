@@ -6,12 +6,18 @@ import { Divider } from "@/utils";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { family  } from "@/assets/images/cover/"
+import React, { useEffect, useState, Fragment } from "react";
+import LoadingSkeletonAboutScreen from "@/components/loading/LoadingSkeletonAboutScreen";
+
+
 
 const customLoader = ({ src, width, quality }: any) => {
   const urlWithoutQuery = src.split("?")[0];
   const qualityParam = quality ? `&q=${quality}` : "";
   return `${urlWithoutQuery}?w=${width}${qualityParam}`;
 };
+
 
 const Expertise = ({
   image,
@@ -42,14 +48,23 @@ const Expertise = ({
   );
 };
 
+
 const AboutScreen = () => {
   const t = useTranslations("common");
   const router = useRouter();
   const locale = useLocale();
+  const { fetchLocalizedTable } = useSupabase();
 
-  const { about, about_es } = useSupabase();
+  const [data, setData] = useState<any>(null);  
 
-  const data = locale === "es" ? about_es[0] : about[0];
+  
+  useEffect(() => {
+    fetchLocalizedTable("about", locale)
+      .then((rows) => {
+        setData(rows[0]); 
+      })
+      .catch((err) => console.error("Error fetching about data:", err));
+  }, [locale, fetchLocalizedTable]);
 
   const whatwedo =
     "At Clinica San Miguel, we understand the importance of effective communication in healthcare. That's why we take pride in our team of bilingual English and Spanish-speaking providers. Our commitment to linguistic diversity ensures that every member of our community receives the highest quality healthcare services.";
@@ -83,6 +98,10 @@ const AboutScreen = () => {
     },
   ];
 
+  if (!data) {
+  return <LoadingSkeletonAboutScreen />;
+}
+
   return (
     <main className="py-[5%] flex flex-col gap-20 px-2 lg:px-[20px] items-center justify-center">
       <section className="flex flex-col items-center justify-center gap-10 lg:gap-32">
@@ -91,25 +110,25 @@ const AboutScreen = () => {
             <h1 className="text-[40px] lg:text-[50px] text-[#000000] font-poppins">
               {data?.title_1}
             </h1>
-            {/* <span className="text-[25px] lg:text-[35px] leading-[35px] text-[#C1001F]">
-              Clinica San Miguel
-            </span> */}
           </div>
           <p className="w-full md:w-[60%] text-[18px] lg:text-[24px] text-[#000000]">
             {data?.text_1}
           </p>
         </article>
 
-        <article className="w-[95%] md:w-[75%] lg:w-[50%] flex justify-center items-center">
+          <article className="w-[95%] md:w-[75%] lg:w-[50%] flex justify-center items-center">
+          {data?.image_1 ? (
           <Image
-            src={data?.image_1 || ""}
-            alt={""}
-            width={100}
-            height={100}
-            className="w-[100%] aspect-auto object-contain"
-            loader={customLoader}
+          src={data.image_1}
+          alt=""
+          loading="lazy"
+          width={100}
+          height={100}
+          className="w-[100%] aspect-auto object-contain"
+          loader={customLoader}
           />
-        </article>
+          ) : null}
+          </article>
 
         <article className="flex flex-col md:flex-row justify-center gap-6 items-start w-full">
           <div className="flex items-start flex-col gap-2">
@@ -117,6 +136,7 @@ const AboutScreen = () => {
               src={data?.image_2 || earth_care}
               width={60}
               height={60}
+              loading="lazy"
               className="w-[60px] aspect-auto"
               alt={""}
               loader={customLoader}
@@ -124,9 +144,6 @@ const AboutScreen = () => {
             <h1 className="text-[40px] lg:text-[50px] leading-[40px] lg:leading-[50px] text-[#000000] font-poppins">
               {data?.title_2}
             </h1>
-            {/* <span className="text-[25px] lg:text-[35px] leading-[35px] text-[#C1001F]">
-              All Communities
-            </span> */}
           </div>
           <p className="w-full md:w-[60%] text-[18px] lg:text-[24px]">
             {data?.text_2 || whatwedo}
@@ -137,15 +154,14 @@ const AboutScreen = () => {
       <Divider />
 
       {expertise.map((item, index) => (
-        <>
+        <Fragment key={item.id}>
           <Expertise
             image={item.image}
             heading={item.heading}
             description={item.description}
-            key={item.id}
           />
           {index !== expertise.length - 1 && <Divider />}
-        </>
+        </Fragment>
       ))}
     </main>
   );

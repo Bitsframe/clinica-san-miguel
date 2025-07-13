@@ -9,8 +9,14 @@ import Image from "next/image";
 import { styles } from "@/app/[locale]/styles";
 import { useTranslations } from "next-intl";
 
-const Special = ({ params: { locale } }: { params: { locale: string } }) => {
+const Special = ({
+  params,
+}: {
+  params: Promise<{ locale: string }>; // ✅ Fake async for Next.js compatibility
+}) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const t = useTranslations("specials");
+
   const special_posters = [
     {
       id: 1,
@@ -33,6 +39,7 @@ const Special = ({ params: { locale } }: { params: { locale: string } }) => {
       image: Grey_Modern_Best_Medical_Service_Poster,
     },
   ];
+
   return (
     <main>
       <section className="flex flex-col justify-center items-center gap-10">
@@ -57,7 +64,7 @@ const Special = ({ params: { locale } }: { params: { locale: string } }) => {
               <div>
                 <Image
                   src={poster.image}
-                  alt={""}
+                  alt=""
                   className="rounded-[20px] h-full aspect-auto w-[340px] md:w-[500px] lg:w-[700px]"
                 />
               </div>
@@ -66,11 +73,11 @@ const Special = ({ params: { locale } }: { params: { locale: string } }) => {
         </article>
       </section>
 
-      <div className="w-full flex justify-center">
+      {/* <div className="w-full flex justify-center">
         <Services />
       </div>
-      <Locations />
-      <Testimonials headingFlag={true} mode={"light"} />
+      <Locations /> */}
+      {/* <Testimonials headingFlag={true} mode={"light"} /> */}
     </main>
   );
 };

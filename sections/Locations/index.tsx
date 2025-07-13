@@ -110,7 +110,7 @@ export const Locations = () => {
         {t("location_sub_title")}
       </h3>
 
-      <article className="w-[100vw] xsm:w-[65vw] sm:w-[70vw] md:w-[65vw] lg:w-[50vw] block justify-center h-[250px] mx-auto my-10">
+     <article className="w-[100vw] xsm:w-[65vw] sm:w-[70vw] md:w-[65vw] lg:w-[50vw] block justify-center h-[40vh] sm:h-[35vh] md:h-[30vh] lg:h-[25vh] mx-auto my-10">
         {/* @ts-ignore */}
         <Slider {...settings}>
           {locations.map((location) => (

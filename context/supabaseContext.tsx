@@ -36,6 +36,15 @@ interface SupabaseContextType {
   testinomial: Database["public"]["Tables"]["Testinomial"]["Row"][];
   career: Database["public"]["Tables"]["career"]["Row"][];
   career_es: Database["public"]["Tables"]["career_es"]["Row"][];
+  features: Database["public"]["Tables"]["features"]["Row"][]; // <-- Add this
+  features_es: Database["public"]["Tables"]["features_es"]["Row"][];
+
+  fetchLocalizedRowById: <T extends TableName>(
+  baseTable: T,
+  locale: string,
+  id: number
+) => Promise<Database["public"]["Tables"][T]["Row"] | null>;
+
   fetchDetailedData: (table: string, id: number) => Promise<void>;
   fetchFilteredData: (
     table: string,
@@ -47,7 +56,22 @@ interface SupabaseContextType {
     column_name: string,
     title: string
   ) => Promise<void>;
+
+
+    fetchTableRows: <T extends keyof Database["public"]["Tables"]>(
+    table: T
+  ) => Promise<Database["public"]["Tables"][T]["Row"][]>;
+
+
+    fetchLocalizedTable: <T extends keyof Database["public"]["Tables"]>(
+    baseTable: T,
+    locale: string
+  ) => Promise<Database["public"]["Tables"][T]["Row"][]>;
 }
+
+
+
+
 
 const SupabaseContext = createContext<SupabaseContextType | undefined>(
   undefined
@@ -104,6 +128,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
   const [services_es, setServices_es] = useState<
     Database["public"]["Tables"]["services_es"]["Row"][]
   >([]);
+  
   // const [detailData, setDetailData] = useState<
   //   Database["public"]["Tables"]["services"]["Row"][]
   // >([]);
@@ -119,9 +144,17 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
   const [career, setCareer] = useState<
     Database["public"]["Tables"]["career"]["Row"][]
   >([]);
+
+  const [features, setFeatures] = useState<
+    Database["public"]["Tables"]["features"]["Row"][]
+  >([]);
+
+  const [features_es, setFeatures_es] = useState<Database["public"]["Tables"]["features_es"]["Row"][]>([]);
+
   const [career_es, setCareer_es] = useState<
     Database["public"]["Tables"]["career_es"]["Row"][]
   >([]);
+   const getRows = useCallback(fetchTableRows, []);
 
   // for all records
   const fetchData = async (table: string, setter: Function) => {
@@ -135,6 +168,11 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error(`Error fetching ${table} data:`, error);
     }
   };
+
+  
+
+
+
 
   // for any unique record
   const fetchDetailedData = async (table: string, id: number) => {
@@ -172,6 +210,56 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+
+const fetchLocalizedTable = useCallback(
+  async <T extends TableName>(
+    baseTable: T,
+    locale: string
+  ): Promise<TableRows<T>> => {
+    const tableName = (locale === "es" ? `${baseTable}_es` : baseTable) as T;
+    return await fetchTableRows(tableName);
+  },
+  []
+);
+
+
+const fetchLocalizedRowById = useCallback(
+  async <T extends TableName>(
+    baseTable: T,
+    locale: string,
+    id: number
+  ): Promise<Database["public"]["Tables"][T]["Row"] | null> => {
+    const tableName = (locale === "es" ? `${baseTable}_es` : baseTable) as T;
+
+    const { data, error } = await supabase
+      .from(tableName)
+      .select("*")
+      .eq("id", id);
+
+    console.log(`🟢 Supabase response from ${tableName} for id=${id}:`, {
+      data,
+      error,
+    });
+
+    if (error) {
+      console.error(`❌ Error fetching from ${tableName}:`, error);
+      return null;
+    }
+
+    if (!data || data.length === 0) {
+      console.warn(`⚠️ No records found in ${tableName} for id=${id}`);
+      return null;
+    }
+
+    return data[0];
+  },
+  []
+);
+
+
+
+
+
   const fetchSearchedData = async (
     table: string,
     column_name: string,
@@ -197,26 +285,28 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
   const fetchSearchedDataCallback = useCallback(fetchSearchedData, []);
 
   useEffect(() => {
-    fetchDataCallback("About_Short", setAboutShort);
-    fetchDataCallback("About_Short_es", setAboutShort_es);
-    fetchDataCallback("about", setAbout);
-    fetchDataCallback("about_es", setAbout_es);
-    fetchDataCallback("Mission", setMission);
-    fetchDataCallback("Mission_es", setMission_es);
-    fetchDataCallback("Blog", setBlogs);
-    fetchDataCallback("Additional_Services", setAdditionalServices);
-    fetchDataCallback("FAQs", setFaqs);
-    fetchDataCallback("FAQs_es", setFaqs_es);
-    fetchDataCallback("Hero_Section", setHeroSection);
-    fetchDataCallback("Hero_Section_es", setHeroSection_es);
-    fetchDataCallback("Locations", setLocations);
+    // fetchDataCallback("About_Short", setAboutShort);
+    // fetchDataCallback("About_Short_es", setAboutShort_es);
+    // fetchDataCallback("about", setAbout);
+    // fetchDataCallback("about_es", setAbout_es);
+    // fetchDataCallback("Mission", setMission);
+    // fetchDataCallback("Mission_es", setMission_es);
+    // fetchDataCallback("Blog", setBlogs);
+    // fetchDataCallback("Additional_Services", setAdditionalServices);
+    // fetchDataCallback("FAQs", setFaqs);
+    // fetchDataCallback("FAQs_es", setFaqs_es);
+    // fetchDataCallback("Hero_Section", setHeroSection);
+    // fetchDataCallback("Hero_Section_es", setHeroSection_es);
+    // fetchDataCallback("Locations", setLocations);
     fetchDataCallback("Images", setLocationImages);
-    fetchDataCallback("services", setServices);
-    fetchDataCallback("services_es", setServices_es);
-    fetchDataCallback("Specials", setSpecials);
-    fetchDataCallback("Testinomial", setTestinomial);
-    fetchDataCallback("career", setCareer);
-    fetchDataCallback("career_es", setCareer_es);
+    // fetchDataCallback("services", setServices);
+    // fetchDataCallback("services_es", setServices_es);
+    // fetchDataCallback("Specials", setSpecials);
+    // fetchDataCallback("Testinomial", setTestinomial);
+    // fetchDataCallback("career", setCareer);
+    // fetchDataCallback("career_es", setCareer_es);
+    // fetchDataCallback("features", setFeatures);
+    // fetchDataCallback("features_es", setFeatures_es);
   }, [fetchDataCallback]);
 
   return (
@@ -246,6 +336,11 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
         detailData,
         filteredData,
         searchedData,
+        features, 
+        features_es,
+         fetchTableRows: getRows,
+         fetchLocalizedRowById,
+        fetchLocalizedTable,
         fetchDetailedData: fetchDetailedDataCallback,
         fetchFilteredData: fetchFilteredDataCallback,
         fetchSearchedData: fetchSearchedDataCallback,
@@ -263,3 +358,17 @@ export const useSupabase = () => {
   }
   return context;
 };
+
+
+type TableName = keyof Database["public"]["Tables"];
+type TableRows<T extends TableName> =
+  Database["public"]["Tables"][T]["Row"][];
+
+export async function fetchTableRows<T extends TableName>(
+  table: T
+): Promise<TableRows<T>> {
+  const { data, error } = await supabase.from(table).select("*");
+
+  if (error) throw error;
+  return data as TableRows<T>;
+}

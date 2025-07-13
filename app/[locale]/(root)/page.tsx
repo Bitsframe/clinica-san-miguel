@@ -1,6 +1,6 @@
-import "regenerator-runtime/runtime";
-import { useTranslations } from "next-intl";
 
+import { getTranslations, getLocale } from "next-intl/server";
+import "regenerator-runtime/runtime";
 import {
   AboutProfessionals,
   AboutSection,
@@ -12,29 +12,31 @@ import {
   Locations,
   Testimonials,
   Treatments,
+  WeCare,
+  PatientStories,
+  TrustedPartner,
+  AboveFooter,
+  StickyMobileButton,
 } from "@/sections";
 
-export default function Home({
-  params: { locale },
-}: {
-  params: { locale: string };
-}) {
-  const t = useTranslations("home");
+export default async function Home() {
+  const locale = await getLocale(); 
+  const t = await getTranslations({ locale, namespace: "home" });
 
   return (
     <main className="flex flex-col justify-center items-center overflow-x-hidden gap-10">
-      <div className="w-full bg-[#F1F1F1]">
+      <div id="hero-section" className="w-full bg-[#FFFFFF] ">
         <HeroTopSection />
       </div>
       <GroupedLocations />
-      <AboutProfessionals />
-      <Hero />
-      <Testimonials headingFlag={true} mode={"dark"} />
-      <CommunityMission />
-      <AboutSection />
       <Treatments />
-      <Locations />
+      <CommunityMission />
+      <WeCare />
+      <PatientStories />
+      <TrustedPartner />
       <FAQs />
+      <AboveFooter />
+      <StickyMobileButton />
     </main>
   );
 }

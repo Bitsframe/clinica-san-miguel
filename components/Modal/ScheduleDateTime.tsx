@@ -58,28 +58,24 @@ const ScheduleDateTime: FC<Props> = ({ data, selectDateTimeSlotHandle }) => {
         return timeSlots;
     };
 
-    useEffect(() => {
-        if (date) {
-            const timingKey = getTimingKey(date);
-            const timings = data[timingKey];
-            console.log({
-                timingKey,
-                timings
-            })
+   useEffect(() => {
+    if (date) {
+        const timingKey = getTimingKey(date);
+        const timings = data[timingKey];
 
-            if (timings && timings.toLowerCase() !== 'closed') {
-                const timeSlots = generateTimeSlots(timings);
-                console.log({ timeSlots })
-                setAvailableTimes(timeSlots);
-                setIsClosed(false);
-            } else {
-                setAvailableTimes([]);
-                setIsClosed(true);
-            }
+        if (timings && timings.toLowerCase() !== 'closed') {
+        const timeSlots = generateTimeSlots(timings);
+        setAvailableTimes(timeSlots);
+        setIsClosed(false);
+        } else {
+        setAvailableTimes([]);
+        setIsClosed(true);
         }
-        setSelectedSlot('')
-        selectDateTimeSlotHandle('')
-    }, [date, data]);
+    }
+    setSelectedSlot('');
+    selectDateTimeSlotHandle('');
+    }, [date, data, selectDateTimeSlotHandle]); 
+
 
     const dateTimeChangeHandle = (date: Date) => {
         setDate(date);

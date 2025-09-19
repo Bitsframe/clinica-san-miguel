@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runCheck } from "../../../utils/OpenAi";
+// import { runCheck } from "../../../utils/OpenAi";
 
 // Route to check on the run thread
 export async function GET(req) {
@@ -18,10 +18,9 @@ export async function GET(req) {
     }
 
     // Fetching the run check
-    const check = await runCheck({ threadId, runId });
-
-    // Returning the run check response
-    return NextResponse.json({ check });
+    // const check = await runCheck({ threadId, runId });
+    // return NextResponse.json({ check });
+    return NextResponse.json({ message: "OpenAI thread functionality is currently disabled" }, { status: 503 });
   } catch (error) {
     // Handling errors
     return NextResponse.json({ error: error.message }, { status: 400 });

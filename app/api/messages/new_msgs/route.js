@@ -1,7 +1,7 @@
 // route.js
 
 import { NextResponse } from "next/server";
-import { getNewMessages } from "../../../utils/OpenAi";
+// import { getNewMessages } from "../../../utils/OpenAi";
 
 // Function to get new messages in a thread
 export async function GET(req) {
@@ -19,9 +19,9 @@ export async function GET(req) {
     }
 
     // Fetch new messages
-    const newMessages = await getNewMessages(threadId, lastMessageId);
-
-    return NextResponse.json({ newMessages });
+    // const newMessages = await getNewMessages(threadId, lastMessageId);
+    // return NextResponse.json({ newMessages });
+    return NextResponse.json({ message: "OpenAI messaging functionality is currently disabled" }, { status: 503 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }

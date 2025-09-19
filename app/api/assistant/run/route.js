@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runAssistant } from "../../../utils/OpenAi";
+// import { runAssistant } from "../../../utils/OpenAi";
 
 // Run the assistant
 export async function POST(req) {
@@ -16,9 +16,9 @@ export async function POST(req) {
     }
 
     // Run the assistant
-    const assistantResult = await runAssistant({ assistantId, threadId });
-
-    return NextResponse.json(assistantResult);
+    // const assistantResult = await runAssistant({ assistantId, threadId });
+    // return NextResponse.json(assistantResult);
+    return NextResponse.json({ message: "OpenAI assistant functionality is currently disabled" }, { status: 503 });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ error: error.message }, { status: 400 });

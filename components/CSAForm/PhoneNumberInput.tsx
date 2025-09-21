@@ -26,11 +26,13 @@ const PhoneNumberInput = ({
 
             {/* Phone Input */}
             <PhoneInput
-                 country={'us'}
-                 onlyCountries={['us']}  // Default country
+                 country={'us'}  // Default country
+                // onlyCountries prop removed to allow all countries
                 value={value}   // Controlled value from props
                 onChange={(phone) => onChange(phone)} // Update handler
                 placeholder={placeholder} // Placeholder for the input
+                enableSearch={true}  // Enable search in country dropdown
+                searchPlaceholder="Search countries..." // Search placeholder
                 
                 inputStyle={{
                     width: '100%',

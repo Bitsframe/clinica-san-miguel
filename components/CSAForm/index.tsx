@@ -371,12 +371,12 @@ const Self_Appointment = ({ location }: any) => {
                             <div className="space-y-2 md:w-2/3 ">
                                 <div className="flex space-x-2 items-center">
                                     <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
-                                        I agree to receive <strong>email</strong> updates from Clinica San Miguel, including appointment confirmations, health tips, promotional offers, and other important information.
+                                        {t("email_consent")}
                                     </h1>
                                 </div>
                                 <div className="flex space-x-2 items-center">
                                     <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
-                                        I agree to receive <strong>SMS</strong> notifications from Clinica San Miguel, including appointment reminders, health updates, and other related messages.
+                                        {t("sms_consent")}
                                     </h1>
                                 </div>
 

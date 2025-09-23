@@ -74,7 +74,7 @@ const ScheduleDateTime: FC<Props> = ({ data, selectDateTimeSlotHandle }) => {
     }
     setSelectedSlot('');
     selectDateTimeSlotHandle('');
-    }, [date, data, selectDateTimeSlotHandle]); 
+    }, [date, data]); 
 
 
     const dateTimeChangeHandle = (date: Date) => {

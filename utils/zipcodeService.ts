@@ -154,10 +154,10 @@ export async function findNearestLocations(
 
           // Calculate distance
           const distance = calculateDistance(
-            userLocation.latitude,
-            userLocation.longitude,
-            locationData.latitude,
-            locationData.longitude
+            userLocation.latitude!,
+            userLocation.longitude!,
+            locationData.latitude!,
+            locationData.longitude!
           );
 
           return { ...location, distance };

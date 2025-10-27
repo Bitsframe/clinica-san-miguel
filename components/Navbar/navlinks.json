@@ -1,0 +1,10 @@
+[
+  { "id": 1, "heading": "Home", "route": "/" },
+  { "id": 2, "heading": "About Us", "route": "/about" },
+  {
+    "id": 3,
+    "heading": "Services",
+    "route": "/services"
+  },
+  { "id": 6, "heading": "Contact", "route": "/career" }
+]

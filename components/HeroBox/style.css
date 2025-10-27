@@ -1,0 +1,85 @@
+.box {
+  height: 499px;
+  width: 582px;
+}
+
+.box .group {
+  height: 499px;
+  left: 0;
+  /* position: fixed; */
+  top: 0;
+  width: 584px;
+}
+
+.box .overlap {
+  height: 499px;
+  position: relative;
+}
+
+.box .overlap-group-wrapper {
+  height: 242px;
+  left: 307px;
+  position: absolute;
+  top: 0;
+  width: 277px;
+}
+
+.box .overlap-group {
+  background-image: url(../../assets/portriats/Vector\ 1.png);
+  background-size: 100% 100%;
+  height: 242px;
+  position: relative;
+  width: 275px;
+}
+
+.box .text-wrapper {
+  color: var(--bg-color);
+  font-family: "Antipasto Pro-DemiBold", Helvetica;
+  font-size: 40px;
+  color: #ffffff;
+  font-weight: 700;
+  height: 82px;
+  left: 19px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 50px;
+  /* width: 255px; */
+}
+
+.box .grey {
+  height: 499px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 286px;
+}
+
+.box .mask-group {
+  height: 499px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 582px;
+}
+
+.box .img {
+  height: 249px;
+  left: 307px;
+  position: absolute;
+  top: 250px;
+  width: 275px;
+}
+
+.box .clinca-san-miguel {
+  color: #ffffff;
+  font-family: "Antipasto Pro-DemiBold", Helvetica;
+  font-size: 48px;
+  font-weight: 700;
+  height: 123px;
+  left: 411px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 279px;
+}

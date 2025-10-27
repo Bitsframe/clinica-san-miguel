@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Antipasto Pro Medium";
+  src: url("/fonts/antipasto/AntipastoPro-Medium_trial.ttf") format("truetype");
+  font-weight: 400; /* Normal */
+  font-style: normal;
+}
+
+.font-antipasto {
+  font-family: "Antipasto Pro Medium", sans-serif !important;
+}
+
+/* Slick Slider */
+.slick-slide > div {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  display: none;
+  top: 50% !important;
+  left: 10px !important;
+  transform: translateY(-400%) !important;
+}
+
+
+.react-datetime-picker__wrapper{
+  border-style: none !important;
+}
+/* Dots */
+
+/* Custom Slick Dots */
+
+.ft-slick__dots--custom {
+  height: 20px;
+  width: 20px;
+  /* background-color: #ffb636; */
+  border-radius: 100%;
+  border: 1px solid #c1001f;
+  /* padding-top: 0%; */
+  position: relative;
+  top: 30px;
+  transition: all 0.5s ease-in-out;
+  /* padding: 2px; */
+}
+
+.slick-dots li {
+  width: 20px;
+
+  transition: all 0.5s ease-in-out;
+}
+
+.slick-active {
+  width: 20px;
+  /* top: -15px; */
+
+  /* transition: width 0.3s ease-in-out; */
+  transition: all 0.5s ease-out;
+}
+
+.slick-active .ft-slick__dots--custom {
+  width: 20px;
+  background-color: #c1001f;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+/* Custom Scroll Bar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f8f5f0;
+  border-radius: 30px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 30px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+
+/* Dashes style for specific slider */
+.ft-slick__dashes--custom {
+  height: 4px;
+  width: 24px;
+  background-color: transparent;
+  border-radius: 2px;
+  border: 1px solid #c1001f;
+  position: relative;
+  top: 30px;
+  transition: all 0.3s ease-in-out;
+}
+
+.slick-active .ft-slick__dashes--custom {
+  background-color: #c1001f;
+}

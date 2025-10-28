@@ -266,8 +266,8 @@ export const HeroTopSection = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent" />
 
           <div className="absolute inset-0 z-10 flex flex-col justify-start items-start px-6 pt-72 text-left text-white space-y-4">
-            <h1 className="text-lg font-bold leading-tight">
-              {t("section1_h1_part1")} <span className="text-[#C1001F]">{t("section_h1_h19")}</span>
+            <h1 className="text-xl font-bold leading-tight">
+              <span className="whitespace-nowrap">{t("section1_h1_part1")} <span className="text-[#C1001F]">{t("section_h1_h19")}</span></span>
               <span className="block">{t("section1_h1_part2")}</span>
             </h1>
             <p className="text-sm text-white/90">{t("section1_p")}</p>
@@ -318,8 +318,8 @@ export const HeroTopSection = () => {
               </span>
             </div>
 
-            <h1 className="max-w-xl text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight text-white">
-              {t("section1_h1_part1")} <span className="text-[#C1001F]">{t("section_h1_h19")}</span>
+            <h1 className="max-w-xl text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight text-white">
+              <span className="whitespace-nowrap">{t("section1_h1_part1")} <span className="text-[#C1001F]">{t("section_h1_h19")}</span></span>
               <span className="block">{t("section1_h1_part2")}</span>
             </h1>
 

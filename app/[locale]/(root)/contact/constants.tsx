@@ -101,6 +101,7 @@ export const LocationsData = () => {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true); // 👈 Add loading state
+  const [isSearching, setIsSearching] = useState(false); // 👈 Add searching state
 
   const tabs = [
     { id: 2, name: "Dallas", value: "A" },
@@ -136,51 +137,56 @@ export const LocationsData = () => {
 
   useEffect(() => {
     const filterLocations = async () => {
-      let filtered = [...allLocations];
+      setIsSearching(true); // 👈 Start searching
+      try {
+        let filtered = [...allLocations];
 
-      // Filter by group
-      if (selectedLocationGroup !== "") {
-        filtered = filtered.filter(
-          (loc) => loc.Group === selectedLocationGroup
-        );
-      }
-
-      // Filter by search query (using debounced query)
-      if (debouncedQuery.trim() !== "") {
-        const searchQuery = debouncedQuery.trim();
-        
-        // Check if user entered a zipcode
-        if (isZipcode(searchQuery)) {
-          // Find nearest 3 locations to this zipcode
-          const nearestLocations = await findNearestLocations(
-            searchQuery,
-            filtered.length > 0 ? filtered : allLocations,
-            3 // Show 3 nearest locations
-          );
-          
-          if (nearestLocations.length > 0) {
-            filtered = nearestLocations;
-            console.log(`✅ Found ${nearestLocations.length} nearest locations for zipcode ${searchQuery}:`, 
-              nearestLocations.map(l => ({
-                name: l.title,
-                distance: `${l.distance} miles`
-              }))
-            );
-          } else {
-            // No results found for this zipcode
-            console.log(`ℹ️ No locations found for zipcode ${searchQuery}`);
-            filtered = [];
-          }
-        } else {
-          // Regular search by location name or address
-          filtered = filtered.filter((loc) =>
-            loc.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            loc.address?.toLowerCase().includes(searchQuery.toLowerCase())
+        // Filter by group
+        if (selectedLocationGroup !== "") {
+          filtered = filtered.filter(
+            (loc) => loc.Group === selectedLocationGroup
           );
         }
-      }
 
-      setLocationData(filtered);
+        // Filter by search query (using debounced query)
+        if (debouncedQuery.trim() !== "") {
+          const searchQuery = debouncedQuery.trim();
+          
+          // Check if user entered a zipcode
+          if (isZipcode(searchQuery)) {
+            // Find nearest 3 locations to this zipcode
+            const nearestLocations = await findNearestLocations(
+              searchQuery,
+              filtered.length > 0 ? filtered : allLocations,
+              3 // Show 3 nearest locations
+            );
+            
+            if (nearestLocations.length > 0) {
+              filtered = nearestLocations;
+              console.log(`✅ Found ${nearestLocations.length} nearest locations for zipcode ${searchQuery}:`, 
+                nearestLocations.map(l => ({
+                  name: l.title,
+                  distance: `${l.distance} miles`
+                }))
+              );
+            } else {
+              // No results found for this zipcode
+              console.log(`ℹ️ No locations found for zipcode ${searchQuery}`);
+              filtered = [];
+            }
+          } else {
+            // Regular search by location name or address
+            filtered = filtered.filter((loc) =>
+              loc.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              loc.address?.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+          }
+        }
+
+        setLocationData(filtered);
+      } finally {
+        setIsSearching(false); // 👈 Done searching
+      }
     };
 
     filterLocations();
@@ -192,7 +198,18 @@ export const LocationsData = () => {
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            // If input is all numbers, limit to 5 digits
+            if (/^\d+$/.test(value)) {
+              if (value.length <= 5) {
+                setQuery(value);
+              }
+            } else {
+              // Allow any text for location name search
+              setQuery(value);
+            }
+          }}
           placeholder="Search by location name or zipcode..."
           className="w-full sm:w-[300px] bg-white text-[#6C7582] placeholder-[#6C7582] font-poppins text-[16px] px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#C1001F] focus:outline-none"
         />
@@ -211,7 +228,7 @@ export const LocationsData = () => {
       </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-        {isLoading
+        {isLoading || isSearching
           ? [...Array(9)].map((_, i) => <LoadingLocationCard key={i} />)
           : locationData.map((location) => (
               <Location

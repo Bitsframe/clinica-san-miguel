@@ -216,8 +216,32 @@ const fetchLocalizedTable = useCallback(
     baseTable: T,
     locale: string
   ): Promise<TableRows<T>> => {
-    const tableName = (locale === "es" ? `${baseTable}_es` : baseTable) as T;
-    return await fetchTableRows(tableName);
+    if (locale === "es") {
+      const localizedTableName = `${String(baseTable)}_es` as TableName;
+
+      try {
+        const localizedRows = (await fetchTableRows(localizedTableName)) as TableRows<T>;
+
+        if (localizedRows && localizedRows.length > 0) {
+          return localizedRows;
+        }
+
+        console.warn(
+          `[Supabase] No records found in ${localizedTableName}. Falling back to ${String(
+            baseTable
+          )}.`
+        );
+      } catch (error) {
+        console.warn(
+          `[Supabase] Failed to fetch ${localizedTableName}. Falling back to ${String(
+            baseTable
+          )}.`,
+          error
+        );
+      }
+    }
+
+    return await fetchTableRows(baseTable);
   },
   []
 );

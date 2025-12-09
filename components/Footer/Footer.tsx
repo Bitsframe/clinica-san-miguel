@@ -71,10 +71,26 @@ export const Footer = () => {
           <div className="flex-1">
             <h4 className="font-semibold mb-3">Our Locations</h4>
             <ul className="space-y-2 text-sm text-gray-700">
-              <li>Dallas</li>
-              <li>Houston</li>
-              <li>San Antonio</li>
-              <li>See all 17 clinics</li>
+              <li>
+                <Link href="/contact?city=dallas" className="hover:text-[#C1001F] transition">
+                  Dallas
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact?city=houston" className="hover:text-[#C1001F] transition">
+                  Houston
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact?city=sanantonio" className="hover:text-[#C1001F] transition">
+                  San Antonio
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact">
+                  See all 17 clinics
+                </Link>
+              </li>
             </ul>
           </div>
 

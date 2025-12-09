@@ -109,7 +109,7 @@ export const Navbar = () => {
             }}
             className="mt-6 bg-[#C1001F] text-white font-medium text-[15px] px-10 py-3 rounded-full hover:bg-red-700 transition"
           >
-            Book Your Visit
+            {t("book_your_visit")}
           </button>
         </div>
       )}
@@ -137,7 +137,7 @@ export const Navbar = () => {
           onClick={() => router.push("/contact")}
           className="bg-[#C1001F] text-white font-medium text-[15px] px-6 py-3 rounded-full hover:bg-red-700 transition whitespace-nowrap"
         >
-          Book Your Visit
+          {t("book_your_visit")}
         </button>
       </div>
 

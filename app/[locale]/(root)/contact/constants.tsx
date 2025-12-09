@@ -90,10 +90,13 @@ import { useLocale } from "next-intl";
 import { Location } from "@/components";
 import LoadingLocationCard from "@/components/loading/LoadingLocationCard";
 import { lookupZipcode, isZipcode, findNearestLocations } from "@/utils/zipcodeService";
+import { useSearchParams } from "next/navigation";
 
 export const LocationsData = () => {
   const { fetchLocalizedTable } = useSupabase();
   const locale = useLocale();
+  const searchParams = useSearchParams();
+  const cityParam = searchParams.get('city');
 
   const [allLocations, setAllLocations] = useState<any[]>([]);
   const [locationData, setLocationData] = useState<any[]>([]);
@@ -108,6 +111,21 @@ export const LocationsData = () => {
     { id: 3, name: "Houston", value: "B" },
     { id: 4, name: "San Antonio", value: "C" },
   ];
+
+  /* ───────────── Set initial filter from URL params ───────────── */
+  useEffect(() => {
+    if (cityParam) {
+      const cityMap: { [key: string]: string } = {
+        'dallas': 'A',
+        'houston': 'B',
+        'sanantonio': 'C'
+      };
+      const groupValue = cityMap[cityParam.toLowerCase()];
+      if (groupValue) {
+        setSelectedLocationGroup(groupValue);
+      }
+    }
+  }, [cityParam]);
 
   /* ───────────── debounce search query ───────────── */
   useEffect(() => {
@@ -154,11 +172,11 @@ export const LocationsData = () => {
           
           // Check if user entered a zipcode
           if (isZipcode(searchQuery)) {
-            // Find nearest 3 locations to this zipcode
+            // Find nearest 9 locations to this zipcode
             const nearestLocations = await findNearestLocations(
               searchQuery,
               filtered.length > 0 ? filtered : allLocations,
-              3 // Show 3 nearest locations
+              9 // Show 9 nearest locations
             );
             
             if (nearestLocations.length > 0) {
@@ -211,12 +229,12 @@ export const LocationsData = () => {
             }
           }}
           placeholder="Search by location name or zipcode..."
-          className="w-full sm:w-[300px] bg-white text-[#6C7582] placeholder-[#6C7582] font-poppins text-[16px] px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#C1001F] focus:outline-none"
+          className="w-full sm:w-[400px] bg-white text-[#6C7582] placeholder-[#6C7582] font-poppins text-[16px] px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#C1001F] focus:outline-none"
         />
         <select
           value={selectedLocationGroup}
           onChange={(e) => setSelectedLocationGroup(e.target.value)}
-          className="w-[120px] bg-[#EAEAEA] h-[45px] rounded-[12px] border-none outline-none"
+          className="w-[180px] bg-[#EAEAEA] h-[45px] rounded-[12px] border-none outline-none"
         >
           <option value="">All</option>
           {tabs.map((tab) => (

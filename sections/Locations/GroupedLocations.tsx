@@ -19,6 +19,7 @@ export const GroupedLocations = () => {
   const locale = useLocale();
 
   const [selectedTab, setSelectedTab] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalLocation, setModalLocation] = useState<string | null>(null);
   const [locationData, setLocationData] = useState<any[]>([]);
@@ -32,13 +33,16 @@ export const GroupedLocations = () => {
 
   /* ───────────── tabs ───────────── */
   const tabs = [
-    { id: 1, name: t("all"),        value: "",          location: "14oe73P17wHPAV_L6R1DmmLVw3JDw60k&ehbc=2E312F" },
-    { id: 2, name: t("dallas"),     value: "dallas",    location: "1vaZ0nzB6WqN9P4gHZedwyx0tGmVDSjE&ehbc=2E312F" },
-    { id: 3, name: t("houston"),    value: "houston",   location: "1vrLm72whzL6KBgr7n_C2RfoeO1fH1u8&ehbc=2E312F" },
-    { id: 4, name: t("sanAntonio"), value: "sanantonio",location: "1cwsxmz-1Sm0zYTFaNizGELErRpCQf_I&ehbc=2E312F" },
+    { id: 1, name: t("all"),        value: "",           group: "",  location: "14oe73P17wHPAV_L6R1DmmLVw3JDw60k&ehbc=2E312F" },
+    { id: 2, name: t("dallas"),     value: "dallas",     group: "A", location: "1vaZ0nzB6WqN9P4gHZedwyx0tGmVDSjE&ehbc=2E312F" },
+    { id: 3, name: t("houston"),    value: "houston",    group: "B", location: "1vrLm72whzL6KBgr7n_C2RfoeO1fH1u8&ehbc=2E312F" },
+    { id: 4, name: t("sanAntonio"), value: "sanantonio", group: "C", location: "1cwsxmz-1Sm0zYTFaNizGELErRpCQf_I&ehbc=2E312F" },
   ];
 
-  const handleTabChange = (value: string) => setSelectedTab(value);
+  const handleTabChange = (value: string, group: string) => {
+    setSelectedTab(value);
+    setSelectedGroup(group);
+  };
 
   /* ───────────── debounce search query ───────────── */
   useEffect(() => {
@@ -72,11 +76,9 @@ export const GroupedLocations = () => {
     const filterLocations = async () => {
       let filtered = [...allLocationData];
 
-      // Filter by city tab
-      if (selectedTab !== "") {
-        filtered = filtered.filter((row) =>
-          row.title?.toLowerCase().includes(selectedTab.toLowerCase())
-        );
+      // Filter by city group (A/B/C) like contact page
+      if (selectedGroup !== "") {
+        filtered = filtered.filter((row) => row.Group === selectedGroup);
       }
 
       // Filter by search query (using debounced query)
@@ -85,11 +87,11 @@ export const GroupedLocations = () => {
         
         // Check if user entered a zipcode
         if (isZipcode(searchQuery)) {
-          // Find nearest 3 locations to this zipcode
+          // Find nearest 9 locations to this zipcode
           const nearestLocations = await findNearestLocations(
             searchQuery,
             filtered.length > 0 ? filtered : allLocationData,
-            3 // Show 3 nearest locations
+            9 // Show 9 nearest locations
           );
           
           if (nearestLocations.length > 0) {
@@ -155,7 +157,7 @@ export const GroupedLocations = () => {
               {tabs.map((tab) => (
                 <div
                   key={tab.id}
-                  onClick={() => handleTabChange(tab.value)}
+                  onClick={() => handleTabChange(tab.value, tab.group)}
                   className="rounded-full px-4 py-2 text-sm font-poppins cursor-pointer transition"
                   style={{
                     background: selectedTab === tab.value ? "#C1001F" : "#FFFFFF",

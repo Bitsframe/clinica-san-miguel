@@ -67,6 +67,7 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
   const [openAppointmentModal, setOpenAppointmentModal] = useState(false);
   const [locationGallery, setLocationGallery] = useState<(string | null)[]>();
   const [totalRatings, setTotalRatings] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
 
   const t = useTranslations("location");
   const locale = useLocale();
@@ -89,6 +90,10 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
   const fetchTestimonialsData = useCallback(() => {
     fetchFilteredData("Testinomial", "location_id", parseInt(slug));
   }, [fetchFilteredData, slug]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     fetchTestimonialsData();
@@ -255,13 +260,15 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
                 {totalRatings.toFixed(1)}/5
               </div>
               <div className="hidden lg:block">
-                <StarRatings
-                  rating={totalRatings}
-                  starDimension="45px"
-                  starSpacing="1px"
-                  numberOfStars={5}
-                  starRatedColor="#C1001F"
-                />
+                {isMounted && (
+                  <StarRatings
+                    rating={totalRatings}
+                    starDimension="45px"
+                    starSpacing="1px"
+                    numberOfStars={5}
+                    starRatedColor="#C1001F"
+                  />
+                )}
               </div>
             </div>
           </article>

@@ -87,7 +87,7 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
+                <Link href="/contact?city=all" className="hover:text-[#C1001F] transition">
                   See all 17 clinics
                 </Link>
               </li>

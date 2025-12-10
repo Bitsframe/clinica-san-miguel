@@ -116,12 +116,13 @@ export const LocationsData = () => {
   useEffect(() => {
     if (cityParam) {
       const cityMap: { [key: string]: string } = {
+        'all': '',
         'dallas': 'A',
         'houston': 'B',
         'sanantonio': 'C'
       };
       const groupValue = cityMap[cityParam.toLowerCase()];
-      if (groupValue) {
+      if (groupValue !== undefined) {
         setSelectedLocationGroup(groupValue);
       }
     }

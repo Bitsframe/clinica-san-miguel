@@ -89,6 +89,7 @@ import ToastProvider from "@/utils/ToastProvider";
 import 'react-datetime-picker/dist/DateTimePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import 'react-clock/dist/Clock.css';
+import WebChat from "@/components/WebChat";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -142,7 +143,7 @@ export default async function RootLayout(props: {
               <div className="sticky z-[999999] bottom-10 right-10">
                 {/* <AiBotMain /> */}
                 <Analytics mode="production" />
-                
+                <WebChat />
               </div>
             </ToastProvider>
           </Providers>

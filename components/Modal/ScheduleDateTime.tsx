@@ -99,7 +99,14 @@ const ScheduleDateTime: FC<Props> = ({ data, selectDateTimeSlotHandle }) => {
                     onChange={dateTimeChangeHandle}
                     placeholderText={"Select Schedule date"}
                     dateFormat="dd-MM-yyyy"
-                    className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                    popperPlacement="bottom-start"
+                    popperModifiers={[
+                        { name: 'offset', options: { offset: [0, 8] } },
+                        { name: 'preventOverflow', options: { rootBoundary: 'viewport' } },
+                        { name: 'flip', options: { fallbackPlacements: ['bottom'] } },
+                    ]}
+                    portalId="schedule-datepicker-portal"
+                    className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                 />
             </div>
 
@@ -110,7 +117,7 @@ const ScheduleDateTime: FC<Props> = ({ data, selectDateTimeSlotHandle }) => {
                 <select
                 value={selectedSlot}
                 onChange={(e)=>selectSlotHandle(e.target.value)}
-                    className='w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]'
+                    className='w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]'
                     disabled={isClosed}
                 >
                     {isClosed ? (

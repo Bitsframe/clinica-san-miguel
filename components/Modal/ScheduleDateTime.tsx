@@ -100,12 +100,6 @@ const ScheduleDateTime: FC<Props> = ({ data, selectDateTimeSlotHandle }) => {
                     placeholderText={"Select Schedule date"}
                     dateFormat="dd-MM-yyyy"
                     popperPlacement="bottom-start"
-                    popperModifiers={[
-                        { name: 'offset', options: { offset: [0, 8] } },
-                        { name: 'preventOverflow', options: { rootBoundary: 'viewport' } },
-                        { name: 'flip', options: { fallbackPlacements: ['bottom'] } },
-                    ]}
-                    portalId="schedule-datepicker-portal"
                     className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                 />
             </div>

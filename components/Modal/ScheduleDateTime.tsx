@@ -17,11 +17,17 @@ interface Props {
     selectDateTimeSlotHandle:(date: Date | '', time?:string | '' )=>void
 }
 
-const ScheduleDateTime: FC<Props> = ({ data, selectDateTimeSlotHandle }) => {
-    const [date, setDate] = useState<Date>(new Date());
-    const [availableTimes, setAvailableTimes] = useState<string[]>([]);
-    const [isClosed, setIsClosed] = useState<boolean>(false);
-    const [selectedSlot, setSelectedSlot] = useState('')
+
+interface ScheduleDateTimeProps extends Props {
+    initialDate?: Date | null;
+    initialSlot?: string;
+}
+
+const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotHandle, initialDate, initialSlot }) => {
+        const [date, setDate] = useState<Date>(initialDate || new Date());
+        const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+        const [isClosed, setIsClosed] = useState<boolean>(false);
+        const [selectedSlot, setSelectedSlot] = useState(initialSlot || '');
 
     const getTimingKey = (date: Date): keyof DayTimings => {
         const days = ['sunday_timing', 'mon_timing', 'tuesday_timing', 'wednesday_timing', 'thursday_timing', 'friday_timing', 'saturday_timing'] as const;

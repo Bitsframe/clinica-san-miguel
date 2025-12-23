@@ -9,7 +9,9 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 
 import ReactDatePicker from "react-datepicker";
+import ScheduleDateTime from "../Modal/ScheduleDateTime";
 import { toast } from "react-toastify";
+import VoiceIntake from "../VoiceIntake";
 import LanguageChanger from "@/components/LanguageChanger";
 import { validateFormData } from "@/utils/validationCheck";
 import PhoneInput from "react-phone-input-2";
@@ -125,6 +127,7 @@ const DatePicker = ({
             onChange={(date) => onChange(date)}
             placeholderText={placeholder}
             dateFormat="yyyy-MM-dd HH:MM"
+            calendarClassName="fixed-calendar-height"
             className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
         />
     </div>
@@ -192,8 +195,16 @@ const Self_Appointment = ({ location }: any) => {
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [sex, setSex] = useState("");
+    const [dob, setDob] = useState<Date | null>(null);
     const [services, setServices] = useState<string[] | null | undefined>([]);
     const [service, setService] = useState("");
+
+    // Set default service if not set and services are loaded
+    useEffect(() => {
+        if (!service && services && services.length > 0) {
+            setService(services[0]);
+        }
+    }, [services]);
     const [phone, setPhone] = useState("");
     const [newPatient, setNewPatient] = useState("");
     const [date_and_time, setDate_and_time] = useState("");
@@ -419,7 +430,13 @@ const Self_Appointment = ({ location }: any) => {
         }
 
         for (const field of requiredFields) {
-            if (!appointmentDetails[field]) {
+            if (field === "service") {
+                // If service is set and is in the list, don't require re-selection
+                if (!service || (services && services.length > 0 && !services.includes(service))) {
+                    toast.warning(`Please select a valid service`);
+                    return;
+                }
+            } else if (!appointmentDetails[field]) {
                 toast.warning(`Please fill in the ${field}`);
                 return;
             }
@@ -506,18 +523,16 @@ const Self_Appointment = ({ location }: any) => {
     };
 
     return (<>
-
-
         <div className="relative w-screen min-h-screen">
-
             <div className="md:absolute px-5 md:px-0 pt-4 pb-5 md:py-0 w-full flex justify-end md:top-6 md:right-6">
                 <LanguageChanger locale={locale} />
             </div>
-
-
             <div className="flex justify-center h-full items-center px-5 md:px-0">
                 <div className="w-full max-w-[800px] rounded-[20px] mt-8 gap-y-5">
-
+                    {/* Voice Intake Mic Button */}
+                    <div className="mb-4">
+                        <VoiceIntake setForm={setMedicalForm} />
+                    </div>
                     <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9">
                         <div className="flex w-full items-center justify-between gap-3">
                             <h1
@@ -581,6 +596,20 @@ const Self_Appointment = ({ location }: any) => {
                             onChange={setSex}
                             selectedValue={sex}
                         />
+                        <DatePicker
+                            label="Date of Birth"
+                            placeholder="your date of birth"
+                            breakpoint={false}
+                            value={dob}
+                            onChange={setDob}
+                        />
+                        <ScheduleDateTime
+                            data={location}
+                            selectDateTimeSlotHandle={(date, time) => {
+                                // Store as string for now, you can adjust as needed
+                                setDate_and_time(time ? `${date} ${time}` : date ? date.toString() : '');
+                            }}
+                        />
 
                         {/* Medical intake */}
                         <div className="col-span-full space-y-4 pt-4">
@@ -594,7 +623,7 @@ const Self_Appointment = ({ location }: any) => {
                                     value={medicalForm.chief_complaint}
                                 />
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">Onset:</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">how long are you feeling this?</label>
                                     {/* @ts-ignore */}
                                     <ReactDatePicker
                                         selected={onsetDate}
@@ -613,14 +642,14 @@ const Self_Appointment = ({ location }: any) => {
                                     value={medicalForm.location}
                                 />
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">Severity (0-10):</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">Severity (1-10):</label>
                                     <select
                                         className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                         value={medicalForm.severity}
                                         onChange={(e) => handleMedicalChange('severity', e.target.value)}
                                     >
                                         <option value="">Select</option>
-                                        {Array.from({ length: 11 }, (_, i) => i).map((num) => (
+                                        {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                                             <option key={num} value={num}>{num}</option>
                                         ))}
                                     </select>

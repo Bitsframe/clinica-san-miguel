@@ -92,7 +92,9 @@ const Input = ({
     </label>
     <input
       maxLength={max || undefined}
-
+      autoCorrect="on"
+      spellCheck={true}
+      autoCapitalize="sentences"
       placeholder={`${placeholder}`}
       className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
       value={value}
@@ -133,8 +135,10 @@ const DatePicker = ({
       placeholderText={placeholder}
       dateFormat="yyyy-MM-dd"
       popperPlacement="bottom-start"
+      calendarClassName="fixed-calendar-height"
       className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
     />
+ 
   </div>
 );
 
@@ -200,6 +204,13 @@ export const RequestAppointment = ({
   const [zipcode, setzipcode] = useState('')
   const [street_address, setStreet_address] = useState('')
   const [service, setService] = useState("");
+
+  // Set default service if not set and services are loaded
+  useEffect(() => {
+    if (!service && services && services.length > 0) {
+      setService(services[0]);
+    }
+  }, [services]);
   const [phone, setPhone] = useState("");
   const [inOfficePatient, setInOfficePatient] = useState("");
   const [newPatient, setNewPatient] = useState("");
@@ -246,7 +257,7 @@ export const RequestAppointment = ({
 
   const medicalFields = [
     { key: 'chief_complaint', label: 'Reason for Visit' },
-    { key: 'onset', label: 'Onset' },
+    { key: 'onset', label: 'how long are you feeling this?' },
     { key: 'duration', label: 'Duration' },
     { key: 'location', label: 'Location' },
     { key: 'severity', label: 'Severity' },
@@ -504,7 +515,13 @@ export const RequestAppointment = ({
 
 
     for (const field of requiredFields) {
-      if (!{ ...appointmentDetails, email: email, state, zipcode, street_address }[field]) {
+      if (field === "service") {
+        // If service is set and is in the list, don't require re-selection
+        if (!service || (services && services.length > 0 && !services.includes(service))) {
+          toast.warning(`Please select a valid service`);
+          return;
+        }
+      } else if (!{ ...appointmentDetails, email: email, state, zipcode, street_address }[field]) {
         toast.warning(`Please fill in the ${field}`);
         return;
       }
@@ -610,16 +627,20 @@ export const RequestAppointment = ({
   };
 
 
+  // Preserve selected date and slot between pages
+  const [scheduleDate, setScheduleDate] = useState<Date | null>(null);
+  const [scheduleSlot, setScheduleSlot] = useState<string>("");
   const selectDateTimeSlotHandle = (date: Date | '', time?: string | '') => {
     if (date && time) {
+      setScheduleDate(date as Date);
+      setScheduleSlot(time as string);
       const formated_date = moment(date).format('DD-MM-YYYY')
-
       const createSlotForDB = `${detailedData?.[0]?.id}|${formated_date} - ${time}`
-      console.log({ createSlotForDB })
       setDate_and_time(createSlotForDB)
     } else {
-      setDate_and_time('')
-
+      setScheduleDate(date ? (date as Date) : null);
+      setScheduleSlot("");
+      setDate_and_time("");
     }
   }
   return (
@@ -756,6 +777,8 @@ export const RequestAppointment = ({
               <ScheduleDateTime
                 data={detailedData[0]}
                 selectDateTimeSlotHandle={selectDateTimeSlotHandle}
+                initialDate={scheduleDate}
+                initialSlot={scheduleSlot}
               />
               <div className="flex flex-col md:flex-row justify-start w-full gap-5 items-center">
                 <Dropdown
@@ -927,6 +950,9 @@ export const RequestAppointment = ({
                           </select>
                           {reliefSelect === 'Other' && (
                             <input
+                              autoCorrect="on"
+                              spellCheck={true}
+                              autoCapitalize="sentences"
                               className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                               placeholder="Describe other relieving factor"
                               value={reliefOther}
@@ -962,6 +988,9 @@ export const RequestAppointment = ({
                           </select>
                           {surgeryChoice === 'Yes' && (
                             <input
+                              autoCorrect="on"
+                              spellCheck={true}
+                              autoCapitalize="sentences"
                               className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                               placeholder="Type of surgery"
                               value={(medicalForm as any).surgeries}
@@ -993,6 +1022,9 @@ export const RequestAppointment = ({
                           </select>
                           {allergyChoice === 'Yes' && (
                             <input
+                              autoCorrect="on"
+                              spellCheck={true}
+                              autoCapitalize="sentences"
                               className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                               placeholder="List allergies"
                               value={(medicalForm as any).allergies}
@@ -1048,9 +1080,9 @@ export const RequestAppointment = ({
                             value={(medicalForm as any)[f.key]}
                             onChange={(e) => handleMedicalChange(f.key, e.target.value)}
                           >
-                            <option value="">Select severity (0-10)</option>
-                            {[...Array(11)].map((_, idx) => (
-                              <option key={idx} value={idx.toString()}>{idx}</option>
+                            <option value="">Select severity (1-10)</option>
+                            {[...Array(10)].map((_, idx) => (
+                              <option key={idx+1} value={(idx+1).toString()}>{idx+1}</option>
                             ))}
                           </select>
                         </div>
@@ -1097,7 +1129,16 @@ export const RequestAppointment = ({
                     route={""}
                     bgColor={"#C1001F"}
                     textColor={"#ffffff"}
-                    onClick={() => setPage(page + 1)}
+                    onClick={() => {
+                      // Validate all required fields on first page
+                      if (page === 1) {
+                        if (!firstName || !lastName || !email || !dob || !sex || !state || !zipcode || !street_address || !phone || !service || !date_and_time) {
+                          toast.warning("Please fill in all required fields, including schedule date and time.");
+                          return;
+                        }
+                      }
+                      setPage(page + 1);
+                    }}
                   />
                 ) : (
                   <Button

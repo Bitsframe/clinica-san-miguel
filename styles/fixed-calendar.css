@@ -1,0 +1,5 @@
+/* Ensures the calendar popper has a fixed height regardless of number of days */
+.fixed-calendar-height .react-datepicker__month-container {
+  min-height: 320px !important;
+  max-height: 320px !important;
+}

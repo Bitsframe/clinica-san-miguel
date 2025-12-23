@@ -7,12 +7,7 @@ export default function VoiceIntake({ setForm }: { setForm: any }) {
   const vapi = useRef<any>(null);
 
   useEffect(() => {
-    console.log("VoiceIntake mounted");
-    console.log("VAPI_PUBLIC_KEY:", process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY);
-    console.log("VAPI_ASSISTANT_ID:", process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID);
-    vapi.current = new Vapi({
-      apiKey: process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY!
-    });
+    vapi.current = new Vapi(process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY!);
 
     // 👇 This receives structured medical data
     vapi.current.on("function-call", (call: any) => {
@@ -28,9 +23,6 @@ export default function VoiceIntake({ setForm }: { setForm: any }) {
   }, []);
 
   const startVoice = async () => {
-    console.log("Start Voice Intake clicked");
-    console.log("VAPI_PUBLIC_KEY:", process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY);
-    console.log("VAPI_ASSISTANT_ID:", process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID);
     try {
       await vapi.current.start({
         assistantId: process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID!

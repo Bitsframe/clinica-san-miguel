@@ -93,6 +93,7 @@ const Input = ({
     <input
       maxLength={max || undefined}
       autoCorrect="on"
+      autoComplete="on"
       spellCheck={true}
       autoCapitalize="sentences"
       placeholder={`${placeholder}`}

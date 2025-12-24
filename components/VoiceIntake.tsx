@@ -4,42 +4,117 @@ import { useEffect, useRef } from "react";
 import Vapi from "@vapi-ai/web";
 
 export default function VoiceIntake({ setForm }: { setForm: any }) {
-  const vapi = useRef<any>(null);
+  const vapi = useRef<Vapi | null>(null);
 
   useEffect(() => {
-    vapi.current = new Vapi(process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY!);
+    console.log("🔵 [Clinic] Initializing Vapi…");
 
-    // 👇 This receives structured medical data
-    vapi.current.on("function-call", (call: any) => {
-      if (call.name === "updateMedicalIntake") {
-        setForm((prev: any) => ({
-          ...prev,
-          ...mergeSafe(prev, call.arguments),
-        }));
-      }
+    const apiKey = process.env.NEXT_PUBLIC_CLINIC_VAPI_PUBLIC_KEY;
+
+    console.log(
+      "🔑 [Clinic] API KEY PREFIX:",
+      apiKey ? apiKey.slice(0, 5) : "MISSING"
+    );
+
+    if (!apiKey) {
+      console.error("❌ [Clinic] API key missing");
+      return;
+    }
+
+    vapi.current = new Vapi(apiKey);
+
+    console.log("✅ [Clinic] Vapi initialized:", vapi.current);
+
+    // ---- CORE EVENTS ----
+    vapi.current.on("call-start", () => {
+      console.log("📞 [Clinic] CALL STARTED");
     });
 
-    return () => vapi.current?.stop();
-  }, []);
+    vapi.current.on("call-end", () => {
+      console.log("📴 [Clinic] CALL ENDED");
+    });
+
+    vapi.current.on("message", (msg) => {
+      console.log("💬 [Clinic] MESSAGE EVENT:", msg);
+    });
+
+    vapi.current.on("error", (err) => {
+      console.error("🔥 [Clinic] VAPI EVENT ERROR:", err);
+    });
+
+    // ---- TOOL CALL ----
+    // NOTE: The 'function-call' event is not recognized by the current VapiEventNames type.
+    // If the SDK updates to support this event, re-enable the handler below.
+    // vapi.current.on("function-call", (call: any) => {
+    //   console.log("🛠 [Clinic] FUNCTION CALL RECEIVED:", call);
+    //
+    //   if (call.name === "updateMedicalIntake") {
+    //     console.log("📦 [Clinic] FUNCTION ARGUMENTS:", call.arguments);
+    //
+    //     setForm((prev: any) => ({
+    //       ...prev,
+    //       ...mergeSafe(prev, call.arguments),
+    //     }));
+    //   }
+    // });
+
+    return () => {
+      console.log("🧹 [Clinic] Cleaning up Vapi");
+      vapi.current?.stop();
+    };
+  }, [setForm]);
 
   const startVoice = async () => {
+    console.log("▶️ [Clinic] Start Voice clicked");
+
+    const assistantId =
+      process.env.NEXT_PUBLIC_CLINIC_VAPI_ASSISTANT_ID;
+    const apiKey =
+      process.env.NEXT_PUBLIC_CLINIC_VAPI_PUBLIC_KEY;
+
+    console.log("🤖 [Clinic] Assistant ID:", assistantId);
+    console.log(
+      "🔑 [Clinic] API KEY PREFIX:",
+      apiKey ? apiKey.slice(0, 5) : "MISSING"
+    );
+    console.log("📦 [Clinic] Vapi instance:", vapi.current);
+
+    if (!vapi.current) {
+      console.error("❌ [Clinic] Vapi not initialized");
+      return;
+    }
+
+    if (!assistantId) {
+      console.error("❌ [Clinic] Assistant ID missing");
+      return;
+    }
+
     try {
-      await vapi.current.start({
-        assistantId: process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID!
-      });
+      console.log("🚀 [Clinic] Calling vapi.start()…");
+
+      const result = await vapi.current.start(assistantId);
+
+      console.log("✅ [Clinic] vapi.start() result:", result);
+
+      if (result === null) {
+        console.error(
+          "❌ [Clinic] CALL CREATION FAILED → key/assistant/org mismatch"
+        );
+      }
     } catch (err) {
-      console.error("Vapi start error:", err);
+      console.error("🔥 [Clinic] vapi.start() THREW ERROR:", err);
     }
   };
 
   const stopVoice = () => {
-    vapi.current.stop();
+    console.log("⏹ [Clinic] Stop Voice clicked");
+    vapi.current?.stop();
   };
 
   return (
     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
       <button
-        onClick={startVoice}
+        onClick={() => { console.log('Start Voice Intake button clicked'); startVoice(); }}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -58,7 +133,7 @@ export default function VoiceIntake({ setForm }: { setForm: any }) {
         <span role="img" aria-label="mic">🎤</span> Start Voice Intake
       </button>
       <button
-        onClick={stopVoice}
+        onClick={() => { console.log('Stop Voice Intake button clicked'); stopVoice(); }}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -82,7 +157,7 @@ export default function VoiceIntake({ setForm }: { setForm: any }) {
 
 function mergeSafe(prev: any, next: any) {
   const merged = { ...prev };
-  Object.keys(next).forEach((k) => {
+  Object.keys(next || {}).forEach((k) => {
     if (next[k] !== undefined && next[k] !== "") {
       merged[k] = next[k];
     }

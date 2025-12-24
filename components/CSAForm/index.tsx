@@ -5,7 +5,7 @@ import { supabase } from "@/supabaseClient";
 import { Button } from "@/utils";
 import { Modal } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import moment from "moment";
 
 import ReactDatePicker from "react-datepicker";
@@ -29,6 +29,9 @@ const RadioButton = ({ value, name, label, checked, onChange }: any) => (
             checked={checked}
             onChange={onChange}
             className="w-[25px] h-[25px] bg-transparent border-[2px] border-[#000000] hover:bg-[#ccc]"
+            autoComplete="on"
+            autoCorrect="on"
+            spellCheck={true}
         />{" "}
         <label className="text-[16px] text-customGray font-poppins">{label}</label>
     </div>
@@ -94,6 +97,9 @@ const Input = ({
             className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            autoComplete="on"
+            autoCorrect="on"
+            spellCheck={true}
         />
     </div>
 );
@@ -181,6 +187,67 @@ const Dropdown = ({
     )
 };
 
+// Tag input for allergies and other fields
+type AllergyTagInputProps = {
+    allergies: string[];
+    setAllergies: (allergies: string[]) => void;
+    placeholder?: string;
+};
+
+function AllergyTagInput({ allergies, setAllergies, placeholder = "List allergies" }: AllergyTagInputProps) {
+    const [input, setInput] = useState("");
+    const inputRef = useRef(null);
+
+    const addTag = (tag: string) => {
+        const trimmed = tag.trim().replace(/,$/, "");
+        if (trimmed && !allergies.includes(trimmed)) {
+            setAllergies([...allergies, trimmed]);
+        }
+    };
+
+    const onInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInput(e.target.value);
+    };
+
+    const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (["Enter", ",", " "].includes(e.key)) {
+            e.preventDefault();
+            if (input.trim() !== "") {
+                addTag(input);
+                setInput("");
+            }
+        } else if (e.key === "Backspace" && input === "" && allergies.length > 0) {
+            setAllergies(allergies.slice(0, -1));
+        }
+    };
+
+    const removeTag = (idx: number) => {
+        setAllergies(allergies.filter((_, i) => i !== idx));
+    };
+
+    return (
+        <div className="w-full min-h-[46px] border-[1px] border-[#000000] rounded-[10px] flex flex-wrap items-center px-2 py-1 bg-transparent mt-2">
+            {allergies.map((tag, idx) => (
+                <span key={tag + idx} className="flex items-center m-1 px-2 py-1 bg-[#C1001F] text-white rounded-full text-xs font-semibold">
+                    {tag}
+                    <button type="button" className="ml-1 text-white hover:text-black" onClick={() => removeTag(idx)} aria-label="Remove allergy tag">×</button>
+                </span>
+            ))}
+            <input
+                ref={inputRef}
+                className="flex-1 min-w-[100px] h-[32px] border-none outline-none bg-transparent text-[16px] px-2"
+                placeholder={allergies.length === 0 ? placeholder : "Add more..."}
+                value={input}
+                onChange={onInput}
+                onKeyDown={onKeyDown}
+                autoComplete="on"
+                autoCorrect="on"
+                spellCheck={true}
+            />
+        </div>
+    );
+}
+
 const Self_Appointment = ({ location }: any) => {
     const t = useTranslations("appoinment_form");
     const locale = useLocale();
@@ -221,11 +288,11 @@ const Self_Appointment = ({ location }: any) => {
         chief_complaint: "",
         location: "",
         severity: "",
-        symptoms_description: "",
+        symptoms_description: [] as string[],
         relieving_factors: "",
-        medical_conditions: "",
+        medical_conditions: [] as string[],
         surgeries: "",
-        allergies: "",
+        allergies: [] as string[], // now an array
         current_medications: "",
         family_history: {
             hypertension: false,
@@ -372,14 +439,14 @@ const Self_Appointment = ({ location }: any) => {
             chief_complaint: sample.medical.chief_complaint,
             location: sample.medical.location,
             severity: sample.medical.severity,
-            symptoms_description: sample.medical.symptoms_description,
+            symptoms_description: typeof sample.medical.symptoms_description === 'string' ? [sample.medical.symptoms_description] : sample.medical.symptoms_description,
             relieving_factors:
                 sample.medical.relieving_select === 'Other'
                     ? sample.medical.relieving_other
                     : sample.medical.relieving_select,
-            medical_conditions: sample.medical.medical_conditions,
+            medical_conditions: typeof sample.medical.medical_conditions === 'string' ? [sample.medical.medical_conditions] : sample.medical.medical_conditions,
             surgeries: sample.medical.surgeries,
-            allergies: sample.medical.allergies,
+            allergies: typeof sample.medical.allergies === 'string' ? [sample.medical.allergies] : sample.medical.allergies,
             current_medications: sample.medical.current_medications,
             family_history: {
                 hypertension: sample.medical.fh_hypertension,
@@ -458,7 +525,18 @@ const Self_Appointment = ({ location }: any) => {
         const result = await submitAppointmentFlow({
             supabase,
             postData,
-            medicalForm,
+            medicalForm: {
+                ...medicalForm,
+                symptoms_description: Array.isArray(medicalForm.symptoms_description)
+                  ? medicalForm.symptoms_description.join(', ')
+                  : medicalForm.symptoms_description || '',
+                medical_conditions: Array.isArray(medicalForm.medical_conditions)
+                  ? medicalForm.medical_conditions.join(', ')
+                  : medicalForm.medical_conditions || '',
+                allergies: Array.isArray(medicalForm.allergies)
+                  ? medicalForm.allergies.join(', ')
+                  : medicalForm.allergies || '',
+            },
             onsetDate,
             reliefSelect,
             reliefOther,
@@ -500,11 +578,11 @@ const Self_Appointment = ({ location }: any) => {
             chief_complaint: "",
             location: "",
             severity: "",
-            symptoms_description: "",
+            symptoms_description: [],
             relieving_factors: "",
-            medical_conditions: "",
+            medical_conditions: [],
             surgeries: "",
-            allergies: "",
+            allergies: [],
             current_medications: "",
             family_history: {
                 hypertension: false,
@@ -560,14 +638,7 @@ const Self_Appointment = ({ location }: any) => {
                             value={service}
                             startingSelectedOption={true}
                         />
-                        <Input
-                            label={t("form_f5")}
-                            placeholder="Your current email address"
-                            type='email'
-                            breakpoint={false}
-                            onChange={setEmail}
-                            value={email}
-                        />
+                                            {/* Removed misplaced input and invalid onChange/value lines */}
                         <Input
                             label={t("form_f3")}
                             placeholder="Enter your first name"
@@ -656,11 +727,10 @@ const Self_Appointment = ({ location }: any) => {
                                 </div>
                                 <div className="flex flex-col items-start w-full justify-center md:col-span-2">
                                     <label className="text-[16px] text-customGray font-poppins font-bold">Symptom Details:</label>
-                                    <textarea
-                                        className="w-full min-h-[90px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 py-3 bg-transparent outline-none rounded-[10px]"
-                                        placeholder="Describe your symptoms"
-                                        value={medicalForm.symptoms_description}
-                                        onChange={(e) => handleMedicalChange('symptoms_description', e.target.value)}
+                                    <AllergyTagInput
+                                        allergies={medicalForm.symptoms_description}
+                                        setAllergies={(symptoms_description) => setMedicalForm((prev) => ({ ...prev, symptoms_description }))}
+                                        placeholder="e.g., cough, fever, headache"
                                     />
                                 </div>
                                 <div className="flex flex-col items-start w-full justify-center">
@@ -689,16 +759,20 @@ const Self_Appointment = ({ location }: any) => {
                                                 setReliefOther(val);
                                                 setMedicalForm((prev) => ({ ...prev, relieving_factors: val }));
                                             }}
+                                            autoComplete="on"
+                                            autoCorrect="on"
+                                            spellCheck={true}
                                         />
                                     )}
                                 </div>
-                                <Input
-                                    label="Medical Conditions"
-                                    placeholder="e.g., Asthma, Diabetes"
-                                    breakpoint={true}
-                                    onChange={(val) => handleMedicalChange('medical_conditions', val)}
-                                    value={medicalForm.medical_conditions}
-                                />
+                                <div className="flex flex-col items-start w-full justify-center">
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">Medical Conditions:</label>
+                                    <AllergyTagInput
+                                        allergies={medicalForm.medical_conditions}
+                                        setAllergies={(medical_conditions) => setMedicalForm((prev) => ({ ...prev, medical_conditions }))}
+                                        placeholder="e.g., asthma, diabetes, hypertension"
+                                    />
+                                </div>
                                 <Input
                                     label="Current Medications"
                                     placeholder="e.g., Albuterol, Metformin"
@@ -729,6 +803,9 @@ const Self_Appointment = ({ location }: any) => {
                                             placeholder="Type of surgery"
                                             value={medicalForm.surgeries}
                                             onChange={(e) => handleMedicalChange('surgeries', e.target.value)}
+                                            autoComplete="on"
+                                            autoCorrect="on"
+                                            spellCheck={true}
                                         />
                                     )}
                                 </div>
@@ -741,7 +818,7 @@ const Self_Appointment = ({ location }: any) => {
                                             const val = e.target.value;
                                             setAllergyChoice(val);
                                             if (val !== 'Yes') {
-                                                setMedicalForm((prev) => ({ ...prev, allergies: '' }));
+                                                setMedicalForm((prev) => ({ ...prev, allergies: [] }));
                                             }
                                         }}
                                     >
@@ -750,11 +827,9 @@ const Self_Appointment = ({ location }: any) => {
                                         <option value="No">No</option>
                                     </select>
                                     {allergyChoice === 'Yes' && (
-                                        <input
-                                            className="w-full h-[46px] mt-2 border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                                            placeholder="List allergies"
-                                            value={medicalForm.allergies}
-                                            onChange={(e) => handleMedicalChange('allergies', e.target.value)}
+                                        <AllergyTagInput
+                                            allergies={medicalForm.allergies}
+                                            setAllergies={(allergies) => setMedicalForm((prev) => ({ ...prev, allergies }))}
                                         />
                                     )}
                                 </div>
@@ -836,12 +911,12 @@ const Self_Appointment = ({ location }: any) => {
                         <div className="w-full md:flex justify-between items-center space-y-6 col-span-full mb-5">
                             <div className="space-y-2 md:w-2/3 ">
                                 <div className="flex space-x-2 items-center">
-                                    <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
+                                    <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" autoComplete="on" autoCorrect="on" spellCheck={true} /> <h1 className="text-xs">
                                         {t("email_consent")}
                                     </h1>
                                 </div>
                                 <div className="flex space-x-2 items-center">
-                                    <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
+                                    <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" autoComplete="on" autoCorrect="on" spellCheck={true} /> <h1 className="text-xs">
                                         {t("sms_consent")}
                                     </h1>
                                 </div>

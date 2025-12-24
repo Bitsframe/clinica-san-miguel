@@ -5,6 +5,12 @@ import Vapi from "@vapi-ai/web";
 
 export default function VoiceIntake({ setForm }: { setForm: any }) {
   const vapi = useRef<Vapi | null>(null);
+  const lastUserTranscript = useRef<string>("");
+  const lastToolCallData = useRef<any>(null);
+  // Store Q&A pairs: { question: string, answer: string }
+  const qaPairs = useRef<{ question: string; answer: string }[]>([]);
+  // Track last assistant question
+  const lastAssistantQuestion = useRef<string>("");
 
   useEffect(() => {
     console.log("🔵 [Clinic] Initializing Vapi…");
@@ -26,16 +32,77 @@ export default function VoiceIntake({ setForm }: { setForm: any }) {
     console.log("✅ [Clinic] Vapi initialized:", vapi.current);
 
     // ---- CORE EVENTS ----
+
+
     vapi.current.on("call-start", () => {
       console.log("📞 [Clinic] CALL STARTED");
+      lastUserTranscript.current = "";
+      lastToolCallData.current = null;
+      qaPairs.current = [];
+      lastAssistantQuestion.current = "";
     });
 
-    vapi.current.on("call-end", () => {
+    vapi.current.on("call-end", async () => {
       console.log("📴 [Clinic] CALL ENDED");
+      // On call end, log Q&A pairs and prepare for OpenAI normalization
+      console.log("[Vapi Q&A] Assistant questions and user answers:", qaPairs.current);
+      // If Q&A pairs exist, call the normalization API
+      if (qaPairs.current.length > 0) {
+        try {
+          const res = await fetch("/api/normalize-csa", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ qaPairs: qaPairs.current }),
+          });
+          const data = await res.json();
+          if (data.normalized) {
+            console.log("[OpenAI Normalized CSA]", data.normalized);
+            setForm((prev: any) => ({ ...prev, ...mergeSafe(prev, data.normalized) }));
+            return;
+          } else {
+            console.error("[OpenAI Normalization Error]", data.error, data.raw);
+          }
+        } catch (err) {
+          console.error("[OpenAI Normalization Exception]", err);
+        }
+      }
+      // Fallback: autofill CSA form fields with last tool-call data if available
+      if (lastToolCallData.current) {
+        console.log("[Vapi Autofill] Adding to CSA form (tool-call):", lastToolCallData.current);
+        setForm((prev: any) => ({
+          ...prev,
+          ...mergeSafe(prev, lastToolCallData.current),
+        }));
+      } else if (lastUserTranscript.current) {
+        const autofillData = {
+          chief_complaint: lastUserTranscript.current,
+        };
+        console.log("[Vapi Autofill] Adding to CSA form (transcript):", autofillData);
+        setForm((prev: any) => ({
+          ...prev,
+          ...autofillData,
+        }));
+      }
     });
 
     vapi.current.on("message", (msg) => {
       console.log("💬 [Clinic] MESSAGE EVENT:", msg);
+      // Store the last user transcript
+      if (msg.type === "transcript" && msg.role === "user" && msg.transcriptType === "final") {
+        lastUserTranscript.current = msg.transcript;
+        // Store Q&A pair if last assistant question exists
+        if (lastAssistantQuestion.current && msg.transcript) {
+          qaPairs.current.push({
+            question: lastAssistantQuestion.current,
+            answer: msg.transcript,
+          });
+        }
+      }
+      // Track last assistant question
+      if (msg.type === "transcript" && msg.role === "assistant" && msg.transcriptType === "final" && msg.transcript) {
+        lastAssistantQuestion.current = msg.transcript;
+      }
+      // Removed auto-stop call logic. Call will be ended manually using the stop button.
     });
 
     vapi.current.on("error", (err) => {
@@ -47,10 +114,9 @@ export default function VoiceIntake({ setForm }: { setForm: any }) {
     // If the SDK updates to support this event, re-enable the handler below.
     // vapi.current.on("function-call", (call: any) => {
     //   console.log("🛠 [Clinic] FUNCTION CALL RECEIVED:", call);
-    //
     //   if (call.name === "updateMedicalIntake") {
-    //     console.log("📦 [Clinic] FUNCTION ARGUMENTS:", call.arguments);
-    //
+    //     console.log("[Vapi Tool-Call] Data received:", call.arguments);
+    //     lastToolCallData.current = call.arguments;
     //     setForm((prev: any) => ({
     //       ...prev,
     //       ...mergeSafe(prev, call.arguments),

@@ -3,7 +3,12 @@
 import { useEffect, useRef } from "react";
 import Vapi from "@vapi-ai/web";
 
-export default function VoiceIntake({ setForm }: { setForm: any }) {
+type VoiceIntakeProps = {
+  setForm: any;
+  setOnsetDate?: (date: Date | null) => void;
+};
+
+export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps) {
   const vapi = useRef<Vapi | null>(null);
   const lastUserTranscript = useRef<string>("");
   const lastToolCallData = useRef<any>(null);
@@ -57,7 +62,33 @@ export default function VoiceIntake({ setForm }: { setForm: any }) {
           const data = await res.json();
           if (data.normalized) {
             console.log("[OpenAI Normalized CSA]", data.normalized);
-            setForm((prev: any) => ({ ...prev, ...mergeSafe(prev, data.normalized) }));
+            // Set onset date if present and valid
+            if (data.normalized.onset_date && typeof data.normalized.onset_date === "string" && !isNaN(Date.parse(data.normalized.onset_date))) {
+              if (typeof setOnsetDate === "function") {
+                setOnsetDate(new Date(data.normalized.onset_date));
+              }
+            }
+            setForm((prev: any) => {
+              let next = { ...prev, ...mergeSafe(prev, data.normalized) };
+              // If allergies_choice is Yes, set allergyChoice to Yes and set allergies array
+              if (data.normalized.allergies_choice === "Yes") {
+                if (typeof next.allergies === "undefined" || !Array.isArray(next.allergies)) next.allergies = [];
+                next.allergyChoice = "Yes";
+                next.allergies = data.normalized.allergies || [];
+              } else if (data.normalized.allergies_choice === "No") {
+                next.allergyChoice = "No";
+                next.allergies = [];
+              }
+              // If surgeries_choice is Yes or No, set surgeryChoice and surgeries field
+              if (data.normalized.surgeries_choice === "Yes") {
+                next.surgeryChoice = "Yes";
+                next.surgeries = data.normalized.surgeries || "";
+              } else if (data.normalized.surgeries_choice === "No") {
+                next.surgeryChoice = "No";
+                next.surgeries = "";
+              }
+              return next;
+            });
             return;
           } else {
             console.error("[OpenAI Normalization Error]", data.error, data.raw);

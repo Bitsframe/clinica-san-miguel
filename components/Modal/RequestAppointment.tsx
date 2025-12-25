@@ -17,7 +17,9 @@ import { usStates } from "@/utils/us-states";
 import PhoneNumberInput from "../CSAForm/PhoneNumberInput";
 import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
 import { sendEmail } from "@/utils/emailService";
+
 import { submitAppointmentFlow } from "@/lib/submitAppointment";
+import VoiceIntake from "../VoiceIntake";
 
 const RadioButton = ({ value, name, label, checked, onChange }: any) => (
   <div className="flex items-center justify-start gap-3">
@@ -811,6 +813,10 @@ export const RequestAppointment = ({
 
             {page >= 2 && (
               <section className="flex flex-col px-5 justify-start items-start gap-4 p-4">
+                {/* Vapi Voice Intake mic button for medical info autofill */}
+                <div className="mb-4 w-full">
+                  <VoiceIntake setForm={setMedicalForm} setOnsetDate={setOnsetDate} />
+                </div>
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
                   {(() => {
                     const pageIndex = page - 2; // 0-based

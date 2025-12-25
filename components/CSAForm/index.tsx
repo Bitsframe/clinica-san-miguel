@@ -607,10 +607,6 @@ const Self_Appointment = ({ location }: any) => {
             </div>
             <div className="flex justify-center h-full items-center px-5 md:px-0">
                 <div className="w-full max-w-[800px] rounded-[20px] mt-8 gap-y-5">
-                    {/* Voice Intake Mic Button */}
-                    <div className="mb-4">
-                        <VoiceIntake setForm={setMedicalForm} />
-                    </div>
                     <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9">
                         <div className="flex w-full items-center justify-between gap-3">
                             <h1
@@ -684,6 +680,10 @@ const Self_Appointment = ({ location }: any) => {
 
                         {/* Medical intake */}
                         <div className="col-span-full space-y-4 pt-4">
+                            {/* Voice Intake Mic Button - moved above Medical Information heading */}
+                            <div className="mb-4">
+                                <VoiceIntake setForm={setMedicalForm} />
+                            </div>
                             <h2 className="text-lg font-semibold text-customGray">Medical Information</h2>
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
                                 <Input

@@ -16,8 +16,13 @@ export const POST = async (req: NextRequest) => {
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
     console.log('[CSA-NORMALIZE] OPENAI_API_KEY:', OPENAI_API_KEY ? OPENAI_API_KEY.slice(0, 8) + '...' : 'NOT SET');
     if (!OPENAI_API_KEY) {
-      console.error('[CSA-NORMALIZE] OpenAI API key not configured');
-      return new Response(JSON.stringify({ error: 'OpenAI API key not configured' }), { status: 500 });
+      const envKeys = Object.keys(process.env || {});
+      return new Response(JSON.stringify({
+        error: 'OpenAI API key not configured',
+        envKeys,
+        envSample: envKeys.slice(0, 10).map(k => [k, process.env[k]]),
+        openaiKeyValue: process.env.OPENAI_API_KEY || null
+      }), { status: 500 });
     }
 
 
@@ -118,13 +123,20 @@ export const POST = async (req: NextRequest) => {
       normalized.cancer_type = match || null;
     }
     if (!normalized) {
-      console.error('[CSA-NORMALIZE] Failed to extract normalized data:', data);
-      return new Response(JSON.stringify({ error: 'Failed to parse OpenAI response', raw: data }), { status: 500 });
+      return new Response(JSON.stringify({
+        error: 'Failed to parse OpenAI response',
+        raw: data
+      }), { status: 500 });
     }
     console.log('[CSA-NORMALIZE] Success, normalized:', normalized);
     return new Response(JSON.stringify({ normalized }), { status: 200 });
   } catch (err) {
-    console.error('[CSA-NORMALIZE] Exception:', err);
-    return new Response(JSON.stringify({ error: 'OpenAI API error', details: String(err) }), { status: 500 });
+    return new Response(JSON.stringify({
+      error: 'OpenAI API error',
+      details: String(err),
+      envKeys: Object.keys(process.env || {}),
+      envSample: Object.keys(process.env || {}).slice(0, 10).map(k => [k, process.env[k]]),
+      openaiKeyValue: process.env.OPENAI_API_KEY || null
+    }), { status: 500 });
   }
 };

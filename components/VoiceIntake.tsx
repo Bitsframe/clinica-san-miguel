@@ -164,22 +164,7 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
   const startVoice = async () => {
     console.log("▶️ [Clinic] Start Voice clicked");
 
-    const assistantId =
-      process.env.NEXT_PUBLIC_CLINIC_VAPI_ASSISTANT_ID;
-    const apiKey =
-      process.env.NEXT_PUBLIC_CLINIC_VAPI_PUBLIC_KEY;
-
-    console.log("🤖 [Clinic] Assistant ID:", assistantId);
-    console.log(
-      "🔑 [Clinic] API KEY PREFIX:",
-      apiKey ? apiKey.slice(0, 5) : "MISSING"
-    );
-    console.log("📦 [Clinic] Vapi instance:", vapi.current);
-
-    if (!vapi.current) {
-      console.error("❌ [Clinic] Vapi not initialized");
-      return;
-    }
+    const assistantId = process.env.NEXT_PUBLIC_CLINIC_VAPI_ASSISTANT_ID;
 
     if (!assistantId) {
       console.error("❌ [Clinic] Assistant ID missing");
@@ -187,19 +172,18 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
     }
 
     try {
-      console.log("🚀 [Clinic] Calling vapi.start()…");
+      // Call the Next.js API route instead of Vapi SDK directly
+      const response = await fetch("/api/vapi/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assistantId }),
+      });
 
-      const result = await vapi.current.start(assistantId);
-
-      console.log("✅ [Clinic] vapi.start() result:", result);
-
-      if (result === null) {
-        console.error(
-          "❌ [Clinic] CALL CREATION FAILED → key/assistant/org mismatch"
-        );
-      }
+      const data = await response.json();
+      console.log("✅ [Clinic] Vapi API route result:", data);
+      // Optionally handle the result (e.g., show call status to user)
     } catch (err) {
-      console.error("🔥 [Clinic] vapi.start() THREW ERROR:", err);
+      console.error("🔥 [Clinic] Vapi API route THREW ERROR:", err);
     }
   };
 

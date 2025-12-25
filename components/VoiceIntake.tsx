@@ -216,7 +216,7 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
-          background: '#C1001F',
+          background: '#2563eb', // blue-600
           color: '#fff',
           border: 'none',
           borderRadius: '8px',

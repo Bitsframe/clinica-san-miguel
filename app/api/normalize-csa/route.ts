@@ -1,16 +1,22 @@
+export const runtime = "nodejs";
 
 import { NextRequest } from 'next/server';
 
 export const POST = async (req: NextRequest) => {
   try {
+    console.log('[CSA-NORMALIZE] Incoming request');
     const body = await req.json();
+    console.log('[CSA-NORMALIZE] Request body:', body);
     const { qaPairs } = body;
     if (!qaPairs || !Array.isArray(qaPairs)) {
+      console.error('[CSA-NORMALIZE] Missing or invalid qaPairs:', qaPairs);
       return new Response(JSON.stringify({ error: 'Missing or invalid qaPairs' }), { status: 400 });
     }
 
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    console.log('[CSA-NORMALIZE] OPENAI_API_KEY:', OPENAI_API_KEY ? OPENAI_API_KEY.slice(0, 8) + '...' : 'NOT SET');
     if (!OPENAI_API_KEY) {
+      console.error('[CSA-NORMALIZE] OpenAI API key not configured');
       return new Response(JSON.stringify({ error: 'OpenAI API key not configured' }), { status: 500 });
     }
 
@@ -57,6 +63,7 @@ export const POST = async (req: NextRequest) => {
 
   Q&A pairs:\n${qaPairs.map((q: any, i: number) => `${i+1}. Q: ${q.question}\nA: ${q.answer}`).join('\n')}\n\nReturn only the JSON object.`;
 
+    console.log('[CSA-NORMALIZE] Sending request to OpenAI...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -74,10 +81,12 @@ export const POST = async (req: NextRequest) => {
       }),
     });
     const text = await response.text();
+    console.log('[CSA-NORMALIZE] OpenAI raw response:', text);
     let data: any = {};
     try {
       data = JSON.parse(text);
     } catch (e) {
+      console.error('[CSA-NORMALIZE] Failed to parse OpenAI response:', text);
       return new Response(JSON.stringify({ error: 'Failed to parse OpenAI response', raw: text }), { status: 500 });
     }
     // Try to extract JSON from the response
@@ -109,10 +118,13 @@ export const POST = async (req: NextRequest) => {
       normalized.cancer_type = match || null;
     }
     if (!normalized) {
+      console.error('[CSA-NORMALIZE] Failed to extract normalized data:', data);
       return new Response(JSON.stringify({ error: 'Failed to parse OpenAI response', raw: data }), { status: 500 });
     }
+    console.log('[CSA-NORMALIZE] Success, normalized:', normalized);
     return new Response(JSON.stringify({ normalized }), { status: 200 });
   } catch (err) {
+    console.error('[CSA-NORMALIZE] Exception:', err);
     return new Response(JSON.stringify({ error: 'OpenAI API error', details: String(err) }), { status: 500 });
   }
 };

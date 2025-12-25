@@ -1,12 +1,15 @@
 "use client";
 
+
 import React, { useEffect, useRef } from "react";
 import Vapi from "@vapi-ai/web";
+
 
 type VoiceIntakeProps = {
   setForm: any;
   setOnsetDate?: (date: Date | null) => void;
 };
+
 
 export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps): JSX.Element {
   const vapi = useRef<Vapi | null>(null);
@@ -17,6 +20,7 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
   // Track last assistant question
   const lastAssistantQuestion = useRef<string>("");
   const apiKey = process.env.NEXT_PUBLIC_CLINIC_VAPI_PUBLIC_KEY;
+
 
   useEffect(() => {
     if (!apiKey) return;
@@ -55,12 +59,17 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
         }
       });
       // Listen for END CALL message from agent and stop Vapi automatically
-      vapi.current.on("message", (msg) => {
-        if (msg && msg.text && typeof msg.text === "string" && msg.text.toUpperCase().includes("END CALL")) {
-          console.log("[VAPI MIC] Received END CALL from agent, stopping Vapi...");
-          vapi.current && vapi.current.stop();
-        }
-      });
+        // vapi.current.on("message", (msg) => {
+        //   if (
+        //     msg &&
+        //     msg.text &&
+        //     typeof msg.text === "string" &&
+        //     msg.text.toUpperCase().includes("END CALL")
+        //   ) {
+        //     console.log("[VAPI MIC] Received END CALL from agent, stopping Vapi...");
+        //     vapi.current && vapi.current.stop();
+        //   }
+        // });
       vapi.current.on("message", (msg) => {
         console.log("💬 [Clinic] MESSAGE EVENT:", msg);
         // Store the last user transcript
@@ -104,6 +113,7 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
     };
   }, [setForm, apiKey]);
 
+
   if (!apiKey) {
     return (
       <div style={{ color: 'red', fontWeight: 600 }}>
@@ -112,15 +122,19 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
     );
   }
 
+
   const startVoice = async () => {
     console.log("▶️ [Clinic] Start Voice clicked");
 
+
     const assistantId = process.env.NEXT_PUBLIC_CLINIC_VAPI_ASSISTANT_ID;
+
 
     if (!assistantId) {
       console.error("❌ [Clinic] Assistant ID missing");
       return;
     }
+
 
     console.log("[VAPI MIC] startVoice called");
     if (!vapi.current) {
@@ -143,10 +157,12 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
     }
   };
 
+
   const stopVoice = () => {
     console.log("⏹ [Clinic] Stop Voice clicked");
     vapi.current?.stop();
   };
+
 
   return (
     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -192,6 +208,7 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
   );
 }
 
+
 function mergeSafe(prev: any, next: any) {
   const merged = { ...prev };
   Object.keys(next || {}).forEach((k) => {
@@ -201,3 +218,6 @@ function mergeSafe(prev: any, next: any) {
   });
   return merged;
 }
+
+
+

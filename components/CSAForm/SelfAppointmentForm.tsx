@@ -1,6 +1,6 @@
 'use client'
 
-import Self_Appointment from '@/components/CSAForm'
+import Self_Appointment from '@/components/CSAForm/index'
 import { supabase } from '@/supabaseClient'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'

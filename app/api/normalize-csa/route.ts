@@ -37,6 +37,20 @@ export const POST = async (req: NextRequest) => {
       "CNS tumors"
     ];
 
+
+    const relievingFactorOptions = [
+      "Rest",
+      "Ice",
+      "Heat",
+      "Elevation",
+      "Medication",
+      "Stretching",
+      "Massage",
+      "Support or compression",
+      "Time",
+      "Other"
+    ];
+
     const prompt = `You are a medical intake assistant. Given the following Q&A pairs from a patient intake conversation, extract and return a JSON object with these fields:
 
   - chief_complaint (string)
@@ -44,7 +58,7 @@ export const POST = async (req: NextRequest) => {
   - severity (number, 1-10, as a number not a word)
   - onset_date (string, ISO format YYYY-MM-DD, if user provides a duration or date, otherwise null)
   - symptoms_description (array of strings)
-  - relieving_factors (string)
+  - relieving_factors (object: { options: array of strings from [${relievingFactorOptions.join(", ")}], other: string | null })
   - medical_conditions (array of strings)
   - surgeries_choice (string, "Yes" or "No")
   - surgeries (string, only if surgeries_choice is "Yes", otherwise empty string)
@@ -58,9 +72,20 @@ export const POST = async (req: NextRequest) => {
   - occupation (string)
   - cancer_type (string or null; if family_history.cancer is true and user provides a cancer type, match it to the closest valid option from this list: ${validCancerTypes.join(", ")}. If no close match, return null.)
 
-  If the user mentions a duration for symptoms (e.g., "past 4 days", "for 2 weeks", "since last Monday"), calculate the onset_date as today's date minus the specified duration, and return it as an ISO date string (YYYY-MM-DD). If a specific date is mentioned, use that date. If not, set onset_date to null.
+  For relieving_factors:
+    - Map the user's described relieving factors to the closest options from this list: [${relievingFactorOptions.join(", ")}].
+    - If the user mentions a relieving factor not in the list, include "Other" in the options array and set the 'other' field to the user's provided value (for autofill in a textbox).
+    - If the user only mentions options from the list, set 'other' to null.
 
-  If the user mentions any allergies, set allergies_choice to "Yes" and list all allergies in the allergies array. If not, set allergies_choice to "No" and allergies to an empty array.
+  For surgeries:
+    - If the user says "Yes" to surgeries_choice, set the surgeries field to the user's provided surgery value (for autofill in the textbox that appears when "Yes" is selected).
+    - If the user says "No" or does not mention any surgeries, set surgeries to an empty string.
+
+  For allergies:
+    - If the user mentions any allergies, set allergies_choice to "Yes", open the textbox, and autofill it with the user's provided allergy values (as an array of strings).
+    - If the user does not mention any allergies, set allergies_choice to "No" and allergies to an empty array.
+
+  If the user mentions a duration for symptoms (e.g., "past 4 days", "for 2 weeks", "since last Monday"), calculate the onset_date as today's date minus the specified duration, and return it as an ISO date string (YYYY-MM-DD). If a specific date is mentioned, use that date. If not, set onset_date to null.
 
   If family_history.cancer is true and the user provides a cancer type, match it to the closest valid option from this list: ${validCancerTypes.join(", ")}. If no close match, return null.
 
@@ -122,14 +147,43 @@ export const POST = async (req: NextRequest) => {
       }
       normalized.cancer_type = match || null;
     }
+    // Ensure all expected fields are present with default values
+    const defaultNormalized = {
+      chief_complaint: '',
+      location: '',
+      severity: null,
+      onset_date: null,
+      symptoms_description: [],
+      relieving_factors: '',
+      medical_conditions: [],
+      surgeries_choice: '',
+      surgeries: '',
+      allergies_choice: 'No',
+      allergies: [],
+      current_medications: '',
+      family_history: {
+        hypertension: false,
+        diabetes: false,
+        cancer: false,
+        heart_disease: false,
+        unknown: false
+      },
+      tobacco_use: false,
+      alcohol_use: false,
+      drug_use: false,
+      occupation: '',
+      cancer_type: null
+    };
+    // Deep merge normalized into defaultNormalized
+    const mergedNormalized = deepMerge(structuredClone(defaultNormalized), normalized || {});
     if (!normalized) {
       return new Response(JSON.stringify({
         error: 'Failed to parse OpenAI response',
         raw: data
       }), { status: 500 });
     }
-    console.log('[CSA-NORMALIZE] Success, normalized:', normalized);
-    return new Response(JSON.stringify({ normalized }), { status: 200 });
+    console.log('[CSA-NORMALIZE] Success, normalized:', mergedNormalized);
+    return new Response(JSON.stringify({ normalized: mergedNormalized }), { status: 200 });
   } catch (err) {
     return new Response(JSON.stringify({
       error: 'OpenAI API error',
@@ -139,4 +193,16 @@ export const POST = async (req: NextRequest) => {
       openaiKeyValue: process.env.OPENAI_API_KEY || null
     }), { status: 500 });
   }
+
+// Move deepMerge outside POST handler to avoid function declaration inside block
+function deepMerge(target: any, source: any) {
+  for (const key in source) {
+    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      target[key] = deepMerge(target[key] || {}, source[key]);
+    } else {
+      target[key] = source[key] !== undefined ? source[key] : target[key];
+    }
+  }
+  return target;
+}
 };

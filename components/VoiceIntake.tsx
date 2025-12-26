@@ -8,10 +8,11 @@ import Vapi from "@vapi-ai/web";
 type VoiceIntakeProps = {
   setForm: any;
   setOnsetDate?: (date: Date | null) => void;
+  onTranscript?: (event: { role?: string, transcript?: string, transcriptType?: string }) => void;
 };
 
 
-export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps): JSX.Element {
+export default function VoiceIntake({ setForm, setOnsetDate, onTranscript }: VoiceIntakeProps): JSX.Element {
   const vapi = useRef<Vapi | null>(null);
   const lastUserTranscript = useRef<string>("");
   const lastToolCallData = useRef<any>(null);
@@ -47,14 +48,26 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
         // If Q&A pairs exist, call the normalization API
         if (qaPairs.current.length > 0) {
           try {
+            console.log("[Clinic] About to call /api/normalize-csa with:", qaPairs.current);
             const res = await fetch("/api/normalize-csa", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ qaPairs: qaPairs.current }),
             });
-            // ...existing code...
+            console.log("[Clinic] /api/normalize-csa response status:", res.status);
+            const resBody = await res.text();
+            console.log("[Clinic] /api/normalize-csa response body:", resBody);
+            // Try to autofill the form if window.__autofillCSA is available
+            try {
+              const parsed = JSON.parse(resBody);
+              if (parsed && parsed.normalized && typeof window !== 'undefined' && typeof (window as any).__autofillCSA === 'function') {
+                (window as any).__autofillCSA(parsed.normalized);
+              }
+            } catch (e) {
+              console.error('[Clinic] Error parsing normalization response for autofill:', e);
+            }
           } catch (err) {
-            // ...existing code...
+            console.error("[Clinic] Error calling /api/normalize-csa:", err);
           }
         }
       });
@@ -72,6 +85,14 @@ export default function VoiceIntake({ setForm, setOnsetDate }: VoiceIntakeProps)
         // });
       vapi.current.on("message", (msg) => {
         console.log("💬 [Clinic] MESSAGE EVENT:", msg);
+        // Emit transcript event to parent if handler is provided
+        if (onTranscript && msg.type === "transcript" && msg.transcript) {
+          onTranscript({
+            role: msg.role === "assistant" ? "agent" : msg.role,
+            transcript: msg.transcript,
+            transcriptType: msg.transcriptType,
+          });
+        }
         // Store the last user transcript
         if (msg.type === "transcript" && msg.role === "user" && msg.transcriptType === "final") {
           lastUserTranscript.current = msg.transcript;

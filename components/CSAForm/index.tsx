@@ -248,7 +248,43 @@ function AllergyTagInput({ allergies, setAllergies, placeholder = "List allergie
     );
 }
 
-const Self_Appointment = ({ location }: any) => {
+import { forwardRef, useImperativeHandle } from "react";
+
+const Self_Appointment = forwardRef(({ location }: any, ref) => {
+        // Autofill function for normalized API data
+        const autofillFromNormalized = (normalized: any) => {
+            setMedicalForm((prev) => ({
+                ...prev,
+                chief_complaint: normalized.chief_complaint || "",
+                location: normalized.location || "",
+                severity: normalized.severity ? String(normalized.severity) : "",
+                symptoms_description: Array.isArray(normalized.symptoms_description) ? normalized.symptoms_description : [],
+                relieving_factors: normalized.relieving_factors?.options?.join(', ') || "",
+                medical_conditions: Array.isArray(normalized.medical_conditions) ? normalized.medical_conditions : [],
+                surgeries: normalized.surgeries || "",
+                allergies: Array.isArray(normalized.allergies) ? normalized.allergies : [],
+                current_medications: normalized.current_medications || "",
+                family_history: normalized.family_history || prev.family_history,
+                tobacco_use: !!normalized.tobacco_use,
+                alcohol_use: !!normalized.alcohol_use,
+                drug_use: !!normalized.drug_use,
+                occupation: normalized.occupation || "",
+                cancer_type: normalized.cancer_type || "",
+            }));
+            setReliefSelect(Array.isArray(normalized.relieving_factors?.options) ? normalized.relieving_factors.options : []);
+            setReliefOther(normalized.relieving_factors?.other || "");
+            setSurgeryChoice(normalized.surgeries_choice || "");
+            setAllergyChoice(normalized.allergies_choice || "");
+            // Onset date: try to parse ISO string
+            if (normalized.onset_date) {
+                const d = new Date(normalized.onset_date);
+                if (!isNaN(d.getTime())) setOnsetDate(d);
+            }
+        };
+
+        useImperativeHandle(ref, () => ({
+            autofillFromNormalized,
+        }));
     const t = useTranslations("appoinment_form");
     const locale = useLocale();
 
@@ -280,7 +316,7 @@ const Self_Appointment = ({ location }: any) => {
 
     // Medical intake state
     const [onsetDate, setOnsetDate] = useState<Date | null>(null);
-    const [reliefSelect, setReliefSelect] = useState("");
+    const [reliefSelect, setReliefSelect] = useState<string[]>([]);
     const [reliefOther, setReliefOther] = useState("");
     const [surgeryChoice, setSurgeryChoice] = useState("");
     const [allergyChoice, setAllergyChoice] = useState("");
@@ -324,7 +360,7 @@ const Self_Appointment = ({ location }: any) => {
         fetchServices();
     }, [tableName]);
 
-    const handleMedicalChange = (key: string, value: string) => {
+    const handleMedicalChange = (key: string, value: any) => {
         setMedicalForm((prev) => ({ ...prev, [key]: value }));
     };
 
@@ -427,7 +463,14 @@ const Self_Appointment = ({ location }: any) => {
         setSex(sample.sex);
         setService(sample.service);
 
-        setReliefSelect(sample.medical.relieving_select);
+        // Ensure reliefSelect is always a string array
+        if (Array.isArray(sample.medical.relieving_select)) {
+            setReliefSelect(sample.medical.relieving_select);
+        } else if (typeof sample.medical.relieving_select === 'string' && sample.medical.relieving_select) {
+            setReliefSelect([sample.medical.relieving_select]);
+        } else {
+            setReliefSelect([]);
+        }
         setReliefOther(sample.medical.relieving_other);
         setSurgeryChoice(sample.medical.surgeries_choice);
         setAllergyChoice(sample.medical.allergies_choice);
@@ -522,37 +565,37 @@ const Self_Appointment = ({ location }: any) => {
             service: service,
         }
 
-        const result = await submitAppointmentFlow({
-            supabase,
-            postData,
-            medicalForm: {
-                ...medicalForm,
-                symptoms_description: Array.isArray(medicalForm.symptoms_description)
-                  ? medicalForm.symptoms_description.join(', ')
-                  : medicalForm.symptoms_description || '',
-                medical_conditions: Array.isArray(medicalForm.medical_conditions)
-                  ? medicalForm.medical_conditions.join(', ')
-                  : medicalForm.medical_conditions || '',
-                allergies: Array.isArray(medicalForm.allergies)
-                  ? medicalForm.allergies.join(', ')
-                  : medicalForm.allergies || '',
-            },
-            onsetDate,
-            reliefSelect,
-            reliefOther,
-            surgeryChoice,
-            allergyChoice,
-            options: {
-                primaryTable: 'Appoinments',
-                invokeEdge: true,
-                email: {
-                    sendEmail,
-                    emailType,
-                    lang,
-                    emailData,
-                }
-            }
-        });
+                const result = await submitAppointmentFlow({
+                        supabase,
+                        postData,
+                        medicalForm: {
+                                ...medicalForm,
+                                symptoms_description: Array.isArray(medicalForm.symptoms_description)
+                                    ? medicalForm.symptoms_description.join(', ')
+                                    : medicalForm.symptoms_description || '',
+                                medical_conditions: Array.isArray(medicalForm.medical_conditions)
+                                    ? medicalForm.medical_conditions.join(', ')
+                                    : medicalForm.medical_conditions || '',
+                                allergies: Array.isArray(medicalForm.allergies)
+                                    ? medicalForm.allergies.join(', ')
+                                    : medicalForm.allergies || '',
+                        },
+                        onsetDate,
+                        reliefSelect: reliefSelect.join(', '),
+                        reliefOther,
+                        surgeryChoice,
+                        allergyChoice,
+                        options: {
+                                primaryTable: 'Appoinments',
+                                invokeEdge: true,
+                                email: {
+                                        sendEmail,
+                                        emailType,
+                                        lang,
+                                        emailData,
+                                }
+                        }
+                });
 
         if (!result.success) {
             toast.error(`Error submitting appointment: ${result.error?.message || result.error || 'Unknown error'}`);
@@ -570,7 +613,7 @@ const Self_Appointment = ({ location }: any) => {
         setEmail_opt(false)
         setText_opt(false)
         setOnsetDate(null);
-        setReliefSelect("");
+        setReliefSelect([]);
         setReliefOther("");
         setSurgeryChoice("");
         setAllergyChoice("");
@@ -735,21 +778,40 @@ const Self_Appointment = ({ location }: any) => {
                                 </div>
                                 <div className="flex flex-col items-start w-full justify-center">
                                     <label className="text-[16px] text-customGray font-poppins font-bold">Relieving Factors:</label>
-                                    <select
-                                        className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                                        value={reliefSelect}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            setReliefSelect(val);
-                                            setMedicalForm((prev) => ({ ...prev, relieving_factors: val === 'Other' ? reliefOther : val }));
-                                        }}
-                                    >
-                                        <option value="">Select</option>
+                                    <div className="flex flex-wrap gap-3 mt-2">
                                         {['Rest', 'Ice', 'Heat', 'Elevation', 'Medication', 'Stretching', 'Massage', 'Support or compression', 'Time', 'Other'].map((opt) => (
-                                            <option key={opt} value={opt}>{opt}</option>
+                                            <label key={opt} className="flex items-center gap-2 text-sm text-customGray">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={reliefSelect.includes(opt)}
+                                                    onChange={(e) => {
+                                                        let updated: string[];
+                                                        if (e.target.checked) {
+                                                            updated = [...reliefSelect, opt];
+                                                        } else {
+                                                            updated = reliefSelect.filter((item) => item !== opt);
+                                                        }
+                                                        // Only call setReliefSelect with string[]
+                                                        setReliefSelect(Array.isArray(updated) ? updated : []);
+                                                        // If "Other" is unchecked, clear reliefOther
+                                                        if (!updated.includes('Other')) {
+                                                            setReliefOther("");
+                                                        }
+                                                        // Update medicalForm.relieving_factors as a comma-separated string (including Other text if present)
+                                                        setMedicalForm((prev) => ({
+                                                            ...prev,
+                                                            relieving_factors: updated
+                                                                .map((item) => (item === 'Other' && reliefOther ? reliefOther : item))
+                                                                .filter(Boolean)
+                                                                .join(', '),
+                                                        }));
+                                                    }}
+                                                />
+                                                {opt}
+                                            </label>
                                         ))}
-                                    </select>
-                                    {reliefSelect === 'Other' && (
+                                    </div>
+                                    {reliefSelect.includes('Other') && (
                                         <input
                                             className="w-full h-[46px] mt-2 border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                             placeholder="Describe other relieving factor"
@@ -757,7 +819,14 @@ const Self_Appointment = ({ location }: any) => {
                                             onChange={(e) => {
                                                 const val = e.target.value;
                                                 setReliefOther(val);
-                                                setMedicalForm((prev) => ({ ...prev, relieving_factors: val }));
+                                                // Update medicalForm.relieving_factors with new Other value
+                                                setMedicalForm((prev) => ({
+                                                    ...prev,
+                                                    relieving_factors: reliefSelect
+                                                        .map((item) => (item === 'Other' ? val : item))
+                                                        .filter(Boolean)
+                                                        .join(', '),
+                                                }));
                                             }}
                                             autoComplete="on"
                                             autoCorrect="on"
@@ -944,7 +1013,7 @@ const Self_Appointment = ({ location }: any) => {
 
         </div></>
     );
-};
+},);
 
 
 export default Self_Appointment

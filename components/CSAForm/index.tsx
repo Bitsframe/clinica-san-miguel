@@ -14,6 +14,10 @@ import ReactDatePicker from "react-datepicker";
 import ScheduleDateTime from "../Modal/ScheduleDateTime";
 import { toast } from "react-toastify";
 import VoiceIntake from "../VoiceIntake";
+import VoiceWave from "@/components/VoiceWave";
+import { useVapiInstance } from "@/hooks/useVapiInstance";
+import { useVapiSpeaking } from "@/hooks/useVapiSpeaking";
+import { useVapiUserSpeaking } from "@/hooks/useVapiUserSpeaking";
 import LanguageChanger from "@/components/LanguageChanger";
 import { validateFormData } from "@/utils/validationCheck";
 import PhoneInput from "react-phone-input-2";
@@ -254,6 +258,18 @@ import { forwardRef } from "react";
 
 const Self_Appointment = forwardRef(({ location }: any, ref) => {
     const logic = useCSAFormLogic({ location, ref });
+    // Vapi instance and speaking state for waveform
+        const vapi = useVapiInstance();
+        const isSpeaking = useVapiSpeaking(vapi);
+        // User speaking state based on Vapi message events
+        const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+        // Handler to be called from VoiceIntake when user is speaking
+        const handleUserSpeaking = () => {
+            setIsUserSpeaking(true);
+            // Keep red wave for 1.2s after last user speech
+            if (handleUserSpeaking._timer) clearTimeout(handleUserSpeaking._timer);
+            handleUserSpeaking._timer = setTimeout(() => setIsUserSpeaking(false), 1200);
+        };
     // Expose autofill to window for VoiceIntake (after logic is defined)
     if (typeof window !== 'undefined') {
         (window as any).__autofillCSA = logic.autofillFromNormalized;
@@ -306,11 +322,16 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
         onTranscript
     } = logic;
 
+    // Debug: log transcript and user speaking state
+    console.log('TRANSCRIPT:', currentTranscript);
+    console.log('isUserSpeaking:', isUserSpeaking);
     return (<>
-        {/* Transcript sidebar always visible for testing, with red background and white text */}
-        <div className="fixed bottom-0 left-0 w-full z-50 bg-red-600 border-t border-red-700 shadow-lg p-4 text-white text-lg min-h-[60px] flex items-center">
-            <TranscriptDisplay currentTranscript={currentTranscript} />
-        </div>
+                {/* Transcript sidebar: hide when user is speaking */}
+                {!isUserSpeaking && (
+                    <div className="fixed bottom-0 left-0 w-full z-50 bg-red-600 border-t border-red-700 shadow-lg p-4 text-white text-lg min-h-[60px] flex items-center">
+                        <TranscriptDisplay currentTranscript={currentTranscript} />
+                    </div>
+                )}
         <div className="relative w-screen min-h-screen">
             <div className="md:absolute px-5 md:px-0 pt-4 pb-5 md:py-0 w-full flex justify-end md:top-6 md:right-6">
                 <LanguageChanger locale={locale} />
@@ -335,6 +356,20 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         </div>
                         <p className="text-[#767676]">{location.title}</p>
                     </div>
+                                        {/* VoiceWave waveform above VoiceIntake mic button */}
+                                        {(() => {
+                                            // Debug log for rendering block
+                                            console.log('RENDER WAVES: isSpeaking:', isSpeaking, 'isUserSpeaking:', isUserSpeaking);
+                                            return (
+                                                <div className="flex flex-col items-center mb-6 gap-2">
+                                                    {isSpeaking && <VoiceWave isActive={true} color="#00f5ff" />}
+                                                    {!isSpeaking && isUserSpeaking && <VoiceWave isActive={true} color="#ff0033" />}
+                                                    <p className="text-sm text-gray-500 mt-1">
+                                                        {isSpeaking ? "Assistant speaking…" : isUserSpeaking ? "User speaking…" : "Listening"}
+                                                    </p>
+                                                </div>
+                                            );
+                                        })()}
                     <section className="grid md:grid-cols-2 grid-cols-1 place-content-baseline gap-8">
                         <Dropdown
                             label={t("form_f10")}
@@ -390,9 +425,9 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                         {/* Medical intake */}
                         <div className="col-span-full space-y-4 pt-4">
-                            {/* Voice Intake Mic Button - moved above Medical Information heading */}
+                            {/* Voice Intake Mic Button below waveform */}
                             <div className="mb-4">
-                                <VoiceIntake setForm={setMedicalForm} onTranscript={onTranscript} />
+                                <VoiceIntake setForm={setMedicalForm} onTranscript={onTranscript} vapi={vapi} onUserSpeaking={handleUserSpeaking} />
                             </div>
                             <h2 className="text-lg font-semibold text-customGray">Medical Information</h2>
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">

@@ -5,15 +5,19 @@ import React, { useEffect, useRef } from "react";
 import Vapi from "@vapi-ai/web";
 
 
+
 type VoiceIntakeProps = {
   setForm: any;
   setOnsetDate?: (date: Date | null) => void;
   onTranscript?: (event: { role?: string, transcript?: string, transcriptType?: string }) => void;
+  vapi?: any; // shared Vapi instance
+  onUserSpeaking?: () => void;
 };
 
 
-export default function VoiceIntake({ setForm, setOnsetDate, onTranscript }: VoiceIntakeProps): JSX.Element {
-  const vapi = useRef<Vapi | null>(null);
+export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi: externalVapi, onUserSpeaking }: VoiceIntakeProps): JSX.Element {
+  // Use provided vapi instance if available, else create our own
+  const vapi = useRef<any>(null);
   const lastUserTranscript = useRef<string>("");
   const lastToolCallData = useRef<any>(null);
   // Store Q&A pairs: { question: string, answer: string }
@@ -23,69 +27,51 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript }: Voi
   const apiKey = process.env.NEXT_PUBLIC_CLINIC_VAPI_PUBLIC_KEY;
 
 
+
   useEffect(() => {
-    if (!apiKey) return;
-    console.log("🔵 [Clinic] Initializing Vapi…");
-    console.log(
-      "🔑 [Clinic] API KEY PREFIX:",
-      apiKey ? apiKey.slice(0, 5) : "MISSING"
-    );
-    vapi.current = new Vapi(apiKey);
-    console.log("✅ [Clinic] Vapi initialized:", vapi.current);
+    let localVapi: any = null;
+    if (externalVapi) {
+      vapi.current = externalVapi;
+    } else {
+      if (!apiKey) return;
+      localVapi = new Vapi(apiKey);
+      vapi.current = localVapi;
+    }
+    const instance = vapi.current;
     // ---- CORE EVENTS ----
-    if (vapi.current) {
-      vapi.current.on("call-start", () => {
-        console.log("📞 [Clinic] CALL STARTED");
+    if (instance) {
+      instance.on("call-start", () => {
         lastUserTranscript.current = "";
         lastToolCallData.current = null;
         qaPairs.current = [];
         lastAssistantQuestion.current = "";
       });
-      vapi.current.on("call-end", async () => {
-        console.log("📴 [Clinic] CALL ENDED");
-        // On call end, log Q&A pairs and prepare for OpenAI normalization
-        console.log("[Vapi Q&A] Assistant questions and user answers:", qaPairs.current);
-        // If Q&A pairs exist, call the normalization API
+      instance.on("call-end", async () => {
         if (qaPairs.current.length > 0) {
           try {
-            console.log("[Clinic] About to call /api/normalize-csa with:", qaPairs.current);
             const res = await fetch("/api/normalize-csa", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ qaPairs: qaPairs.current }),
             });
-            console.log("[Clinic] /api/normalize-csa response status:", res.status);
             const resBody = await res.text();
-            console.log("[Clinic] /api/normalize-csa response body:", resBody);
-            // Try to autofill the form if window.__autofillCSA is available
             try {
               const parsed = JSON.parse(resBody);
+              console.log('[NORMALIZE-CSA RESPONSE]', parsed);
               if (parsed && parsed.normalized && typeof window !== 'undefined' && typeof (window as any).__autofillCSA === 'function') {
                 (window as any).__autofillCSA(parsed.normalized);
               }
-            } catch (e) {
-              console.error('[Clinic] Error parsing normalization response for autofill:', e);
-            }
-          } catch (err) {
-            console.error("[Clinic] Error calling /api/normalize-csa:", err);
-          }
+            } catch (e) {}
+          } catch (err) {}
         }
       });
-      // Listen for END CALL message from agent and stop Vapi automatically
-        // vapi.current.on("message", (msg) => {
-        //   if (
-        //     msg &&
-        //     msg.text &&
-        //     typeof msg.text === "string" &&
-        //     msg.text.toUpperCase().includes("END CALL")
-        //   ) {
-        //     console.log("[VAPI MIC] Received END CALL from agent, stopping Vapi...");
-        //     vapi.current && vapi.current.stop();
-        //   }
-        // });
-      vapi.current.on("message", (msg) => {
-        console.log("💬 [Clinic] MESSAGE EVENT:", msg);
-        // Emit transcript event to parent if handler is provided
+      instance.on("message", (msg: any) => {
+        // Log all Vapi message events for debugging
+        console.log('[VAPI MESSAGE EVENT]', msg);
+        // User speaking detection: show red wave on any user transcript
+        if (msg.type === "transcript" && msg.role === "user") {
+          if (onUserSpeaking) onUserSpeaking();
+        }
         if (onTranscript && msg.type === "transcript" && msg.transcript) {
           onTranscript({
             role: msg.role === "assistant" ? "agent" : msg.role,
@@ -93,10 +79,8 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript }: Voi
             transcriptType: msg.transcriptType,
           });
         }
-        // Store the last user transcript
         if (msg.type === "transcript" && msg.role === "user" && msg.transcriptType === "final") {
           lastUserTranscript.current = msg.transcript;
-          // Store Q&A pair if last assistant question exists
           if (lastAssistantQuestion.current && msg.transcript) {
             qaPairs.current.push({
               question: lastAssistantQuestion.current,
@@ -104,35 +88,16 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript }: Voi
             });
           }
         }
-        // Track last assistant question
         if (msg.type === "transcript" && msg.role === "assistant" && msg.transcriptType === "final" && msg.transcript) {
           lastAssistantQuestion.current = msg.transcript;
         }
-        // Removed auto-stop call logic. Call will be ended manually using the stop button.
       });
-      vapi.current.on("error", (err) => {
-        console.error("🔥 [Clinic] VAPI EVENT ERROR:", err);
-      });
-      // ---- TOOL CALL ----
-      // NOTE: The 'function-call' event is not recognized by the current VapiEventNames type.
-      // If the SDK updates to support this event, re-enable the handler below.
-      // vapi.current.on("function-call", (call: any) => {
-      //   console.log("🛠 [Clinic] FUNCTION CALL RECEIVED:", call);
-      //   if (call.name === "updateMedicalIntake") {
-      //     console.log("[Vapi Tool-Call] Data received:", call.arguments);
-      //     lastToolCallData.current = call.arguments;
-      //     setForm((prev: any) => ({
-      //       ...prev,
-      //       ...mergeSafe(prev, call.arguments),
-      //     }));
-      //   }
-      // });
+      instance.on("error", (err: any) => {});
     }
     return () => {
-      console.log("🧹 [Clinic] Cleaning up Vapi");
-      if (vapi.current) vapi.current.stop();
+      if (!externalVapi && localVapi) localVapi.stop();
     };
-  }, [setForm, apiKey]);
+  }, [setForm, apiKey, externalVapi, onTranscript]);
 
 
   if (!apiKey) {
@@ -144,38 +109,14 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript }: Voi
   }
 
 
+
   const startVoice = async () => {
-    console.log("▶️ [Clinic] Start Voice clicked");
-
-
     const assistantId = process.env.NEXT_PUBLIC_CLINIC_VAPI_ASSISTANT_ID;
-
-
-    if (!assistantId) {
-      console.error("❌ [Clinic] Assistant ID missing");
-      return;
-    }
-
-
-    console.log("[VAPI MIC] startVoice called");
-    if (!vapi.current) {
-      console.error("❌ [VAPI MIC] Vapi not initialized");
-      return;
-    }
-    if (!assistantId) {
-      console.error("❌ [VAPI MIC] Assistant ID missing");
-      return;
-    }
+    if (!assistantId) return;
+    if (!vapi.current) return;
     try {
-      console.log("[VAPI MIC] Calling vapi.current.start with assistantId:", assistantId);
-      const result = await vapi.current.start(assistantId);
-      console.log("✅ [VAPI MIC] vapi.start() result:", result);
-      if (result === null) {
-        console.error("❌ [VAPI MIC] CALL CREATION FAILED → key/assistant/org mismatch");
-      }
-    } catch (err) {
-      console.error("🔥 [VAPI MIC] vapi.start() THREW ERROR:", err);
-    }
+      await vapi.current.start(assistantId);
+    } catch (err) {}
   };
 
 

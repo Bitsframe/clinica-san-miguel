@@ -38,6 +38,37 @@
 
 /* Custom Slick Dots */
 
+/* VoiceWave Animation */
+.wave-container {
+  width: 480px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.neon-bar {
+  fill: #00f5ff;
+  opacity: 0.85;
+  filter: url(#glow);
+  transition: height 0.12s, y 0.12s, opacity 0.12s;
+  box-shadow: 0 0 8px #00f5ff, 0 0 16px #00f5ff;
+}
+
+.neon-bar-red {
+  fill: #ff0033;
+  opacity: 0.7;
+  filter: url(#glow);
+  transition: height 0.10s, y 0.10s, opacity 0.10s;
+  box-shadow: 0 0 8px #ff0033, 0 0 16px #ff0033;
+}
+
+.flat-line {
+  stroke: #222;
+  stroke-width: 2;
+}
+
 .ft-slick__dots--custom {
   height: 20px;
   width: 20px;

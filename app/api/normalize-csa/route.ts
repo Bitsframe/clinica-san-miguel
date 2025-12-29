@@ -3,12 +3,10 @@ export const runtime = "nodejs";
 import { NextRequest } from 'next/server';
 
 export const POST = async (req: NextRequest) => {
+
   try {
     console.log('[CSA-NORMALIZE] Incoming request');
     const body = await req.json();
-    console.log('[CSA-NORMALIZE] Request body:', body);
-
-
     let { qaPairs } = body;
     if (!qaPairs || !Array.isArray(qaPairs)) {
       console.error('[CSA-NORMALIZE] Missing or invalid qaPairs:', qaPairs);
@@ -24,7 +22,7 @@ export const POST = async (req: NextRequest) => {
         seen.add(key);
       }
     }
-    // Limit to last 20 pairs
+    // HARD CAP: Limit to last 20 unique pairs, always
     const limitedQAPairs = uniqueQAPairs.slice(-20);
     // Inject current date as a Q&A pair at the start
     const today = new Date();
@@ -36,6 +34,9 @@ export const POST = async (req: NextRequest) => {
       { question: "What is today's date?", answer: currentDate },
       ...limitedQAPairs
     ];
+    // Log the final Q&A count and sample
+    console.log(`[CSA-NORMALIZE] Final Q&A count (HARD CAP 20): ${qaPairs.length}`);
+    console.log('[CSA-NORMALIZE] Final Q&A sample:', qaPairs);
 
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
     console.log('[CSA-NORMALIZE] OPENAI_API_KEY:', OPENAI_API_KEY ? OPENAI_API_KEY.slice(0, 8) + '...' : 'NOT SET');

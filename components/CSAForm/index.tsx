@@ -259,7 +259,7 @@ import { forwardRef } from "react";
 const Self_Appointment = forwardRef(({ location }: any, ref) => {
     const logic = useCSAFormLogic({ location, ref });
     // Vapi instance and speaking state for waveform
-    const vapi = useVapiInstance();
+        const vapi = useVapiInstance();
     const isSpeaking = useVapiSpeaking(vapi);
     // Use custom hook for user speaking state
     const isUserSpeaking = useVapiUserSpeaking(vapi);
@@ -317,6 +317,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
         onTranscript
     } = logic;
 
+        Self_Appointment.displayName = "Self_Appointment";
     // Debug: log transcript and user speaking state
     console.log('TRANSCRIPT:', currentTranscript);
     console.log('isUserSpeaking:', isUserSpeaking);

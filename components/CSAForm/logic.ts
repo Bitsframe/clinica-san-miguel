@@ -104,7 +104,7 @@ export function useCSAFormLogic({ location, ref }: any) {
         if (!service && services && services.length > 0) {
             setService(services[0]);
         }
-    }, [services]);
+    }, [services, service]);
 
     useEffect(() => {
         const fetchServices = async () => {

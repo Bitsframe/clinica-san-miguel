@@ -213,7 +213,7 @@ export const RequestAppointment = ({
     if (!service && services && services.length > 0) {
       setService(services[0]);
     }
-  }, [services]);
+  }, [services, service]);
   const [phone, setPhone] = useState("");
   const [inOfficePatient, setInOfficePatient] = useState("");
   const [newPatient, setNewPatient] = useState("");

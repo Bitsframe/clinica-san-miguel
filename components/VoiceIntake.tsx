@@ -40,10 +40,12 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
 
   useEffect(() => {
     let localVapi: any = null;
+    if (!apiKey) {
+      return () => {};
+    }
     if (externalVapi) {
       vapi.current = externalVapi;
     } else {
-      if (!apiKey) return;
       localVapi = new Vapi(apiKey);
       vapi.current = localVapi;
     }
@@ -53,6 +55,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
     const callEndHandledRef = { current: false };
     // Handler for call-end
     const handleCallEnd = async () => {
+      setIsVoiceActive(false); // Always reset button to blue on call end
       if (callEndHandledRef.current) return;
       callEndHandledRef.current = true;
       if (qaPairs.current.length > 0) {
@@ -135,7 +138,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
       }
       if (!externalVapi && localVapi) localVapi.stop();
     };
-  }, [setForm, apiKey, externalVapi, onTranscript]);
+  }, [setForm, apiKey, externalVapi, onTranscript, onUserSpeaking]);
 
 
   if (!apiKey) {
@@ -175,16 +178,6 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
     }
   };
 
-  // Optionally, listen for call-end to reset button state
-  React.useEffect(() => {
-    if (!vapi.current) return;
-    const instance = vapi.current;
-    const handleCallEnd = () => setIsVoiceActive(false);
-    instance.on && instance.on('call-end', handleCallEnd);
-    return () => {
-      instance.off && instance.off('call-end', handleCallEnd);
-    };
-  }, []);
 
   return (
     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>

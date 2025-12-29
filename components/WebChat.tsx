@@ -79,7 +79,7 @@ export default function WebChat() {
         },
       ]);
     }
-  }, [isOpen]);
+  }, [isOpen, messages]);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;

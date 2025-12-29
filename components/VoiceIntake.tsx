@@ -97,14 +97,28 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
           if (onUserSpeaking) onUserSpeaking();
         }
         if (onTranscript && msg.type === "transcript" && msg.transcript) {
-          // Auto-end call if assistant says intake is complete (final transcript)
+          // Debug log for auto-end
+          console.log("[VAPI AUTO-END CHECK]", msg.transcript, msg.transcriptType);
+          // Auto-end call if assistant says intake is complete (final transcript, robust check)
           if (
             msg.role === "assistant" &&
-            msg.transcriptType === "final" &&
-            msg.transcript.trim() === "Thank you. Your intake is complete."
+            msg.transcriptType === "final"
           ) {
-            stopVoice();
-            return;
+            // Normalize transcript: lowercase, trim, remove punctuation and extra spaces
+            const normalized = msg.transcript
+              .toLowerCase()
+              .replace(/[.!?]/g, "")
+              .replace(/\s+/g, " ")
+              .trim();
+            if (
+              normalized === "your intake is complete" ||
+              normalized === "your intake is now complete" ||
+              normalized === " intake has been completed" ||
+              normalized === " your intake process is complete"
+            ) {
+              stopVoice();
+              return;
+            }
           }
           // Check for END CALL phrase (case-insensitive, exact match, no extra text)
           if (msg.transcript.trim().toUpperCase() === "END CALL") {

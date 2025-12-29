@@ -259,17 +259,12 @@ import { forwardRef } from "react";
 const Self_Appointment = forwardRef(({ location }: any, ref) => {
     const logic = useCSAFormLogic({ location, ref });
     // Vapi instance and speaking state for waveform
-        const vapi = useVapiInstance();
-        const isSpeaking = useVapiSpeaking(vapi);
-        // User speaking state based on Vapi message events
-        const [isUserSpeaking, setIsUserSpeaking] = useState(false);
-        // Handler to be called from VoiceIntake when user is speaking
-        const handleUserSpeaking = () => {
-            setIsUserSpeaking(true);
-            // Keep red wave for 1.2s after last user speech
-            if (handleUserSpeaking._timer) clearTimeout(handleUserSpeaking._timer);
-            handleUserSpeaking._timer = setTimeout(() => setIsUserSpeaking(false), 1200);
-        };
+    const vapi = useVapiInstance();
+    const isSpeaking = useVapiSpeaking(vapi);
+    // Use custom hook for user speaking state
+    const isUserSpeaking = useVapiUserSpeaking(vapi);
+    // Handler to be called from VoiceIntake when user is speaking (no-op, kept for prop compatibility)
+    const handleUserSpeaking = () => {};
     // Expose autofill to window for VoiceIntake (after logic is defined)
     if (typeof window !== 'undefined') {
         (window as any).__autofillCSA = logic.autofillFromNormalized;
@@ -326,12 +321,10 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     console.log('TRANSCRIPT:', currentTranscript);
     console.log('isUserSpeaking:', isUserSpeaking);
     return (<>
-                {/* Transcript sidebar: hide when user is speaking */}
-                {!isUserSpeaking && (
-                    <div className="fixed bottom-0 left-0 w-full z-50 bg-red-600 border-t border-red-700 shadow-lg p-4 text-white text-lg min-h-[60px] flex items-center">
-                        <TranscriptDisplay currentTranscript={currentTranscript} />
-                    </div>
-                )}
+                {/* Transcript sidebar: always show current transcript (not a list) */}
+                <div className="fixed bottom-0 left-0 w-full z-50 bg-red-600 border-t border-red-700 shadow-lg p-4 text-white text-lg min-h-[60px] flex items-center">
+                    <TranscriptDisplay currentTranscript={currentTranscript} />
+                </div>
         <div className="relative w-screen min-h-screen">
             <div className="md:absolute px-5 md:px-0 pt-4 pb-5 md:py-0 w-full flex justify-end md:top-6 md:right-6">
                 <LanguageChanger locale={locale} />
@@ -360,15 +353,25 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         {(() => {
                                             // Debug log for rendering block
                                             console.log('RENDER WAVES: isSpeaking:', isSpeaking, 'isUserSpeaking:', isUserSpeaking);
-                                            return (
-                                                <div className="flex flex-col items-center mb-6 gap-2">
-                                                    {isSpeaking && <VoiceWave isActive={true} color="#00f5ff" />}
-                                                    {!isSpeaking && isUserSpeaking && <VoiceWave isActive={true} color="#ff0033" />}
-                                                    <p className="text-sm text-gray-500 mt-1">
-                                                        {isSpeaking ? "Assistant speaking…" : isUserSpeaking ? "User speaking…" : "Listening"}
-                                                    </p>
-                                                </div>
-                                            );
+                                            // Show blue if assistant is speaking, red if user is speaking, none if both are silent
+                                            if (isSpeaking) {
+                                                return (
+                                                    <div className="flex flex-col items-center mb-6 gap-2">
+                                                        <VoiceWave isActive={true} color="#00f5ff" />
+                                                        <p className="text-sm text-gray-500 mt-1">Assistant speaking…</p>
+                                                    </div>
+                                                );
+                                            } else if (isUserSpeaking) {
+                                                return (
+                                                    <div className="flex flex-col items-center mb-6 gap-2">
+                                                        <VoiceWave isActive={true} color="#ff0033" />
+                                                        <p className="text-sm text-gray-500 mt-1">User speaking…</p>
+                                                    </div>
+                                                );
+                                            } else {
+                                                // Both are silent, show nothing
+                                                return null;
+                                            }
                                         })()}
                     <section className="grid md:grid-cols-2 grid-cols-1 place-content-baseline gap-8">
                         <Dropdown

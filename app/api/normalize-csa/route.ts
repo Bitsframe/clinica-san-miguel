@@ -7,11 +7,35 @@ export const POST = async (req: NextRequest) => {
     console.log('[CSA-NORMALIZE] Incoming request');
     const body = await req.json();
     console.log('[CSA-NORMALIZE] Request body:', body);
-    const { qaPairs } = body;
+
+
+    let { qaPairs } = body;
     if (!qaPairs || !Array.isArray(qaPairs)) {
       console.error('[CSA-NORMALIZE] Missing or invalid qaPairs:', qaPairs);
       return new Response(JSON.stringify({ error: 'Missing or invalid qaPairs' }), { status: 400 });
     }
+    // Remove duplicate Q&A pairs
+    const uniqueQAPairs = [];
+    const seen = new Set();
+    for (const pair of qaPairs) {
+      const key = pair.question + '|' + pair.answer;
+      if (!seen.has(key)) {
+        uniqueQAPairs.push(pair);
+        seen.add(key);
+      }
+    }
+    // Limit to last 20 pairs
+    const limitedQAPairs = uniqueQAPairs.slice(-20);
+    // Inject current date as a Q&A pair at the start
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const currentDate = `${yyyy}-${mm}-${dd}`;
+    qaPairs = [
+      { question: "What is today's date?", answer: currentDate },
+      ...limitedQAPairs
+    ];
 
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
     console.log('[CSA-NORMALIZE] OPENAI_API_KEY:', OPENAI_API_KEY ? OPENAI_API_KEY.slice(0, 8) + '...' : 'NOT SET');

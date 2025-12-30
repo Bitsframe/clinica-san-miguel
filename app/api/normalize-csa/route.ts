@@ -76,12 +76,23 @@ export const POST = async (req: NextRequest) => {
       "Other"
     ];
 
-    const prompt = `You are a medical intake assistant. Given the following Q&A pairs from a patient intake conversation, extract and return a JSON object with these fields:
+    const prompt = `You are a medical intake assistant. Given the following Q&A pairs from a patient intake conversation, extract and return a JSON object with these fields, grouped and ordered for direct use in a React form:
 
+  // Demographics & Schedule
+  - service (string)
+  - first_name (string)
+  - last_name (string)
+  - phone (string)
+  - sex (string, one of: "Male", "Female", "Other")
+  - dob (string, ISO format YYYY-MM-DD)
+  - schedule_date (string, ISO format YYYY-MM-DD)
+  - schedule_time (string, e.g., "10:00 AM")
+
+  // Medical Information
   - chief_complaint (string)
+  - onset_date (string, ISO format YYYY-MM-DD, if user provides a duration or date, otherwise null)
   - location (string)
   - severity (number, 1-10, as a number not a word)
-  - onset_date (string, ISO format YYYY-MM-DD, if user provides a duration or date, otherwise null)
   - symptoms_description (array of strings)
   - relieving_factors (object: { options: array of strings from [${relievingFactorOptions.join(", ")}], other: string | null })
   - medical_conditions (array of strings)
@@ -96,6 +107,16 @@ export const POST = async (req: NextRequest) => {
   - drug_use (boolean)
   - occupation (string)
   - cancer_type (string or null; if family_history.cancer is true and user provides a cancer type, match it to the closest valid option from this list: ${validCancerTypes.join(", ")}. If no close match, return null.)
+
+  // Preventive/Reproductive History (if applicable)
+  - num_pregnancies (string or number)
+  - birth_control (string)
+  - pap_smear (string)
+  - pap_smear_date (string, YYYY-MM or empty)
+  - mammogram (string)
+  - mammogram_date (string, YYYY-MM or empty)
+  - prostate_exam (string)
+  - prostate_exam_date (string, YYYY-MM or empty)
 
   For relieving_factors:
     - Map the user's described relieving factors to the closest options from this list: [${relievingFactorOptions.join(", ")}].

@@ -62,12 +62,41 @@ export function useCSAFormLogic({ location, ref }: any) {
         drug_use: false,
         occupation: "",
         cancer_type: "",
+        // Preventive/Reproductive history fields
+        num_pregnancies: "",
+        birth_control: "",
+        pap_smear: "",
+        pap_smear_date: "",
+        mammogram: "",
+        mammogram_date: "",
+        prostate_exam: "",
+        prostate_exam_date: "",
     });
 
     const genderOptions = [t("form_f8a"), t("form_f8b"), t("form_f8c")];
 
     // Autofill function for normalized API data
     const autofillFromNormalized = (normalized: any) => {
+        // Demographics & schedule
+        if (normalized.first_name !== undefined) setFirstName(normalized.first_name || "");
+        if (normalized.last_name !== undefined) setLastName(normalized.last_name || "");
+        if (normalized.phone !== undefined) setPhone(normalized.phone || "");
+        if (normalized.sex !== undefined) setSex(normalized.sex || "");
+        if (normalized.dob) {
+            const d = new Date(normalized.dob);
+            if (!isNaN(d.getTime())) setDob(d);
+        }
+        if (normalized.service !== undefined) setService(normalized.service || "");
+        if (normalized.schedule_date) {
+            // If you have a schedule date field in your form, set it here
+            // setScheduleDate(normalized.schedule_date)
+        }
+        if (normalized.schedule_time) {
+            // If you have a schedule time field in your form, set it here
+            // setScheduleTime(normalized.schedule_time)
+        }
+
+        // Medical
         setMedicalForm((prev) => ({
             ...prev,
             chief_complaint: normalized.chief_complaint || "",
@@ -77,7 +106,9 @@ export function useCSAFormLogic({ location, ref }: any) {
             relieving_factors: normalized.relieving_factors?.options?.join(', ') || "",
             medical_conditions: Array.isArray(normalized.medical_conditions) ? normalized.medical_conditions : [],
             surgeries: normalized.surgeries || "",
+            surgeries_choice: normalized.surgeries_choice || "",
             allergies: Array.isArray(normalized.allergies) ? normalized.allergies : [],
+            allergies_choice: normalized.allergies_choice || "",
             current_medications: normalized.current_medications || "",
             family_history: normalized.family_history || prev.family_history,
             tobacco_use: !!normalized.tobacco_use,
@@ -85,6 +116,14 @@ export function useCSAFormLogic({ location, ref }: any) {
             drug_use: !!normalized.drug_use,
             occupation: normalized.occupation || "",
             cancer_type: normalized.cancer_type || "",
+            num_pregnancies: normalized.num_pregnancies !== undefined ? String(normalized.num_pregnancies) : "",
+            birth_control: normalized.birth_control || "",
+            pap_smear: normalized.pap_smear || "",
+            pap_smear_date: normalized.pap_smear_date || "",
+            mammogram: normalized.mammogram || "",
+            mammogram_date: normalized.mammogram_date || "",
+            prostate_exam: normalized.prostate_exam || "",
+            prostate_exam_date: normalized.prostate_exam_date || "",
         }));
         setReliefSelect(Array.isArray(normalized.relieving_factors?.options) ? normalized.relieving_factors.options : []);
         setReliefOther(normalized.relieving_factors?.other || "");
@@ -362,6 +401,14 @@ export function useCSAFormLogic({ location, ref }: any) {
             drug_use: false,
             occupation: "",
             cancer_type: "",
+            num_pregnancies: "",
+            birth_control: "",
+            pap_smear: "",
+            pap_smear_date: "",
+            mammogram: "",
+            mammogram_date: "",
+            prostate_exam: "",
+            prostate_exam_date: "",
         });
         console.log(emailData, "Appointment Submitted");
     };

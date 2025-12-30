@@ -319,18 +319,19 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
         Self_Appointment.displayName = "Self_Appointment";
     // Debug: log transcript and user speaking state
-    console.log('TRANSCRIPT:', currentTranscript);
-    console.log('isUserSpeaking:', isUserSpeaking);
     return (<>
-                {/* Transcript sidebar: always show current transcript (not a list) */}
-                <div className="fixed bottom-0 left-0 w-full z-50 bg-red-600 border-t border-red-700 shadow-lg p-4 text-white text-lg min-h-[60px] flex items-center">
-                    <TranscriptDisplay currentTranscript={currentTranscript} />
-                </div>
         <div className="relative w-screen min-h-screen">
             <div className="md:absolute px-5 md:px-0 pt-4 pb-5 md:py-0 w-full flex justify-end md:top-6 md:right-6">
                 <LanguageChanger locale={locale} />
             </div>
-            <div className="flex justify-center h-full items-center px-5 md:px-0">
+            <div className="flex flex-row justify-center h-full items-start px-5 md:px-0 gap-8">
+                {/* Sidebar transcript area */}
+                <div className="hidden md:flex flex-col w-[350px] min-h-[500px] max-h-[700px] bg-white rounded-lg mt-8 mr-2 p-4">
+                    <div className="w-full bg-blue-600 text-white rounded-lg p-3 text-lg shadow mb-2">
+                        <TranscriptDisplay currentTranscript={currentTranscript} />
+                    </div>
+                </div>
+                {/* Main form content */}
                 <div className="w-full max-w-[800px] rounded-[20px] mt-8 gap-y-5">
                     <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9">
                         <div className="flex w-full items-center justify-between gap-3">
@@ -350,30 +351,29 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         </div>
                         <p className="text-[#767676]">{location.title}</p>
                     </div>
-                                        {/* VoiceWave waveform above VoiceIntake mic button */}
-                                        {(() => {
-                                            // Debug log for rendering block
-                                            console.log('RENDER WAVES: isSpeaking:', isSpeaking, 'isUserSpeaking:', isUserSpeaking);
-                                            // Show blue if assistant is speaking, red if user is speaking, none if both are silent
-                                            if (isSpeaking) {
-                                                return (
-                                                    <div className="flex flex-col items-center mb-6 gap-2">
-                                                        <VoiceWave isActive={true} color="#00f5ff" />
-                                                        <p className="text-sm text-gray-500 mt-1">Assistant speaking…</p>
-                                                    </div>
-                                                );
-                                            } else if (isUserSpeaking) {
-                                                return (
-                                                    <div className="flex flex-col items-center mb-6 gap-2">
-                                                        <VoiceWave isActive={true} color="#ff0033" />
-                                                        <p className="text-sm text-gray-500 mt-1">User speaking…</p>
-                                                    </div>
-                                                );
-                                            } else {
-                                                // Both are silent, show nothing
-                                                return null;
-                                            }
-                                        })()}
+                    {/* VoiceWave waveform above VoiceIntake mic button */}
+                    {(() => {
+                        // Show blue if assistant is speaking, red if user is speaking, none if both are silent
+                        if (isSpeaking) {
+                            return (
+                                <div className="flex flex-col items-center mb-6 gap-2">
+                                    <VoiceWave isActive={true} color="#00f5ff" />
+                                    <p className="text-sm text-gray-500 mt-1">Assistant speaking…</p>
+                                </div>
+                            );
+                        } else if (isUserSpeaking) {
+                            return (
+                                <div className="flex flex-col items-center mb-6 gap-2">
+                                    <VoiceWave isActive={true} color="#ff0033" />
+                                    <p className="text-sm text-gray-500 mt-1">User speaking…</p>
+                                </div>
+                            );
+                        } else {
+                            // Both are silent, show nothing
+                            return null;
+                        }
+                    })()}
+
                     <section className="grid md:grid-cols-2 grid-cols-1 place-content-baseline gap-8">
                         <Dropdown
                             label={t("form_f10")}
@@ -412,13 +412,16 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             onChange={setSex}
                             selectedValue={sex}
                         />
-                        <DatePicker
-                            label="Date of Birth"
-                            placeholder="your date of birth"
-                            breakpoint={false}
-                            value={dob}
-                            onChange={setDob}
-                        />
+                        <div className="flex flex-col items-start w-full justify-center">
+                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Date of Birth:</label>
+                            <input
+                                type="date"
+                                value={dob ? dob.toISOString().split('T')[0] : ''}
+                                onChange={e => setDob(e.target.value ? new Date(e.target.value) : null)}
+                                max={new Date().toISOString().split('T')[0]}
+                                className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                            />
+                        </div>
                         <ScheduleDateTime
                             data={location}
                             selectDateTimeSlotHandle={(date, time) => {
@@ -435,6 +438,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             </div>
                             <h2 className="text-lg font-semibold text-customGray">Medical Information</h2>
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
+                                {/* Move Reason for Visit, Location, Severity before Number of Pregnancies/Birth Control */}
                                 <Input
                                     label="Reason for Visit"
                                     placeholder="Describe your main concern"
@@ -444,13 +448,11 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 />
                                 <div className="flex flex-col items-start w-full justify-center">
                                     <label className="text-[16px] text-customGray font-poppins font-bold">how long are you feeling this?</label>
-                                    {/* @ts-ignore */}
-                                    <ReactDatePicker
-                                        selected={onsetDate}
-                                        onChange={(date) => handleOnsetDateChange(date)}
-                                        placeholderText="Select onset date"
-                                        maxDate={new Date()}
-                                        dateFormat="yyyy-MM-dd"
+                                    <input
+                                        type="date"
+                                        value={onsetDate ? onsetDate.toISOString().split('T')[0] : ''}
+                                        onChange={e => handleOnsetDateChange(e.target.value ? new Date(e.target.value) : null)}
+                                        max={new Date().toISOString().split('T')[0]}
                                         className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                     />
                                 </div>
@@ -466,14 +468,115 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     <select
                                         className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                         value={medicalForm.severity}
-                                        onChange={(e) => handleMedicalChange('severity', e.target.value)}
+                                        onChange={e => handleMedicalChange('severity', e.target.value)}
                                     >
                                         <option value="">Select</option>
-                                        {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
-                                            <option key={num} value={num}>{num}</option>
+                                        {[...Array(10)].map((_, i) => (
+                                            <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
                                         ))}
                                     </select>
                                 </div>
+                                {/* Preventive & Reproductive History fields (conditional, no new section) */}
+                                {/* Female: Number of Pregnancies, Birth Control (15-55) */}
+                                {(sex === 'Female' && dob && (() => {
+                                    const age = moment().diff(moment(dob), 'years');
+                                    return age >= 15 && age <= 55;
+                                })()) && (
+                                    <>
+                                        <Input
+                                            label="Number of Pregnancies"
+                                            placeholder="0"
+                                            breakpoint={true}
+                                            type="number"
+                                            onChange={(val) => handleMedicalChange('num_pregnancies', val.replace(/[^0-9]/g, ''))}
+                                            value={medicalForm.num_pregnancies || ''}
+                                        />
+                                        <div className="flex flex-col items-start w-full justify-center">
+                                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Birth Control:</label>
+                                            <div className="flex flex-row gap-6 mb-2">
+                                                <label className="flex items-center gap-2">
+                                                    <input type="radio" name="birthControl" value="Yes" checked={medicalForm.birth_control === 'Yes'} onChange={() => handleMedicalChange('birth_control', 'Yes')} /> Yes
+                                                </label>
+                                                <label className="flex items-center gap-2">
+                                                    <input type="radio" name="birthControl" value="No" checked={medicalForm.birth_control === 'No'} onChange={() => handleMedicalChange('birth_control', 'No')} /> No
+                                                </label>
+                                                <label className="flex items-center gap-2">
+                                                    <input type="radio" name="birthControl" value="Not applicable" checked={medicalForm.birth_control === 'Not applicable'} onChange={() => handleMedicalChange('birth_control', 'Not applicable')} /> Not applicable
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                                                                {/* Female: Last Pap Smear (21+) */}
+                                                                {(sex === 'Female' && dob && (() => {
+                                                                    const age = moment().diff(moment(dob), 'years');
+                                                                    return age >= 21;
+                                                                })()) && (
+                                                                    <div className="flex flex-col items-start w-full justify-center">
+                                                                        <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Last Pap Smear:</label>
+                                                                        <div className="flex flex-row gap-6 mb-2">
+                                                                            <label className="flex items-center gap-2">
+                                                                                <input type="radio" name="papSmear" value="Never" checked={medicalForm.pap_smear === 'Never'} onChange={() => handleMedicalChange('pap_smear', 'Never')} /> Never
+                                                                            </label>
+                                                                            <label className="flex items-center gap-2">
+                                                                                <input type="radio" name="papSmear" value="Don’t remember" checked={medicalForm.pap_smear === 'Don’t remember'} onChange={() => handleMedicalChange('pap_smear', 'Don’t remember')} /> Don’t remember
+                                                                            </label>
+                                                                            <label className="flex items-center gap-2">
+                                                                                <input type="radio" name="papSmear" value="Month & Year" checked={medicalForm.pap_smear === 'Month & Year'} onChange={() => handleMedicalChange('pap_smear', 'Month & Year')} /> Month & Year
+                                                                            </label>
+                                                                        </div>
+                                                                        {medicalForm.pap_smear === 'Month & Year' && (
+                                                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.pap_smear_date || ''} onChange={e => handleMedicalChange('pap_smear_date', e.target.value)} />
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                                {/* Female: Last Mammogram (40+) */}
+                                                                {(sex === 'Female' && dob && (() => {
+                                                                    const age = moment().diff(moment(dob), 'years');
+                                                                    return age >= 40;
+                                                                })()) && (
+                                                                    <div className="flex flex-col items-start w-full justify-center">
+                                                                        <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Last Mammogram:</label>
+                                                                        <div className="flex flex-row gap-6 mb-2">
+                                                                            <label className="flex items-center gap-2">
+                                                                                <input type="radio" name="mammogram" value="Never" checked={medicalForm.mammogram === 'Never'} onChange={() => handleMedicalChange('mammogram', 'Never')} /> Never
+                                                                            </label>
+                                                                            <label className="flex items-center gap-2">
+                                                                                <input type="radio" name="mammogram" value="Don’t remember" checked={medicalForm.mammogram === 'Don’t remember'} onChange={() => handleMedicalChange('mammogram', 'Don’t remember')} /> Don’t remember
+                                                                            </label>
+                                                                            <label className="flex items-center gap-2">
+                                                                                <input type="radio" name="mammogram" value="Month & Year" checked={medicalForm.mammogram === 'Month & Year'} onChange={() => handleMedicalChange('mammogram', 'Month & Year')} /> Month & Year
+                                                                            </label>
+                                                                        </div>
+                                                                        {medicalForm.mammogram === 'Month & Year' && (
+                                                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.mammogram_date || ''} onChange={e => handleMedicalChange('mammogram_date', e.target.value)} />
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                                {/* Male: Last Prostate Exam (50+) */}
+                                                                {(sex === 'Male' && dob && (() => {
+                                                                    const age = moment().diff(moment(dob), 'years');
+                                                                    return age >= 50;
+                                                                })()) && (
+                                                                    <div className="flex flex-col items-start w-full justify-center">
+                                                                        <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Last Prostate Exam:</label>
+                                                                        <div className="flex flex-row gap-6 mb-2">
+                                                                            <label className="flex items-center gap-2">
+                                                                                <input type="radio" name="prostateExam" value="Never" checked={medicalForm.prostate_exam === 'Never'} onChange={() => handleMedicalChange('prostate_exam', 'Never')} /> Never
+                                                                            </label>
+                                                                            <label className="flex items-center gap-2">
+                                                                                <input type="radio" name="prostateExam" value="Don’t remember" checked={medicalForm.prostate_exam === 'Don’t remember'} onChange={() => handleMedicalChange('prostate_exam', 'Don’t remember')} /> Don’t remember
+                                                                            </label>
+                                                                            <label className="flex items-center gap-2">
+                                                                                <input type="radio" name="prostateExam" value="Month & Year" checked={medicalForm.prostate_exam === 'Month & Year'} onChange={() => handleMedicalChange('prostate_exam', 'Month & Year')} /> Month & Year
+                                                                            </label>
+                                                                        </div>
+                                                                        {medicalForm.prostate_exam === 'Month & Year' && (
+                                                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.prostate_exam_date || ''} onChange={e => handleMedicalChange('prostate_exam_date', e.target.value)} />
+                                                                        )}
+                                                                    </div>
+                                                                )}
+         
                                 <div className="flex flex-col items-start w-full justify-center md:col-span-2">
                                     <label className="text-[16px] text-customGray font-poppins font-bold">Symptom Details:</label>
                                     <AllergyTagInput
@@ -557,50 +660,66 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 />
                                 <div className="flex flex-col items-start w-full justify-center">
                                     <label className="text-[16px] text-customGray font-poppins font-bold">Surgeries:</label>
-                                    <select
-                                        className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                                        value={surgeryChoice}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            setSurgeryChoice(val);
-                                            if (val !== 'Yes') {
-                                                setMedicalForm((prev: typeof medicalForm) => ({ ...prev, surgeries: '' }));
-                                            }
-                                        }}
-                                    >
-                                        <option value="">Select</option>
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
-                                    </select>
+                                    <div className="flex flex-row gap-6 mb-2">
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="radio"
+                                                name="surgeryChoice"
+                                                value="Yes"
+                                                checked={surgeryChoice === 'Yes'}
+                                                onChange={() => setSurgeryChoice('Yes')}
+                                            />
+                                            Yes
+                                        </label>
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="radio"
+                                                name="surgeryChoice"
+                                                value="No"
+                                                checked={surgeryChoice === 'No'}
+                                                onChange={() => {
+                                                    setSurgeryChoice('No');
+                                                    setMedicalForm((prev: typeof medicalForm) => ({ ...prev, surgeries: '' }));
+                                                }}
+                                            />
+                                            No
+                                        </label>
+                                    </div>
                                     {surgeryChoice === 'Yes' && (
-                                        <input
-                                            className="w-full h-[46px] mt-2 border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                        <AllergyTagInput
+                                            allergies={Array.isArray(medicalForm.surgeries) ? medicalForm.surgeries : (medicalForm.surgeries ? [medicalForm.surgeries] : [])}
+                                            setAllergies={(surgeries) => handleMedicalChange('surgeries', surgeries)}
                                             placeholder="Type of surgery"
-                                            value={medicalForm.surgeries}
-                                            onChange={(e) => handleMedicalChange('surgeries', e.target.value)}
-                                            autoComplete="on"
-                                            autoCorrect="on"
-                                            spellCheck={true}
                                         />
                                     )}
                                 </div>
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">Allergies:</label>
-                                    <select
-                                        className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                                        value={allergyChoice}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            setAllergyChoice(val);
-                                            if (val !== 'Yes') {
-                                                setMedicalForm((prev: typeof medicalForm) => ({ ...prev, allergies: [] }));
-                                            }
-                                        }}
-                                    >
-                                        <option value="">Select</option>
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
-                                    </select>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Allergies:</label>
+                                    <div className="flex flex-row gap-6 mb-2">
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="radio"
+                                                name="allergyChoice"
+                                                value="Yes"
+                                                checked={allergyChoice === 'Yes'}
+                                                onChange={() => setAllergyChoice('Yes')}
+                                            />
+                                            Yes
+                                        </label>
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="radio"
+                                                name="allergyChoice"
+                                                value="No"
+                                                checked={allergyChoice === 'No'}
+                                                onChange={() => {
+                                                    setAllergyChoice('No');
+                                                    setMedicalForm((prev: typeof medicalForm) => ({ ...prev, allergies: [] }));
+                                                }}
+                                            />
+                                            No
+                                        </label>
+                                    </div>
                                     {allergyChoice === 'Yes' && (
                                         <AllergyTagInput
                                             allergies={medicalForm.allergies}

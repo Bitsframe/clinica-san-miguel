@@ -7,7 +7,7 @@ import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
 import { sendEmail } from "@/utils/emailService";
 import { submitAppointmentFlow } from "@/lib/submitAppointment";
 
-export function useCSAFormLogic({ location, ref }: any) {
+export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
     const t = useTranslations("appoinment_form");
     const locale = useLocale();
     const tableName = locale === "es" ? "services_es" : "services";
@@ -32,7 +32,8 @@ export function useCSAFormLogic({ location, ref }: any) {
     const [services, setServices] = useState<string[] | null | undefined>([]);
     const [service, setService] = useState("");
     const [phone, setPhone] = useState("");
-    const [date_and_time, setDate_and_time] = useState("");
+    type DateAndTimeType = string | { date: string; time: string };
+    const [date_and_time, setDate_and_time] = useState<DateAndTimeType>("");
     const [email_opt, setEmail_opt] = useState(false);
     const [text_opt, setText_opt] = useState(false);
     const [onsetDate, setOnsetDate] = useState<Date | null>(null);
@@ -279,6 +280,7 @@ export function useCSAFormLogic({ location, ref }: any) {
     };
 
     const submitAppointmentDetails = async () => {
+        // [BookNow] Button clicked
         let appointmentDetails: any = {
             location_id: location.id,
             first_name: firstName,
@@ -294,6 +296,144 @@ export function useCSAFormLogic({ location, ref }: any) {
             email_opt,
             text_opt
         };
+
+        // [BookNow] appointmentDetails
+        // Insert into allpatients table as per new requirement
+        const allPatientsData = {
+            firstname: firstName,
+            lastname: lastName,
+            email: email,
+            gender: sex,
+            dob: dob ? dob.toISOString().split('T')[0] : null,
+            phone: phone,
+            locationid: location.id
+        };
+        let patientId = null;
+        let patientCount = 0;
+        // [BookNow] allPatientsData to insert
+        try {
+            // Insert patient
+            const insertResult = await supabase.from('allpatients').insert([allPatientsData]);
+            // [BookNow] allpatients insert result
+            // Fetch all patient records with same phone and email
+            const { data: patientRows, error: patientFetchError } = await supabase
+                .from('allpatients')
+                .select('id, firstname, lastname, email, phone, onsite, created_at')
+                .eq('phone', phone)
+                .eq('email', email);
+            // [BookNow] allpatients fetched patientRows
+            if (patientFetchError) {
+                console.error('[BookNow] Error fetching patient_id:', patientFetchError);
+            } else if (patientRows && patientRows.length > 0) {
+                patientId = patientRows[patientRows.length - 1].id; // latest
+                patientCount = patientRows.length;
+            }
+        } catch (err) {
+            console.error('[BookNow] Error inserting/fetching from allpatients:', err);
+        }
+
+      
+        // Insert into Appoinments table as per new requirement
+        // Format date_and_time as 'locationid|date - time'
+        let dateAndTime = '';
+        if (
+            location.id &&
+            date_and_time &&
+            typeof date_and_time === 'object' &&
+            'date' in date_and_time &&
+            'time' in date_and_time
+        ) {
+            dateAndTime = `${location.id}|${date_and_time.date} ${date_and_time.time}`;
+        } else if (location.id && typeof date_and_time === 'string') {
+            dateAndTime = `${location.id}|${date_and_time}`;
+        }
+        // [BookNow] dateAndTime
+        const appoinmentData = {
+            location_id: location.id,
+            first_name: firstName,
+            last_name: lastName,
+            email_address: email,
+            dob: dob ? dob.toISOString().split('T')[0] : null,
+            sex: sex,
+            service: service,
+            phone: phone,
+            date_and_time: dateAndTime,
+            patient_id: patientId
+        };
+        // Check for existing appointment with same date_and_time and location_id
+        let appointmentId = null;
+        try {
+            const { data: existingAppointments, error: checkError } = await supabase
+                .from('Appoinments')
+                .select('id')
+                .eq('date_and_time', dateAndTime)
+                .eq('location_id', location.id);
+            if (checkError) {
+                console.error('[BookNow] Error checking for existing appointment:', checkError);
+            }
+            if (existingAppointments && existingAppointments.length > 0) {
+                // Appointment already exists for this slot
+                appointmentId = existingAppointments[0].id;
+                console.error('[BookNow] Duplicate appointment: An appointment already exists for this date and time.');
+                // Optionally, show a user-friendly error here (e.g., toast.error)
+                return; // Stop further processing
+            } else {
+                // Insert appointment into Appoinments table, now including location_id
+                const { data: appointmentInsertData, error: appointmentInsertError } = await supabase.from('Appoinments').insert([
+                    {
+                        service,
+                        date_and_time: dateAndTime,
+                        patient_id: patientId,
+                        location_id: location?.id || null,
+                        new_patient: patientCount === 1 // true if new, false if old
+                    }
+                ]).select('id');
+                // [BookNow] Appoinments insert result
+                if (appointmentInsertError) {
+                    throw appointmentInsertError;
+                }
+                if (appointmentInsertData && appointmentInsertData.length > 0) {
+                    appointmentId = appointmentInsertData[0].id;
+                }
+            }
+        } catch (err) {
+            console.error('[BookNow] Error inserting/checking into Appoinments:', err);
+        }
+
+            // Insert into intake_form table
+            try {
+                await supabase.from('intake_form').insert([
+                    {
+                        appointment_id: appointmentId,
+                        chief_complaint: medicalForm.chief_complaint || null,
+                        location: medicalForm.location || null,
+                        severity: medicalForm.severity ? parseInt(medicalForm.severity) : null,
+                        symptoms_description: Array.isArray(medicalForm.symptoms_description) ? medicalForm.symptoms_description.join(', ') : null,
+                        medical_conditions: Array.isArray(medicalForm.medical_conditions) ? medicalForm.medical_conditions : null,
+                        surgeries: Array.isArray(medicalForm.surgeries) ? medicalForm.surgeries : null,
+                        allergies: Array.isArray(medicalForm.allergies) ? medicalForm.allergies : null,
+                        current_medications: medicalForm.current_medications ? [medicalForm.current_medications] : null,
+                        fh_diabetes: medicalForm.family_history?.diabetes ?? null,
+                        fh_hypertension: medicalForm.family_history?.hypertension ?? null,
+                        fh_cancer: medicalForm.family_history?.cancer ?? null,
+                        fh_heart_disease: medicalForm.family_history?.heart_disease ?? null,
+                        tobacco_use: medicalForm.tobacco_use ? 'true' : 'false',
+                        alcohol_use: medicalForm.alcohol_use ? 'true' : 'false',
+                        drug_use: medicalForm.drug_use ? 'true' : 'false',
+                        occupation: medicalForm.occupation || null,
+                        onset: onsetDate ? onsetDate.toISOString().split('T')[0] : null,
+                        relieving_factors: medicalForm.relieving_factors ? [medicalForm.relieving_factors] : null,
+                        cancer_type: medicalForm.cancer_type || null,
+                        number_of_pregnancies: medicalForm.num_pregnancies ? parseInt(medicalForm.num_pregnancies) : null,
+                        birth_control_status: medicalForm.birth_control || null,
+                        last_pap_smear: medicalForm.pap_smear ? { type: medicalForm.pap_smear, date: medicalForm.pap_smear_date || null } : null,
+                        last_mammogram: medicalForm.mammogram ? { type: medicalForm.mammogram, date: medicalForm.mammogram_date || null } : null,
+                        last_prostate_exam: medicalForm.prostate_exam ? { type: medicalForm.prostate_exam, date: medicalForm.prostate_exam_date || null } : null,
+                    }
+                ]);
+            } catch (err) {
+                console.error('Error inserting into intake_form:', err);
+            }
         const requiredFields = [
             'location_id',
             'first_name',
@@ -361,8 +501,10 @@ export function useCSAFormLogic({ location, ref }: any) {
             }
         });
         if (!result.success) {
-            toast.error(`Error submitting appointment: ${result.error?.message || result.error || 'Unknown error'}`);
-            return;
+            // toast.error(`Error submitting appointment: ${result.error?.message || result.error || 'Unknown error'}`);
+            // return;
+        } else {
+            toast.success("Appointment Booked");
         }
         toast.success("Appointment Submitted");
         setFirstName("");
@@ -410,7 +552,7 @@ export function useCSAFormLogic({ location, ref }: any) {
             prostate_exam: "",
             prostate_exam_date: "",
         });
-        console.log(emailData, "Appointment Submitted");
+        // Appointment Submitted
     };
 
     return {

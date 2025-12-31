@@ -1,4 +1,6 @@
+
 "use client";
+import "@/styles/custom-checkbox.css";
 
 import { styles } from "@/app/[locale]/styles";
 import { supabase } from "@/supabaseClient";
@@ -34,7 +36,7 @@ const RadioButton = ({ value, name, label, checked, onChange }: any) => (
             name={name}
             checked={checked}
             onChange={onChange}
-            className="w-[25px] h-[25px] bg-transparent border-[2px] border-[#000000] hover:bg-[#ccc]"
+            className="custom-radio-orange"
             autoComplete="on"
             autoCorrect="on"
             spellCheck={true}
@@ -100,7 +102,7 @@ const Input = ({
         <input
             type={type}
             placeholder={`${placeholder}`}
-            className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+            className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             autoComplete="on"
@@ -140,7 +142,7 @@ const DatePicker = ({
             placeholderText={placeholder}
             dateFormat="yyyy-MM-dd HH:MM"
             calendarClassName="fixed-calendar-height"
-            className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+            className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
         />
     </div>
 );
@@ -176,7 +178,7 @@ const Dropdown = ({
                 {label}:
             </label>
             <select
-                className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                            className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
             >
@@ -232,7 +234,7 @@ function AllergyTagInput({ allergies, setAllergies, placeholder = "List allergie
     };
 
     return (
-        <div className="w-full min-h-[46px] border-[1px] border-[#000000] rounded-[10px] flex flex-wrap items-center px-2 py-1 bg-transparent mt-2">
+        <div className="w-full min-h-[46px] border-[1px] border-[#E0E0E0] rounded-[10px] flex flex-wrap items-center px-2 py-1 bg-transparent mt-2">
             {allergies.map((tag, idx) => (
                 <span key={tag + idx} className="flex items-center m-1 px-2 py-1 bg-[#C1001F] text-white rounded-full text-xs font-semibold">
                     {tag}
@@ -325,11 +327,11 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
         Self_Appointment.displayName = "Self_Appointment";
     // Debug: log transcript and user speaking state
     return (<>
-        <div className="relative w-screen min-h-screen">
+        <div className="relative w-screen min-h-screen flex justify-start items-start" style={{ backgroundColor: '#EAEAEA', paddingLeft: '40px' }}>
             <div className="md:absolute px-5 md:px-0 pt-4 pb-5 md:py-0 w-full flex justify-end md:top-6 md:right-6">
                 <LanguageChanger locale={locale} />
             </div>
-            <div className="flex flex-row justify-center h-full items-start px-5 md:px-0 gap-8">
+            <div className="flex flex-row justify-start h-full items-start px-5 md:px-0 gap-8">
                 {/**
                  * Sidebar transcript area commented out as requested
                  * <div className="hidden md:flex flex-col w-[350px] min-h-[500px] max-h-[700px] bg-white rounded-lg mt-8 mr-2 p-4">
@@ -339,8 +341,10 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                  * </div>
                  */}
                 {/* Main form content */}
-                <div className="w-full max-w-[800px] rounded-[20px] mt-8 gap-y-5">
-                    <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9">
+                <div
+                    className="w-full max-w-full xl:max-w-[1200px] lg:max-w-[1000px] md:max-w-[800px] sm:max-w-full rounded-[20px] mt-8 gap-y-5 p-8"
+                    style={{ backgroundColor: '#c92222ff' }}>
+                    <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9" style={{ backgroundColor: '#E0E0E0', borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
                         <div className="flex w-full items-center justify-between gap-3">
                             <h1
                                 className={`${styles.sectionHeadText} `}
@@ -381,16 +385,18 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         }
                     })()}
 
-                    <section className="grid md:grid-cols-2 grid-cols-1 place-content-baseline gap-8">
+<section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-8 w-full">
+
+                    <section className="grid md:grid-cols-2 grid-cols-1 place-content-baseline gap-8" style={{ backgroundColor: '#fefefeff', borderRadius: '10px', padding: '24px' }}>
                         {/* Visit Type */}
                         <div className="flex flex-col md:flex-row md:items-center gap-4 mb-2">
                             <label className="text-[16px] text-customGray font-poppins font-bold">Visit Type:</label>
                             <div className="flex flex-row gap-4">
                                 <label className="flex items-center gap-2">
-                                    <input type="radio" name="visitType" value="in_office" checked={inOfficePatient === true} onChange={() => setInOfficePatient(true)} /> In-Office Visit
+                                    <input type="radio" name="visitType" value="in_office" checked={inOfficePatient === true} onChange={() => setInOfficePatient(true)} className="custom-radio-orange" /> In-Office Visit
                                 </label>
                                 <label className="flex items-center gap-2">
-                                    <input type="radio" name="visitType" value="virtual" checked={inOfficePatient === false} onChange={() => setInOfficePatient(false)} /> Virtual Visit
+                                    <input type="radio" name="visitType" value="virtual" checked={inOfficePatient === false} onChange={() => setInOfficePatient(false)} className="custom-radio-orange" /> Virtual Visit
                                 </label>
                             </div>
                         </div>
@@ -399,10 +405,10 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             <label className="text-[16px] text-customGray font-poppins font-bold">Are you a new or returning patient? :</label>
                             <div className="flex flex-row gap-4">
                                 <label className="flex items-center gap-2">
-                                    <input type="radio" name="newReturning" value="new" checked={newPatient === true} onChange={() => setNewPatient(true)} /> new
+                                    <input type="radio" name="newReturning" value="new" checked={newPatient === true} onChange={() => setNewPatient(true)} className="custom-radio-orange" /> new
                                 </label>
                                 <label className="flex items-center gap-2">
-                                    <input type="radio" name="newReturning" value="returning" checked={newPatient === false} onChange={() => setNewPatient(false)} /> returning
+                                    <input type="radio" name="newReturning" value="returning" checked={newPatient === false} onChange={() => setNewPatient(false)} className="custom-radio-orange" /> returning
                                 </label>
                             </div>
                         </div>
@@ -438,7 +444,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 placeholder="Enter your email address"
-                                className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                 autoComplete="on"
                                 autoCorrect="on"
                                 spellCheck={true}
@@ -469,7 +475,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 value={dob ? dob.toISOString().split('T')[0] : ''}
                                 onChange={e => setDob(e.target.value ? new Date(e.target.value) : null)}
                                 max={new Date().toISOString().split('T')[0]}
-                                className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                             />
                         </div>
                         {/* Schedule Date and Time Picker */}
@@ -492,13 +498,13 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         });
                                     }}
                                     min={new Date().toISOString().split('T')[0]}
-                                    className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                    className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                 />
                             </div>
                             <div className="flex flex-col w-full md:w-1/2">
                                 <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Select Schedule Time:</label>
                                 <select
-                                    className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                    className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                     value={(date_and_time as ScheduleDateTime)?.time || ''}
                                     onChange={e => {
                                         const time = e.target.value;
@@ -530,10 +536,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         <div className="col-span-full space-y-4 pt-4">
                             {/* Voice Intake Mic Button below waveform */}
                             <div className="mb-4">
-                                {/**
-                                 * <VoiceIntake setForm={setMedicalForm} onTranscript={onTranscript} vapi={vapi} onUserSpeaking={handleUserSpeaking} />
-                                 * Button commented out as requested
-                                 */}
+                                {/* <VoiceIntake setForm={setMedicalForm} onTranscript={onTranscript} vapi={vapi} onUserSpeaking={handleUserSpeaking} /> */}
+                                {/* Button now commented out and only visible in right-side box */}
                             </div>
                             <h2 className="text-lg font-semibold text-customGray">Medical Information</h2>
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
@@ -552,7 +556,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         value={onsetDate ? onsetDate.toISOString().split('T')[0] : ''}
                                         onChange={e => handleOnsetDateChange(e.target.value ? new Date(e.target.value) : null)}
                                         max={new Date().toISOString().split('T')[0]}
-                                        className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                     />
                                 </div>
                                 <Input
@@ -565,7 +569,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 <div className="flex flex-col items-start w-full justify-center">
                                     <label className="text-[16px] text-customGray font-poppins font-bold">Severity (1-10):</label>
                                     <select
-                                        className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                         value={medicalForm.severity}
                                         onChange={e => handleMedicalChange('severity', e.target.value)}
                                     >
@@ -625,7 +629,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             </label>
                                         </div>
                                         {medicalForm.pap_smear === 'Month & Year' && (
-                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.pap_smear_date || ''} onChange={e => handleMedicalChange('pap_smear_date', e.target.value)} />
+                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.pap_smear_date || ''} onChange={e => handleMedicalChange('pap_smear_date', e.target.value)} />
                                         )}
                                     </div>
                                 )}
@@ -648,7 +652,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             </label>
                                         </div>
                                         {medicalForm.mammogram === 'Month & Year' && (
-                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.mammogram_date || ''} onChange={e => handleMedicalChange('mammogram_date', e.target.value)} />
+                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.mammogram_date || ''} onChange={e => handleMedicalChange('mammogram_date', e.target.value)} />
                                         )}
                                     </div>
                                 )}
@@ -671,7 +675,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             </label>
                                         </div>
                                         {medicalForm.prostate_exam === 'Month & Year' && (
-                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.prostate_exam_date || ''} onChange={e => handleMedicalChange('prostate_exam_date', e.target.value)} />
+                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.prostate_exam_date || ''} onChange={e => handleMedicalChange('prostate_exam_date', e.target.value)} />
                                         )}
                                     </div>
                                 )}
@@ -699,13 +703,10 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                         } else {
                                                             updated = reliefSelect.filter((item: string) => item !== opt);
                                                         }
-                                                        // Only call setReliefSelect with string[]
                                                         setReliefSelect(Array.isArray(updated) ? updated : []);
-                                                        // If "Other" is unchecked, clear reliefOther
                                                         if (!updated.includes('Other')) {
                                                             setReliefOther("");
                                                         }
-                                                        // Update medicalForm.relieving_factors as a comma-separated string (including Other text if present)
                                                         setMedicalForm((prev: typeof medicalForm) => ({
                                                             ...prev,
                                                             relieving_factors: updated
@@ -714,6 +715,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                                 .join(', '),
                                                         }));
                                                     }}
+                                                    className="custom-checkbox-orange"
                                                 />
                                                 {opt}
                                             </label>
@@ -721,7 +723,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     </div>
                                     {reliefSelect.includes('Other') && (
                                         <input
-                                            className="w-full h-[46px] mt-2 border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                            className="w-full h-[46px] mt-2 border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                             placeholder="Describe other relieving factor"
                                             value={reliefOther}
                                             onChange={(e) => {
@@ -767,6 +769,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 value="Yes"
                                                 checked={surgeryChoice === 'Yes'}
                                                 onChange={() => setSurgeryChoice('Yes')}
+                                                className="custom-radio-orange"
                                             />
                                             Yes
                                         </label>
@@ -780,6 +783,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                     setSurgeryChoice('No');
                                                     setMedicalForm((prev: typeof medicalForm) => ({ ...prev, surgeries: '' }));
                                                 }}
+                                                className="custom-radio-orange"
                                             />
                                             No
                                         </label>
@@ -802,6 +806,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 value="Yes"
                                                 checked={allergyChoice === 'Yes'}
                                                 onChange={() => setAllergyChoice('Yes')}
+                                                className="custom-radio-orange"
                                             />
                                             Yes
                                         </label>
@@ -815,6 +820,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                     setAllergyChoice('No');
                                                     setMedicalForm((prev: typeof medicalForm) => ({ ...prev, allergies: [] }));
                                                 }}
+                                                className="custom-radio-orange"
                                             />
                                             No
                                         </label>
@@ -850,6 +856,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                     type="checkbox"
                                                     checked={(medicalForm as any).family_history?.[item.key]}
                                                     onChange={(e) => handleFamilyHistoryChange(item.key, e.target.checked)}
+                                                    className="custom-checkbox-orange"
                                                 />
                                                 {item.label}
                                             </label>
@@ -859,6 +866,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 type="checkbox"
                                                 checked={(medicalForm as any).family_history?.unknown}
                                                 onChange={(e) => handleFamilyHistoryChange('unknown', e.target.checked)}
+                                                className="custom-checkbox-orange"
                                             />
                                             Unknown
                                         </label>
@@ -892,6 +900,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 type="checkbox"
                                                 checked={(medicalForm as any)[item.key]}
                                                 onChange={(e) => handleBooleanFieldChange(item.key, e.target.checked)}
+                                                className="custom-checkbox-orange"
                                             />
                                             {item.label}
                                         </label>
@@ -904,12 +913,12 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         <div className="w-full md:flex justify-between items-center space-y-6 col-span-full mb-5">
                             <div className="space-y-2 md:w-2/3 ">
                                 <div className="flex space-x-2 items-center">
-                                    <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" autoComplete="on" autoCorrect="on" spellCheck={true} /> <h1 className="text-xs">
+                                    <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" className="custom-checkbox-orange" autoComplete="on" autoCorrect="on" spellCheck={true} /> <h1 className="text-xs">
                                         {t("email_consent")}
                                     </h1>
                                 </div>
                                 <div className="flex space-x-2 items-center">
-                                    <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" autoComplete="on" autoCorrect="on" spellCheck={true} /> <h1 className="text-xs">
+                                    <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" className="custom-checkbox-orange" autoComplete="on" autoCorrect="on" spellCheck={true} /> <h1 className="text-xs">
                                         {t("sms_consent")}
                                     </h1>
                                 </div>
@@ -917,10 +926,9 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             </div>
                             <Button
                                 text={t("button_label")}
-
                                 size={{ width: "250px", height: "50px" }}
                                 route={""}
-                                bgColor={"#C1001F"}
+                                bgColor={"#FF7A00"}
                                 textColor={"#ffffff"}
                                 onClick={() => {
                                     submitAppointmentDetails();
@@ -930,6 +938,52 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                     </section>
 
+
+                <section
+                    className="rounded-lg flex flex-col gap-8 pt-6"
+                    style={{
+                        width: '100%',
+                        maxWidth: '420px',
+                        minHeight: '300px',
+                        backgroundColor: '#2f3e46',
+                        boxSizing: 'border-box',
+                        paddingLeft: '16px',
+                        paddingRight: '16px',
+                        paddingBottom: '16px',
+                        overflow: 'hidden',
+                    }}
+                >
+                    <div className="w-full h-32 rounded-md flex items-center justify-center text-black text-lg mt-8" style={{ backgroundColor: '#EAEAEA' }}>
+                            <div className="w-full rounded-md flex flex-col items-start justify-start p-4" style={{ backgroundColor: '#F8F9FA', boxSizing: 'border-box' }}>
+                                <div className="flex items-center mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="50" viewBox="0 0 24 24" fill="#49505A" className="mr-2"><path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z"/></svg>
+                                    <span className="text-2xl font-semibold text-[#49505A]">Voice Intake</span>
+                                </div>
+                                <hr className="w-full border-t border-[#E5E7EB] mb-4" />
+                                   <p className="text-center w-full text-lg text-[#49505A] mb-4">Click the button below and speak to fill the form automatically</p>
+                                   {/* Start Voice Intake Button */}
+                                <button
+                                    type="button"
+                                    className="flex items-center gap-3 px-8 py-3 rounded-full text-white font-semibold text-lg mx-auto mb-2 shadow-md"
+                                    style={{
+                                        background: 'linear-gradient(90deg, #ff7a00 0%, #ff3c00 100%)',
+                                        boxShadow: '0 2px 8px 0 rgba(255,122,0,0.10)',
+                                        border: 'none',
+                                        outline: 'none',
+                                        transition: 'background 0.2s',
+                                    }}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" fill="#fff"/></svg>
+                                    Start Voice Intake
+                                </button>
+                            </div>
+                    </div>
+                    <div className="w-full h-32 bg-[#37434a] rounded-md flex items-center justify-center text-white text-lg mt-2" style={{ outline: '2px solid yellow', outlineOffset: '-2px', boxSizing: 'border-box' }}>
+                        Second Box (yellow outline)
+                    </div>
+                </section>
+
+</section>
 
 
                 </div>

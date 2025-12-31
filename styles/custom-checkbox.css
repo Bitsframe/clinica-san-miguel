@@ -1,0 +1,65 @@
+/* Custom orange radio button with white dot */
+.custom-radio-orange {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid #FF7A00;
+  border-radius: 50%;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.custom-radio-orange:checked {
+  background: #FF7A00;
+  border-color: #FF7A00;
+}
+.custom-radio-orange:checked::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+}
+/* Custom orange round checkbox with white tick */
+
+.custom-checkbox-orange {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid #FF7A00;
+  border-radius: 6px;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.custom-checkbox-orange:checked {
+  background: #FF7A00;
+  border-color: #FF7A00;
+}
+.custom-checkbox-orange:checked::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 12px;
+  border: solid #fff;
+  border-width: 0 3px 3px 0;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}

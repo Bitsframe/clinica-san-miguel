@@ -64,23 +64,26 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
         return timeSlots;
     };
 
-   useEffect(() => {
-    if (date) {
-        const timingKey = getTimingKey(date);
-        const timings = data[timingKey];
 
-        if (timings && timings.toLowerCase() !== 'closed') {
-        const timeSlots = generateTimeSlots(timings);
-        setAvailableTimes(timeSlots);
-        setIsClosed(false);
-        } else {
-        setAvailableTimes([]);
-        setIsClosed(true);
+    useEffect(() => {
+        if (date) {
+            const timingKey = getTimingKey(date);
+            const timings = data[timingKey];
+
+            if (timings && timings.toLowerCase() !== 'closed') {
+                const timeSlots = generateTimeSlots(timings);
+                setAvailableTimes(timeSlots);
+                setIsClosed(false);
+            } else {
+                setAvailableTimes([]);
+                setIsClosed(true);
+            }
+            // Only reset slot if the date actually changes
+            setSelectedSlot('');
+            selectDateTimeSlotHandle(date, '');
         }
-    }
-    setSelectedSlot('');
-    selectDateTimeSlotHandle('');
-    }, [date, data, selectDateTimeSlotHandle]); 
+    // Only run when date changes, not data or handler
+    }, [date]);
 
 
     const dateTimeChangeHandle = (date: Date) => {
@@ -88,8 +91,8 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
     }
 
     const selectSlotHandle = (val:string) => {
-        setSelectedSlot(val)
-        selectDateTimeSlotHandle(date, val)
+        setSelectedSlot(val);
+        selectDateTimeSlotHandle(date, val);
     }
 
     return (

@@ -1,25 +1,16 @@
 "use client";
-
-import { styles } from "@/app/[locale]/styles";
-import { supabase } from "@/supabaseClient";
-import { Button } from "@/utils";
 import { Label, Modal, Select } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
-import { TuiDatePicker } from "nextjs-tui-date-picker";
-import { useEffect, useState } from "react";
-import moment from "moment";
-
 import ReactDatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import ScheduleDateTime from "./ScheduleDateTime";
-import { validateFormData } from "@/utils/validationCheck";
 import { usStates } from "@/utils/us-states";
 import PhoneNumberInput from "../CSAForm/PhoneNumberInput";
-import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
-import { sendEmail } from "@/utils/emailService";
-
-import { submitAppointmentFlow } from "@/lib/submitAppointment";
-import VoiceIntake from "../VoiceIntake";
+import { supabase } from "../../supabaseClient";
+import { styles } from "../../app/[locale]/styles";
+import { Button } from "../../utils/Button";
+import { useRequestAppointmentLogic, medicalFields, perPage } from "./logic";
 
 const RadioButton = ({ value, name, label, checked, onChange }: any) => (
   <div className="flex items-center justify-start gap-3">
@@ -112,17 +103,14 @@ const DatePicker = ({
   breakpoint,
   value,
   onChange,
-
-
+  maxDate,
 }: {
   label: string;
   placeholder: string;
   breakpoint: boolean;
   value: Date | null;
   onChange: (value: Date | null) => void;
-
-
-
+  maxDate?: Date | null;
 }) => (
   <div
     className={`flex flex-col items-start w-full ${breakpoint ? "md:w-1/2" : ""
@@ -138,7 +126,7 @@ const DatePicker = ({
       placeholderText={placeholder}
       dateFormat="yyyy-MM-dd"
       popperPlacement="bottom-start"
-      calendarClassName="fixed-calendar-height"
+      maxDate={maxDate}
       className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
     />
  
@@ -193,459 +181,77 @@ export const RequestAppointment = ({
   const t = useTranslations("appoinment_form");
   const locale = useLocale();
 
-  const tableName = locale === "es" ? "services_es" : "services";
-
-  // const [openModal, setOpenModal] = useState(false);
-
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [dob, setDob] = useState<Date | null>(null);
-  const [sex, setSex] = useState("");
-  const [services, setServices] = useState<string[] | null | undefined>([]);
-  const [state, setState] = useState('')
-  const [zipcode, setzipcode] = useState('')
-  const [street_address, setStreet_address] = useState('')
-  const [service, setService] = useState("");
-
-  // Set default service if not set and services are loaded
-  useEffect(() => {
-    if (!service && services && services.length > 0) {
-      setService(services[0]);
-    }
-  }, [services, service]);
-  const [phone, setPhone] = useState("");
-  const [inOfficePatient, setInOfficePatient] = useState("");
-  const [newPatient, setNewPatient] = useState("");
-  const [date_and_time, setDate_and_time] = useState("");
-  const [email_opt, setEmail_opt] = useState(false)
-  const [text_opt, setText_opt] = useState(false)
-  const [page, setPage] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [onsetDate, setOnsetDate] = useState<Date | null>(null);
-  const [reliefOther, setReliefOther] = useState("");
-  const [reliefSelect, setReliefSelect] = useState("");
-  const [surgeryChoice, setSurgeryChoice] = useState("");
-  const [allergyChoice, setAllergyChoice] = useState("");
-
-  const [medicalForm, setMedicalForm] = useState({
-    chief_complaint: "",
-    onset: "",
-    duration: "",
-    location: "",
-    severity: "",
-    symptoms_description: "",
-    relieving_factors: "",
-    medical_conditions: "",
-    surgeries: "",
-    allergies: "",
-    current_medications: "",
-    family_history: {
-      hypertension: false,
-      diabetes: false,
-      cancer: false,
-      heart_disease: false,
-        unknown: false,
-    },
-    tobacco_use: false,
-    alcohol_use: false,
-    drug_use: false,
-    occupation: "",
-    cancer_type: "",
-  });
-
-  const handleMedicalChange = (key: string, value: string) => {
-    setMedicalForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const medicalFields = [
-    { key: 'chief_complaint', label: 'Reason for Visit' },
-    { key: 'onset', label: 'how long are you feeling this?' },
-    { key: 'duration', label: 'Duration' },
-    { key: 'location', label: 'Location' },
-    { key: 'severity', label: 'Severity' },
-    { key: 'symptoms_description', label: 'Symptom Details' },
-    { key: 'relieving_factors', label: 'Relieving Factors' },
-    { key: 'medical_conditions', label: 'Medical Conditions' },
-    { key: 'surgeries', label: 'Surgeries' },
-    { key: 'allergies', label: 'Allergies' },
-    { key: 'current_medications', label: 'Current Medications' },
-    // family history is a checkbox group rendered separately
-    // tobacco/alcohol/drug use are rendered as checkbox flags on the first medical page
-    { key: 'occupation', label: 'Occupation' },
-  ];
-
-  const handleFamilyHistoryChange = (key: string, checked: boolean) => {
-    setMedicalForm((prev: any) => {
-      // If "unknown" is selected, clear all other flags
-      if (key === 'unknown' && checked) {
-        return {
-          ...prev,
-          cancer_type: '',
-          family_history: {
-            hypertension: false,
-            diabetes: false,
-            cancer: false,
-            heart_disease: false,
-            unknown: true,
-          },
-        };
-      }
-
-      // If selecting any specific history, unset unknown
-      const nextFamily = {
-        ...prev.family_history,
-        [key]: checked,
-        unknown: key === 'unknown' ? checked : false,
-      };
-
-      // Clear cancer type when cancer unchecked or unknown toggled off all
-      const nextCancerType =
-        key === 'cancer' && !checked ? '' : prev.cancer_type;
-
-      return {
-        ...prev,
-        cancer_type: nextFamily.cancer ? nextCancerType : '',
-        family_history: nextFamily,
-      };
-    });
-  };
-
-  const handleBooleanFieldChange = (key: string, checked: boolean) => {
-    setMedicalForm((prev: any) => ({ ...prev, [key]: checked }));
-  };
-
-  const handleOnsetDateChange = (date: Date | null) => {
-    setOnsetDate(date);
-    if (!date) {
-      setMedicalForm((prev) => ({ ...prev, onset: "", duration: "" }));
-      return;
-    }
-
-    const selected = moment(date).startOf('day');
-    const today = moment().startOf('day');
-    const diffDays = today.diff(selected, 'days');
-
-    const formatDuration = (days: number) => {
-      if (days === 0) return 'Today';
-      const years = Math.floor(days / 365);
-      const remainingDays = days % 365;
-      const months = Math.floor(remainingDays / 30);
-      const finalDays = remainingDays % 30;
-
-      const parts: string[] = [];
-      if (years > 0) parts.push(`${years} year${years > 1 ? 's' : ''}`);
-      if (months > 0) parts.push(`${months} month${months > 1 ? 's' : ''}`);
-      if (finalDays > 0) parts.push(`${finalDays} day${finalDays > 1 ? 's' : ''}`);
-
-      return `${parts.join(', ')} ago`;
-    };
-
-    const durationLabel = formatDuration(diffDays);
-
-    setMedicalForm((prev) => ({
-      ...prev,
-      onset: selected.format('YYYY-MM-DD'),
-      duration: durationLabel,
-    }));
-  };
-
-  const perPage = 8; // fields per medical page - adjust as needed
-  const medicalPages = Math.max(1, Math.ceil(medicalFields.length / perPage));
-  const totalPages = 1 + medicalPages; // 1 for appointment page
-
   const visitType = [t("form_f1a"), t("form_f1b")];
   const patientType = [t("form_f2a"), t("form_f2b")];
   const genderOptions = [t("form_f8a"), t("form_f8b"), t("form_f8c")];
 
-  console.log(detailedData)
-
-  // Test helper to quickly populate fields for QA/debugging
-  const fillTestData = () => {
-    const onsetSampleDate = new Date('2025-12-18');
-    const sample = {
-      first_name: 'Test',
-      last_name: 'Patient',
-      email_address: 'test@example.com',
-      phone: '+1 (555) 123-4567',
-      dob: new Date('1990-05-10'),
-      sex: genderOptions[0] || 'Male',
-      state: 'Texas',
-      zipcode: '75001',
-      street_address: '123 Demo Street',
-      service: services?.[0] || 'Test Service',
-      visit_type: visitType[0] || '',
-      patient_type: patientType[0] || '',
-      date_and_time: `${detailedData?.[0]?.id || locationID}|20-12-2025 - 10:00 AM`,
-      email_opt_in: true,
-      text_opt_in: true,
-      medical: {
-        chief_complaint: 'Shortness of breath',
-        onsetDate: onsetSampleDate,
-        location: 'Chest',
-        severity: '6',
-        symptoms_description:
-          'Patient reports difficulty breathing, worse with exertion and when lying flat',
-        relieving_select: 'Other',
-        relieving_other: 'Sitting upright provides mild relief',
-        medical_conditions: ['Asthma'],
-        surgeries: 'Appendectomy (2015)',
-        surgeries_choice: 'Yes',
-        allergies: 'Penicillin',
-        allergies_choice: 'Yes',
-        current_medications: ['Albuterol inhaler'],
-        fh_diabetes: false,
-        fh_hypertension: true,
-        fh_cancer: true,
-        fh_heart_disease: false,
-        fh_unknown: false,
-        cancer_type: 'Carcinoma',
-        tobacco_use: false,
-        alcohol_use: false,
-        drug_use: false,
-        occupation: 'Teacher',
-      },
-    };
-
-    setFirstName(sample.first_name);
-    setLastName(sample.last_name);
-    setEmail(sample.email_address);
-    setPhone(sample.phone);
-    setDob(sample.dob);
-    setSex(sample.sex);
-    setState(sample.state);
-    setzipcode(sample.zipcode);
-    setStreet_address(sample.street_address);
-    setService(sample.service as string);
-    setInOfficePatient(sample.visit_type);
-    setNewPatient(sample.patient_type);
-    setDate_and_time(sample.date_and_time);
-    setEmail_opt(sample.email_opt_in);
-    setText_opt(sample.text_opt_in);
-    setReliefSelect(sample.medical.relieving_select);
-    setReliefOther(sample.medical.relieving_other);
-    setSurgeryChoice(sample.medical.surgeries_choice);
-    setAllergyChoice(sample.medical.allergies_choice);
-
-    // Set onset/duration via existing handler for consistent formatting
-    handleOnsetDateChange(sample.medical.onsetDate);
-
-    setMedicalForm((prev) => ({
-      ...prev,
-      chief_complaint: sample.medical.chief_complaint,
-      location: sample.medical.location,
-      severity: sample.medical.severity,
-      symptoms_description: sample.medical.symptoms_description,
-      relieving_factors:
-        sample.medical.relieving_select === 'Other'
-          ? sample.medical.relieving_other
-          : sample.medical.relieving_select,
-      medical_conditions: sample.medical.medical_conditions.join(', '),
-      surgeries: sample.medical.surgeries,
-      allergies: sample.medical.allergies,
-      current_medications: sample.medical.current_medications.join(', '),
-      family_history: {
-        hypertension: sample.medical.fh_hypertension,
-        diabetes: sample.medical.fh_diabetes,
-        cancer: sample.medical.fh_cancer,
-        heart_disease: sample.medical.fh_heart_disease,
-        unknown: sample.medical.fh_unknown,
-      },
-      tobacco_use: sample.medical.tobacco_use,
-      alcohol_use: sample.medical.alcohol_use,
-      drug_use: sample.medical.drug_use,
-      occupation: sample.medical.occupation,
-      cancer_type: sample.medical.cancer_type,
-    }));
-
-    setPage(1);
-  };
-
-
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      let { data, error } = await supabase.from(tableName).select("title");
-
-      if (data) {
-        const serviceData = data.map((item: any) => item.title);
-        setServices(serviceData);
-      }
-    };
-
-    fetchServices();
-  }, [tableName]);
-
-  const submitAppointmentDetails = async () => {
-    if (isSubmitting) return;
-
-    let appointmentDetails: any = {
-      location_id: locationID,
-      first_name: firstName,
-      last_name: lastName,
-      email_address: email,
-      in_office_patient: false,
-      new_patient: newPatient === "new" || false,
-      dob: dob,
-      sex: sex,
-      phone: phone,
-      service: service,
-      date_and_time,
-      email_opt,
-      text_opt
-    };
-
-    const requiredFields = [
-      "location_id",
-      "first_name",
-      "last_name",
-      "email_address",
-      "phone",
-      "dob",
-      'state',
-      'zipcode',
-      'street_address',
-      "sex",
-      "date_and_time",
-      "service",
-    ];
-
-    const validateData = validateFormData({ ...appointmentDetails, email: email, state, zipcode, street_address }, true)
-
-    if (!validateData) {
-      return
-    }
-
-
-    for (const field of requiredFields) {
-      if (field === "service") {
-        // If service is set and is in the list, don't require re-selection
-        if (!service || (services && services.length > 0 && !services.includes(service))) {
-          toast.warning(`Please select a valid service`);
-          return;
-        }
-      } else if (!{ ...appointmentDetails, email: email, state, zipcode, street_address }[field]) {
-        toast.warning(`Please fill in the ${field}`);
-        return;
-      }
-    }
-
-
-
-
-    const postData = {
-      ...appointmentDetails,
-      address: `${street_address}, ${state}, ${zipcode}`,
-      date_and_time,
-    }
-
-    setIsSubmitting(true);
-
-    const lang = locale
-    const emailType = EmailBodyTempEnum.APPOINTMENT_CONFIRMATION
-    const { email_address, first_name, last_name, service: svc, date_and_time: dt } = appointmentDetails
-    const emailData: any = {
-      email: email_address,
-      name: `${first_name} ${last_name}`,
-      location: detailedData[0],
-      service: svc,
-      date: dt ? dt?.split?.('|')?.[1]?.split?.(' - ')?.[0] : '-',
-      time: dt ? dt?.split?.(' - ')?.[1] : '-'
-
-    }
-    emailData.medical_info = medicalForm;
-
-    const result = await submitAppointmentFlow({
-      supabase,
-      postData,
-      medicalForm,
-      onsetDate,
-      reliefSelect,
-      reliefOther,
-      surgeryChoice,
-      allergyChoice,
-      options: {
-        primaryTable: 'Appoinments',
-        duplicateCheck: { location_id: locationID, date_and_time },
-        invokeEdge: true,
-        email: {
-          sendEmail,
-          emailType,
-          lang,
-          emailData,
-        },
-      },
-    });
-
-    if (!result.success) {
-      if ((result.error as any)?.message === 'slot_unavailable') {
-        toast.error(`Sorry, Appointment time slot is not available, Please select any other time slot`);
-      } else if (result.error) {
-        toast.error(`Error submitting appointment: ${result.error.message || result.error}`);
-      }
-      setIsSubmitting(false);
-      return;
-    }
-
-    toast.success("Appointment Submitted");
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setDob(null);
-    setSex("");
-    setService("");
-    setPhone("");
-    setInOfficePatient("");
-    setNewPatient("");
-    setDate_and_time("");
-    setEmail_opt(false)
-    setText_opt(false)
-    setReliefOther("");
-    setReliefSelect("");
-    setSurgeryChoice("");
-    setAllergyChoice("");
-    setMedicalForm({
-      chief_complaint: "",
-      onset: "",
-      duration: "",
-      location: "",
-      severity: "",
-      symptoms_description: "",
-      relieving_factors: "",
-      medical_conditions: "",
-      surgeries: "",
-      allergies: "",
-      current_medications: "",
-      cancer_type: "",
-      family_history: { hypertension: false, diabetes: false, cancer: false, heart_disease: false, unknown: false },
-      tobacco_use: false,
-      alcohol_use: false,
-      drug_use: false,
-      occupation: "",
-    });
-    setPage(1);
-    handleClose();
-    console.log(emailData, "Appointment Submitted");
-    setIsSubmitting(false);
-  };
-
-
-  // Preserve selected date and slot between pages
-  const [scheduleDate, setScheduleDate] = useState<Date | null>(null);
-  const [scheduleSlot, setScheduleSlot] = useState<string>("");
-  const selectDateTimeSlotHandle = (date: Date | '', time?: string | '') => {
-    if (date && time) {
-      setScheduleDate(date as Date);
-      setScheduleSlot(time as string);
-      const formated_date = moment(date).format('DD-MM-YYYY')
-      const createSlotForDB = `${detailedData?.[0]?.id}|${formated_date} - ${time}`
-      setDate_and_time(createSlotForDB)
-    } else {
-      setScheduleDate(date ? (date as Date) : null);
-      setScheduleSlot("");
-      setDate_and_time("");
-    }
-  }
+  const {
+    // State
+    firstName,
+    lastName,
+    email,
+    dob,
+    sex,
+    state,
+    zipcode,
+    street_address,
+    service,
+    phone,
+    inOfficePatient,
+    newPatient,
+    date_and_time,
+    email_opt,
+    text_opt,
+    page,
+    isSubmitting,
+    onsetDate,
+    reliefOther,
+    reliefSelect,
+    surgeryChoice,
+    allergyChoice,
+    medicalForm,
+    scheduleDate,
+    scheduleSlot,
+    servicesState,
+    totalPages,
+    // Setters
+    setFirstName,
+    setLastName,
+    setEmail,
+    setDob,
+    setSex,
+    setState,
+    setzipcode,
+    setStreet_address,
+    setService,
+    setPhone,
+    setInOfficePatient,
+    setNewPatient,
+    setPage,
+    setEmail_opt,
+    setText_opt,
+    setReliefOther,
+    setReliefSelect,
+    setSurgeryChoice,
+    setAllergyChoice,
+    setMedicalForm,
+    // Handlers
+    handleMedicalChange,
+    handleFamilyHistoryChange,
+    handleBooleanFieldChange,
+    handleOnsetDateChange,
+    selectDateTimeSlotHandle,
+    submitAppointmentDetails,
+    fillTestData,
+  } = useRequestAppointmentLogic({
+    detailedData,
+    locationID,
+    locale,
+    handleClose,
+    visitType,
+    patientType,
+    genderOptions,
+  });
   return (
     <>
       {/* <Button onClick={() => setOpenModal(true)}>Toggle modal</Button> */}
@@ -741,6 +347,7 @@ export const RequestAppointment = ({
                     breakpoint={false}
                     onChange={setDob}
                     value={dob}
+                    maxDate={new Date()}
                   />
                 </div>
               </article>
@@ -786,7 +393,7 @@ export const RequestAppointment = ({
               <div className="flex flex-col md:flex-row justify-start w-full gap-5 items-center">
                 <Dropdown
                   label={t("form_f10")}
-                  options={services}
+                  options={servicesState}
                   breakpoint={true}
                   onChange={setService}
                   value={service}
@@ -815,7 +422,7 @@ export const RequestAppointment = ({
               <section className="flex flex-col px-5 justify-start items-start gap-4 p-4">
                 {/* Vapi Voice Intake mic button for medical info autofill */}
                 <div className="mb-4 w-full">
-                  <VoiceIntake setForm={setMedicalForm} setOnsetDate={setOnsetDate} />
+                  {/* <VoiceIntake setForm={setMedicalForm} setOnsetDate={setOnsetDate} /> */}
                 </div>
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
                   {(() => {
@@ -868,7 +475,7 @@ export const RequestAppointment = ({
                               <span className="text-[14px]">Heart Disease</span>
                             </label>
                             <label className="flex items-center gap-2">
-                              <input type="radio" name="fh-unknown" checked={(medicalForm as any).family_history?.unknown || false} onChange={(e) => handleFamilyHistoryChange('unknown', e.target.checked)} />
+                              <input type="checkbox" checked={(medicalForm as any).family_history?.unknown || false} onChange={(e) => handleFamilyHistoryChange('unknown', e.target.checked)} />
                               <span className="text-[14px]">Unknown</span>
                             </label>
                           </div>
@@ -896,214 +503,280 @@ export const RequestAppointment = ({
                       );
                     }
 
-                    elems.push(...pageFields.map((f) => (
-                      f.key === 'onset' ? (
-                        <div key={f.key} className="flex flex-col items-start w-full justify-center">
-                          <label className="text-[16px] text-customGray font-poppins font-bold">
-                            {f.label}:
-                          </label>
-                          {/* @ts-ignore */}
-                          <ReactDatePicker
-                            selected={onsetDate}
-                            onChange={(date) => handleOnsetDateChange(date)}
-                            placeholderText={"Select onset date"}
-                            dateFormat="yyyy-MM-dd"
-                            maxDate={new Date()}
-                            className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                    pageFields.forEach((f) => {
+                      // Preventive & Reproductive History (age/sex based)
+                      const getAge = () => {
+                        if (!dob) return null;
+                        const today = new Date();
+                        let age = today.getFullYear() - dob.getFullYear();
+                        const m = today.getMonth() - dob.getMonth();
+                        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+                        return age;
+                      };
+                      const age = getAge();
+                      const isFemale = sex?.toLowerCase() === 'female';
+                      const isMale = sex?.toLowerCase() === 'male';
+
+                      // Number of Pregnancies: Female, 15-55
+                      if (f.key === 'num_pregnancies' && (!isFemale || !age || age < 15 || age > 55)) return;
+                      // Birth Control: Female, 15-55
+                      if (f.key === 'birth_control' && (!isFemale || !age || age < 15 || age > 55)) return;
+                      // Last Pap Smear: Female, >=21
+                      if (f.key === 'pap_smear' && (!isFemale || !age || age < 21)) return;
+                      // Last Mammogram: Female, >=40
+                      if (f.key === 'mammogram' && (!isFemale || !age || age < 40)) return;
+                      // Last Prostate Exam: Male, >=50
+                      if (f.key === 'prostate_exam' && (!isMale || !age || age < 50)) return;
+
+                      let elem = null;
+                      if (f.key === 'onset') {
+                        elem = (
+                          <div key={f.key} className="flex flex-col items-start w-full justify-center">
+                            <label className="text-[16px] text-customGray font-poppins font-bold">
+                              {f.label}:
+                            </label>
+                            {/* @ts-ignore */}
+                            <ReactDatePicker
+                              selected={onsetDate}
+                              onChange={(date) => handleOnsetDateChange(date)}
+                              placeholderText={"Select onset date"}
+                              dateFormat="yyyy-MM-dd"
+                              maxDate={new Date()}
+                              className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                            />
+                          </div>
+                        );
+                      } else if (f.key === 'duration') {
+                        elem = (
+                          <Input
+                            key={f.key}
+                            label={f.label}
+                            placeholder={""}
+                            breakpoint={false}
+                            value={(medicalForm as any)[f.key]}
+                            onChange={() => { }}
                           />
-                        </div>
-                      ) : f.key === 'duration' ? (
-                        <Input
-                          key={f.key}
-                          label={f.label}
-                          placeholder={""}
-                          breakpoint={false}
-                          value={(medicalForm as any)[f.key]}
-                          onChange={() => { }}
-                        />
-                      ) : f.key === 'relieving_factors' ? (
-                        <div key={f.key} className="flex flex-col items-start w-full justify-center gap-2">
-                          <label className="text-[16px] text-customGray font-poppins font-bold">
-                            {f.label}:
-                          </label>
-                          <select
-                            className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                            value={reliefSelect}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setReliefSelect(val);
-                              if (val === 'Other') {
-                                setReliefOther('');
-                                setMedicalForm((prev) => ({ ...prev, relieving_factors: '' }));
-                              } else {
-                                setReliefOther('');
-                                setMedicalForm((prev) => ({ ...prev, relieving_factors: val }));
-                              }
-                            }}
-                          >
-                            <option value="">Select relieving factor</option>
-                            {[
-                              'Rest',
-                              'Change in position',
-                              'Medications',
-                              'Heat or cold application',
-                              'Movement or activity',
-                              'Support or compression',
-                              'Time',
-                              'Other'
-                            ].map((opt) => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
-                          {reliefSelect === 'Other' && (
-                            <input
-                              autoCorrect="on"
-                              spellCheck={true}
-                              autoCapitalize="sentences"
+                        );
+                      } else if (f.key === 'relieving_factors') {
+                        elem = (
+                          <div key={f.key} className="flex flex-col items-start w-full justify-center gap-2">
+                            <label className="text-[16px] text-customGray font-poppins font-bold">
+                              {f.label}:
+                            </label>
+                            <div className="flex flex-wrap gap-4">
+                              {[
+                                'Rest',
+                                'Ice',
+                                'Heat',
+                                'Elevation',
+                                'Medication',
+                                'Stretching',
+                                'Massage',
+                                'Support or compression',
+                                'Time',
+                                'Other'
+                              ].map((opt) => (
+                                <label key={opt} className="flex items-center gap-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={Array.isArray(medicalForm.relieving_factors) ? medicalForm.relieving_factors.includes(opt) : false}
+                                    onChange={e => {
+                                      let newArr = Array.isArray(medicalForm.relieving_factors) ? [...medicalForm.relieving_factors] : [];
+                                      if (e.target.checked) {
+                                        newArr.push(opt);
+                                      } else {
+                                        newArr = newArr.filter(item => item !== opt);
+                                      }
+                                      setMedicalForm(prev => ({ ...prev, relieving_factors: newArr }));
+                                    }}
+                                  />
+                                  {opt}
+                                </label>
+                              ))}
+                            </div>
+                            {Array.isArray(medicalForm.relieving_factors) && medicalForm.relieving_factors.includes('Other') && (
+                              <input
+                                autoCorrect="on"
+                                spellCheck={true}
+                                autoCapitalize="sentences"
+                                className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                placeholder="Describe other relieving factor"
+                                value={reliefOther}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setReliefOther(val);
+                                  setMedicalForm((prev) => ({ ...prev, relieving_factors_other: val }));
+                                }}
+                              />
+                            )}
+                          </div>
+                        );
+                      } else if (f.key === 'surgeries') {
+                        elem = (
+                          <div key={f.key} className="flex flex-col items-start w-full justify-center gap-2">
+                            <label className="text-[16px] text-customGray font-poppins font-bold">
+                              {f.label}:
+                            </label>
+                            <div className="flex flex-row gap-6 mb-2 mt-1">
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="surgeries"
+                                  value="Yes"
+                                  checked={surgeryChoice === 'Yes'}
+                                  onChange={() => {
+                                    setSurgeryChoice('Yes');
+                                    setMedicalForm((prev) => ({ ...prev, surgeries: prev.surgeries || '' }));
+                                  }}
+                                />
+                                Yes
+                              </label>
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="surgeries"
+                                  value="No"
+                                  checked={surgeryChoice === 'No'}
+                                  onChange={() => {
+                                    setSurgeryChoice('No');
+                                    setMedicalForm((prev) => ({ ...prev, surgeries: '' }));
+                                  }}
+                                />
+                                No
+                              </label>
+                            </div>
+                            {surgeryChoice === 'Yes' && (
+                              <input
+                                autoCorrect="on"
+                                spellCheck={true}
+                                autoCapitalize="sentences"
+                                className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                placeholder="Type of surgery"
+                                value={(medicalForm as any).surgeries}
+                                onChange={(e) => handleMedicalChange('surgeries', e.target.value)}
+                              />
+                            )}
+                          </div>
+                        );
+                      } else if (f.key === 'allergies') {
+                        elem = (
+                          <div key={f.key} className="flex flex-col items-start w-full justify-center gap-2">
+                            <label className="text-[16px] text-customGray font-poppins font-bold">
+                              {f.label}:
+                            </label>
+                            <div className="flex flex-row gap-6 mb-2 mt-1">
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="allergies"
+                                  value="Yes"
+                                  checked={allergyChoice === 'Yes'}
+                                  onChange={() => {
+                                    setAllergyChoice('Yes');
+                                    setMedicalForm((prev) => ({ ...prev, allergies: prev.allergies || '' }));
+                                  }}
+                                />
+                                Yes
+                              </label>
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="allergies"
+                                  value="No"
+                                  checked={allergyChoice === 'No'}
+                                  onChange={() => {
+                                    setAllergyChoice('No');
+                                    setMedicalForm((prev) => ({ ...prev, allergies: '' }));
+                                  }}
+                                />
+                                No
+                              </label>
+                            </div>
+                            {allergyChoice === 'Yes' && (
+                              <input
+                                autoCorrect="on"
+                                spellCheck={true}
+                                autoCapitalize="sentences"
+                                className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                placeholder="List allergies"
+                                value={(medicalForm as any).allergies}
+                                onChange={(e) => handleMedicalChange('allergies', e.target.value)}
+                              />
+                            )}
+                          </div>
+                        );
+                      } else if (f.key === 'occupation') {
+                        elem = (
+                          <div key={f.key} className="flex flex-col items-start w-full justify-center">
+                            <label className="text-[16px] text-customGray font-poppins font-bold">
+                              {f.label}:
+                            </label>
+                            <select
                               className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                              placeholder="Describe other relieving factor"
-                              value={reliefOther}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setReliefOther(val);
-                                setMedicalForm((prev) => ({ ...prev, relieving_factors: val }));
-                              }}
-                            />
-                          )}
-                        </div>
-                      ) : f.key === 'surgeries' ? (
-                        <div key={f.key} className="flex flex-col items-start w-full justify-center gap-2">
-                          <label className="text-[16px] text-customGray font-poppins font-bold">
-                            {f.label}:
-                          </label>
-                          <select
-                            className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                            value={surgeryChoice}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setSurgeryChoice(val);
-                              if (val === 'Yes') {
-                                setMedicalForm((prev) => ({ ...prev, surgeries: prev.surgeries || '' }));
-                              } else {
-                                setMedicalForm((prev) => ({ ...prev, surgeries: '' }));
-                              }
-                            }}
-                          >
-                            <option value="">Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                          </select>
-                          {surgeryChoice === 'Yes' && (
-                            <input
-                              autoCorrect="on"
-                              spellCheck={true}
-                              autoCapitalize="sentences"
+                              value={(medicalForm as any)[f.key]}
+                              onChange={(e) => handleMedicalChange(f.key, e.target.value)}
+                            >
+                              <option value="">Select occupation</option>
+                              {[
+                                'Businessman / Businesswoman',
+                                'Employee / Office worker',
+                                'Student',
+                                'Teacher',
+                                'Doctor',
+                                'Nurse',
+                                'Engineer',
+                                'Laborer / Worker',
+                                'Farmer',
+                                'Shopkeeper',
+                                'Driver',
+                                'Technician',
+                                'Accountant',
+                                'Salesperson',
+                                'Self-employed',
+                                'Homemaker / Housewife',
+                                'Unemployed',
+                                'Retired',
+                                'Government employee',
+                                'Private employee',
+                                'Other'
+                              ].map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                          </div>
+                        );
+                      } else if (f.key === 'severity') {
+                        elem = (
+                          <div key={f.key} className="flex flex-col items-start w-full justify-center">
+                            <label className="text-[16px] text-customGray font-poppins font-bold">
+                              {f.label}:
+                            </label>
+                            <select
                               className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                              placeholder="Type of surgery"
-                              value={(medicalForm as any).surgeries}
-                              onChange={(e) => handleMedicalChange('surgeries', e.target.value)}
-                            />
-                          )}
-                        </div>
-                      ) : f.key === 'allergies' ? (
-                        <div key={f.key} className="flex flex-col items-start w-full justify-center gap-2">
-                          <label className="text-[16px] text-customGray font-poppins font-bold">
-                            {f.label}:
-                          </label>
-                          <select
-                            className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                            value={allergyChoice}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setAllergyChoice(val);
-                              if (val === 'Yes') {
-                                setMedicalForm((prev) => ({ ...prev, allergies: prev.allergies || '' }));
-                              } else {
-                                setMedicalForm((prev) => ({ ...prev, allergies: '' }));
-                              }
-                            }}
-                          >
-                            <option value="">Select</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                          </select>
-                          {allergyChoice === 'Yes' && (
-                            <input
-                              autoCorrect="on"
-                              spellCheck={true}
-                              autoCapitalize="sentences"
-                              className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                              placeholder="List allergies"
-                              value={(medicalForm as any).allergies}
-                              onChange={(e) => handleMedicalChange('allergies', e.target.value)}
-                            />
-                          )}
-                        </div>
-                      ) : f.key === 'occupation' ? (
-                        <div key={f.key} className="flex flex-col items-start w-full justify-center">
-                          <label className="text-[16px] text-customGray font-poppins font-bold">
-                            {f.label}:
-                          </label>
-                          <select
-                            className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                              value={(medicalForm as any)[f.key]}
+                              onChange={(e) => handleMedicalChange(f.key, e.target.value)}
+                            >
+                              <option value="">Select severity (1-10)</option>
+                              {[...Array(10)].map((_, idx) => (
+                                <option key={idx+1} value={(idx+1).toString()}>{idx+1}</option>
+                              ))}
+                            </select>
+                          </div>
+                        );
+                      } else {
+                        elem = (
+                          <Input
+                            key={f.key}
+                            label={f.label}
+                            placeholder={""}
+                            breakpoint={false}
                             value={(medicalForm as any)[f.key]}
-                            onChange={(e) => handleMedicalChange(f.key, e.target.value)}
-                          >
-                            <option value="">Select occupation</option>
-                            {[
-                              'Businessman / Businesswoman',
-                              'Employee / Office worker',
-                              'Student',
-                              'Teacher',
-                              'Doctor',
-                              'Nurse',
-                              'Engineer',
-                              'Laborer / Worker',
-                              'Farmer',
-                              'Shopkeeper',
-                              'Driver',
-                              'Technician',
-                              'Accountant',
-                              'Salesperson',
-                              'Self-employed',
-                              'Homemaker / Housewife',
-                              'Unemployed',
-                              'Retired',
-                              'Government employee',
-                              'Private employee',
-                              'Other'
-                            ].map((opt) => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
-                        </div>
-                      ) : f.key === 'severity' ? (
-                        <div key={f.key} className="flex flex-col items-start w-full justify-center">
-                          <label className="text-[16px] text-customGray font-poppins font-bold">
-                            {f.label}:
-                          </label>
-                          <select
-                            className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                            value={(medicalForm as any)[f.key]}
-                            onChange={(e) => handleMedicalChange(f.key, e.target.value)}
-                          >
-                            <option value="">Select severity (1-10)</option>
-                            {[...Array(10)].map((_, idx) => (
-                              <option key={idx+1} value={(idx+1).toString()}>{idx+1}</option>
-                            ))}
-                          </select>
-                        </div>
-                      ) : (
-                        <Input
-                          key={f.key}
-                          label={f.label}
-                          placeholder={""}
-                          breakpoint={false}
-                          value={(medicalForm as any)[f.key]}
-                          onChange={(v: string) => handleMedicalChange(f.key, v)}
-                        />
-                      )
-                    )));
+                            onChange={(v: string) => handleMedicalChange(f.key, v)}
+                          />
+                        );
+                      }
+                      if (elem) elems.push(elem);
+                    });
 
                     return elems;
                   })()}

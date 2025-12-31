@@ -200,23 +200,28 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
-          background: isVoiceActive ? '#e53e3e' : '#2563eb',
+          gap: '0.75rem',
+          background: isVoiceActive
+            ? 'linear-gradient(90deg, #ff7a00 0%, #ff3c00 100%)'
+            : 'linear-gradient(90deg, #ff7a00 0%, #ff3c00 100%)',
           color: '#fff',
           border: 'none',
-          borderRadius: '8px',
-          padding: '0.5rem 1rem',
+          borderRadius: '999px',
+          padding: '0.9rem 2.5rem',
           fontWeight: 600,
-          fontSize: '1rem',
+          fontSize: '1.25rem',
           cursor: 'pointer',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
+          boxShadow: '0 2px 8px 0 rgba(255,122,0,0.10)',
+          outline: 'none',
+          transition: 'background 0.2s',
         }}
       >
-        {isVoiceActive ? (
-          <><span role="img" aria-label="stop">🛑</span> Stop</>
-        ) : (
-          <><span role="img" aria-label="mic">🎤</span> Start Voice Intake</>
-        )}
+        <span style={{ display: 'flex', alignItems: 'center' }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" style={{ marginRight: '0.5rem' }}>
+            <path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" fill="#fff"/>
+          </svg>
+          {isVoiceActive ? 'Listening...' : 'Start Voice Intake'}
+        </span>
       </button>
     </div>
   );

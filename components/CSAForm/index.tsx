@@ -332,23 +332,25 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                 <LanguageChanger locale={locale} />
             </div>
             <div className="flex flex-row justify-start h-full items-start px-5 md:px-0 gap-8">
-                {/**
-                 * Sidebar transcript area commented out as requested
-                 * <div className="hidden md:flex flex-col w-[350px] min-h-[500px] max-h-[700px] bg-white rounded-lg mt-8 mr-2 p-4">
-                 *     <div className="w-full bg-blue-600 text-white rounded-lg p-3 text-lg shadow mb-2">
-                 *         <TranscriptDisplay currentTranscript={currentTranscript} />
-                 *     </div>
-                 * </div>
-                 */}
+                {/* Sidebar transcript area */}
+                {/*
+                <div className="hidden md:flex flex-col w-[350px] min-h-[500px] max-h-[700px] bg-white rounded-lg mt-8 mr-2 p-4">
+                    <div className="w-full bg-blue-600 text-white rounded-lg p-3 text-lg shadow mb-2">
+                        <TranscriptDisplay currentTranscript={currentTranscript} />
+                    </div>
+                </div>
+                */}
+                </div>
+                
                 {/* Main form content */}
                 <div
-                    className="w-full max-w-full xl:max-w-[1200px] lg:max-w-[1000px] md:max-w-[800px] sm:max-w-full rounded-[20px] mt-8 gap-y-5 p-8"
-                    style={{ backgroundColor: '#c92222ff' }}>
-                    <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9" style={{ backgroundColor: '#E0E0E0', borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+                    className="w-full max-w-full xl:max-w-[1400px] lg:max-w-[1200px] md:max-w-[1000px] sm:max-w-full rounded-[20px] mt-8 gap-y-5 p-8"
+                    style={{ backgroundColor: '#f1efefff' }}>
+                    <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9" style={{ backgroundColor: '#EAEAEA', borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
                         <div className="flex w-full items-center justify-between gap-3">
                             <h1
                                 className={`${styles.sectionHeadText} `}
-                                style={{ textAlign: "left", color: "#C1001F" }}
+                                style={{ textAlign: "left", color: "#FF9100" }}
                             >
                                 {t("self_form_title")}
                             </h1>
@@ -362,28 +364,6 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         </div>
                         <p className="text-[#767676]">{location.title}</p>
                     </div>
-                    {/* VoiceWave waveform above VoiceIntake mic button */}
-                    {(() => {
-                        // Show blue if assistant is speaking, red if user is speaking, none if both are silent
-                        if (isSpeaking) {
-                            return (
-                                <div className="flex flex-col items-center mb-6 gap-2">
-                                    <VoiceWave isActive={true} color="#00f5ff" />
-                                    <p className="text-sm text-gray-500 mt-1">Assistant speaking…</p>
-                                </div>
-                            );
-                        } else if (isUserSpeaking) {
-                            return (
-                                <div className="flex flex-col items-center mb-6 gap-2">
-                                    <VoiceWave isActive={true} color="#ff0033" />
-                                    <p className="text-sm text-gray-500 mt-1">User speaking…</p>
-                                </div>
-                            );
-                        } else {
-                            // Both are silent, show nothing
-                            return null;
-                        }
-                    })()}
 
 <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-8 w-full">
 
@@ -500,6 +480,29 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     min={new Date().toISOString().split('T')[0]}
                                     className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                 />
+                                {/* VoiceWave waveform below VoiceIntake button */}
+                               {/*
+{(() => {
+    if (isSpeaking) {
+        return (
+            <div className="flex flex-col items-center mt-4 gap-2">
+                <VoiceWave isActive={true} color="#00f5ff" />
+                <p className="text-sm text-gray-500 mt-1">Assistant speaking…</p>
+            </div>
+        );
+    } else if (isUserSpeaking) {
+        return (
+            <div className="flex flex-col items-center mt-4 gap-2">
+                <VoiceWave isActive={true} color="#ff0033" />
+                <p className="text-sm text-gray-500 mt-1">User speaking…</p>
+            </div>
+        );
+    } else {
+        return null;
+    }
+})()}
+*/}
+
                             </div>
                             <div className="flex flex-col w-full md:w-1/2">
                                 <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Select Schedule Time:</label>
@@ -940,57 +943,149 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
 
                 <section
-                    className="rounded-lg flex flex-col gap-8 pt-6"
-                    style={{
-                        width: '100%',
-                        maxWidth: '420px',
-                        minHeight: '300px',
-                        backgroundColor: '#2f3e46',
-                        boxSizing: 'border-box',
-                        paddingLeft: '16px',
-                        paddingRight: '16px',
-                        paddingBottom: '16px',
-                        overflow: 'hidden',
-                    }}
+                    className="w-full flex justify-center px-4 md:px-0"
+                    style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', zIndex: 10 }}
                 >
-                    <div className="w-full h-32 rounded-md flex items-center justify-center text-black text-lg mt-8" style={{ backgroundColor: '#EAEAEA' }}>
-                            <div className="w-full rounded-md flex flex-col items-start justify-start p-4" style={{ backgroundColor: '#F8F9FA', boxSizing: 'border-box' }}>
-                                <div className="flex items-center mb-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="50" viewBox="0 0 24 24" fill="#49505A" className="mr-2"><path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z"/></svg>
-                                    <span className="text-2xl font-semibold text-[#49505A]">Voice Intake</span>
-                                </div>
-                                <hr className="w-full border-t border-[#E5E7EB] mb-4" />
-                                   <p className="text-center w-full text-lg text-[#49505A] mb-4">Click the button below and speak to fill the form automatically</p>
-                                   {/* Start Voice Intake Button */}
-                                <button
-                                    type="button"
-                                    className="flex items-center gap-3 px-8 py-3 rounded-full text-white font-semibold text-lg mx-auto mb-2 shadow-md"
-                                    style={{
-                                        background: 'linear-gradient(90deg, #ff7a00 0%, #ff3c00 100%)',
-                                        boxShadow: '0 2px 8px 0 rgba(255,122,0,0.10)',
-                                        border: 'none',
-                                        outline: 'none',
-                                        transition: 'background 0.2s',
-                                    }}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" fill="#fff"/></svg>
-                                    Start Voice Intake
-                                </button>
-                            </div>
-                    </div>
-                    <div className="w-full h-32 bg-[#37434a] rounded-md flex items-center justify-center text-white text-lg mt-2" style={{ outline: '2px solid yellow', outlineOffset: '-2px', boxSizing: 'border-box' }}>
-                        Second Box (yellow outline)
-                    </div>
-                </section>
+ <section
+  className="
+    w-full
+    max-w-[420px]
+    bg-[#FFFFFF]
+    rounded-lg
+    flex
+    flex-col
+    gap-6
+    px-4
+    py-6
+    h-fit
+    box-border
+  "
+>
 
+    {/* Voice Intake Card */}
+    <div className="w-full rounded-md bg-[#EAEAEA]">
+      <div className="w-full rounded-md flex flex-col items-center justify-center p-4 bg-[#F8F9FA]">
+        <div className="flex items-center mb-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="40"
+            height="50"
+            viewBox="0 0 24 24"
+            fill="#49505A"
+            className="mr-2"
+          >
+            <path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" />
+          </svg>
+          <span className="text-2xl font-semibold text-[#49505A]">
+            Voice Intake
+          </span>
+        </div>
+
+        <hr className="w-full border-t border-[#E5E7EB] mb-4" />
+
+        <p className="text-center text-lg text-[#49505A] mb-4">
+          Click the button below and speak to fill the form automatically
+        </p>
+
+        {/* Voice Button + Wave */}
+        <div className="flex flex-col items-center w-full gap-2">
+          <VoiceIntake
+            setForm={setMedicalForm}
+            onTranscript={onTranscript}
+            vapi={vapi}
+            onUserSpeaking={handleUserSpeaking}
+          />
+
+          <VoiceWave />
+
+          <p className="text-sm text-gray-500">
+            {isSpeaking
+              ? "Assistant speaking…"
+              : isUserSpeaking
+              ? "User speaking…"
+              : "Ready to start voice intake"}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Conversation Transcript */}
+    <div className="w-full rounded-md bg-[#EAEAEA] p-4">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <path
+              d="M8 20c0-6.627 6.268-12 14-12s14 5.373 14 12-6.268 12-14 12c-1.13 0-2.23-.09-3.29-.26-.41-.07-.82.04-1.13.29l-4.13 3.32c-.66.53-1.61.01-1.54-.81l.32-3.7c.03-.34-.11-.67-.37-.89C9.13 26.13 8 23.18 8 20z"
+              fill="#374151"
+            />
+            <circle cx="20" cy="20" r="2" fill="#fff" />
+            <circle cx="26" cy="20" r="2" fill="#fff" />
+            <circle cx="14" cy="20" r="2" fill="#fff" />
+          </svg>
+
+          <span className="text-xl font-semibold text-[#374151]">
+            Conversation Transcript
+          </span>
+        </div>
+
+        <button className="flex items-center gap-1 border border-[#CBD5E1] rounded-lg px-3 py-1 text-[#374151] text-sm font-medium hover:bg-[#F1F5F9] transition">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6h18" stroke="#374151" strokeWidth="2" />
+            <path
+              d="M8 6v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"
+              stroke="#374151"
+              strokeWidth="2"
+            />
+            <rect
+              x="5"
+              y="6"
+              width="14"
+              height="14"
+              rx="2"
+              stroke="#374151"
+              strokeWidth="2"
+            />
+          </svg>
+          Clear
+        </button>
+      </div>
+
+      <div className="bg-white rounded-lg p-3 shadow max-h-[300px] overflow-y-auto">
+        <TranscriptDisplay currentTranscript={currentTranscript} />
+      </div>
+    </div>
+
+        {/* Third Box */}
+        <div className="w-full rounded-md bg-[#EAEAEA] p-4 mt-6">
+            <div className="bg-[#F8F9FA] rounded-lg p-4 flex flex-col">
+                <div className="flex items-center gap-2 mb-2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" fill="#CBD5E1" />
+                        <path d="M12 16v-4" stroke="#374151" strokeWidth="2" strokeLinecap="round" />
+                        <circle cx="12" cy="8" r="1" fill="#374151" />
+                    </svg>
+                    <span className="text-lg font-semibold text-[#374151]">How Voice Intake Works</span>
+                </div>
+                <ul className="list-disc pl-5 text-gray-700 space-y-1">
+                    <li>Click "Start Voice Intake" to begin speaking</li>
+                    <li>Say things like "My name is John Smith" or "Schedule for December 30th"</li>
+                    <li>The system will automatically fill the form fields</li>
+                    <li>Your conversation will appear in the transcript</li>
+                    <li>Click "Stop Recording" when you're finished</li>
+                </ul>
+            </div>
+        </div>
+  </section>
+
+
+  
 </section>
 
 
-                </div>
-            </div>
-
-        </div></>
-    );
+            </section>
+        </div>
+    </div>
+</>);
 },);
 
 

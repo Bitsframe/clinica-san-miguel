@@ -27,6 +27,8 @@ import PhoneNumberInput from "./PhoneNumberInput";
 import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
 import { sendEmail } from "@/utils/emailService";
 import { submitAppointmentFlow } from "@/lib/submitAppointment";
+import { generateConsentPDF } from "@/lib/generateConsentPDF";
+import SignatureCanvas from "react-signature-canvas";
 
 const RadioButton = ({ value, name, label, checked, onChange }: any) => (
     <div className="flex items-center justify-start gap-3">
@@ -264,6 +266,13 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     // Add local state for visit type and new/returning patient
     // const [inOfficePatient, setInOfficePatient] = useState(true); // moved above
     const [newPatient, setNewPatient] = useState(true); // default to new
+    // Signature canvas ref and state
+    const sigCanvasRef = useRef<SignatureCanvas>(null);
+    const [signatureMode, setSignatureMode] = useState<'draw' | 'type'>('draw');
+    const [typedSignature, setTypedSignature] = useState('');
+    const [selectedFont, setSelectedFont] = useState<'font1' | 'font2'>('font1');
+    // Track if PDF preview has been clicked
+    const [pdfPreviewed, setPdfPreviewed] = useState(false);
     // Vapi instance and speaking state for waveform
         const vapi = useVapiInstance();
     const isSpeaking = useVapiSpeaking(vapi);
@@ -927,20 +936,193 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 </div>
 
                             </div>
-                            <Button
-                                text={t("button_label")}
-                                size={{ width: "250px", height: "50px" }}
-                                route={""}
-                                bgColor={"#FF7A00"}
-                                textColor={"#ffffff"}
-                                onClick={() => {
-                                    submitAppointmentDetails();
-                                }}
-                            />
+                        </div>
+
+                        {/* Digital Signature Section */}
+                        <div className="w-full col-span-full mb-5">
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Add Your Signature</h3>
+                            
+                            {/* Tabs */}
+                            <div className="flex gap-2 mb-4">
+                                <button
+                                    onClick={() => setSignatureMode('draw')}
+                                    className={`px-6 py-2 rounded-t-lg font-semibold transition-colors ${
+                                        signatureMode === 'draw'
+                                            ? 'bg-orange-500 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                    type="button"
+                                >
+                                    Draw
+                                </button>
+                                <button
+                                    onClick={() => setSignatureMode('type')}
+                                    className={`px-6 py-2 rounded-t-lg font-semibold transition-colors ${
+                                        signatureMode === 'type'
+                                            ? 'bg-orange-500 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                    type="button"
+                                >
+                                    Type
+                                </button>
+                            </div>
+
+                            {/* Draw Mode */}
+                            {signatureMode === 'draw' && (
+                                <>
+                                    <p className="text-gray-600 mb-4">Draw your signature below</p>
+                                    <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white max-w-sm">
+                                        <SignatureCanvas
+                                            ref={sigCanvasRef}
+                                            canvasProps={{
+                                                className: "w-full h-44",
+                                                style: { touchAction: 'none' }
+                                            }}
+                                            backgroundColor="white"
+                                        />
+                                    </div>
+                                    <div className="flex gap-3 mt-4">
+                                        <button
+                                            onClick={() => sigCanvasRef.current?.clear()}
+                                            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                                            type="button"
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Type Mode */}
+                            {signatureMode === 'type' && (
+                                <>
+                                    <p className="text-gray-600 mb-4">Type your signature and select a font</p>
+                                    <div className="max-w-sm space-y-4">
+                                        <input
+                                            type="text"
+                                            value={typedSignature}
+                                            onChange={(e) => setTypedSignature(e.target.value)}
+                                            placeholder="Enter your signature"
+                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg outline-none focus:border-orange-500"
+                                        />
+                                        
+                                        {/* Font Selection */}
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-gray-700">Select Font:</label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <button
+                                                    onClick={() => setSelectedFont('font1')}
+                                                    className={`p-4 border-2 rounded-lg transition-all ${
+                                                        selectedFont === 'font1'
+                                                            ? 'border-orange-500 bg-orange-50'
+                                                            : 'border-gray-300 hover:border-gray-400'
+                                                    }`}
+                                                    type="button"
+                                                >
+                                                    <span style={{ fontFamily: 'Brush Script MT, cursive', fontSize: '24px' }}>
+                                                        {typedSignature || 'Sample'}
+                                                    </span>
+                                                </button>
+                                                <button
+                                                    onClick={() => setSelectedFont('font2')}
+                                                    className={`p-4 border-2 rounded-lg transition-all ${
+                                                        selectedFont === 'font2'
+                                                            ? 'border-orange-500 bg-orange-50'
+                                                            : 'border-gray-300 hover:border-gray-400'
+                                                    }`}
+                                                    type="button"
+                                                >
+                                                    <span style={{ fontFamily: 'Dancing Script, cursive', fontSize: '24px', fontStyle: 'italic' }}>
+                                                        {typedSignature || 'Sample'}
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Preview */}
+                                        {typedSignature && (
+                                            <div className="border-2 border-gray-300 rounded-lg p-6 bg-white">
+                                                <p className="text-xs text-gray-500 mb-2">Preview:</p>
+                                                <div className="text-center">
+                                                    <span style={{
+                                                        fontFamily: selectedFont === 'font1' ? 'Brush Script MT, cursive' : 'Dancing Script, cursive',
+                                                        fontSize: '32px',
+                                                        fontStyle: selectedFont === 'font2' ? 'italic' : 'normal'
+                                                    }}>
+                                                        {typedSignature}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="w-full md:flex justify-end items-center gap-3 col-span-full mb-5">
+                            <div className="w-full mb-3">
+                                <p className="text-red-600 font-semibold text-sm">⚠️ Please review the telemedicine consent form before submitting</p>
+                            </div>
+                            <div className="flex gap-3 flex-col md:flex-row">
+                                <Button
+                                    text="Preview PDF"
+                                    size={{ width: "250px", height: "50px" }}
+                                    route={""}
+                                    bgColor={"#6B7280"}
+                                    textColor={"#ffffff"}
+                                    onClick={() => {
+                                        setPdfPreviewed(true);
+                                        let signatureData = null;
+                                        
+                                        if (signatureMode === 'draw') {
+                                            signatureData = sigCanvasRef.current?.toDataURL() || null;
+                                        } else if (signatureMode === 'type' && typedSignature) {
+                                            // Create canvas for typed signature
+                                            const canvas = document.createElement('canvas');
+                                            canvas.width = 400;
+                                            canvas.height = 100;
+                                            const ctx = canvas.getContext('2d');
+                                            if (ctx) {
+                                                ctx.fillStyle = 'white';
+                                                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                                ctx.fillStyle = 'black';
+                                                ctx.font = selectedFont === 'font1' 
+                                                    ? '48px "Brush Script MT", cursive' 
+                                                    : 'italic 48px "Dancing Script", cursive';
+                                                ctx.textAlign = 'center';
+                                                ctx.textBaseline = 'middle';
+                                                ctx.fillText(typedSignature, canvas.width / 2, canvas.height / 2);
+                                                signatureData = canvas.toDataURL();
+                                            }
+                                        }
+                                        
+                                        generateConsentPDF({
+                                            firstName,
+                                            lastName,
+                                            dob,
+                                            signature: signatureData
+                                        });
+                                    }}
+                                />
+                                <Button
+                                    text={t("button_label")}
+                                    size={{ width: "250px", height: "50px" }}
+                                    route={""}
+                                    bgColor={"#FF7A00"}
+                                    textColor={"#ffffff"}
+                                    onClick={() => {
+                                        if (!pdfPreviewed) {
+                                            toast.warning('Please review the telemedicine consent form once before submitting');
+                                            return;
+                                        }
+                                        submitAppointmentDetails();
+                                    }}
+                                />
+                            </div>
                         </div>
 
                     </section>
-
 
                 <section
                     className="w-full flex justify-center px-4 md:px-0"

@@ -36,6 +36,7 @@ const config: Config = {
         inter: ["var(--font-inter)", "sans-serif"],
         antipasto: ["Antipasto Pro Medium", "sans-serif"],
         poppins: ["var(--font-poppins)", "sans-serif"],
+        dancing: ["var(--font-dancing-script)", "cursive"],
       },
     },
     screens: {

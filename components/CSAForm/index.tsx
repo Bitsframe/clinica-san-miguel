@@ -273,6 +273,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     const [selectedFont, setSelectedFont] = useState<'font1' | 'font2'>('font1');
     // Track if PDF preview has been clicked
     const [pdfPreviewed, setPdfPreviewed] = useState(false);
+    // Store last generated consent PDF data URL for upload
+    const [consentPdfDataUrl, setConsentPdfDataUrl] = useState<string | null>(null);
     // Vapi instance and speaking state for waveform
         const vapi = useVapiInstance();
     const isSpeaking = useVapiSpeaking(vapi);
@@ -1102,6 +1104,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             lastName,
                                             dob,
                                             signature: signatureData
+                                        }, {
+                                            onReady: (dataUrl) => setConsentPdfDataUrl(dataUrl)
                                         });
                                     }}
                                 />
@@ -1116,7 +1120,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             toast.warning('Please review the telemedicine consent form once before submitting');
                                             return;
                                         }
-                                        submitAppointmentDetails();
+                                        submitAppointmentDetails(consentPdfDataUrl || undefined);
                                     }}
                                 />
                             </div>

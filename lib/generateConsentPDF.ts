@@ -7,8 +7,16 @@ interface ConsentFormData {
   signature?: string | null;
 }
 
-export const generateConsentPDF = (data: ConsentFormData) => {
+interface GenerateConsentOptions {
+  /** If true (default), open preview in new tab */
+  preview?: boolean;
+  /** Callback to receive the generated PDF data URL */
+  onReady?: (dataUrl: string) => void;
+}
+
+export const generateConsentPDF = (data: ConsentFormData, options: GenerateConsentOptions = {}) => {
   const doc = new jsPDF();
+  const { preview = true, onReady } = options;
 
   const marginLeft = 20;
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -117,5 +125,16 @@ export const generateConsentPDF = (data: ConsentFormData) => {
   // Preview in browser instead of downloading
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob);
-  window.open(pdfUrl, '_blank');
+
+  // Provide data URL to caller if requested
+  const pdfDataUrl = doc.output('dataurlstring');
+  if (onReady) {
+    onReady(pdfDataUrl);
+  }
+
+  if (preview) {
+    window.open(pdfUrl, '_blank');
+  }
+
+  return pdfDataUrl;
 };

@@ -279,7 +279,7 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
         }));
     };
 
-    const submitAppointmentDetails = async () => {
+    const submitAppointmentDetails = async (consentPdfDataUrl?: string) => {
         // [BookNow] Button clicked
         let appointmentDetails: any = {
             location_id: location.id,
@@ -372,11 +372,9 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
                 console.error('[BookNow] Error checking for existing appointment:', checkError);
             }
             if (existingAppointments && existingAppointments.length > 0) {
-                // Appointment already exists for this slot
+                // Reuse existing appointment ID instead of blocking
                 appointmentId = existingAppointments[0].id;
-                console.error('[BookNow] Duplicate appointment: An appointment already exists for this date and time.');
-                // Optionally, show a user-friendly error here (e.g., toast.error)
-                return; // Stop further processing
+                console.log('[BookNow] Reusing existing appointment:', appointmentId);
             } else {
                 // Insert appointment into Appoinments table, now including location_id
                 const { data: appointmentInsertData, error: appointmentInsertError } = await supabase.from('Appoinments').insert([
@@ -400,40 +398,60 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
             console.error('[BookNow] Error inserting/checking into Appoinments:', err);
         }
 
-            // Insert into intake_form table
+        // Insert into intake_form table
+        try {
+            await supabase.from('intake_form').insert([
+                {
+                    appointment_id: appointmentId,
+                    chief_complaint: medicalForm.chief_complaint || null,
+                    location: medicalForm.location || null,
+                    severity: medicalForm.severity ? parseInt(medicalForm.severity) : null,
+                    symptoms_description: Array.isArray(medicalForm.symptoms_description) ? medicalForm.symptoms_description.join(', ') : null,
+                    medical_conditions: Array.isArray(medicalForm.medical_conditions) ? medicalForm.medical_conditions : null,
+                    surgeries: Array.isArray(medicalForm.surgeries) ? medicalForm.surgeries : null,
+                    allergies: Array.isArray(medicalForm.allergies) ? medicalForm.allergies : null,
+                    current_medications: medicalForm.current_medications ? [medicalForm.current_medications] : null,
+                    fh_diabetes: medicalForm.family_history?.diabetes ?? null,
+                    fh_hypertension: medicalForm.family_history?.hypertension ?? null,
+                    fh_cancer: medicalForm.family_history?.cancer ?? null,
+                    fh_heart_disease: medicalForm.family_history?.heart_disease ?? null,
+                    tobacco_use: medicalForm.tobacco_use ? 'true' : 'false',
+                    alcohol_use: medicalForm.alcohol_use ? 'true' : 'false',
+                    drug_use: medicalForm.drug_use ? 'true' : 'false',
+                    occupation: medicalForm.occupation || null,
+                    onset: onsetDate ? onsetDate.toISOString().split('T')[0] : null,
+                    relieving_factors: medicalForm.relieving_factors ? [medicalForm.relieving_factors] : null,
+                    cancer_type: medicalForm.cancer_type || null,
+                    number_of_pregnancies: medicalForm.num_pregnancies ? parseInt(medicalForm.num_pregnancies) : null,
+                    birth_control_status: medicalForm.birth_control || null,
+                    last_pap_smear: medicalForm.pap_smear ? { type: medicalForm.pap_smear, date: medicalForm.pap_smear_date || null } : null,
+                    last_mammogram: medicalForm.mammogram ? { type: medicalForm.mammogram, date: medicalForm.mammogram_date || null } : null,
+                    last_prostate_exam: medicalForm.prostate_exam ? { type: medicalForm.prostate_exam, date: medicalForm.prostate_exam_date || null } : null,
+                }
+            ]);
+        } catch (err) {
+            console.error('Error inserting into intake_form:', err);
+        }
+
+        // Upload consent PDF to private bucket and store path
+        if (appointmentId && consentPdfDataUrl) {
             try {
-                await supabase.from('intake_form').insert([
-                    {
-                        appointment_id: appointmentId,
-                        chief_complaint: medicalForm.chief_complaint || null,
-                        location: medicalForm.location || null,
-                        severity: medicalForm.severity ? parseInt(medicalForm.severity) : null,
-                        symptoms_description: Array.isArray(medicalForm.symptoms_description) ? medicalForm.symptoms_description.join(', ') : null,
-                        medical_conditions: Array.isArray(medicalForm.medical_conditions) ? medicalForm.medical_conditions : null,
-                        surgeries: Array.isArray(medicalForm.surgeries) ? medicalForm.surgeries : null,
-                        allergies: Array.isArray(medicalForm.allergies) ? medicalForm.allergies : null,
-                        current_medications: medicalForm.current_medications ? [medicalForm.current_medications] : null,
-                        fh_diabetes: medicalForm.family_history?.diabetes ?? null,
-                        fh_hypertension: medicalForm.family_history?.hypertension ?? null,
-                        fh_cancer: medicalForm.family_history?.cancer ?? null,
-                        fh_heart_disease: medicalForm.family_history?.heart_disease ?? null,
-                        tobacco_use: medicalForm.tobacco_use ? 'true' : 'false',
-                        alcohol_use: medicalForm.alcohol_use ? 'true' : 'false',
-                        drug_use: medicalForm.drug_use ? 'true' : 'false',
-                        occupation: medicalForm.occupation || null,
-                        onset: onsetDate ? onsetDate.toISOString().split('T')[0] : null,
-                        relieving_factors: medicalForm.relieving_factors ? [medicalForm.relieving_factors] : null,
-                        cancer_type: medicalForm.cancer_type || null,
-                        number_of_pregnancies: medicalForm.num_pregnancies ? parseInt(medicalForm.num_pregnancies) : null,
-                        birth_control_status: medicalForm.birth_control || null,
-                        last_pap_smear: medicalForm.pap_smear ? { type: medicalForm.pap_smear, date: medicalForm.pap_smear_date || null } : null,
-                        last_mammogram: medicalForm.mammogram ? { type: medicalForm.mammogram, date: medicalForm.mammogram_date || null } : null,
-                        last_prostate_exam: medicalForm.prostate_exam ? { type: medicalForm.prostate_exam, date: medicalForm.prostate_exam_date || null } : null,
-                    }
-                ]);
+                const base64 = consentPdfDataUrl.split(',')[1];
+                const res = await fetch('/api/upload-consent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ appointmentId, pdfBase64: base64 })
+                });
+                if (!res.ok) {
+                    const errText = await res.text();
+                    console.error('[BookNow] Upload consent failed:', errText);
+                    toast.error('Could not upload consent form');
+                }
             } catch (err) {
-                console.error('Error inserting into intake_form:', err);
+                console.error('[BookNow] Upload consent error:', err);
+                toast.error('Could not upload consent form');
             }
+        }
         const requiredFields = [
             'location_id',
             'first_name',

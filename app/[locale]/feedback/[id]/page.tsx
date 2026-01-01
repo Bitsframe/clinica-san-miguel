@@ -30,11 +30,14 @@ const PatientFeedback = () => {
   const fetchOrderDetails = async () => {
     setFetching(true);
     try {
+      if (!id) {
+        throw new Error('Order ID is required');
+      }
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('order_id', id)
-        .single();
+        .eq('order_id', id as string)
+        .single() as any;
 
       if (error) {
         throw error;
@@ -42,7 +45,7 @@ const PatientFeedback = () => {
 
       setOrderDetails(data);
 
-      if (data.patient_id) {
+      if (data?.patient_id) {
         const { data: patientData, error: patientError } = await supabase
           .from('allpatients')
           .select('*')
@@ -126,13 +129,13 @@ const PatientFeedback = () => {
       const postData = {
         rating,
         feedback_text,
-        order_id: id,
+        order_id: id as string,
         patient_id: orderDetails.patient_id
       };
 
       const { data: feedbackData, error: feedbackError } = await supabase
         .from('feedback')
-        .insert([postData])
+        .insert([postData] as any)
         .select();
 
       if (feedbackError) {

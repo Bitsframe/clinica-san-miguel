@@ -7,7 +7,7 @@ import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
 import { sendEmail } from "@/utils/emailService";
 import { submitAppointmentFlow } from "@/lib/submitAppointment";
 
-export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
+export function useCSAFormLogic({ location, ref, inOfficePatient }: { location?: any; ref?: any; inOfficePatient?: boolean } = {}) {
     const t = useTranslations("appoinment_form");
     const locale = useLocale();
     const tableName = locale === "es" ? "services_es" : "services";
@@ -88,48 +88,68 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
             if (!isNaN(d.getTime())) setDob(d);
         }
         if (normalized.service !== undefined) setService(normalized.service || "");
-        if (normalized.schedule_date) {
-            // If you have a schedule date field in your form, set it here
-            // setScheduleDate(normalized.schedule_date)
-        }
-        if (normalized.schedule_time) {
-            // If you have a schedule time field in your form, set it here
-            // setScheduleTime(normalized.schedule_time)
+        if (normalized.schedule_date || normalized.schedule_time) {
+            setDate_and_time((prev: any) => {
+                const prevDate = prev && typeof prev === 'object' && 'date' in prev ? (prev as any).date : '';
+                const prevTime = prev && typeof prev === 'object' && 'time' in prev ? (prev as any).time : '';
+                return {
+                    date: normalized.schedule_date || prevDate || "",
+                    time: normalized.schedule_time || prevTime || "",
+                };
+            });
         }
 
         // Medical
-        setMedicalForm((prev) => ({
-            ...prev,
-            chief_complaint: normalized.chief_complaint || "",
-            location: normalized.location || "",
-            severity: normalized.severity ? String(normalized.severity) : "",
-            symptoms_description: Array.isArray(normalized.symptoms_description) ? normalized.symptoms_description : [],
-            relieving_factors: normalized.relieving_factors?.options?.join(', ') || "",
-            medical_conditions: Array.isArray(normalized.medical_conditions) ? normalized.medical_conditions : [],
-            surgeries: normalized.surgeries || "",
-            surgeries_choice: normalized.surgeries_choice || "",
-            allergies: Array.isArray(normalized.allergies) ? normalized.allergies : [],
-            allergies_choice: normalized.allergies_choice || "",
-            current_medications: normalized.current_medications || "",
-            family_history: normalized.family_history || prev.family_history,
-            tobacco_use: !!normalized.tobacco_use,
-            alcohol_use: !!normalized.alcohol_use,
-            drug_use: !!normalized.drug_use,
-            occupation: normalized.occupation || "",
-            cancer_type: normalized.cancer_type || "",
-            num_pregnancies: normalized.num_pregnancies !== undefined ? String(normalized.num_pregnancies) : "",
-            birth_control: normalized.birth_control || "",
-            pap_smear: normalized.pap_smear || "",
-            pap_smear_date: normalized.pap_smear_date || "",
-            mammogram: normalized.mammogram || "",
-            mammogram_date: normalized.mammogram_date || "",
-            prostate_exam: normalized.prostate_exam || "",
-            prostate_exam_date: normalized.prostate_exam_date || "",
-        }));
-        setReliefSelect(Array.isArray(normalized.relieving_factors?.options) ? normalized.relieving_factors.options : []);
-        setReliefOther(normalized.relieving_factors?.other || "");
-        setSurgeryChoice(normalized.surgeries_choice || "");
-        setAllergyChoice(normalized.allergies_choice || "");
+        setMedicalForm((prev) => {
+            const next = { ...prev };
+            if (normalized.chief_complaint !== undefined) next.chief_complaint = normalized.chief_complaint || "";
+            if (normalized.location !== undefined) next.location = normalized.location || "";
+            if (normalized.severity !== undefined) next.severity = normalized.severity ? String(normalized.severity) : "";
+            if (normalized.symptoms_description !== undefined) {
+                next.symptoms_description = Array.isArray(normalized.symptoms_description)
+                    ? normalized.symptoms_description
+                    : [normalized.symptoms_description].filter(Boolean);
+            }
+            if (normalized.relieving_factors !== undefined) {
+                const opts = normalized.relieving_factors?.options;
+                const other = normalized.relieving_factors?.other;
+                next.relieving_factors = Array.isArray(opts) ? opts.join(', ') : prev.relieving_factors;
+                if (other !== undefined) next.relieving_factors = [next.relieving_factors, other].filter(Boolean).join(', ');
+            }
+            if (normalized.medical_conditions !== undefined) {
+                next.medical_conditions = Array.isArray(normalized.medical_conditions)
+                    ? normalized.medical_conditions
+                    : [normalized.medical_conditions].filter(Boolean);
+            }
+            if (normalized.surgeries !== undefined) next.surgeries = normalized.surgeries || "";
+            if (normalized.allergies !== undefined) {
+                next.allergies = Array.isArray(normalized.allergies) ? normalized.allergies : [normalized.allergies].filter(Boolean);
+            }
+            if (normalized.current_medications !== undefined) next.current_medications = normalized.current_medications || "";
+            if (normalized.family_history !== undefined) next.family_history = normalized.family_history || prev.family_history;
+            if (normalized.tobacco_use !== undefined) next.tobacco_use = !!normalized.tobacco_use;
+            if (normalized.alcohol_use !== undefined) next.alcohol_use = !!normalized.alcohol_use;
+            if (normalized.drug_use !== undefined) next.drug_use = !!normalized.drug_use;
+            if (normalized.occupation !== undefined) next.occupation = normalized.occupation || "";
+            if (normalized.cancer_type !== undefined) next.cancer_type = normalized.cancer_type || "";
+            if (normalized.num_pregnancies !== undefined) next.num_pregnancies = String(normalized.num_pregnancies ?? "");
+            if (normalized.birth_control !== undefined) next.birth_control = normalized.birth_control || "";
+            if (normalized.pap_smear !== undefined) next.pap_smear = normalized.pap_smear || "";
+            if (normalized.pap_smear_date !== undefined) next.pap_smear_date = normalized.pap_smear_date || "";
+            if (normalized.mammogram !== undefined) next.mammogram = normalized.mammogram || "";
+            if (normalized.mammogram_date !== undefined) next.mammogram_date = normalized.mammogram_date || "";
+            if (normalized.prostate_exam !== undefined) next.prostate_exam = normalized.prostate_exam || "";
+            if (normalized.prostate_exam_date !== undefined) next.prostate_exam_date = normalized.prostate_exam_date || "";
+            return next;
+        });
+        if (normalized.relieving_factors !== undefined && Array.isArray(normalized.relieving_factors?.options)) {
+            setReliefSelect(normalized.relieving_factors.options);
+        }
+        if (normalized.relieving_factors?.other !== undefined) {
+            setReliefOther(normalized.relieving_factors.other || "");
+        }
+        if (normalized.surgeries_choice !== undefined) setSurgeryChoice(normalized.surgeries_choice || "");
+        if (normalized.allergies_choice !== undefined) setAllergyChoice(normalized.allergies_choice || "");
         if (normalized.onset_date) {
             const d = new Date(normalized.onset_date);
             if (!isNaN(d.getTime())) setOnsetDate(d);
@@ -306,21 +326,21 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
             gender: sex,
             dob: dob ? dob.toISOString().split('T')[0] : null,
             phone: phone,
-            locationid: location.id
+            locationid: (location as any)?.id
         };
         let patientId = null;
         let patientCount = 0;
         // [BookNow] allPatientsData to insert
         try {
             // Insert patient
-            const insertResult = await supabase.from('allpatients').insert([allPatientsData]);
+            const insertResult = await supabase.from('allpatients').insert([allPatientsData] as any);
             // [BookNow] allpatients insert result
             // Fetch all patient records with same phone and email
             const { data: patientRows, error: patientFetchError } = await supabase
                 .from('allpatients')
                 .select('id, firstname, lastname, email, phone, onsite, created_at')
                 .eq('phone', phone)
-                .eq('email', email);
+                .eq('email', email) as any;
             // [BookNow] allpatients fetched patientRows
             if (patientFetchError) {
                 console.error('[BookNow] Error fetching patient_id:', patientFetchError);
@@ -337,15 +357,15 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
         // Format date_and_time as 'locationid|date - time'
         let dateAndTime = '';
         if (
-            location.id &&
+            (location as any)?.id &&
             date_and_time &&
             typeof date_and_time === 'object' &&
             'date' in date_and_time &&
             'time' in date_and_time
         ) {
-            dateAndTime = `${location.id}|${date_and_time.date} ${date_and_time.time}`;
-        } else if (location.id && typeof date_and_time === 'string') {
-            dateAndTime = `${location.id}|${date_and_time}`;
+            dateAndTime = `${(location as any).id}|${date_and_time.date} ${date_and_time.time}`;
+        } else if ((location as any)?.id && typeof date_and_time === 'string') {
+            dateAndTime = `${(location as any).id}|${date_and_time}`;
         }
         // [BookNow] dateAndTime
         const appoinmentData = {
@@ -367,7 +387,7 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
                 .from('Appoinments')
                 .select('id')
                 .eq('date_and_time', dateAndTime)
-                .eq('location_id', location.id);
+                .eq('location_id', (location as any)?.id) as any;
             if (checkError) {
                 console.error('[BookNow] Error checking for existing appointment:', checkError);
             }
@@ -382,10 +402,10 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
                         service,
                         date_and_time: dateAndTime,
                         patient_id: patientId,
-                        location_id: location?.id || null,
+                        location_id: (location as any)?.id || null,
                         new_patient: patientCount === 1 // true if new, false if old
                     }
-                ]).select('id');
+                ] as any).select('id') as any;
                 // [BookNow] Appoinments insert result
                 if (appointmentInsertError) {
                     throw appointmentInsertError;
@@ -428,7 +448,7 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: any) {
                     last_mammogram: medicalForm.mammogram ? { type: medicalForm.mammogram, date: medicalForm.mammogram_date || null } : null,
                     last_prostate_exam: medicalForm.prostate_exam ? { type: medicalForm.prostate_exam, date: medicalForm.prostate_exam_date || null } : null,
                 }
-            ]);
+            ] as any);
         } catch (err) {
             console.error('Error inserting into intake_form:', err);
         }

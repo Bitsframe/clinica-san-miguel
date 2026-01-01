@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, ComponentType } from "react";
 import Slider from "react-slick";
 import { Star, StarHalf, Star as StarOutline, ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -50,6 +50,9 @@ export function PatientStories() {
     ],
   };
 
+  // react-slick typings can conflict with React 18; cast to a generic component to keep JSX happy
+  const SliderComponent = Slider as unknown as ComponentType<any>;
+
   return (
     <section ref={ref} className="w-full bg-white px-6 py-16 md:px-20 lg:px-32">
       <div className="flex justify-between items-center mb-8">
@@ -78,7 +81,7 @@ export function PatientStories() {
       </div>
 
       {hasFetched && testimonials.length > 0 ? (
-        <Slider ref={sliderRef} {...settings}>
+        <SliderComponent ref={sliderRef} {...settings}>
           {testimonials.map((testimonial, index) => {
             const rating = parseFloat(String(testimonial.rating || "0"));
             const fullStars = Math.floor(rating);
@@ -110,7 +113,7 @@ export function PatientStories() {
               </div>
             );
           })}
-        </Slider>
+        </SliderComponent>
       ) : (
         <LoadingSkeletonTestimonials />
 

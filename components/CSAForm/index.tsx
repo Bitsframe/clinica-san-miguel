@@ -4,6 +4,7 @@ import "@/styles/custom-checkbox.css";
 
 import { styles } from "@/app/[locale]/styles";
 import { supabase } from "@/supabaseClient";
+import { useEffect } from "react";
 import { Button } from "@/utils";
 import { Modal } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -275,6 +276,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     const [pdfPreviewed, setPdfPreviewed] = useState(false);
     // Store last generated consent PDF data URL for upload
     const [consentPdfDataUrl, setConsentPdfDataUrl] = useState<string | null>(null);
+    // Track booked time slots for selected date
+    const [bookedSlots, setBookedSlots] = useState<string[]>([]);
     // Vapi instance and speaking state for waveform
         const vapi = useVapiInstance();
     const isSpeaking = useVapiSpeaking(vapi);
@@ -334,6 +337,41 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
             currentTranscript,
             onTranscript
         } = logic as any; // If logic is not typed, use 'as any' to avoid TS errors
+
+    // Fetch booked slots when date changes
+    useEffect(() => {
+        const fetchBookedSlots = async () => {
+            const selectedDate = typeof date_and_time === 'object' && date_and_time?.date ? (date_and_time as any).date : '';
+            if (!selectedDate || !location?.id) {
+                setBookedSlots([]);
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('Appoinments')
+                    .select('date_and_time')
+                    .like('date_and_time', `${location.id}|${selectedDate}%`) as any;
+
+                if (error) {
+                    console.error('Error fetching booked slots:', error);
+                    return;
+                }
+
+                const slots = data?.map((apt: any) => {
+                    const parts = apt.date_and_time.split('|')[1];
+                    const timePart = parts?.split(' ').slice(1).join(' ');
+                    return timePart;
+                }).filter(Boolean) || [];
+
+                setBookedSlots(slots);
+            } catch (err) {
+                console.error('Error fetching booked slots:', err);
+            }
+        };
+
+        fetchBookedSlots();
+    }, [date_and_time, location?.id]);
 
         Self_Appointment.displayName = "Self_Appointment";
     // Debug: log transcript and user speaking state
@@ -531,17 +569,11 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     }}
                                 >
                                     <option value="">Select Slot</option>
-                                    <option value="10:00 AM">10:00 AM</option>
-                                    <option value="11:00 AM">11:00 AM</option>
-                                    <option value="12:00 PM">12:00 PM</option>
-                                    <option value="1:00 PM">1:00 PM</option>
-                                    <option value="2:00 PM">2:00 PM</option>
-                                    <option value="3:00 PM">3:00 PM</option>
-                                    <option value="4:00 PM">4:00 PM</option>
-                                    <option value="5:00 PM">5:00 PM</option>
-                                    <option value="6:00 PM">6:00 PM</option>
-                                    <option value="7:00 PM">7:00 PM</option>
-                                    <option value="8:00 PM">8:00 PM</option>
+                                    {['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM']
+                                        .filter(slot => !bookedSlots.includes(slot))
+                                        .map(slot => (
+                                            <option key={slot} value={slot}>{slot}</option>
+                                        ))}
                                 </select>
                             </div>
                         </div>
@@ -1182,13 +1214,13 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
             onUserSpeaking={handleUserSpeaking}
           />
 
-          <VoiceWave />
+          <VoiceWave isActive={isSpeaking || isUserSpeaking} color="#000" />
 
           <p className="text-sm text-gray-500">
-            {isSpeaking
-              ? "Assistant speaking…"
-              : isUserSpeaking
+            {isUserSpeaking
               ? "User speaking…"
+              : isSpeaking
+              ? "Assistant speaking…"
               : "Ready to start voice intake"}
           </p>
         </div>
@@ -1253,11 +1285,11 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                     <span className="text-lg font-semibold text-[#374151]">How Voice Intake Works</span>
                 </div>
                 <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                    <li>Click "Start Voice Intake" to begin speaking</li>
-                    <li>Say things like "My name is John Smith" or "Schedule for December 30th"</li>
+                    <li>Click &quot;Start Voice Intake&quot; to begin speaking</li>
+                    <li>Say things like &quot;My name is John Smith&quot; or &quot;Schedule for December 30th&quot;</li>
                     <li>The system will automatically fill the form fields</li>
                     <li>Your conversation will appear in the transcript</li>
-                    <li>Click "Stop Recording" when you're finished</li>
+                    <li>Click &quot;Stop Recording&quot; when you&apos;re finished</li>
                 </ul>
             </div>
         </div>

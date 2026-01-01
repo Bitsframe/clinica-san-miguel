@@ -231,8 +231,17 @@ export interface Database {
         };
       };
 
-      
-
+      allpatients: {
+        Row: {
+          id: number;
+          created_at: string;
+          firstname: string | null;
+          lastname: string | null;
+          email: string | null;
+          phone: string | null;
+          onsite: boolean | null;
+        };
+      };
 
       Appoinments: {
         Row: {
@@ -249,6 +258,37 @@ export interface Database {
           dob: string | null;
           sex: string | null;
           service: string | null;
+        };
+      };
+      intake_form: {
+        Row: {
+          id: number;
+          created_at: string;
+          appointment_id: number | null;
+          chief_complaint: string | null;
+          location: string | null;
+          severity: number | null;
+          symptoms_description: string | null;
+          medical_conditions: string[] | null;
+          surgeries: string[] | null;
+          allergies: string[] | null;
+          current_medications: string[] | null;
+          fh_diabetes: boolean | null;
+          fh_hypertension: boolean | null;
+          fh_cancer: boolean | null;
+          fh_heart_disease: boolean | null;
+          tobacco_use: string | null;
+          alcohol_use: string | null;
+          drug_use: string | null;
+          occupation: string | null;
+          onset: string | null;
+          relieving_factors: string[] | null;
+          cancer_type: string | null;
+          number_of_pregnancies: number | null;
+          birth_control_status: string | null;
+          last_pap_smear: Json | null;
+          last_mammogram: Json | null;
+          last_prostate_exam: Json | null;
         };
       };
       features: {
@@ -301,7 +341,25 @@ allservices_es: {
   };
 };
 
+      feedback: {
+        Row: {
+          id: number;
+          created_at: string;
+          rating: number;
+          feedback_text: string | null;
+          order_id: string | null;
+          patient_id: number | null;
+        };
+      };
 
+      orders: {
+        Row: {
+          id: number;
+          created_at: string;
+          order_id: string | null;
+          patient_id: number | null;
+        };
+      };
 
         
     };

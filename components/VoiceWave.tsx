@@ -15,12 +15,32 @@ const BAR_GAP = 6;
 const SVG_HEIGHT = 48;
 const SVG_WIDTH = BAR_HEIGHTS.length * (BAR_WIDTH + BAR_GAP);
 
-export default function VoiceWave() {
+interface VoiceWaveProps {
+  isActive?: boolean;
+  color?: string;
+}
+
+export default function VoiceWave({ isActive = true, color = "#000" }: VoiceWaveProps) {
   return (
     <div
       className="flex justify-center items-center w-full"
       aria-hidden="true"
+      style={{
+        opacity: isActive ? 1 : 0,
+        visibility: isActive ? 'visible' : 'hidden',
+        transition: 'opacity 0.3s ease, visibility 0.3s ease',
+      }}
     >
+      <style>{`
+        @keyframes wave {
+          0%, 100% { transform: scaleY(0.5); }
+          50% { transform: scaleY(1.2); }
+        }
+        .voice-bar {
+          animation: ${isActive ? 'wave 0.6s ease-in-out infinite' : 'none'};
+          transform-origin: center;
+        }
+      `}</style>
       <svg
         width="100%"
         height={SVG_HEIGHT}
@@ -36,12 +56,16 @@ export default function VoiceWave() {
         {BAR_HEIGHTS.map((h, i) => (
           <rect
             key={i}
+            className="voice-bar"
             x={i * (BAR_WIDTH + BAR_GAP)}
-            y={(SVG_HEIGHT - h) / 2}   // ✅ center vertically
+            y={(SVG_HEIGHT - h) / 2}
             width={BAR_WIDTH}
             height={h}
-            rx={BAR_WIDTH / 2}        // ✅ pill shape
-            fill="#000"
+            rx={BAR_WIDTH / 2}
+            fill={color}
+            style={{
+              animationDelay: isActive ? `${i * 0.05}s` : '0s',
+            }}
           />
         ))}
       </svg>

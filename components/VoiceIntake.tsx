@@ -18,22 +18,102 @@ type VoiceIntakeProps = {
 export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi: externalVapi, onUserSpeaking }: VoiceIntakeProps): JSX.Element {
   // Use provided vapi instance if available, else create our own
   const vapi = useRef<any>(null);
-  const lastUserTranscript = useRef<string>("");
-  const lastToolCallData = useRef<any>(null);
-  // Store Q&A pairs: { question: string, answer: string }
-  const qaPairs = useRef<{ question: string; answer: string }[]>([]);
-  // Track last assistant question
-  const lastAssistantQuestion = useRef<string>("");
   const apiKey = process.env.NEXT_PUBLIC_CLINIC_VAPI_PUBLIC_KEY;
 
   // Track voice state for toggle button
   const [isVoiceActive, setIsVoiceActive] = React.useState(false);
+
+  // Map Vapi tool payload to the normalized shape expected by the CSA form
+  const mapToolPayloadToNormalized = (data: any) => {
+    const normalized: any = {};
+
+    // Only set fields that are present to avoid wiping previous values
+    if (data?.firstName !== undefined) normalized.first_name = data.firstName;
+    if (data?.lastName !== undefined) normalized.last_name = data.lastName;
+    if (data?.phoneNumber !== undefined) normalized.phone = data.phoneNumber;
+    if (data?.sex !== undefined) normalized.sex = data.sex;
+    if (data?.severity !== undefined) normalized.severity = data.severity;
+
+    if (data?.symptomsDescription !== undefined) {
+      normalized.symptoms_description = Array.isArray(data.symptomsDescription)
+        ? data.symptomsDescription
+        : [data.symptomsDescription].filter(Boolean);
+    }
+
+    if (data?.relievingFactors !== undefined) {
+      normalized.relieving_factors = {
+        options: Array.isArray(data.relievingFactors) ? data.relievingFactors : [],
+        other: "",
+      };
+    }
+
+    if (data?.medicalConditions !== undefined) {
+      normalized.medical_conditions = Array.isArray(data.medicalConditions)
+        ? data.medicalConditions
+        : [data.medicalConditions].filter(Boolean);
+    }
+
+    if (data?.allergies !== undefined) {
+      normalized.allergies = Array.isArray(data.allergies) ? data.allergies : [data.allergies].filter(Boolean);
+    }
+
+    if (data?.surgeries !== undefined) normalized.surgeries = data.surgeries;
+    if (data?.cancerType !== undefined) normalized.cancer_type = data.cancerType;
+    if (data?.occupation !== undefined) normalized.occupation = data.occupation;
+
+    if (data?.currentMedications !== undefined) {
+      normalized.current_medications = Array.isArray(data.currentMedications)
+        ? data.currentMedications.join(", ")
+        : data.currentMedications;
+    }
+
+    if (data?.familyHistory !== undefined) {
+      normalized.family_history = {
+        hypertension: !!data.familyHistory?.hypertension,
+        diabetes: !!data.familyHistory?.diabetes,
+        cancer: !!data.familyHistory?.cancer,
+        heart_disease: !!data.familyHistory?.heartDisease,
+        unknown: !!data.familyHistory?.unknown,
+      };
+    }
+
+    if (data?.lifestyle !== undefined) {
+      normalized.tobacco_use = data.lifestyle?.tobacco ?? undefined;
+      normalized.alcohol_use = data.lifestyle?.alcohol ?? undefined;
+      normalized.drug_use = data.lifestyle?.drugs ?? undefined;
+    }
+
+    if (data?.dateOfBirth !== undefined) normalized.dob = data.dateOfBirth;
+    if (data?.appointmentDate !== undefined) normalized.schedule_date = data.appointmentDate;
+    if (data?.appointmentTime !== undefined) normalized.schedule_time = data.appointmentTime;
+    if (data?.reasonForVisit !== undefined) normalized.chief_complaint = data.reasonForVisit;
+    if (data?.symptomLocation !== undefined) normalized.location = data.symptomLocation;
+    if (data?.symptomDuration !== undefined) normalized.onset_date = data.symptomDuration;
+
+    // Preventive history
+    if (data?.preventiveHistory !== undefined) {
+      const ph = data.preventiveHistory;
+      if (ph?.birthControl !== undefined) normalized.birth_control = ph.birthControl;
+      if (ph?.lastPapSmear !== undefined) normalized.pap_smear_date = ph.lastPapSmear;
+      if (ph?.lastMammogram !== undefined) normalized.mammogram_date = ph.lastMammogram;
+      if (ph?.lastProstateExam !== undefined) normalized.prostate_exam_date = ph.lastProstateExam;
+      if (ph?.numberOfPregnancies !== undefined) normalized.num_pregnancies = ph.numberOfPregnancies;
+    }
+
+    return normalized;
+  };
 
   // Helper to stop voice programmatically
   const stopVoice = () => {
     console.log("⏹ [Clinic] Stop Voice clicked");
     vapi.current?.stop();
     setIsVoiceActive(false); // Always reset button to blue
+    // Force emit call-end to reset speaking states
+    if (vapi.current) {
+      try {
+        vapi.current.emit("message", { type: "call-end" });
+      } catch (e) {}
+    }
   };
 
 
@@ -50,47 +130,60 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
       vapi.current = localVapi;
     }
     const instance = vapi.current;
-    // ---- CORE EVENTS ----
-    // Prevent multiple API calls on call-end
-    const callEndHandledRef = { current: false };
-    // Handler for call-end
-    const handleCallEnd = async () => {
-      setIsVoiceActive(false); // Always reset button to blue on call end
-      if (callEndHandledRef.current) return;
-      callEndHandledRef.current = true;
-      if (qaPairs.current.length > 0) {
-        try {
-          const res = await fetch("/api/normalize-csa", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ qaPairs: qaPairs.current }),
-          });
-          const resBody = await res.text();
-          try {
-            const parsed = JSON.parse(resBody);
-            console.log('[NORMALIZE-CSA RESPONSE]', parsed);
-            if (parsed && parsed.normalized && typeof window !== 'undefined' && typeof (window as any).__autofillCSA === 'function') {
-              (window as any).__autofillCSA(parsed.normalized);
-            }
-          } catch (e) {}
-        } catch (err) {}
+    // Handler for tool calls (works for both message.toolCalls and direct tool-call events)
+    const handleToolCall = (toolCall: any) => {
+      const toolName = toolCall?.function?.name || toolCall?.name;
+      const args = toolCall?.function?.arguments || toolCall?.arguments;
+      const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
+
+      console.log(`[TOOL: ${toolName}]`, {
+        toolId: toolCall?.id,
+        toolName,
+        arguments: parsedArgs,
+      });
+
+      if (toolName === 'updateMedicalIntake') {
+        console.log('[MEDICAL INTAKE DATA - AUTOFILLING]', parsedArgs);
+        const normalized = mapToolPayloadToNormalized(parsedArgs);
+        if (typeof window !== 'undefined' && typeof (window as any).__autofillCSA === 'function') {
+          (window as any).__autofillCSA(normalized);
+        }
       }
     };
     if (instance) {
       instance.on("call-start", () => {
-        lastUserTranscript.current = "";
-        lastToolCallData.current = null;
-        qaPairs.current = [];
-        lastAssistantQuestion.current = "";
-        callEndHandledRef.current = false; // Reset for new call
+        // Reset on call start
       });
-      instance.on("call-end", handleCallEnd);
+      instance.on("call-end", () => {
+        setIsVoiceActive(false); // Always reset button to blue on call end
+      });
+      // Direct tool-call events (when Vapi surfaces tools outside of message payload)
+      instance.on("tool-call", handleToolCall);
       instance.on("message", (msg: any) => {
         // Log all Vapi message events for debugging
         console.log('[VAPI MESSAGE EVENT]', msg);
+        
         // Log any structured output from Vapi
         if (msg.type === "structured_output") {
           console.log('[VAPI STRUCTURED OUTPUT]', msg);
+        }
+        
+        // Log tool/function call results (updateMedicalIntake output)
+        if (msg.type === "tool-calls" || msg.type === "function-call") {
+          console.log('[VAPI TOOL CALL MESSAGE]', msg.type);
+          
+          // Extract tool calls
+          if (msg.toolCalls) {
+            msg.toolCalls.forEach(handleToolCall);
+          }
+        }
+        
+        // Log function call results
+        if (msg.functionCall) {
+          console.log('[VAPI FUNCTION CALL DATA]', {
+            name: msg.functionCall.name,
+            parameters: msg.functionCall.parameters
+          });
         }
         // User speaking detection: show red wave on any user transcript
         if (msg.type === "transcript" && msg.role === "user") {
@@ -99,22 +192,17 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
         if (onTranscript && msg.type === "transcript" && msg.transcript) {
           // Debug log for auto-end
           console.log("[VAPI AUTO-END CHECK]", msg.transcript, msg.transcriptType);
-          // Auto-end call if assistant says intake is complete (final transcript, robust check)
-          if (
-            msg.role === "assistant" &&
-            msg.transcriptType === "final"
-          ) {
-            // Normalize transcript: lowercase, trim, remove punctuation and extra spaces
+          // Auto-end call if assistant says intake is complete (final or interim, substring match)
+          if (msg.role === "assistant") {
             const normalized = msg.transcript
               .toLowerCase()
-              .replace(/[.!?]/g, "")
+              .replace(/[.!?]/g, " ")
               .replace(/\s+/g, " ")
               .trim();
             if (
-              normalized === "your intake is complete" ||
-              normalized === "your intake is now complete" ||
-              normalized === " intake has been completed" ||
-              normalized === " your intake process is complete"
+              normalized.includes("intake is complete") ||
+              normalized.includes("intake process is complete") ||
+              normalized.includes("intake has been completed")
             ) {
               stopVoice();
               return;
@@ -131,25 +219,10 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
             transcriptType: msg.transcriptType,
           });
         }
-        if (msg.type === "transcript" && msg.role === "user" && msg.transcriptType === "final") {
-          lastUserTranscript.current = msg.transcript;
-          if (lastAssistantQuestion.current && msg.transcript) {
-            qaPairs.current.push({
-              question: lastAssistantQuestion.current,
-              answer: msg.transcript,
-            });
-          }
-        }
-        if (msg.type === "transcript" && msg.role === "assistant" && msg.transcriptType === "final" && msg.transcript) {
-          lastAssistantQuestion.current = msg.transcript;
-        }
       });
       instance.on("error", (err: any) => {});
     }
     return () => {
-      if (instance) {
-        instance.off && instance.off("call-end", handleCallEnd);
-      }
       if (!externalVapi && localVapi) localVapi.stop();
     };
   }, [setForm, apiKey, externalVapi, onTranscript, onUserSpeaking]);

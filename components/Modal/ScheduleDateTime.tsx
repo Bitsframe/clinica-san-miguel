@@ -82,8 +82,8 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
             setSelectedSlot('');
             selectDateTimeSlotHandle(date, '');
         }
-    // Only run when date changes, not data or handler
-    }, [date]);
+    // Only run when date changes
+    }, [date, data, selectDateTimeSlotHandle]);
 
 
     const dateTimeChangeHandle = (date: Date) => {

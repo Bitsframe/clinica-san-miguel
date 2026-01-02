@@ -20,6 +20,12 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
   const vapi = useRef<any>(null);
   const apiKey = process.env.NEXT_PUBLIC_CLINIC_VAPI_PUBLIC_KEY;
 
+  // Track aggregated tool payloads and last normalized snapshot for single call-end logging
+  const mergedToolPayloadRef = useRef<Record<string, any>>({});
+  const lastToolPayloadRef = useRef<any>(null);
+  const lastNormalizedRef = useRef<any>(null);
+  const conversationRef = useRef<Array<{role: string; content: string; timestamp: number}>>([]);
+
   // Track voice state for toggle button
   const [isVoiceActive, setIsVoiceActive] = React.useState(false);
 
@@ -30,9 +36,14 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
     // Only set fields that are present to avoid wiping previous values
     if (data?.firstName !== undefined) normalized.first_name = data.firstName;
     if (data?.lastName !== undefined) normalized.last_name = data.lastName;
+    if (data?.email !== undefined) normalized.email = data.email;
     if (data?.phoneNumber !== undefined) normalized.phone = data.phoneNumber;
     if (data?.sex !== undefined) normalized.sex = data.sex;
     if (data?.severity !== undefined) normalized.severity = data.severity;
+    if (data?.service !== undefined) normalized.service = data.service;
+    if (data?.visitType !== undefined) normalized.visit_type = data.visitType;
+    if (data?.patientType !== undefined) normalized.patient_type = data.patientType;
+
 
     if (data?.symptomsDescription !== undefined) {
       normalized.symptoms_description = Array.isArray(data.symptomsDescription)
@@ -40,9 +51,33 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
         : [data.symptomsDescription].filter(Boolean);
     }
 
+    // Normalize relieving factors to match checkbox labels (case-insensitive)
     if (data?.relievingFactors !== undefined) {
+      const mapReliefOption = (val: string) => {
+        const key = (val || '').trim().toLowerCase();
+        const lookup: Record<string, string> = {
+          rest: 'Rest',
+          ice: 'Ice',
+          heat: 'Heat',
+          elevation: 'Elevation',
+          medication: 'Medication',
+          stretching: 'Stretching',
+          massage: 'Massage',
+          'support or compression': 'Support or compression',
+          support: 'Support or compression',
+          compression: 'Support or compression',
+          time: 'Time',
+          other: 'Other',
+        };
+        return lookup[key] || (val ? val.charAt(0).toUpperCase() + val.slice(1) : '');
+      };
+
+      const options = Array.isArray(data.relievingFactors)
+        ? data.relievingFactors.map(mapReliefOption).filter(Boolean)
+        : [mapReliefOption(String(data.relievingFactors))].filter(Boolean);
+
       normalized.relieving_factors = {
-        options: Array.isArray(data.relievingFactors) ? data.relievingFactors : [],
+        options,
         other: "",
       };
     }
@@ -84,19 +119,71 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
     }
 
     if (data?.dateOfBirth !== undefined) normalized.dob = data.dateOfBirth;
-    if (data?.appointmentDate !== undefined) normalized.schedule_date = data.appointmentDate;
-    if (data?.appointmentTime !== undefined) normalized.schedule_time = data.appointmentTime;
+    
+    if (data?.appointmentDate !== undefined) {
+      // Convert MM/DD/YYYY to YYYY-MM-DD for date input
+      let date = data.appointmentDate;
+      if (date && date.includes('/')) {
+        const [month, day, year] = date.split('/');
+        date = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      }
+      normalized.schedule_date = date;
+    }
+    
+    if (data?.appointmentTime !== undefined) {
+      // Normalize time format: "3 PM" -> "3:00 PM", "03:30 PM" stays as is
+      let time = data.appointmentTime;
+      if (time && !time.includes(':')) {
+        // Add :00 if no colon present (e.g., "3 PM" -> "3:00 PM")
+        time = time.replace(/(\d+)\s*(AM|PM)/i, '$1:00 $2');
+      }
+      normalized.schedule_time = time;
+    }
     if (data?.reasonForVisit !== undefined) normalized.chief_complaint = data.reasonForVisit;
-    if (data?.symptomLocation !== undefined) normalized.location = data.symptomLocation;
+    if (data?.symptomLocation !== undefined) {
+      normalized.location = data.symptomLocation;
+      console.log('[DEBUG] Mapping symptomLocation:', data.symptomLocation, '→ location:', normalized.location);
+    }
     if (data?.symptomDuration !== undefined) normalized.onset_date = data.symptomDuration;
 
     // Preventive history
     if (data?.preventiveHistory !== undefined) {
       const ph = data.preventiveHistory;
       if (ph?.birthControl !== undefined) normalized.birth_control = ph.birthControl;
-      if (ph?.lastPapSmear !== undefined) normalized.pap_smear_date = ph.lastPapSmear;
-      if (ph?.lastMammogram !== undefined) normalized.mammogram_date = ph.lastMammogram;
-      if (ph?.lastProstateExam !== undefined) normalized.prostate_exam_date = ph.lastProstateExam;
+      
+      // Pap Smear: check if it's a choice or a date
+      if (ph?.lastPapSmear !== undefined) {
+        const papValue = ph.lastPapSmear;
+        if (papValue === 'Never' || papValue === "Don't remember") {
+          normalized.pap_smear = papValue;
+        } else {
+          // It's a date in MM/YYYY format
+          normalized.pap_smear = 'Month & Year';
+          normalized.pap_smear_date = papValue;
+        }
+      }
+      
+      // Mammogram: check if it's a choice or a date
+      if (ph?.lastMammogram !== undefined) {
+        const mammoValue = ph.lastMammogram;
+        if (mammoValue === 'Never' || mammoValue === "Don't remember") {
+          normalized.mammogram = mammoValue;
+        } else {
+          normalized.mammogram = 'Month & Year';
+          normalized.mammogram_date = mammoValue;
+        }
+      }
+      
+      // Prostate Exam: check if it's a choice or a date
+      if (ph?.lastProstateExam !== undefined) {
+        const prostateValue = ph.lastProstateExam;
+        if (prostateValue === 'Never' || prostateValue === "Don't remember") {
+          normalized.prostate_exam = prostateValue;
+        } else {
+          normalized.prostate_exam = 'Month & Year';
+          normalized.prostate_exam_date = prostateValue;
+        }
+      }
       if (ph?.numberOfPregnancies !== undefined) normalized.num_pregnancies = ph.numberOfPregnancies;
     }
 
@@ -143,29 +230,56 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
       });
 
       if (toolName === 'updateMedicalIntake') {
-        console.log('[MEDICAL INTAKE DATA - AUTOFILLING]', parsedArgs);
-        const normalized = mapToolPayloadToNormalized(parsedArgs);
+        // Merge incremental payloads for a single summary at call-end
+        mergedToolPayloadRef.current = {
+          ...(mergedToolPayloadRef.current || {}),
+          ...(parsedArgs || {}),
+        };
+        lastToolPayloadRef.current = parsedArgs;
+
+        // Use the existing __autofillCSA with the merged data
         if (typeof window !== 'undefined' && typeof (window as any).__autofillCSA === 'function') {
+          const normalized = mapToolPayloadToNormalized(mergedToolPayloadRef.current);
+          lastNormalizedRef.current = normalized;
           (window as any).__autofillCSA(normalized);
+        } else {
+          console.error('[VoiceIntake] __autofillCSA not found on window!');
         }
       }
     };
     if (instance) {
       instance.on("call-start", () => {
         // Reset on call start
+        mergedToolPayloadRef.current = {};
+        lastToolPayloadRef.current = null;
+        lastNormalizedRef.current = null;
+        conversationRef.current = [];
       });
       instance.on("call-end", () => {
         setIsVoiceActive(false); // Always reset button to blue on call end
+        // Single consolidated log to inspect Vapi return data
+        console.log('[VAPI CALL-END SUMMARY]', {
+          rawMergedPayload: mergedToolPayloadRef.current,
+          lastToolPayload: lastToolPayloadRef.current,
+          normalizedSnapshot: lastNormalizedRef.current,
+          conversationHistory: conversationRef.current,
+        });
       });
       // Direct tool-call events (when Vapi surfaces tools outside of message payload)
       instance.on("tool-call", handleToolCall);
       instance.on("message", (msg: any) => {
-        // Log all Vapi message events for debugging
-        console.log('[VAPI MESSAGE EVENT]', msg);
+        // Capture clean conversation turns from Vapi's LLM messages
+        if (msg.type === "message" && msg.role && msg.content) {
+          conversationRef.current.push({
+            role: msg.role,
+            content: msg.content,
+            timestamp: Date.now(),
+          });
+        }
         
         // Log any structured output from Vapi
         if (msg.type === "structured_output") {
-          console.log('[VAPI STRUCTURED OUTPUT]', msg);
+     
         }
         
         // Log tool/function call results (updateMedicalIntake output)
@@ -191,7 +305,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
         }
         if (onTranscript && msg.type === "transcript" && msg.transcript) {
           // Debug log for auto-end
-          console.log("[VAPI AUTO-END CHECK]", msg.transcript, msg.transcriptType);
+          // console.log("[VAPI AUTO-END CHECK]", msg.transcript, msg.transcriptType);
           // Auto-end call if assistant says intake is complete (final or interim, substring match)
           if (msg.role === "assistant") {
             const normalized = msg.transcript

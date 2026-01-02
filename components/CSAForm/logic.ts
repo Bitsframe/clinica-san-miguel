@@ -7,7 +7,7 @@ import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
 import { sendEmail } from "@/utils/emailService";
 import { submitAppointmentFlow } from "@/lib/submitAppointment";
 
-export function useCSAFormLogic({ location, ref, inOfficePatient }: { location?: any; ref?: any; inOfficePatient?: boolean } = {}) {
+export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any } = {}) {
     const t = useTranslations("appoinment_form");
     const locale = useLocale();
     const tableName = locale === "es" ? "services_es" : "services";
@@ -41,6 +41,8 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: { location?:
     const [reliefOther, setReliefOther] = useState("");
     const [surgeryChoice, setSurgeryChoice] = useState("");
     const [allergyChoice, setAllergyChoice] = useState("");
+    const [inOfficePatient, setInOfficePatient] = useState(true); // default to in-office
+    const [newPatient, setNewPatient] = useState(true); // default to new
     const [medicalForm, setMedicalForm] = useState({
         chief_complaint: "",
         location: "",
@@ -81,6 +83,7 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: { location?:
         // Demographics & schedule
         if (normalized.first_name !== undefined) setFirstName(normalized.first_name || "");
         if (normalized.last_name !== undefined) setLastName(normalized.last_name || "");
+        if (normalized.email !== undefined) setEmail(normalized.email || "");
         if (normalized.phone !== undefined) setPhone(normalized.phone || "");
         if (normalized.sex !== undefined) setSex(normalized.sex || "");
         if (normalized.dob) {
@@ -88,6 +91,16 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: { location?:
             if (!isNaN(d.getTime())) setDob(d);
         }
         if (normalized.service !== undefined) setService(normalized.service || "");
+        if (normalized.email_opt !== undefined) setEmail_opt(!!normalized.email_opt);
+        if (normalized.text_opt !== undefined) setText_opt(!!normalized.text_opt);
+        if (normalized.visit_type !== undefined) {
+            // Convert "In-Office" | "Virtual" to boolean
+            setInOfficePatient(normalized.visit_type === "In-Office");
+        }
+        if (normalized.patient_type !== undefined) {
+            // Convert "New" | "Returning" to boolean
+            setNewPatient(normalized.patient_type === "New");
+        }
         if (normalized.schedule_date || normalized.schedule_time) {
             setDate_and_time((prev: any) => {
                 const prevDate = prev && typeof prev === 'object' && 'date' in prev ? (prev as any).date : '';
@@ -121,9 +134,23 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: { location?:
                     ? normalized.medical_conditions
                     : [normalized.medical_conditions].filter(Boolean);
             }
-            if (normalized.surgeries !== undefined) next.surgeries = normalized.surgeries || "";
+            if (normalized.surgeries !== undefined) {
+                const surgeryValue = normalized.surgeries || "";
+                next.surgeries = surgeryValue;
+                // Also set the radio button choice if there's a value
+                if (surgeryValue) {
+                    setSurgeryChoice('Yes');
+                }
+            }
             if (normalized.allergies !== undefined) {
-                next.allergies = Array.isArray(normalized.allergies) ? normalized.allergies : [normalized.allergies].filter(Boolean);
+                const allergyValue = Array.isArray(normalized.allergies) 
+                    ? normalized.allergies 
+                    : (normalized.allergies ? [String(normalized.allergies)] : []);
+                next.allergies = allergyValue;
+                // Also set the radio button choice if there's a value
+                if (allergyValue.length > 0) {
+                    setAllergyChoice('Yes');
+                }
             }
             if (normalized.current_medications !== undefined) next.current_medications = normalized.current_medications || "";
             if (normalized.family_history !== undefined) next.family_history = normalized.family_history || prev.family_history;
@@ -627,6 +654,10 @@ export function useCSAFormLogic({ location, ref, inOfficePatient }: { location?:
         setSurgeryChoice,
         allergyChoice,
         setAllergyChoice,
+        inOfficePatient,
+        setInOfficePatient,
+        newPatient,
+        setNewPatient,
         medicalForm,
         setMedicalForm,
         handleMedicalChange,

@@ -185,7 +185,7 @@ const Dropdown = ({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
             >
-                {startingSelectedOption && <option value='' selected disabled>
+                {startingSelectedOption && <option value='' disabled>
                     {t("select_label")} {label}
                 </option>}
                 {options?.map((option, index) => (
@@ -262,11 +262,8 @@ function AllergyTagInput({ allergies, setAllergies, placeholder = "List allergie
 import { forwardRef } from "react";
 
 const Self_Appointment = forwardRef(({ location }: any, ref) => {
-    const [inOfficePatient, setInOfficePatient] = useState(true); // default to in-office
-    const logic = useCSAFormLogic({ location, ref, inOfficePatient });
-    // Add local state for visit type and new/returning patient
-    // const [inOfficePatient, setInOfficePatient] = useState(true); // moved above
-    const [newPatient, setNewPatient] = useState(true); // default to new
+    const logic = useCSAFormLogic({ location, ref });
+    const { inOfficePatient, setInOfficePatient, newPatient, setNewPatient } = logic;
     // Signature canvas ref and state
     const sigCanvasRef = useRef<SignatureCanvas>(null);
     const [signatureMode, setSignatureMode] = useState<'draw' | 'type'>('draw');

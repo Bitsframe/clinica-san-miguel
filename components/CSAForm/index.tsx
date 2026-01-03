@@ -390,13 +390,13 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                 
                 {/* Main form content */}
                 <div
-                    className="w-full max-w-full xl:max-w-[1400px] lg:max-w-[1200px] md:max-w-[1000px] sm:max-w-full rounded-[20px] mt-8 gap-y-5 p-8"
-                    style={{ backgroundColor: '#f1efefff' }}>
-                    <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-9" style={{ backgroundColor: '#EAEAEA', borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
-                        <div className="flex w-full items-center justify-between gap-3">
+  className="w-full xl:max-w-[1400px] lg:max-w-[1200px] md:max-w-[1000px] mx-auto rounded-[20px] mt-4 p-4"
+                    style={{ backgroundColor:  '#f1efefff'  }}>
+                    <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-4" style={{ backgroundColor: '#EAEAEA', borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+                        <div className="flex w-full items-center justify-center gap-3">
                             <h1
                                 className={`${styles.sectionHeadText} `}
-                                style={{ textAlign: "left", color: "#FF9100" }}
+                                style={{ textAlign: "center", color: "#FF9100" }}
                             >
                                 {t("self_form_title")}
                             </h1>
@@ -410,35 +410,18 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         </div>
                         <p className="text-[#767676]">{location.title}</p>
                     </div>
+{/* 
+<section className="flex justify-center items-center w-full px-4 mb-8"> */}
 
-<section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-8 w-full">
+<section className="grid md:grid-cols-2 grid-cols-1 gap-8 mx-auto"
+     style={{
+       backgroundColor: '#fefefeff',
+       borderRadius: '10px',
+       padding: '24px',
+             maxWidth: '1200px'   // ← controls form width
+     }}
+>
 
-                    <section className="grid md:grid-cols-2 grid-cols-1 place-content-baseline gap-8" style={{ backgroundColor: '#fefefeff', borderRadius: '10px', padding: '24px' }}>
-                        {/* Visit Type */}
-                        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-2">
-                            <label className="text-[16px] text-customGray font-poppins font-bold">Visit Type:</label>
-                            <div className="flex flex-row gap-4">
-                                <label className="flex items-center gap-2">
-                                    <input type="radio" name="visitType" value="in_office" checked={inOfficePatient === true} onChange={() => setInOfficePatient(true)} className="custom-radio-orange" /> In-Office Visit
-                                </label>
-                                <label className="flex items-center gap-2">
-                                    <input type="radio" name="visitType" value="virtual" checked={inOfficePatient === false} onChange={() => setInOfficePatient(false)} className="custom-radio-orange" /> Virtual Visit
-                                </label>
-                            </div>
-                        </div>
-                        {/* New or Returning Patient */}
-                        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-2">
-                            <label className="text-[16px] text-customGray font-poppins font-bold">Are you a new or returning patient? :</label>
-                            <div className="flex flex-row gap-4">
-                                <label className="flex items-center gap-2">
-                                    <input type="radio" name="newReturning" value="new" checked={newPatient === true} onChange={() => setNewPatient(true)} className="custom-radio-orange" /> new
-                                </label>
-                                <label className="flex items-center gap-2">
-                                    <input type="radio" name="newReturning" value="returning" checked={newPatient === false} onChange={() => setNewPatient(false)} className="custom-radio-orange" /> returning
-                                </label>
-                            </div>
-                        </div>
-                    
                         <Dropdown
                             label={t("form_f10")}
                             options={services}
@@ -504,11 +487,21 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                             />
                         </div>
+                        <div className="flex flex-col items-start w-full justify-center">
+                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Age:</label>
+                            <input
+                                type="text"
+                                value={dob ? moment().diff(moment(dob), 'years') : ''}
+                                readOnly
+                                placeholder="Age will be calculated automatically"
+                                className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-gray-100 outline-none rounded-[10px] cursor-not-allowed"
+                            />
+                        </div>
                         {/* Schedule Date and Time Picker */}
                         {/* TypeScript: define type for date_and_time */}
                         {/* Place this type at the top of the file or in the component scope */}
                         {/* type ScheduleDateTime = { date: string; time: string; } */}
-                        <div className="flex flex-col md:flex-row items-start w-full justify-center gap-4">
+                        {/* <div className="flex flex-col md:flex-row items-start w-full justify-center gap-4">
                             <div className="flex flex-col w-full md:w-1/2">
                                 <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Select Schedule Date:</label>
                                 <input
@@ -526,29 +519,6 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     min={new Date().toISOString().split('T')[0]}
                                     className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                 />
-                                {/* VoiceWave waveform below VoiceIntake button */}
-                               {/*
-{(() => {
-    if (isSpeaking) {
-        return (
-            <div className="flex flex-col items-center mt-4 gap-2">
-                <VoiceWave isActive={true} color="#00f5ff" />
-                <p className="text-sm text-gray-500 mt-1">Assistant speaking…</p>
-            </div>
-        );
-    } else if (isUserSpeaking) {
-        return (
-            <div className="flex flex-col items-center mt-4 gap-2">
-                <VoiceWave isActive={true} color="#ff0033" />
-                <p className="text-sm text-gray-500 mt-1">User speaking…</p>
-            </div>
-        );
-    } else {
-        return null;
-    }
-})()}
-*/}
-
                             </div>
                             <div className="flex flex-col w-full md:w-1/2">
                                 <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Select Schedule Time:</label>
@@ -573,7 +543,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         ))}
                                 </select>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Medical intake */}
                         <div className="col-span-full space-y-4 pt-4">
@@ -676,13 +646,13 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         )}
                                     </div>
                                 )}
-                                {/* Female: Last Mammogram (40+) */}
+                                {/* Female: Mammography (Age ≥ 40) */}
                                 {(sex === 'Female' && dob && (() => {
                                     const age = moment().diff(moment(dob), 'years');
                                     return age >= 40;
                                 })()) && (
                                     <div className="flex flex-col items-start w-full justify-center">
-                                        <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Last Mammogram:</label>
+                                        <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Mammography:</label>
                                         <div className="flex flex-row gap-6 mb-2">
                                             <label className="flex items-center gap-2">
                                                 <input type="radio" name="mammogram" value="Never" checked={medicalForm.mammogram === 'Never'} onChange={() => handleMedicalChange('mammogram', 'Never')} /> Never
@@ -970,10 +940,9 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         </div>
 
                         {/* Digital Signature Section */}
-                        <div className="w-full col-span-full mb-5">
+                        {/* <div className="w-full col-span-full mb-5">
                             <h3 className="text-xl font-bold text-gray-900 mb-2">Add Your Signature</h3>
                             
-                            {/* Tabs */}
                             <div className="flex gap-2 mb-4">
                                 <button
                                     onClick={() => setSignatureMode('draw')}
@@ -999,7 +968,6 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 </button>
                             </div>
 
-                            {/* Draw Mode */}
                             {signatureMode === 'draw' && (
                                 <>
                                     <p className="text-gray-600 mb-4">Draw your signature below</p>
@@ -1025,7 +993,6 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 </>
                             )}
 
-                            {/* Type Mode */}
                             {signatureMode === 'type' && (
                                 <>
                                     <p className="text-gray-600 mb-4">Type your signature and select a font</p>
@@ -1038,7 +1005,6 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg outline-none focus:border-orange-500"
                                         />
                                         
-                                        {/* Font Selection */}
                                         <div className="space-y-2">
                                             <label className="text-sm font-semibold text-gray-700">Select Font:</label>
                                             <div className="grid grid-cols-2 gap-3">
@@ -1071,7 +1037,6 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             </div>
                                         </div>
 
-                                        {/* Preview */}
                                         {typedSignature && (
                                             <div className="border-2 border-gray-300 rounded-lg p-6 bg-white">
                                                 <p className="text-xs text-gray-500 mb-2">Preview:</p>
@@ -1089,14 +1054,14 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     </div>
                                 </>
                             )}
-                        </div>
+                        </div> */}
 
                         <div className="w-full md:flex justify-end items-center gap-3 col-span-full mb-5">
-                            <div className="w-full mb-3">
+                            {/* <div className="w-full mb-3">
                                 <p className="text-red-600 font-semibold text-sm">⚠️ Please review the telemedicine consent form before submitting</p>
-                            </div>
-                            <div className="flex gap-3 flex-col md:flex-row">
-                                <Button
+                            </div> */}
+                            <div className="flex gap-3 flex-col md:flex-row w-full md:w-auto justify-end">
+                                {/* <Button
                                     text="Preview PDF"
                                     size={{ width: "250px", height: "50px" }}
                                     route={""}
@@ -1137,7 +1102,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             onReady: (dataUrl) => setConsentPdfDataUrl(dataUrl)
                                         });
                                     }}
-                                />
+                                /> */}
                                 <Button
                                     text={t("button_label")}
                                     size={{ width: "250px", height: "50px" }}
@@ -1145,15 +1110,11 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     bgColor={"#FF7A00"}
                                     textColor={"#ffffff"}
                                     onClick={() => {
-                                        if (!pdfPreviewed) {
-                                            toast.warning('Please review the telemedicine consent form once before submitting');
-                                            return;
-                                        }
                                         submitAppointmentDetails(consentPdfDataUrl || undefined);
                                     }}
                                 />
                             </div>
-                        </div>
+                        </div> 
 
                     </section>
 
@@ -1161,7 +1122,10 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                     className="w-full flex justify-center px-4 md:px-0"
                     style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', zIndex: 10 }}
                 >
- <section
+
+
+{/*
+<section
   className="
     w-full
     max-w-[420px]
@@ -1177,127 +1141,128 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
   "
 >
 
-    {/* Voice Intake Card */}
-    <div className="w-full rounded-md bg-[#EAEAEA]">
-      <div className="w-full rounded-md flex flex-col items-center justify-center p-4 bg-[#F8F9FA]">
-        <div className="flex items-center mb-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="40"
-            height="50"
-            viewBox="0 0 24 24"
-            fill="#49505A"
-            className="mr-2"
-          >
-            <path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" />
-          </svg>
-          <span className="text-2xl font-semibold text-[#49505A]">
-            Voice Intake
-          </span>
-        </div>
+  <div className="w-full rounded-md bg-[#EAEAEA]">
+    <div className="w-full rounded-md flex flex-col items-center justify-center p-4 bg-[#F8F9FA]">
+      <div className="flex items-center mb-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="40"
+          height="50"
+          viewBox="0 0 24 24"
+          fill="#49505A"
+          className="mr-2"
+        >
+          <path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" />
+        </svg>
+        <span className="text-2xl font-semibold text-[#49505A]">
+          Voice Intake
+        </span>
+      </div>
 
-        <hr className="w-full border-t border-[#E5E7EB] mb-4" />
+      <hr className="w-full border-t border-[#E5E7EB] mb-4" />
 
-        <p className="text-center text-lg text-[#49505A] mb-4">
-          Click the button below and speak to fill the form automatically
+      <p className="text-center text-lg text-[#49505A] mb-4">
+        Click the button below and speak to fill the form automatically
+      </p>
+
+      <div className="flex flex-col items-center w-full gap-2">
+        <VoiceIntake
+          setForm={setMedicalForm}
+          onTranscript={onTranscript}
+          vapi={vapi}
+          onUserSpeaking={handleUserSpeaking}
+        />
+
+        <VoiceWave isActive={isSpeaking || isUserSpeaking} color="#000" />
+
+        <p className="text-sm text-gray-500">
+          {isUserSpeaking
+            ? "User speaking…"
+            : isSpeaking
+            ? "Assistant speaking…"
+            : "Ready to start voice intake"}
         </p>
+      </div>
+    </div>
+  </div>
 
-        {/* Voice Button + Wave */}
-        <div className="flex flex-col items-center w-full gap-2">
-          <VoiceIntake
-            setForm={setMedicalForm}
-            onTranscript={onTranscript}
-            vapi={vapi}
-            onUserSpeaking={handleUserSpeaking}
+  <div className="w-full rounded-md bg-[#EAEAEA] p-4">
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-3">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <path
+            d="M8 20c0-6.627 6.268-12 14-12s14 5.373 14 12-6.268 12-14 12c-1.13 0-2.23-.09-3.29-.26-.41-.07-.82.04-1.13.29l-4.13 3.32c-.66.53-1.61.01-1.54-.81l.32-3.7c.03-.34-.11-.67-.37-.89C9.13 26.13 8 23.18 8 20z"
+            fill="#374151"
           />
+          <circle cx="20" cy="20" r="2" fill="#fff" />
+          <circle cx="26" cy="20" r="2" fill="#fff" />
+          <circle cx="14" cy="20" r="2" fill="#fff" />
+        </svg>
 
-          <VoiceWave isActive={isSpeaking || isUserSpeaking} color="#000" />
-
-          <p className="text-sm text-gray-500">
-            {isUserSpeaking
-              ? "User speaking…"
-              : isSpeaking
-              ? "Assistant speaking…"
-              : "Ready to start voice intake"}
-          </p>
-        </div>
+        <span className="text-xl font-semibold text-[#374151]">
+          Conversation Transcript
+        </span>
       </div>
+
+      <button className="flex items-center gap-1 border border-[#CBD5E1] rounded-lg px-3 py-1 text-[#374151] text-sm font-medium hover:bg-[#F1F5F9] transition">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18" stroke="#374151" strokeWidth="2" />
+          <path
+            d="M8 6v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"
+            stroke="#374151"
+            strokeWidth="2"
+          />
+          <rect
+            x="5"
+            y="6"
+            width="14"
+            height="14"
+            rx="2"
+            stroke="#374151"
+            strokeWidth="2"
+          />
+        </svg>
+        Clear
+      </button>
     </div>
 
-    {/* Conversation Transcript */}
-    <div className="w-full rounded-md bg-[#EAEAEA] p-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-            <path
-              d="M8 20c0-6.627 6.268-12 14-12s14 5.373 14 12-6.268 12-14 12c-1.13 0-2.23-.09-3.29-.26-.41-.07-.82.04-1.13.29l-4.13 3.32c-.66.53-1.61.01-1.54-.81l.32-3.7c.03-.34-.11-.67-.37-.89C9.13 26.13 8 23.18 8 20z"
-              fill="#374151"
-            />
-            <circle cx="20" cy="20" r="2" fill="#fff" />
-            <circle cx="26" cy="20" r="2" fill="#fff" />
-            <circle cx="14" cy="20" r="2" fill="#fff" />
-          </svg>
-
-          <span className="text-xl font-semibold text-[#374151]">
-            Conversation Transcript
-          </span>
-        </div>
-
-        <button className="flex items-center gap-1 border border-[#CBD5E1] rounded-lg px-3 py-1 text-[#374151] text-sm font-medium hover:bg-[#F1F5F9] transition">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M3 6h18" stroke="#374151" strokeWidth="2" />
-            <path
-              d="M8 6v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"
-              stroke="#374151"
-              strokeWidth="2"
-            />
-            <rect
-              x="5"
-              y="6"
-              width="14"
-              height="14"
-              rx="2"
-              stroke="#374151"
-              strokeWidth="2"
-            />
-          </svg>
-          Clear
-        </button>
-      </div>
-
-      <div className="bg-white rounded-lg p-3 shadow max-h-[300px] overflow-y-auto">
-        <TranscriptDisplay currentTranscript={currentTranscript} />
-      </div>
+    <div className="bg-white rounded-lg p-3 shadow max-h-[300px] overflow-y-auto">
+      <TranscriptDisplay currentTranscript={currentTranscript} />
     </div>
+  </div>
 
-        {/* Third Box */}
-        <div className="w-full rounded-md bg-[#EAEAEA] p-4 mt-6">
-            <div className="bg-[#F8F9FA] rounded-lg p-4 flex flex-col">
-                <div className="flex items-center gap-2 mb-2">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" fill="#CBD5E1" />
-                        <path d="M12 16v-4" stroke="#374151" strokeWidth="2" strokeLinecap="round" />
-                        <circle cx="12" cy="8" r="1" fill="#374151" />
-                    </svg>
-                    <span className="text-lg font-semibold text-[#374151]">How Voice Intake Works</span>
-                </div>
-                <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                    <li>Click &quot;Start Voice Intake&quot; to begin speaking</li>
-                    <li>Say things like &quot;My name is John Smith&quot; or &quot;Schedule for December 30th&quot;</li>
-                    <li>The system will automatically fill the form fields</li>
-                    <li>Your conversation will appear in the transcript</li>
-                    <li>Click &quot;Stop Recording&quot; when you&apos;re finished</li>
-                </ul>
-            </div>
-        </div>
-  </section>
+  <div className="w-full rounded-md bg-[#EAEAEA] p-4 mt-6">
+    <div className="bg-[#F8F9FA] rounded-lg p-4 flex flex-col">
+      <div className="flex items-center gap-2 mb-2">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" fill="#CBD5E1" />
+          <path d="M12 16v-4" stroke="#374151" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="12" cy="8" r="1" fill="#374151" />
+        </svg>
+        <span className="text-lg font-semibold text-[#374151]">
+          How Voice Intake Works
+        </span>
+      </div>
+      <ul className="list-disc pl-5 text-gray-700 space-y-1">
+        <li>Click "Start Voice Intake" to begin speaking</li>
+        <li>Say things like "My name is John Smith"</li>
+        <li>The system will automatically fill the form fields</li>
+        <li>Your conversation will appear in the transcript</li>
+        <li>Click "Stop Recording" when you're finished</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+*/}
+
 
 
   
 </section>
 
 
-            </section>
+            {/* </section> */}
         </div>
     </div>
 </>);

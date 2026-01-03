@@ -137,20 +137,16 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
             if (normalized.surgeries !== undefined) {
                 const surgeryValue = normalized.surgeries || "";
                 next.surgeries = surgeryValue;
-                // Also set the radio button choice if there's a value
-                if (surgeryValue) {
-                    setSurgeryChoice('Yes');
-                }
+                // Explicitly set radio even when user said "No"
+                setSurgeryChoice(surgeryValue ? 'Yes' : 'No');
             }
             if (normalized.allergies !== undefined) {
-                const allergyValue = Array.isArray(normalized.allergies) 
-                    ? normalized.allergies 
+                const allergyValue = Array.isArray(normalized.allergies)
+                    ? normalized.allergies.filter(Boolean)
                     : (normalized.allergies ? [String(normalized.allergies)] : []);
                 next.allergies = allergyValue;
-                // Also set the radio button choice if there's a value
-                if (allergyValue.length > 0) {
-                    setAllergyChoice('Yes');
-                }
+                // Explicitly set radio even when user said "No"
+                setAllergyChoice(allergyValue.length > 0 ? 'Yes' : 'No');
             }
             if (normalized.current_medications !== undefined) next.current_medications = normalized.current_medications || "";
             if (normalized.family_history !== undefined) next.family_history = normalized.family_history || prev.family_history;
@@ -533,6 +529,7 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
         // console.log('[STEP 5] Preparing medical information for intake_form table...');
         // console.log('[STEP 5a] Using appointmentId:', appointmentId);
         
+        let intakeInserted = false;
         if (!appointmentId) {
             // console.error('[STEP 5 ERROR] Cannot insert intake_form - no appointmentId available!');
         } else {
@@ -648,6 +645,7 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
                     // console.error('[STEP 5d ERROR] Failed to insert intake_form:', intakeResult.error);
                     // console.error('[STEP 5d ERROR] Error details:', intakeResult.error.message);
                 } else {
+                    intakeInserted = true;
                     // console.log('[STEP 5d SUCCESS] Medical information inserted into intake_form table');
                 }
             } catch (err) {
@@ -659,7 +657,8 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
 
         // Upload consent PDF to private bucket and store path
         // console.log('[STEP 6] Checking consent PDF upload...');
-        if (appointmentId && consentPdfDataUrl) {
+        let consentUploadSucceeded = false;
+        if (appointmentId && intakeInserted && consentPdfDataUrl) {
             // console.log('[STEP 6a] Uploading consent PDF for appointmentId:', appointmentId);
             try {
                 const base64 = consentPdfDataUrl.split(',')[1];
@@ -672,9 +671,10 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
                 // console.log('[STEP 6c] Upload response status:', res.status);
                 if (!res.ok) {
                     const errText = await res.text();
-                    // console.error('[STEP 6c ERROR] Upload consent failed:', errText);
+                    console.error('[STEP 6c ERROR] Upload consent failed:', res.status, errText);
                     toast.error('Could not upload consent form');
                 } else {
+                    consentUploadSucceeded = true;
                     // console.log('[STEP 6c SUCCESS] Consent PDF uploaded successfully');
                 }
             } catch (err) {
@@ -753,13 +753,15 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
         if (!result.success) {
             // toast.error(`Error submitting appointment: ${result.error?.message || result.error || 'Unknown error'}`);
             // return;
-        } else {
-            toast.success("Appointment Booked");
         }
-        
+
+        // Only show success once consent file is stored
+        if (consentUploadSucceeded) {
+            toast.success("Appointment Submitted");
+        }
+
         // Reset all form fields after successful submission
         // console.log('[STEP 7] Resetting all form fields...');
-        toast.success("Appointment Submitted");
         
         setFirstName("");
         setLastName("");

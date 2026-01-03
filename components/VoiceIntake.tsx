@@ -264,6 +264,33 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
           normalizedSnapshot: lastNormalizedRef.current,
           conversationHistory: conversationRef.current,
         });
+
+        // Trigger normalize-csa with onset/service on call end
+        (async () => {
+          try {
+            const res = await fetch('/api/normalize-csa', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                normalizedSnapshot: lastNormalizedRef.current,
+                rawMergedPayload: mergedToolPayloadRef.current,
+              }),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              console.log('[VoiceIntake] normalize-csa response', data);
+              const normalized = data?.normalized;
+              if (normalized && typeof window !== 'undefined' && typeof (window as any).__autofillCSA === 'function') {
+                // Use normalized response to autofill (service, onset_date, etc.)
+                (window as any).__autofillCSA(normalized);
+              }
+            } else {
+              console.error('[VoiceIntake] normalize-csa non-200', res.status);
+            }
+          } catch (err) {
+            console.error('[VoiceIntake] normalize-csa call failed', err);
+          }
+        })();
       });
       // Direct tool-call events (when Vapi surfaces tools outside of message payload)
       instance.on("tool-call", handleToolCall);

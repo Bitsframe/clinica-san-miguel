@@ -269,12 +269,20 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     const [signatureMode, setSignatureMode] = useState<'draw' | 'type'>('draw');
     const [typedSignature, setTypedSignature] = useState('');
     const [selectedFont, setSelectedFont] = useState<'font1' | 'font2'>('font1');
+    const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+    const [hasSignature, setHasSignature] = useState(false);
+    const [savedSignatureDataUrl, setSavedSignatureDataUrl] = useState<string | null>(null);
+    const [savedSignatureMode, setSavedSignatureMode] = useState<'draw' | 'type' | null>(null);
     // Track if PDF preview has been clicked
     const [pdfPreviewed, setPdfPreviewed] = useState(false);
     // Store last generated consent PDF data URL for upload
     const [consentPdfDataUrl, setConsentPdfDataUrl] = useState<string | null>(null);
     // Track booked time slots for selected date
     const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+    // Consent checkboxes state
+    const [consentTelemedicine, setConsentTelemedicine] = useState(false);
+    const [consentHIPAA, setConsentHIPAA] = useState(false);
+    const [consentGeneral, setConsentGeneral] = useState(false);
     // Vapi instance and speaking state for waveform
         const vapi = useVapiInstance();
     const isSpeaking = useVapiSpeaking(vapi);
@@ -286,6 +294,53 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     if (typeof window !== 'undefined') {
         (window as any).__autofillCSA = logic.autofillFromNormalized;
     }
+
+    // Reset signature-related UI state after submit
+    const resetSignatureState = () => {
+        sigCanvasRef.current?.clear();
+        setSignatureMode('draw');
+        setTypedSignature('');
+        setSelectedFont('font1');
+        setIsSignatureModalOpen(false);
+        setHasSignature(false);
+        setSavedSignatureDataUrl(null);
+        setSavedSignatureMode(null);
+        setPdfPreviewed(false);
+        setConsentPdfDataUrl(null);
+        setConsentTelemedicine(false);
+        setConsentHIPAA(false);
+        setConsentGeneral(false);
+    };
+
+    // Build a signature data URL from the current input; prefers saved copy if available
+    const buildSignatureDataUrl = () => {
+        if (savedSignatureDataUrl && savedSignatureMode === signatureMode) return savedSignatureDataUrl;
+
+        if (signatureMode === 'draw') {
+            return sigCanvasRef.current?.toDataURL() || null;
+        }
+
+        if (signatureMode === 'type' && typedSignature) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'black';
+                ctx.font = selectedFont === 'font1'
+                    ? '48px "Brush Script MT", cursive'
+                    : 'italic 48px "Dancing Script", cursive';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(typedSignature, canvas.width / 2, canvas.height / 2);
+                return canvas.toDataURL();
+            }
+        }
+
+        return null;
+    };
     // Destructure all state and handlers from logic
         type ScheduleDateTime = { date: string; time: string };
         const {
@@ -410,8 +465,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         </div>
                         <p className="text-[#767676]">{location.title}</p>
                     </div>
-{/* 
-<section className="flex justify-center items-center w-full px-4 mb-8"> */}
+
+<section className="flex justify-center items-center w-full px-4 mb-8"> 
 
 <section className="grid md:grid-cols-2 grid-cols-1 gap-8 mx-auto"
      style={{
@@ -421,6 +476,11 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
              maxWidth: '1200px'   // ← controls form width
      }}
 >
+
+                        {/* Patient Information Section */}
+                            <div className="col-span-full">
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Patient Information</h2>
+                        </div>
 
                         <Dropdown
                             label={t("form_f10")}
@@ -552,7 +612,11 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 {/* <VoiceIntake setForm={setMedicalForm} onTranscript={onTranscript} vapi={vapi} onUserSpeaking={handleUserSpeaking} /> */}
                                 {/* Button now commented out and only visible in right-side box */}
                             </div>
-                            <h2 className="text-lg font-semibold text-customGray">Medical Information</h2>
+                         </div>
+                                                          <div className="col-span-full mt-0">
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Medical Information</h2>
+                         </div>
+                         <div className="col-span-full space-y-4 pt-0">
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
                                 {/* Move Reason for Visit, Location, Severity before Number of Pregnancies/Birth Control */}
                                 <Input
@@ -772,6 +836,14 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     onChange={(val) => handleMedicalChange('current_medications', val)}
                                     value={medicalForm.current_medications}
                                 />
+                            </div>
+
+                            {/* Medical History Section */}
+                             <div className="col-span-full pt-10">
+                                <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-8">Medical History</h2>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
                                 <div className="flex flex-col items-start w-full justify-center">
                                     <label className="text-[16px] text-customGray font-poppins font-bold">Surgeries:</label>
                                     <div className="flex flex-row gap-6 mb-2">
@@ -845,16 +917,6 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         />
                                     )}
                                 </div>
-                                <Input
-                                    label="Occupation"
-                                    placeholder="e.g., Teacher"
-                                    breakpoint={true}
-                                    onChange={(val) => handleMedicalChange('occupation', val)}
-                                    value={medicalForm.occupation}
-                                />
-                            </div>
-
-                            <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
                                 <div className="flex flex-col gap-2">
                                     <p className="text-[16px] text-customGray font-poppins font-bold">Family History:</p>
                                     <div className="flex flex-wrap gap-3">
@@ -900,28 +962,45 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         </div>
                                     )}
                                 </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <p className="text-[16px] text-customGray font-poppins font-bold">Lifestyle:</p>
-                                    {[
-                                        { key: 'tobacco_use', label: 'Tobacco use' },
-                                        { key: 'alcohol_use', label: 'Alcohol use' },
-                                        { key: 'drug_use', label: 'Drug use' },
-                                    ].map((item) => (
-                                        <label key={item.key} className="flex items-center gap-2 text-sm text-customGray">
-                                            <input
-                                                type="checkbox"
-                                                checked={(medicalForm as any)[item.key]}
-                                                onChange={(e) => handleBooleanFieldChange(item.key, e.target.checked)}
-                                                className="custom-checkbox-orange"
-                                            />
-                                            {item.label}
-                                        </label>
-                                    ))}
-                                </div>
                             </div>
                         </div>
 
+                        {/* Social History Section */}
+                         <div className="col-span-full mt-8">
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Social History</h2>
+                        </div>
+
+                        <div className="col-span-full">
+                            <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
+                                <Input
+                                    label="Occupation"
+                                    placeholder="e.g., Teacher"
+                                    breakpoint={true}
+                                    onChange={(val) => handleMedicalChange('occupation', val)}
+                                    value={medicalForm.occupation}
+                                />
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-[16px] text-customGray font-poppins font-bold">Lifestyle:</p>
+                                    <div className="flex flex-row gap-6">
+                                        {[
+                                            { key: 'tobacco_use', label: 'Tobacco use' },
+                                            { key: 'alcohol_use', label: 'Alcohol use' },
+                                            { key: 'drug_use', label: 'Drug use' },
+                                        ].map((item) => (
+                                            <label key={item.key} className="flex items-center gap-2 text-sm text-customGray">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={(medicalForm as any)[item.key]}
+                                                    onChange={(e) => handleBooleanFieldChange(item.key, e.target.checked)}
+                                                    className="custom-checkbox-orange"
+                                                />
+                                                {item.label}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div className="w-full md:flex justify-between items-center space-y-6 col-span-full mb-5">
                             <div className="space-y-2 md:w-2/3 ">
@@ -940,128 +1019,74 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         </div>
 
                         {/* Digital Signature Section */}
-                        {/* <div className="w-full col-span-full mb-5">
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Add Your Signature</h3>
-                            
-                            <div className="flex gap-2 mb-4">
-                                <button
-                                    onClick={() => setSignatureMode('draw')}
-                                    className={`px-6 py-2 rounded-t-lg font-semibold transition-colors ${
-                                        signatureMode === 'draw'
-                                            ? 'bg-orange-500 text-white'
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    }`}
-                                    type="button"
-                                >
-                                    Draw
-                                </button>
-                                <button
-                                    onClick={() => setSignatureMode('type')}
-                                    className={`px-6 py-2 rounded-t-lg font-semibold transition-colors ${
-                                        signatureMode === 'type'
-                                            ? 'bg-orange-500 text-white'
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    }`}
-                                    type="button"
-                                >
-                                    Type
-                                </button>
+                                 <div className="w-full col-span-full mt-8">
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Digital Signature</h2>
+                            <p className="text-gray-600 mb-4">
+                                Please add your digital signature. This signature will be automatically applied to all selected consent documents.
+                            </p>
+                            <button
+                                onClick={() => setIsSignatureModalOpen(true)}
+                                className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors"
+                                type="button"
+                            >
+                                Add Digital Signature
+                            </button>
+                            {hasSignature && (
+                                <div className="flex items-center gap-2 mt-3 text-green-600">
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                    </svg>
+                                    <span className="font-medium">Digital signature saved and will be applied to all selected documents.</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Digital Sign Following Documents Section */}
+                        <div className="w-full col-span-full mt-8">
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Digital sign following documents</h2>
+                            <div className="space-y-4">
+                                <label className="flex items-start gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={consentTelemedicine}
+                                        onChange={(e) => setConsentTelemedicine(e.target.checked)}
+                                        className="custom-checkbox-orange mt-1"
+                                    />
+                                    <span className="text-[16px] text-customGray font-poppins">
+                                        I have read and agree to the <span className="font-semibold">Telemedicine Consent.</span>
+                                    </span>
+                                </label>
+                                <label className="flex items-start gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={consentHIPAA}
+                                        onChange={(e) => setConsentHIPAA(e.target.checked)}
+                                        className="custom-checkbox-orange mt-1"
+                                    />
+                                    <span className="text-[16px] text-customGray font-poppins">
+                                        I acknowledge and agree to the <span className="font-semibold">HIPAA Privacy Notice.</span>
+                                    </span>
+                                </label>
+                                <label className="flex items-start gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={consentGeneral}
+                                        onChange={(e) => setConsentGeneral(e.target.checked)}
+                                        className="custom-checkbox-orange mt-1"
+                                    />
+                                    <span className="text-[16px] text-customGray font-poppins">
+                                        I consent to the <span className="font-semibold">General / Surgery Consent.</span>
+                                    </span>
+                                </label>
                             </div>
-
-                            {signatureMode === 'draw' && (
-                                <>
-                                    <p className="text-gray-600 mb-4">Draw your signature below</p>
-                                    <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white max-w-sm">
-                                        <SignatureCanvas
-                                            ref={sigCanvasRef}
-                                            canvasProps={{
-                                                className: "w-full h-44",
-                                                style: { touchAction: 'none' }
-                                            }}
-                                            backgroundColor="white"
-                                        />
-                                    </div>
-                                    <div className="flex gap-3 mt-4">
-                                        <button
-                                            onClick={() => sigCanvasRef.current?.clear()}
-                                            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                                            type="button"
-                                        >
-                                            Clear
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-
-                            {signatureMode === 'type' && (
-                                <>
-                                    <p className="text-gray-600 mb-4">Type your signature and select a font</p>
-                                    <div className="max-w-sm space-y-4">
-                                        <input
-                                            type="text"
-                                            value={typedSignature}
-                                            onChange={(e) => setTypedSignature(e.target.value)}
-                                            placeholder="Enter your signature"
-                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg outline-none focus:border-orange-500"
-                                        />
-                                        
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-gray-700">Select Font:</label>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <button
-                                                    onClick={() => setSelectedFont('font1')}
-                                                    className={`p-4 border-2 rounded-lg transition-all ${
-                                                        selectedFont === 'font1'
-                                                            ? 'border-orange-500 bg-orange-50'
-                                                            : 'border-gray-300 hover:border-gray-400'
-                                                    }`}
-                                                    type="button"
-                                                >
-                                                    <span style={{ fontFamily: 'Brush Script MT, cursive', fontSize: '24px' }}>
-                                                        {typedSignature || 'Sample'}
-                                                    </span>
-                                                </button>
-                                                <button
-                                                    onClick={() => setSelectedFont('font2')}
-                                                    className={`p-4 border-2 rounded-lg transition-all ${
-                                                        selectedFont === 'font2'
-                                                            ? 'border-orange-500 bg-orange-50'
-                                                            : 'border-gray-300 hover:border-gray-400'
-                                                    }`}
-                                                    type="button"
-                                                >
-                                                    <span style={{ fontFamily: 'Dancing Script, cursive', fontSize: '24px', fontStyle: 'italic' }}>
-                                                        {typedSignature || 'Sample'}
-                                                    </span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {typedSignature && (
-                                            <div className="border-2 border-gray-300 rounded-lg p-6 bg-white">
-                                                <p className="text-xs text-gray-500 mb-2">Preview:</p>
-                                                <div className="text-center">
-                                                    <span style={{
-                                                        fontFamily: selectedFont === 'font1' ? 'Brush Script MT, cursive' : 'Dancing Script, cursive',
-                                                        fontSize: '32px',
-                                                        fontStyle: selectedFont === 'font2' ? 'italic' : 'normal'
-                                                    }}>
-                                                        {typedSignature}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            )}
-                        </div> */}
+                        </div>
 
                         <div className="w-full md:flex justify-end items-center gap-3 col-span-full mb-5">
                             {/* <div className="w-full mb-3">
                                 <p className="text-red-600 font-semibold text-sm">⚠️ Please review the telemedicine consent form before submitting</p>
                             </div> */}
                             <div className="flex gap-3 flex-col md:flex-row w-full md:w-auto justify-end">
-                                {/* <Button
+                                 <Button
                                     text="Preview PDF"
                                     size={{ width: "250px", height: "50px" }}
                                     route={""}
@@ -1069,29 +1094,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     textColor={"#ffffff"}
                                     onClick={() => {
                                         setPdfPreviewed(true);
-                                        let signatureData = null;
-                                        
-                                        if (signatureMode === 'draw') {
-                                            signatureData = sigCanvasRef.current?.toDataURL() || null;
-                                        } else if (signatureMode === 'type' && typedSignature) {
-                                            // Create canvas for typed signature
-                                            const canvas = document.createElement('canvas');
-                                            canvas.width = 400;
-                                            canvas.height = 100;
-                                            const ctx = canvas.getContext('2d');
-                                            if (ctx) {
-                                                ctx.fillStyle = 'white';
-                                                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                                                ctx.fillStyle = 'black';
-                                                ctx.font = selectedFont === 'font1' 
-                                                    ? '48px "Brush Script MT", cursive' 
-                                                    : 'italic 48px "Dancing Script", cursive';
-                                                ctx.textAlign = 'center';
-                                                ctx.textBaseline = 'middle';
-                                                ctx.fillText(typedSignature, canvas.width / 2, canvas.height / 2);
-                                                signatureData = canvas.toDataURL();
-                                            }
-                                        }
+                                        const signatureData = buildSignatureDataUrl();
                                         
                                         generateConsentPDF({
                                             firstName,
@@ -1102,15 +1105,45 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             onReady: (dataUrl) => setConsentPdfDataUrl(dataUrl)
                                         });
                                     }}
-                                /> */}
+                                /> 
                                 <Button
                                     text={t("button_label")}
                                     size={{ width: "250px", height: "50px" }}
                                     route={""}
                                     bgColor={"#FF7A00"}
                                     textColor={"#ffffff"}
-                                    onClick={() => {
-                                        submitAppointmentDetails(consentPdfDataUrl || undefined);
+                                    onClick={async () => {
+                                        // Validate all consents are checked
+                                        if (!consentTelemedicine || !consentHIPAA || !consentGeneral) {
+                                            toast.warning('Please agree to all consent documents before submitting');
+                                            return;
+                                        }
+
+                                        const submitWithPdf = async (dataUrl?: string) => {
+                                            await submitAppointmentDetails(dataUrl || undefined);
+                                            resetSignatureState();
+                                        };
+
+                                        // If no PDF generated yet, create it on submit using the current signature state
+                                        if (!consentPdfDataUrl) {
+                                            const signatureData = buildSignatureDataUrl();
+
+                                            generateConsentPDF({
+                                                firstName,
+                                                lastName,
+                                                dob,
+                                                signature: signatureData
+                                            }, {
+                                                preview: false,
+                                                onReady: async (dataUrl) => {
+                                                    setConsentPdfDataUrl(dataUrl);
+                                                    await submitWithPdf(dataUrl);
+                                                }
+                                            });
+                                            return;
+                                        }
+
+                                        await submitWithPdf(consentPdfDataUrl);
                                     }}
                                 />
                             </div>
@@ -1124,7 +1157,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                 >
 
 
-{/*
+
 <section
   className="
     w-full
@@ -1254,7 +1287,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
   </div>
 
 </section>
-*/}
+
 
 
 
@@ -1262,9 +1295,199 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 </section>
 
 
-            {/* </section> */}
+             </section> 
         </div>
     </div>
+
+    {/* Signature Modal */}
+    <Modal 
+        show={isSignatureModalOpen} 
+        onClose={() => setIsSignatureModalOpen(false)} 
+        size="xl"
+        position="center"
+        theme={{
+            content: {
+                base: "relative h-full w-full p-4 md:h-auto",
+                inner: "relative rounded-lg bg-white shadow flex flex-col max-h-[90vh]"
+            },
+            root: {
+                base: "fixed top-0 right-0 left-0 z-50 h-modal h-screen overflow-y-auto overflow-x-hidden md:inset-0 md:h-full",
+                show: {
+                    on: "flex bg-blue-300 bg-opacity-30 backdrop-blur-sm",
+                    off: "hidden"
+                }
+            }
+        }}
+    >
+        <Modal.Header>Add Your Signature</Modal.Header>
+        <Modal.Body>
+            <div className="space-y-6">
+                <div className="flex gap-2 mb-4">
+                    <button
+                        onClick={() => {
+                            setSignatureMode('draw');
+                            setSavedSignatureDataUrl(null);
+                            setSavedSignatureMode(null);
+                            setHasSignature(false);
+                            setConsentPdfDataUrl(null);
+                            setPdfPreviewed(false);
+                        }}
+                        className={`px-6 py-2 rounded-t-lg font-semibold transition-colors ${
+                            signatureMode === 'draw'
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                        type="button"
+                    >
+                        Draw
+                    </button>
+                    <button
+                        onClick={() => {
+                            setSignatureMode('type');
+                            setSavedSignatureDataUrl(null);
+                            setSavedSignatureMode(null);
+                            setHasSignature(false);
+                            setConsentPdfDataUrl(null);
+                            setPdfPreviewed(false);
+                        }}
+                        className={`px-6 py-2 rounded-t-lg font-semibold transition-colors ${
+                            signatureMode === 'type'
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                        type="button"
+                    >
+                        Type
+                    </button>
+                </div>
+
+                {signatureMode === 'draw' && (
+                    <>
+                        <p className="text-gray-600 mb-4">Draw your signature below</p>
+                        <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
+                            <SignatureCanvas
+                                ref={sigCanvasRef}
+                                canvasProps={{
+                                    className: "w-full h-44",
+                                    style: { touchAction: 'none' }
+                                }}
+                                backgroundColor="white"
+                            />
+                        </div>
+                        <div className="flex gap-3 mt-4">
+                            <button
+                                onClick={() => sigCanvasRef.current?.clear()}
+                                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                                type="button"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {signatureMode === 'type' && (
+                    <>
+                        <p className="text-gray-600 mb-4">Type your signature and select a font</p>
+                        <div className="space-y-4">
+                            <input
+                                type="text"
+                                value={typedSignature}
+                                onChange={(e) => setTypedSignature(e.target.value)}
+                                placeholder="Enter your signature"
+                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg outline-none focus:border-orange-500"
+                            />
+                            
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-gray-700">Select Font:</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        onClick={() => setSelectedFont('font1')}
+                                        className={`p-4 border-2 rounded-lg transition-all ${
+                                            selectedFont === 'font1'
+                                                ? 'border-orange-500 bg-orange-50'
+                                                : 'border-gray-300 hover:border-gray-400'
+                                        }`}
+                                        type="button"
+                                    >
+                                        <span style={{ fontFamily: 'Brush Script MT, cursive', fontSize: '24px' }}>
+                                            {typedSignature || 'Sample'}
+                                        </span>
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedFont('font2')}
+                                        className={`p-4 border-2 rounded-lg transition-all ${
+                                            selectedFont === 'font2'
+                                                ? 'border-orange-500 bg-orange-50'
+                                                : 'border-gray-300 hover:border-gray-400'
+                                        }`}
+                                        type="button"
+                                    >
+                                        <span style={{ fontFamily: 'Dancing Script, cursive', fontSize: '24px', fontStyle: 'italic' }}>
+                                            {typedSignature || 'Sample'}
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {typedSignature && (
+                                <div className="border-2 border-gray-300 rounded-lg p-6 bg-white">
+                                    <p className="text-xs text-gray-500 mb-2">Preview:</p>
+                                    <div className="text-center">
+                                        <span style={{
+                                            fontFamily: selectedFont === 'font1' ? 'Brush Script MT, cursive' : 'Dancing Script, cursive',
+                                            fontSize: '32px',
+                                            fontStyle: selectedFont === 'font2' ? 'italic' : 'normal'
+                                        }}>
+                                            {typedSignature}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
+        </Modal.Body>
+        <Modal.Footer>
+            <div className="flex gap-3 w-full justify-end">
+                <button
+                    onClick={() => setIsSignatureModalOpen(false)}
+                    className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                    type="button"
+                >
+                    Cancel
+                </button>
+                <button
+                    onClick={() => {
+                        const hasDrawnSignature = signatureMode === 'draw' && !sigCanvasRef.current?.isEmpty();
+                        const hasTypedSignature = signatureMode === 'type' && typedSignature.trim() !== '';
+                        
+                        if (hasDrawnSignature || hasTypedSignature) {
+                            const signatureDataUrl = buildSignatureDataUrl();
+
+                            if (signatureDataUrl) {
+                                setSavedSignatureDataUrl(signatureDataUrl);
+                                setSavedSignatureMode(signatureMode);
+                                setHasSignature(true);
+                                setConsentPdfDataUrl(null); // force regeneration so latest signature is used
+                                setPdfPreviewed(false);
+                                setIsSignatureModalOpen(false);
+                            } else {
+                                toast.error('Could not capture signature. Please try again.');
+                            }
+                        } else {
+                            toast.error('Please add a signature before saving');
+                        }
+                    }}
+                    className="px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+                    type="button"
+                >
+                    Save Signature
+                </button>
+            </div>
+        </Modal.Footer>
+    </Modal>
 </>);
 },);
 

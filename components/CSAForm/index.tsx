@@ -479,7 +479,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                         {/* Patient Information Section */}
                             <div className="col-span-full">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Patient Information</h2>
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('patient_information_title')}</h2>
                         </div>
 
                         <Dropdown
@@ -507,12 +507,12 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         />
                         {/* Email Address Field */}
                         <div className="flex flex-col items-start w-full justify-center">
-                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Email Address:</label>
+                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('email_label')}</label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
-                                placeholder="Enter your email address"
+                                placeholder={t('email_placeholder')}
                                 className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                 autoComplete="on"
                                 autoCorrect="on"
@@ -520,7 +520,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             />
                             {/* Email validation error */}
                             {email && !/^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,})$/.test(email) && (
-                                <span className="text-red-600 text-xs mt-1">Please enter a valid email address.</span>
+                                <span className="text-red-600 text-xs mt-1">{t('email_error')}</span>
                             )}
                         </div>
                         <PhoneNumberInput
@@ -538,7 +538,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             selectedValue={sex}
                         />
                         <div className="flex flex-col items-start w-full justify-center">
-                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Date of Birth:</label>
+                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('form_f7')}</label>
                             <input
                                 type="date"
                                 value={dob ? dob.toISOString().split('T')[0] : ''}
@@ -548,12 +548,12 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             />
                         </div>
                         <div className="flex flex-col items-start w-full justify-center">
-                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Age:</label>
+                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('age_label')}</label>
                             <input
                                 type="text"
                                 value={dob ? moment().diff(moment(dob), 'years') : ''}
                                 readOnly
-                                placeholder="Age will be calculated automatically"
+                                placeholder={t('age_placeholder')}
                                 className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-gray-100 outline-none rounded-[10px] cursor-not-allowed"
                             />
                         </div>
@@ -614,20 +614,20 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             </div>
                          </div>
                                                           <div className="col-span-full mt-0">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Medical Information</h2>
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('medical_info_title')}</h2>
                          </div>
                          <div className="col-span-full space-y-4 pt-0">
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
                                 {/* Move Reason for Visit, Location, Severity before Number of Pregnancies/Birth Control */}
                                 <Input
-                                    label="Reason for Visit"
-                                    placeholder="Describe your main concern"
+                                    label={t('reason_visit_label')}
+                                    placeholder={t('reason_visit_placeholder')}
                                     breakpoint={true}
                                     onChange={(val) => handleMedicalChange('chief_complaint', val)}
                                     value={medicalForm.chief_complaint}
                                 />
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">how long are you feeling this?</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('duration_label')}</label>
                                     <input
                                         type="date"
                                         value={onsetDate ? onsetDate.toISOString().split('T')[0] : ''}
@@ -637,14 +637,14 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     />
                                 </div>
                                 <Input
-                                    label="Location of symptoms"
-                                    placeholder="e.g., Chest, Knee"
+                                    label={t('symptom_location_label')}
+                                    placeholder={t('symptom_location_placeholder')}
                                     breakpoint={true}
                                     onChange={(val) => handleMedicalChange('location', val)}
                                     value={medicalForm.location}
                                 />
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">Severity (1-10):</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('severity_label')}</label>
                                     <select
                                         className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                         value={medicalForm.severity}
@@ -758,7 +758,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 )}
          
                                 <div className="flex flex-col items-start w-full justify-center md:col-span-2">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">Symptom Details:</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('symptom_details_label')}</label>
                                     <AllergyTagInput
                                         allergies={medicalForm.symptoms_description}
                                         setAllergies={(symptoms_description: string[]) => setMedicalForm((prev: typeof medicalForm) => ({ ...prev, symptoms_description }))}
@@ -766,19 +766,30 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     />
                                 </div>
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">Relieving Factors:</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('relieving_factors_label')}</label>
                                     <div className="flex flex-wrap gap-3 mt-2">
-                                        {['Rest', 'Ice', 'Heat', 'Elevation', 'Medication', 'Stretching', 'Massage', 'Support or compression', 'Time', 'Other'].map((opt) => (
-                                            <label key={opt} className="flex items-center gap-2 text-sm text-customGray">
+                                        {[
+                                            { key: 'Rest', label: t('relieving_factors_rest') },
+                                            { key: 'Ice', label: t('relieving_factors_ice') },
+                                            { key: 'Heat', label: t('relieving_factors_heat') },
+                                            { key: 'Elevation', label: t('relieving_factors_elevation') },
+                                            { key: 'Medication', label: t('relieving_factors_medication') },
+                                            { key: 'Stretching', label: t('relieving_factors_stretching') },
+                                            { key: 'Massage', label: t('relieving_factors_massage') },
+                                            { key: 'Support or compression', label: t('relieving_factors_support') },
+                                            { key: 'Time', label: t('relieving_factors_time') },
+                                            { key: 'Other', label: t('relieving_factors_other') },
+                                        ].map((opt) => (
+                                            <label key={opt.key} className="flex items-center gap-2 text-sm text-customGray">
                                                 <input
                                                     type="checkbox"
-                                                    checked={reliefSelect.includes(opt)}
+                                                    checked={reliefSelect.includes(opt.key)}
                                                     onChange={(e) => {
                                                         let updated: string[];
                                                         if (e.target.checked) {
-                                                            updated = [...reliefSelect, opt];
+                                                            updated = [...reliefSelect, opt.key];
                                                         } else {
-                                                            updated = reliefSelect.filter((item: string) => item !== opt);
+                                                            updated = reliefSelect.filter((item: string) => item !== opt.key);
                                                         }
                                                         setReliefSelect(Array.isArray(updated) ? updated : []);
                                                         if (!updated.includes('Other')) {
@@ -794,7 +805,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                     }}
                                                     className="custom-checkbox-orange"
                                                 />
-                                                {opt}
+                                                {opt.label}
                                             </label>
                                         ))}
                                     </div>
@@ -822,16 +833,16 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     )}
                                 </div>
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">Medical Conditions:</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('medical_conditions_label')}</label>
                                     <AllergyTagInput
                                         allergies={medicalForm.medical_conditions}
                                         setAllergies={(medical_conditions: string[]) => setMedicalForm((prev: typeof medicalForm) => ({ ...prev, medical_conditions }))}
-                                        placeholder="e.g., asthma, diabetes, hypertension"
+                                        placeholder={t('medical_conditions_placeholder')}
                                     />
                                 </div>
                                 <Input
-                                    label="Current Medications"
-                                    placeholder="e.g., Albuterol, Metformin"
+                                    label={t('current_medications_label')}
+                                    placeholder={t('current_medications_placeholder')}
                                     breakpoint={true}
                                     onChange={(val) => handleMedicalChange('current_medications', val)}
                                     value={medicalForm.current_medications}
@@ -840,12 +851,12 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                             {/* Medical History Section */}
                              <div className="col-span-full pt-10">
-                                <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-8">Medical History</h2>
+                                <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-8">{t('medical_history_title')}</h2>
                             </div>
 
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">Surgeries:</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('surgeries_label')}</label>
                                     <div className="flex flex-row gap-6 mb-2">
                                         <label className="flex items-center gap-2">
                                             <input
@@ -856,7 +867,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 onChange={() => setSurgeryChoice('Yes')}
                                                 className="custom-radio-orange"
                                             />
-                                            Yes
+                                            {t('surgeries_yes')}
                                         </label>
                                         <label className="flex items-center gap-2">
                                             <input
@@ -870,7 +881,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 }}
                                                 className="custom-radio-orange"
                                             />
-                                            No
+                                            {t('surgeries_no')}
                                         </label>
                                     </div>
                                     {surgeryChoice === 'Yes' && (
@@ -882,7 +893,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     )}
                                 </div>
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Allergies:</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('allergies_label')}</label>
                                     <div className="flex flex-row gap-6 mb-2">
                                         <label className="flex items-center gap-2">
                                             <input
@@ -893,7 +904,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 onChange={() => setAllergyChoice('Yes')}
                                                 className="custom-radio-orange"
                                             />
-                                            Yes
+                                            {t('allergies_yes')}
                                         </label>
                                         <label className="flex items-center gap-2">
                                             <input
@@ -907,7 +918,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 }}
                                                 className="custom-radio-orange"
                                             />
-                                            No
+                                            {t('allergies_no')}
                                         </label>
                                     </div>
                                     {allergyChoice === 'Yes' && (
@@ -918,13 +929,13 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     )}
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <p className="text-[16px] text-customGray font-poppins font-bold">Family History:</p>
+                                    <p className="text-[16px] text-customGray font-poppins font-bold">{t('family_history_label')}</p>
                                     <div className="flex flex-wrap gap-3">
                                         {[
-                                            { key: 'hypertension', label: 'Hypertension' },
-                                            { key: 'diabetes', label: 'Diabetes' },
-                                            { key: 'cancer', label: 'Cancer' },
-                                            { key: 'heart_disease', label: 'Heart Disease' },
+                                            { key: 'hypertension', label: t('family_history_hypertension') },
+                                            { key: 'diabetes', label: t('family_history_diabetes') },
+                                            { key: 'cancer', label: t('family_history_cancer') },
+                                            { key: 'heart_disease', label: t('family_history_heart_disease') },
                                         ].map((item) => (
                                             <label key={item.key} className="flex items-center gap-2 text-sm text-customGray">
                                                 <input
@@ -943,7 +954,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 onChange={(e) => handleFamilyHistoryChange('unknown', e.target.checked)}
                                                 className="custom-checkbox-orange"
                                             />
-                                            Unknown
+                                            {t('family_history_unknown')}
                                         </label>
                                     </div>
                                     {medicalForm.family_history?.cancer && (
@@ -967,25 +978,25 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                         {/* Social History Section */}
                          <div className="col-span-full mt-8">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Social History</h2>
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('social_history_title')}</h2>
                         </div>
 
                         <div className="col-span-full">
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
                                 <Input
-                                    label="Occupation"
-                                    placeholder="e.g., Teacher"
+                                    label={t('occupation_label')}
+                                    placeholder={t('occupation_placeholder')}
                                     breakpoint={true}
                                     onChange={(val) => handleMedicalChange('occupation', val)}
                                     value={medicalForm.occupation}
                                 />
                                 <div className="flex flex-col gap-2">
-                                    <p className="text-[16px] text-customGray font-poppins font-bold">Lifestyle:</p>
+                                    <p className="text-[16px] text-customGray font-poppins font-bold">{t('lifestyle_label')}</p>
                                     <div className="flex flex-row gap-6">
                                         {[
-                                            { key: 'tobacco_use', label: 'Tobacco use' },
-                                            { key: 'alcohol_use', label: 'Alcohol use' },
-                                            { key: 'drug_use', label: 'Drug use' },
+                                            { key: 'tobacco_use', label: t('lifestyle_tobacco') },
+                                            { key: 'alcohol_use', label: t('lifestyle_alcohol') },
+                                            { key: 'drug_use', label: t('lifestyle_drug') },
                                         ].map((item) => (
                                             <label key={item.key} className="flex items-center gap-2 text-sm text-customGray">
                                                 <input
@@ -1020,16 +1031,16 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                         {/* Digital Signature Section */}
                                  <div className="w-full col-span-full mt-8">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Digital Signature</h2>
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('digital_signature_title')}</h2>
                             <p className="text-gray-600 mb-4">
-                                Please add your digital signature. This signature will be automatically applied to all selected consent documents.
+                                {t('digital_signature_description')}
                             </p>
                             <button
                                 onClick={() => setIsSignatureModalOpen(true)}
                                 className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors"
                                 type="button"
                             >
-                                Add Digital Signature
+                                {t('digital_signature_button')}
                             </button>
                             {hasSignature && (
                                 <div className="flex items-center gap-2 mt-3 text-green-600">
@@ -1043,7 +1054,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                         {/* Digital Sign Following Documents Section */}
                         <div className="w-full col-span-full mt-8">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">Digital sign following documents</h2>
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('digital_sign_docs')}</h2>
                             <div className="space-y-4">
                                 <label className="flex items-start gap-3 cursor-pointer">
                                     <input
@@ -1053,7 +1064,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         className="custom-checkbox-orange mt-1"
                                     />
                                     <span className="text-[16px] text-customGray font-poppins">
-                                        I have read and agree to the <span className="font-semibold">Telemedicine Consent.</span>
+                                        {t('consent_telemedicine')}
                                     </span>
                                 </label>
                                 <label className="flex items-start gap-3 cursor-pointer">
@@ -1064,7 +1075,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         className="custom-checkbox-orange mt-1"
                                     />
                                     <span className="text-[16px] text-customGray font-poppins">
-                                        I acknowledge and agree to the <span className="font-semibold">HIPAA Privacy Notice.</span>
+                                        {t('consent_hipaa')}
                                     </span>
                                 </label>
                                 <label className="flex items-start gap-3 cursor-pointer">
@@ -1075,7 +1086,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         className="custom-checkbox-orange mt-1"
                                     />
                                     <span className="text-[16px] text-customGray font-poppins">
-                                        I consent to the <span className="font-semibold">General / Surgery Consent.</span>
+                                        {t('consent_general')}
                                     </span>
                                 </label>
                             </div>
@@ -1188,14 +1199,14 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
           <path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" />
         </svg>
         <span className="text-2xl font-semibold text-[#49505A]">
-          Voice Intake
+          {t('voice_intake_title')}
         </span>
       </div>
 
       <hr className="w-full border-t border-[#E5E7EB] mb-4" />
 
       <p className="text-center text-lg text-[#49505A] mb-4">
-        Click the button below and speak to fill the form automatically
+        {t('voice_intake_description')}
       </p>
 
       <div className="flex flex-col items-center w-full gap-2">
@@ -1213,7 +1224,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
             ? "User speaking…"
             : isSpeaking
             ? "Assistant speaking…"
-            : "Ready to start voice intake"}
+            : t('voice_intake_ready')}
         </p>
       </div>
     </div>
@@ -1233,7 +1244,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
         </svg>
 
         <span className="text-xl font-semibold text-[#374151]">
-          Conversation Transcript
+          {t('conversation_transcript')}
         </span>
       </div>
 
@@ -1255,7 +1266,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
             strokeWidth="2"
           />
         </svg>
-        Clear
+        {t('transcript_clear')}
       </button>
     </div>
 
@@ -1273,15 +1284,15 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
           <circle cx="12" cy="8" r="1" fill="#374151" />
         </svg>
         <span className="text-lg font-semibold text-[#374151]">
-          How Voice Intake Works
+          {t('how_voice_intake_works')}
         </span>
       </div>
       <ul className="list-disc pl-5 text-gray-700 space-y-1">
-        <li>Click "Start Voice Intake" to begin speaking</li>
-        <li>Say things like "My name is John Smith"</li>
-        <li>The system will automatically fill the form fields</li>
-        <li>Your conversation will appear in the transcript</li>
-        <li>Click "Stop Recording" when you're finished</li>
+        <li>{t('voice_intake_step1')}</li>
+        <li>{t('voice_intake_step2')}</li>
+        <li>{t('voice_intake_step3')}</li>
+        <li>{t('voice_intake_step4')}</li>
+        <li>{t('voice_intake_step5')}</li>
       </ul>
     </div>
   </div>

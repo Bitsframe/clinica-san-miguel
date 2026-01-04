@@ -295,12 +295,6 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
           </h2>
           <article className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
             {services_data.map((item, index) => (
-              // id={service.id}
-              // heading={service.title}
-              // icon={service.icon}
-              // description={service.description}
-              // mode={service.id % 2 === 0 ? "light" : "dark"}
-              // key={service.id}
               <ServiceTab
                 key={item.id}
                 id={item.id}

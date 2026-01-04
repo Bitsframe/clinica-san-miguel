@@ -3,6 +3,7 @@
 
 import React, { useEffect, useRef } from "react";
 import Vapi from "@vapi-ai/web";
+import { useTranslations } from "next-intl";
 
 
 
@@ -16,6 +17,7 @@ type VoiceIntakeProps = {
 
 
 export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi: externalVapi, onUserSpeaking }: VoiceIntakeProps): JSX.Element {
+  const t = useTranslations("appoinment_form");
   // Use provided vapi instance if available, else create our own
   const vapi = useRef<any>(null);
   const apiKey = process.env.NEXT_PUBLIC_CLINIC_VAPI_PUBLIC_KEY;
@@ -434,7 +436,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
           <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" style={{ marginRight: '0.5rem' }}>
             <path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" fill="#fff"/>
           </svg>
-          {isVoiceActive ? 'Listening...' : 'Start Voice Intake'}
+          {isVoiceActive ? t('voice_intake_listening') : t('voice_intake_button')}
         </span>
       </button>
     </div>

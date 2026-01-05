@@ -698,6 +698,16 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
         } else {
             // console.log('[STEP 6] Skipping consent PDF upload - appointmentId:', appointmentId, 'consentPdfs present:', !!consentPdfs);
         }
+        if (!dob) {
+            toast.warning('Please fill Date of Birth');
+            return;
+        }
+
+        if (!onsetDate) {
+            toast.warning('Please fill onset date');
+            return;
+        }
+
         const requiredFields = [
             'location_id',
             'first_name',

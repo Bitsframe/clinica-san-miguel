@@ -4,13 +4,12 @@ import "@/styles/custom-checkbox.css";
 
 import { styles } from "@/app/[locale]/styles";
 import { supabase } from "@/supabaseClient";
-import { useEffect } from "react";
+import { useEffect, useState, useRef, RefObject } from "react";
 import { Button } from "@/utils";
 import { Modal } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCSAFormLogic } from "./logic";
 import TranscriptDisplay from "../TranscriptDisplay";
-import { useState, useRef } from "react";
 import moment from "moment";
 
 import ReactDatePicker from "react-datepicker";
@@ -275,6 +274,33 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     const [hasSignature, setHasSignature] = useState(false);
     const [savedSignatureDataUrl, setSavedSignatureDataUrl] = useState<string | null>(null);
     const [savedSignatureMode, setSavedSignatureMode] = useState<'draw' | 'type' | null>(null);
+
+    // Mobile stepper state
+    const [currentStep, setCurrentStep] = useState(1);
+    const [isDesktop, setIsDesktop] = useState(false);
+
+    useEffect(() => {
+        const updateIsDesktop = () => setIsDesktop(typeof window !== 'undefined' && window.innerWidth >= 768);
+        updateIsDesktop();
+        window.addEventListener('resize', updateIsDesktop);
+        return () => window.removeEventListener('resize', updateIsDesktop);
+    }, []);
+
+    // Section anchors for mobile pagination
+    const patientSectionRef = useRef<HTMLDivElement | null>(null);
+    const medicalSectionRef = useRef<HTMLDivElement | null>(null);
+    const socialHistorySectionRef = useRef<HTMLDivElement | null>(null);
+
+    const totalSteps = 4;
+    const stepLabels = ['Patient Info', 'Medical Intake', 'History', 'Signature'];
+    const progressPercent = Math.min(100, (currentStep / totalSteps) * 100);
+
+    const handleNextStep = (step: number, _targetRef?: RefObject<HTMLDivElement> | null) => {
+        setCurrentStep(step);
+        if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
     // Track if PDF preview has been clicked
     const [pdfPreviewed, setPdfPreviewed] = useState(false);
     // Store last generated consent PDF data URL for upload
@@ -290,6 +316,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     const isSpeaking = useVapiSpeaking(vapi);
     // Use custom hook for user speaking state
     const isUserSpeaking = useVapiUserSpeaking(vapi);
+        const [isTranscriptOpen, setIsTranscriptOpen] = useState(true);
+        const [isInstructionsOpen, setIsInstructionsOpen] = useState(true);
     // Handler to be called from VoiceIntake when user is speaking (no-op, kept for prop compatibility)
     const handleUserSpeaking = () => {};
     // Expose autofill to window for VoiceIntake (after logic is defined)
@@ -430,183 +458,217 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
         Self_Appointment.displayName = "Self_Appointment";
     // Debug: log transcript and user speaking state
     return (<>
-        <div className="relative w-screen min-h-screen flex justify-start items-start" style={{ backgroundColor: '#EAEAEA', paddingLeft: '40px' }}>
-            <div className="md:absolute px-5 md:px-0 pt-4 pb-5 md:py-0 w-full flex justify-end md:top-6 md:right-6">
+        <div className="relative w-full min-h-screen bg-[#EAEAEA]">
+            <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
                 <LanguageChanger locale={locale} />
             </div>
-            <div className="flex flex-row justify-start h-full items-start px-5 md:px-0 gap-8">
-                {/* Sidebar transcript area */}
-                {/*
-                <div className="hidden md:flex flex-col w-[350px] min-h-[500px] max-h-[700px] bg-white rounded-lg mt-8 mr-2 p-4">
-                    <div className="w-full bg-blue-600 text-white rounded-lg p-3 text-lg shadow mb-2">
-                        <TranscriptDisplay currentTranscript={currentTranscript} />
-                    </div>
-                </div>
-                */}
-                </div>
-                
-                {/* Main form content */}
-                <div
-  className="w-full xl:max-w-[1400px] lg:max-w-[1200px] md:max-w-[1000px] mx-auto rounded-[20px] mt-4 p-4"
+            
+            <div className="max-w-7xl mx-auto px-4 py-6">
+                {/* Title Card */}
+                <div className="w-full rounded-t-[20px] bg-[#EAEAEA] py-6 text-center mb-6"
                     style={{ backgroundColor:  '#f1efefff'  }}>
-                    <div className="flex flex-col w-full justify-center border-b-[1px] border-black px-4 pb-2 text-center mb-4" style={{ backgroundColor: '#EAEAEA', borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
-                        <div className="flex w-full items-center justify-center gap-3">
-                            <h1
-                                className={`${styles.sectionHeadText} `}
-                                style={{ textAlign: "center", color: "#DC143C" }}
-                            >
-                                {t("self_form_title")}
-                            </h1>
-                            {/* <button
-                                type="button"
-                                onClick={fillTestData}
-                                className="rounded-md border border-black px-3 py-2 text-sm font-semibold text-black hover:bg-black hover:text-white transition"
-                            >
-                                Fill test data
-                            </button> */}
-                        </div>
-                        <p className="text-[#767676]">{location.title}</p>
+                {/* Title Card */}
+                <div className="w-full rounded-t-[20px] bg-[#EAEAEA] py-6 text-center mb-6"
+                    style={{ backgroundColor:  '#f1efefff'  }}>
+                    <div className="flex w-full items-center justify-center gap-3">
+                        <h1
+                            className={`${styles.sectionHeadText} `}
+                            style={{ textAlign: "center", color: "#DC143C" }}
+                        >
+                            {t("self_form_title")}
+                        </h1>
                     </div>
+                    <p className="text-[#767676] mt-1">{location.title}</p>
+                </div>
 
-<section className="flex justify-center items-center w-full px-4 mb-8"> 
+                {/* Main Content: Form + Voice Intake */}
+                <div className="flex flex-col lg:flex-row gap-6 items-start">
+                    
+                    {/* Left: Form Section (order-2 on mobile, order-1 on desktop) */}
+                    <div className="w-full lg:flex-1 order-2 lg:order-1 bg-white rounded-[10px] p-4 md:p-6 shadow-sm">
 
-<section className="grid md:grid-cols-2 grid-cols-1 gap-8 mx-auto"
-     style={{
-       backgroundColor: '#fefefeff',
-       borderRadius: '10px',
-       padding: '24px',
-             maxWidth: '1200px'   // ← controls form width
-     }}
+<section className="grid md:grid-cols-2 grid-cols-1 gap-6"
+         style={{
+             backgroundColor: '#fefefeff',
+             borderRadius: '10px',
+             padding: '16px'
+         }}
 >
 
+                                                {/* Mobile top back button */}
+                                                {!isDesktop && currentStep > 1 && (
+                                                    <div className="col-span-full md:hidden mb-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+                                                            className="w-full px-6 py-3 bg-gray-500 text-white rounded-full text-base font-semibold"
+                                                        >
+                                                            Back
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                {/* Mobile progress bar */}
+                                                {!isDesktop && (
+                                                    <div className="col-span-full md:hidden mb-4">
+                                                        <div className="flex items-center justify-between text-sm font-semibold text-gray-700 mb-2">
+                                                            <span>Step {currentStep} of {totalSteps}</span>
+                                                            <span>{stepLabels[currentStep - 1] || ''}</span>
+                                                        </div>
+                                                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-[#C1001F] transition-all duration-300"
+                                                                style={{ width: `${progressPercent}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+
                         {/* Patient Information Section */}
-                            <div className="col-span-full">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('patient_information_title')}</h2>
-                        </div>
+                        {(currentStep === 1 || isDesktop) && (
+                            <>
+                                <div className="col-span-full" ref={patientSectionRef}>
+                                    <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6 text-center md:text-left">{t('patient_information_title')}</h2>
+                                </div>
 
-                        <Dropdown
-                            label={t("form_f10")}
-                            options={services}
-                            breakpoint={true}
-                            onChange={setService}
-                            value={service}
-                            startingSelectedOption={true}
-                        />
-                                            {/* Removed misplaced input and invalid onChange/value lines */}
-                        <Input
-                            label={t("form_f3")}
-                            placeholder="Enter your first name"
-                            breakpoint={true}
-                            onChange={setFirstName}
-                            value={firstName}
-                        />
-                        <Input
-                            label={t("form_f4")}
-                            placeholder="Enter your last name"
-                            breakpoint={true}
-                            onChange={setLastName}
-                            value={lastName}
-                        />
-                        {/* Email Address Field */}
-                        <div className="flex flex-col items-start w-full justify-center">
-                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('email_label')}</label>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                placeholder={t('email_placeholder')}
-                                className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                                autoComplete="on"
-                                autoCorrect="on"
-                                spellCheck={true}
-                            />
-                            {/* Email validation error */}
-                            {email && !/^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,})$/.test(email) && (
-                                <span className="text-red-600 text-xs mt-1">{t('email_error')}</span>
-                            )}
-                        </div>
-                        <PhoneNumberInput
-                            label={t("form_f6")}
-                            placeholder="ex. +1 (123) 456-7890"
-                            breakpoint={false}
-                            onChange={setPhone}
-                            value={phone}
-                        />
-                        <RadioButtons
-                            name="gender"
-                            options={genderOptions}
-                            label={t("form_f8")}
-                            onChange={setSex}
-                            selectedValue={sex}
-                        />
-                        <div className="flex flex-col items-start w-full justify-center">
-                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('form_f7')}</label>
-                            <input
-                                type="date"
-                                value={dob ? dob.toISOString().split('T')[0] : ''}
-                                onChange={e => setDob(e.target.value ? new Date(e.target.value) : null)}
-                                max={new Date().toISOString().split('T')[0]}
-                                className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                            />
-                        </div>
-                        <div className="flex flex-col items-start w-full justify-center">
-                            <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('age_label')}</label>
-                            <input
-                                type="text"
-                                value={dob ? moment().diff(moment(dob), 'years') : ''}
-                                readOnly
-                                placeholder={t('age_placeholder')}
-                                className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-gray-100 outline-none rounded-[10px] cursor-not-allowed"
-                            />
-                        </div>
-                        {/* Schedule Date and Time Picker */}
-                        {/* TypeScript: define type for date_and_time */}
-                        {/* Place this type at the top of the file or in the component scope */}
-                        {/* type ScheduleDateTime = { date: string; time: string; } */}
-                        {/* <div className="flex flex-col md:flex-row items-start w-full justify-center gap-4">
-                            <div className="flex flex-col w-full md:w-1/2">
-                                <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Select Schedule Date:</label>
-                                <input
-                                    type="date"
-                                    value={(date_and_time as ScheduleDateTime)?.date || ''}
-                                    onChange={e => {
-                                        const date = e.target.value;
-                                        setDate_and_time((prev: ScheduleDateTime) => {
-                                            if (prev && typeof prev === 'object' && 'date' in prev && 'time' in prev) {
-                                                return { ...prev, date };
-                                            }
-                                            return { date, time: '' };
-                                        });
-                                    }}
-                                    min={new Date().toISOString().split('T')[0]}
-                                    className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                <Dropdown
+                                    label={t("form_f10")}
+                                    options={services}
+                                    breakpoint={true}
+                                    onChange={setService}
+                                    value={service}
+                                    startingSelectedOption={true}
                                 />
-                            </div>
-                            <div className="flex flex-col w-full md:w-1/2">
-                                <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Select Schedule Time:</label>
-                                <select
-                                    className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                                    value={(date_and_time as ScheduleDateTime)?.time || ''}
-                                    onChange={e => {
-                                        const time = e.target.value;
-                                        setDate_and_time((prev: ScheduleDateTime) => {
-                                            if (prev && typeof prev === 'object' && 'date' in prev && 'time' in prev) {
-                                                return { ...prev, time };
-                                            }
-                                            return { date: '', time };
-                                        });
-                                    }}
-                                >
-                                    <option value="">Select Slot</option>
-                                    {['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM']
-                                        .filter(slot => !bookedSlots.includes(slot))
-                                        .map(slot => (
-                                            <option key={slot} value={slot}>{slot}</option>
-                                        ))}
-                                </select>
-                            </div>
-                        </div> */}
+                                {/* Removed misplaced input and invalid onChange/value lines */}
+                                <Input
+                                    label={t("form_f3")}
+                                    placeholder="Enter your first name"
+                                    breakpoint={true}
+                                    onChange={setFirstName}
+                                    value={firstName}
+                                />
+                                <Input
+                                    label={t("form_f4")}
+                                    placeholder="Enter your last name"
+                                    breakpoint={true}
+                                    onChange={setLastName}
+                                    value={lastName}
+                                />
+                                {/* Email Address Field */}
+                                <div className="flex flex-col items-start w-full justify-center">
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('email_label')}</label>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                        placeholder={t('email_placeholder')}
+                                        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                        autoComplete="on"
+                                        autoCorrect="on"
+                                        spellCheck={true}
+                                    />
+                                    {/* Email validation error */}
+                                    {email && !/^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,})$/.test(email) && (
+                                        <span className="text-red-600 text-xs mt-1">{t('email_error')}</span>
+                                    )}
+                                </div>
+                                <PhoneNumberInput
+                                    label={t("form_f6")}
+                                    placeholder="ex. +1 (123) 456-7890"
+                                    breakpoint={false}
+                                    onChange={setPhone}
+                                    value={phone}
+                                />
+                                <RadioButtons
+                                    name="gender"
+                                    options={genderOptions}
+                                    label={t("form_f8")}
+                                    onChange={setSex}
+                                    selectedValue={sex}
+                                />
+                                <div className="flex flex-col items-start w-full justify-center">
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('form_f7')}</label>
+                                    <input
+                                        type="date"
+                                        value={dob ? dob.toISOString().split('T')[0] : ''}
+                                        onChange={e => setDob(e.target.value ? new Date(e.target.value) : null)}
+                                        max={new Date().toISOString().split('T')[0]}
+                                        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                    />
+                                </div>
+                                <div className="flex flex-col items-start w-full justify-center">
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('age_label')}</label>
+                                    <input
+                                        type="text"
+                                        value={dob ? moment().diff(moment(dob), 'years') : ''}
+                                        readOnly
+                                        placeholder={t('age_placeholder')}
+                                        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-gray-100 outline-none rounded-[10px] cursor-not-allowed"
+                                    />
+                                </div>
+                                {/* Schedule Date and Time Picker */}
+                                {/* TypeScript: define type for date_and_time */}
+                                {/* Place this type at the top of the file or in the component scope */}
+                                {/* type ScheduleDateTime = { date: string; time: string; } */}
+                                {/* <div className="flex flex-col md:flex-row items-start w-full justify-center gap-4">
+                                    <div className="flex flex-col w-full md:w-1/2">
+                                        <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Select Schedule Date:</label>
+                                        <input
+                                            type="date"
+                                            value={(date_and_time as ScheduleDateTime)?.date || ''}
+                                            onChange={e => {
+                                                const date = e.target.value;
+                                                setDate_and_time((prev: ScheduleDateTime) => {
+                                                    if (prev && typeof prev === 'object' && 'date' in prev && 'time' in prev) {
+                                                        return { ...prev, date };
+                                                    }
+                                                    return { date, time: '' };
+                                                });
+                                            }}
+                                            min={new Date().toISOString().split('T')[0]}
+                                            className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col w-full md:w-1/2">
+                                        <label className="text-[16px] text-customGray font-poppins font-bold mb-2">Select Schedule Time:</label>
+                                        <select
+                                            className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                            value={(date_and_time as ScheduleDateTime)?.time || ''}
+                                            onChange={e => {
+                                                const time = e.target.value;
+                                                setDate_and_time((prev: ScheduleDateTime) => {
+                                                    if (prev && typeof prev === 'object' && 'date' in prev && 'time' in prev) {
+                                                        return { ...prev, time };
+                                                    }
+                                                    return { date: '', time };
+                                                });
+                                            }}
+                                        >
+                                            <option value="">Select Slot</option>
+                                            {['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM']
+                                                .filter(slot => !bookedSlots.includes(slot))
+                                                .map(slot => (
+                                                    <option key={slot} value={slot}>{slot}</option>
+                                                ))}
+                                        </select>
+                                    </div>
+                                </div> */}
 
+                                {/* Mobile pagination: patient section next */}
+                                <div className="col-span-full md:hidden">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleNextStep(2, medicalSectionRef)}
+                                        className="w-full px-6 py-4 bg-[#C1001F] text-white rounded-full text-base font-semibold shadow-md"
+                                    >
+                                        Next: Medical Information
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                        {(currentStep === 2 || isDesktop) && (
+                            <>
                         {/* Medical intake */}
                         <div className="col-span-full space-y-4 pt-4">
                             {/* Voice Intake Mic Button below waveform */}
@@ -615,8 +677,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 {/* Button now commented out and only visible in right-side box */}
                             </div>
                          </div>
-                                                          <div className="col-span-full mt-0">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('medical_info_title')}</h2>
+                                                          <div className="col-span-full mt-0" ref={medicalSectionRef}>
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6 text-center md:text-left">{t('medical_info_title')}</h2>
                          </div>
                          <div className="col-span-full space-y-4 pt-0">
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
@@ -851,16 +913,36 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 />
                             </div>
 
-                            {/* Medical History Section */}
-                             <div className="col-span-full pt-10">
-                                <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-8">{t('medical_history_title')}</h2>
+                        </div>
+
+                        {/* Mobile pagination: medical section next */}
+                        <div className="col-span-full md:hidden flex items-center mt-4">
+                            <button
+                                type="button"
+                                onClick={() => handleNextStep(3, socialHistorySectionRef)}
+                                className="w-full px-6 py-4 bg-[#C1001F] text-white rounded-full text-base font-semibold"
+                            >
+                                Next: History
+                            </button>
+                        </div>
+                            </>
+                        )}
+
+                        {/* Social History Section + Medical History on step 3 */}
+                        {(currentStep === 3 || isDesktop) && (
+                            <>
+                         {/* Medical History Section (moved to step 3 for mobile) */}
+                         <div className="col-span-full pt-10">
+                                <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-8 text-center md:text-left">{t('medical_history_title')}</h2>
                             </div>
 
-                            <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
-                                <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('surgeries_label')}</label>
-                                    <div className="flex flex-row gap-6 mb-2">
-                                        <label className="flex items-center gap-2">
+                            {/* Grid Container: Increased horizontal gap (gap-x-24) and tighter vertical spacing on web */}
+                            <div className="grid md:grid-cols-2 grid-cols-1 gap-y-8 md:gap-x-24 md:gap-y-4 items-start">
+                                {/* Column 1: Surgeries */}
+                                <div className="flex flex-col items-start w-full">
+                                    <label className="text-[16px] text-customGray font-poppins font-bold min-h-[24px]">{t('surgeries_label')}</label>
+                                    <div className="flex flex-row gap-6 my-3 h-[30px] items-center">
+                                        <label className="flex items-center gap-2 cursor-pointer">
                                             <input
                                                 type="radio"
                                                 name="surgeryChoice"
@@ -869,9 +951,9 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 onChange={() => setSurgeryChoice('Yes')}
                                                 className="custom-radio-orange"
                                             />
-                                            {t('surgeries_yes')}
+                                            <span className="text-customGray text-[16px]">{t('surgeries_yes')}</span>
                                         </label>
-                                        <label className="flex items-center gap-2">
+                                        <label className="flex items-center gap-2 cursor-pointer">
                                             <input
                                                 type="radio"
                                                 name="surgeryChoice"
@@ -883,21 +965,27 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 }}
                                                 className="custom-radio-orange"
                                             />
-                                            {t('surgeries_no')}
+                                            <span className="text-customGray text-[16px]">{t('surgeries_no')}</span>
                                         </label>
                                     </div>
-                                    {surgeryChoice === 'Yes' && (
-                                        <AllergyTagInput
-                                            allergies={Array.isArray(medicalForm.surgeries) ? medicalForm.surgeries : (medicalForm.surgeries ? [medicalForm.surgeries] : [])}
-                                            setAllergies={(surgeries) => handleMedicalChange('surgeries', surgeries)}
-                                            placeholder="Type of surgery"
-                                        />
-                                    )}
+                                    <div className="w-full min-h-[50px]">
+                                        {surgeryChoice === 'Yes' ? (
+                                            <AllergyTagInput
+                                                allergies={Array.isArray(medicalForm.surgeries) ? medicalForm.surgeries : (medicalForm.surgeries ? [medicalForm.surgeries] : [])}
+                                                setAllergies={(surgeries) => handleMedicalChange('surgeries', surgeries)}
+                                                placeholder="Type of surgery"
+                                            />
+                                        ) : (
+                                            <div className={`${isDesktop ? 'hidden md:block h-[50px]' : 'h-2'}`}></div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('allergies_label')}</label>
-                                    <div className="flex flex-row gap-6 mb-2">
-                                        <label className="flex items-center gap-2">
+
+                                {/* Column 2: Allergies */}
+                                <div className="flex flex-col items-start w-full">
+                                    <label className="text-[16px] text-customGray font-poppins font-bold min-h-[24px]">{t('allergies_label')}</label>
+                                    <div className="flex flex-row gap-6 my-3 h-[30px] items-center">
+                                        <label className="flex items-center gap-2 cursor-pointer">
                                             <input
                                                 type="radio"
                                                 name="allergyChoice"
@@ -906,9 +994,9 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 onChange={() => setAllergyChoice('Yes')}
                                                 className="custom-radio-orange"
                                             />
-                                            {t('allergies_yes')}
+                                            <span className="text-customGray text-[16px]">{t('allergies_yes')}</span>
                                         </label>
-                                        <label className="flex items-center gap-2">
+                                        <label className="flex items-center gap-2 cursor-pointer">
                                             <input
                                                 type="radio"
                                                 name="allergyChoice"
@@ -920,17 +1008,23 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 }}
                                                 className="custom-radio-orange"
                                             />
-                                            {t('allergies_no')}
+                                            <span className="text-customGray text-[16px]">{t('allergies_no')}</span>
                                         </label>
                                     </div>
-                                    {allergyChoice === 'Yes' && (
-                                        <AllergyTagInput
-                                            allergies={medicalForm.allergies}
-                                            setAllergies={(allergies: string[]) => setMedicalForm((prev: typeof medicalForm) => ({ ...prev, allergies }))}
-                                        />
-                                    )}
+                                    <div className="w-full min-h-[50px]">
+                                        {allergyChoice === 'Yes' ? (
+                                            <AllergyTagInput
+                                                allergies={medicalForm.allergies}
+                                                setAllergies={(allergies: string[]) => setMedicalForm((prev: typeof medicalForm) => ({ ...prev, allergies }))}
+                                                placeholder="List allergies"
+                                            />
+                                        ) : (
+                                            <div className={`${isDesktop ? 'hidden md:block h-[50px]' : 'h-2'}`}></div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="flex flex-col gap-2">
+
+                                <div className="flex flex-col gap-2 col-span-full md:mt-4 items-start">
                                     <p className="text-[16px] text-customGray font-poppins font-bold">{t('family_history_label')}</p>
                                     <div className="flex flex-wrap gap-3">
                                         {[
@@ -976,11 +1070,9 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     )}
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Social History Section */}
-                         <div className="col-span-full mt-8">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('social_history_title')}</h2>
+                         <div className="col-span-full mt-8" ref={socialHistorySectionRef}>
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6 text-center md:text-left">{t('social_history_title')}</h2>
                         </div>
 
                         <div className="col-span-full">
@@ -993,7 +1085,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     value={medicalForm.occupation}
                                 />
                                 <div className="flex flex-col gap-2">
-                                    <p className="text-[16px] text-customGray font-poppins font-bold">{t('lifestyle_label')}</p>
+                                    <p className="text-[16px] text-customGray font-poppins font-bold text-center md:text-left">{t('lifestyle_label')}</p>
                                     <div className="flex flex-row gap-6">
                                         {[
                                             { key: 'tobacco_use', label: t('lifestyle_tobacco') },
@@ -1015,37 +1107,77 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             </div>
                         </div>
 
-                        <div className="w-full md:flex justify-between items-center space-y-6 col-span-full mb-5">
-                            <div className="space-y-2 md:w-2/3 ">
-                                <div className="flex space-x-2 items-center">
-                                    <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" className="custom-checkbox-orange" autoComplete="on" autoCorrect="on" spellCheck={true} /> <h1 className="text-xs">
-                                        {t("email_consent")}
-                                    </h1>
-                                </div>
-                                <div className="flex space-x-2 items-center">
-                                    <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" className="custom-checkbox-orange" autoComplete="on" autoCorrect="on" spellCheck={true} /> <h1 className="text-xs">
-                                        {t("sms_consent")}
-                                    </h1>
-                                </div>
+                      
 
-                            </div>
+
+
+                        <div className="w-full md:flex justify-start items-start space-y-6 col-span-full mb-5">
+    {/* Removed justify-center and items-center from the main container */}
+    <div className="space-y-4 md:w-2/3"> 
+        {/* Changed justify-center to justify-start and items-center to items-start */}
+        <div className="flex space-x-2 items-start justify-start">
+            <input 
+                checked={email_opt} 
+                onChange={(e) => setEmail_opt(e.target.checked)} 
+                type="checkbox" 
+                className="custom-checkbox-orange mt-1" // Added mt-1 to align checkbox with first line of text
+            /> 
+            <h1 className="text-xs text-left"> {/* Added text-left */}
+                {t("email_consent")}
+            </h1>
+        </div>
+
+
+        
+
+        <div className="flex space-x-2 items-start justify-start">
+            <input 
+                checked={text_opt} 
+                onChange={(e) => setText_opt(e.target.checked)} 
+                type="checkbox" 
+                className="custom-checkbox-orange mt-1" 
+            /> 
+            <h1 className="text-xs text-left">
+                {t("sms_consent")}
+            </h1>
+        </div>
+    </div>
+</div>
+
+                        {/* Mobile pagination: history to signature */}
+                        <div className="col-span-full md:hidden flex items-center mt-4">
+                            <button
+                                type="button"
+                                onClick={() => handleNextStep(4, null)}
+                                className="w-full px-6 py-4 bg-[#C1001F] text-white rounded-full text-base font-semibold"
+                            >
+                                Next: Signature & Consent
+                            </button>
                         </div>
+
+                        </>
+                        )}
+
+                        {(currentStep === 4 || isDesktop) && (
+                            <>
 
                         {/* Digital Signature Section */}
                                  <div className="w-full col-span-full mt-8">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('digital_signature_title')}</h2>
-                            <p className="text-gray-600 mb-4">
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6 text-center md:text-left">{t('digital_signature_title')}</h2>
+                            <p className="text-gray-600 mb-4 text-center md:text-left">
                                 {t('digital_signature_description')}
                             </p>
-                            <button
-                                onClick={() => setIsSignatureModalOpen(true)}
-                                className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
-                                type="button"
-                            >
-                                {t('digital_signature_button')}
-                            </button>
+                            <div className="flex justify-center md:justify-start">
+                                <button
+                                    onClick={() => setIsSignatureModalOpen(true)}
+                                    className="px-6 py-3 bg-[#C1001F] text-white rounded-lg font-semibold hover:bg-[#a30019] transition-colors"
+                                    type="button"
+                                >
+                                    {t('digital_signature_button')}
+                                </button>
+                            </div>
                             {hasSignature && (
-                                <div className="flex items-center gap-2 mt-3 text-green-600">
+                                <div className="flex items-center gap-2 mt-3 text-green-600 justify-center md:justify-start">
                                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                     </svg>
@@ -1056,7 +1188,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                         {/* Digital Sign Following Documents Section */}
                         <div className="w-full col-span-full mt-8">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6">{t('digital_sign_docs')}</h2>
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6 text-center md:text-left">{t('digital_sign_docs')}</h2>
                             <div className="space-y-4">
                                 <label className="flex items-start gap-3 cursor-pointer">
                                     <input
@@ -1143,6 +1275,16 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     bgColor={"#C81E3A"}
                                     textColor={"#ffffff"}
                                     onClick={async () => {
+                                        if (!dob) {
+                                            toast.warning('Please fill Date of Birth');
+                                            return;
+                                        }
+
+                                        if (!onsetDate) {
+                                            toast.warning('Please fill onset date');
+                                            return;
+                                        }
+
                                         // Require preview before submit
                                         if (!pdfPreviewed) {
                                             toast.warning('Please preview your signed docs before submitting');
@@ -1198,154 +1340,149 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             </div>
                         </div> 
 
+                        {!isDesktop && (
+                            <div className="col-span-full md:hidden mt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentStep(3)}
+                                    className="w-full px-6 py-4 bg-gray-500 text-white rounded-full text-base font-semibold"
+                                >
+                                    Back to Social History
+                                </button>
+                            </div>
+                        )}
+
+                        </>
+                        )}
+
                     </section>
 
-                <section
-                    className="w-full flex justify-center px-4 md:px-0"
-                    style={{ position: 'sticky', top: 0, alignSelf: 'flex-start', zIndex: 10 }}
-                >
+                    </div>
+                    {/* End of Form Section */}
 
+                    {/* Right: Voice Intake (order-1 on mobile, order-2 on desktop, sticky on lg+) */}
+                    <div className="w-full lg:w-[420px] order-1 lg:order-2 lg:sticky lg:top-6">
+                        <section className="bg-white rounded-lg flex flex-col gap-6 px-4 py-6 shadow-md">
+                          <div className="w-full rounded-md bg-[#F8F9FA] p-4 flex flex-col items-center border border-gray-100">
+                            <div className="flex items-center mb-2">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="40"
+                                height="50"
+                                viewBox="0 0 24 24"
+                                fill="#49505A"
+                                className="mr-2"
+                              >
+                                <path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" />
+                              </svg>
+                              <span className="text-2xl font-semibold text-[#49505A]">
+                                {t('voice_intake_title')}
+                              </span>
+                            </div>
+                            <hr className="w-full border-t border-[#E5E7EB] mb-4" />
+                            <p className="text-center text-sm text-[#49505A] mb-4">
+                              {t('voice_intake_description')}
+                            </p>
+                            <div className="flex flex-col items-center w-full gap-2">
+                              <VoiceIntake
+                                setForm={setMedicalForm}
+                                onTranscript={onTranscript}
+                                vapi={vapi}
+                                onUserSpeaking={handleUserSpeaking}
+                              />
+                              <VoiceWave isActive={isSpeaking || isUserSpeaking} color="#000" />
+                              <p className="text-xs text-gray-500 mt-2">
+                                {isUserSpeaking
+                                  ? "User speaking…"
+                                  : isSpeaking
+                                  ? "Assistant speaking…"
+                                  : t('voice_intake_ready')}
+                              </p>
+                            </div>
+                          </div>
 
+                                                    {/* Transcript Area */}
+                                                    <div className="w-full rounded-md bg-[#F1F5F9] p-4">
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <button
+                                                                type="button"
+                                                                className="flex items-center gap-2 text-left text-[#374151]"
+                                                                onClick={() => setIsTranscriptOpen((prev) => !prev)}
+                                                                aria-expanded={isTranscriptOpen}
+                                                            >
+                                                                <span className="text-md font-bold">{t('conversation_transcript')}</span>
+                                                                <svg
+                                                                    className={`w-4 h-4 transition-transform duration-200 ${isTranscriptOpen ? 'rotate-180' : ''}`}
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                                                </svg>
+                                                            </button>
+                                                            {isTranscriptOpen && (
+                                                                <button type="button" className="text-xs font-medium text-red-600 hover:underline">
+                                                                    {t('transcript_clear')}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        {isTranscriptOpen && (
+                                                            <div className="bg-white rounded-lg p-3 shadow-inner max-h-[200px] overflow-y-auto text-sm">
+                                                                <TranscriptDisplay currentTranscript={currentTranscript} />
+                                                            </div>
+                                                        )}
+                                                    </div>
 
-<section
-  className="
-    w-full
-    max-w-[420px]
-    bg-[#FFFFFF]
-    rounded-lg
-    flex
-    flex-col
-    gap-6
-    px-4
-    py-6
-    h-fit
-    box-border
-  "
->
+                                                    {/* How Voice Intake Works */}
+                                                    <div className="w-full rounded-md bg-[#F8F9FA] p-4 border border-gray-100 text-left">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <button
+                                                                type="button"
+                                                                className="flex items-center gap-2 text-left text-[#374151]"
+                                                                onClick={() => setIsInstructionsOpen((prev) => !prev)}
+                                                                aria-expanded={isInstructionsOpen}
+                                                            >
+                                                                <div className="flex items-center gap-2">
+                                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                                        <circle cx="12" cy="12" r="10" fill="#CBD5E1" />
+                                                                        <path d="M12 16v-4" stroke="#374151" strokeWidth="2" strokeLinecap="round" />
+                                                                        <circle cx="12" cy="8" r="1" fill="#374151" />
+                                                                    </svg>
+                                                                    <span className="text-lg font-semibold text-[#374151]">
+                                                                        {t('how_voice_intake_works')}
+                                                                    </span>
+                                                                </div>
+                                                                <svg
+                                                                    className={`w-4 h-4 transition-transform duration-200 ${isInstructionsOpen ? 'rotate-180' : ''}`}
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                        {isInstructionsOpen && (
+                                                            <ul className="list-disc pl-5 text-gray-700 space-y-1 text-sm">
+                                                                <li>{t('voice_intake_step1')}</li>
+                                                                <li>{t('voice_intake_step2')}</li>
+                                                                <li>{t('voice_intake_step3')}</li>
+                                                                <li>{t('voice_intake_step4')}</li>
+                                                                <li>{t('voice_intake_step5')}</li>
+                                                            </ul>
+                                                        )}
+                                                    </div>
+                        </section>
+                    </div>
+                    {/* End of Voice Section */}
 
-  <div className="w-full rounded-md bg-[#EAEAEA]">
-    <div className="w-full rounded-md flex flex-col items-center justify-center p-4 bg-[#F8F9FA]">
-      <div className="flex items-center mb-2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="40"
-          height="50"
-          viewBox="0 0 24 24"
-          fill="#49505A"
-          className="mr-2"
-        >
-          <path d="M12 17a4 4 0 0 0 4-4v-5a4 4 0 0 0-8 0v5a4 4 0 0 0 4 4zm5-4v-1h2v1a7 7 0 0 1-14 0v-1h2v1a5 5 0 0 0 10 0zm-5 6h2v2h-2v-2z" />
-        </svg>
-        <span className="text-2xl font-semibold text-[#49505A]">
-          {t('voice_intake_title')}
-        </span>
-      </div>
+                </div>
+                {/* End of Main Content Flex Container */}
 
-      <hr className="w-full border-t border-[#E5E7EB] mb-4" />
-
-      <p className="text-center text-lg text-[#49505A] mb-4">
-        {t('voice_intake_description')}
-      </p>
-
-      <div className="flex flex-col items-center w-full gap-2">
-        <VoiceIntake
-          setForm={setMedicalForm}
-          onTranscript={onTranscript}
-          vapi={vapi}
-          onUserSpeaking={handleUserSpeaking}
-        />
-
-        <VoiceWave isActive={isSpeaking || isUserSpeaking} color="#000" />
-
-        <p className="text-sm text-gray-500">
-          {isUserSpeaking
-            ? "User speaking…"
-            : isSpeaking
-            ? "Assistant speaking…"
-            : t('voice_intake_ready')}
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div className="w-full rounded-md bg-[#EAEAEA] p-4">
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-3">
-        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-          <path
-            d="M8 20c0-6.627 6.268-12 14-12s14 5.373 14 12-6.268 12-14 12c-1.13 0-2.23-.09-3.29-.26-.41-.07-.82.04-1.13.29l-4.13 3.32c-.66.53-1.61.01-1.54-.81l.32-3.7c.03-.34-.11-.67-.37-.89C9.13 26.13 8 23.18 8 20z"
-            fill="#374151"
-          />
-          <circle cx="20" cy="20" r="2" fill="#fff" />
-          <circle cx="26" cy="20" r="2" fill="#fff" />
-          <circle cx="14" cy="20" r="2" fill="#fff" />
-        </svg>
-
-        <span className="text-xl font-semibold text-[#374151]">
-          {t('conversation_transcript')}
-        </span>
-      </div>
-
-      <button className="flex items-center gap-1 border border-[#CBD5E1] rounded-lg px-3 py-1 text-[#374151] text-sm font-medium hover:bg-[#F1F5F9] transition">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M3 6h18" stroke="#374151" strokeWidth="2" />
-          <path
-            d="M8 6v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"
-            stroke="#374151"
-            strokeWidth="2"
-          />
-          <rect
-            x="5"
-            y="6"
-            width="14"
-            height="14"
-            rx="2"
-            stroke="#374151"
-            strokeWidth="2"
-          />
-        </svg>
-        {t('transcript_clear')}
-      </button>
-    </div>
-
-    <div className="bg-white rounded-lg p-3 shadow max-h-[300px] overflow-y-auto">
-      <TranscriptDisplay currentTranscript={currentTranscript} />
-    </div>
-  </div>
-
-  <div className="w-full rounded-md bg-[#EAEAEA] p-4 mt-6">
-    <div className="bg-[#F8F9FA] rounded-lg p-4 flex flex-col">
-      <div className="flex items-center gap-2 mb-2">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" fill="#CBD5E1" />
-          <path d="M12 16v-4" stroke="#374151" strokeWidth="2" strokeLinecap="round" />
-          <circle cx="12" cy="8" r="1" fill="#374151" />
-        </svg>
-        <span className="text-lg font-semibold text-[#374151]">
-          {t('how_voice_intake_works')}
-        </span>
-      </div>
-      <ul className="list-disc pl-5 text-gray-700 space-y-1">
-        <li>{t('voice_intake_step1')}</li>
-        <li>{t('voice_intake_step2')}</li>
-        <li>{t('voice_intake_step3')}</li>
-        <li>{t('voice_intake_step4')}</li>
-        <li>{t('voice_intake_step5')}</li>
-      </ul>
-    </div>
-  </div>
-
-</section>
-
-
-
-
-  
-</section>
-
-
-             </section> 
+            </div>
+            {/* End of max-w-7xl container */}
         </div>
+        {/* End of main wrapper */}
     </div>
 
     {/* Signature Modal */}
@@ -1542,3 +1679,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
 
 export default Self_Appointment
+
+
+
+
+

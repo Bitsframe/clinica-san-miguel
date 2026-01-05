@@ -27,6 +27,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
   const lastToolPayloadRef = useRef<any>(null);
   const lastNormalizedRef = useRef<any>(null);
   const conversationRef = useRef<Array<{role: string; content: string; timestamp: number}>>([]);
+  const normalizeTriggeredRef = useRef<boolean>(false);
 
   // Track voice state for toggle button
   const [isVoiceActive, setIsVoiceActive] = React.useState(false);
@@ -144,7 +145,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
     if (data?.reasonForVisit !== undefined) normalized.chief_complaint = data.reasonForVisit;
     if (data?.symptomLocation !== undefined) {
       normalized.location = data.symptomLocation;
-      console.log('[DEBUG] Mapping symptomLocation:', data.symptomLocation, '→ location:', normalized.location);
+      // console.log('[DEBUG] Mapping symptomLocation:', data.symptomLocation, '→ location:', normalized.location);
     }
     if (data?.symptomDuration !== undefined) normalized.onset_date = data.symptomDuration;
 
@@ -194,7 +195,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
 
   // Helper to stop voice programmatically
   const stopVoice = () => {
-    console.log("⏹ [Clinic] Stop Voice clicked");
+    // console.log("⏹ [Clinic] Stop Voice clicked");
     vapi.current?.stop();
     setIsVoiceActive(false); // Always reset button to blue
     // Force emit call-end to reset speaking states
@@ -225,11 +226,11 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
       const args = toolCall?.function?.arguments || toolCall?.arguments;
       const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
 
-      console.log(`[TOOL: ${toolName}]`, {
-        toolId: toolCall?.id,
-        toolName,
-        arguments: parsedArgs,
-      });
+      // console.log(`[TOOL: ${toolName}]`, {
+      //   toolId: toolCall?.id,
+      //   toolName,
+      //   arguments: parsedArgs,
+      // });
 
       if (toolName === 'updateMedicalIntake') {
         // Merge incremental payloads for a single summary at call-end
@@ -256,16 +257,22 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
         lastToolPayloadRef.current = null;
         lastNormalizedRef.current = null;
         conversationRef.current = [];
+        normalizeTriggeredRef.current = false;
       });
       instance.on("call-end", () => {
+        if (normalizeTriggeredRef.current) {
+          return; // Prevent multiple normalize calls for the same call
+        }
+        normalizeTriggeredRef.current = true;
+
         setIsVoiceActive(false); // Always reset button to blue on call end
         // Single consolidated log to inspect Vapi return data
-        console.log('[VAPI CALL-END SUMMARY]', {
-          rawMergedPayload: mergedToolPayloadRef.current,
-          lastToolPayload: lastToolPayloadRef.current,
-          normalizedSnapshot: lastNormalizedRef.current,
-          conversationHistory: conversationRef.current,
-        });
+        // console.log('[VAPI CALL-END SUMMARY]', {
+        //   rawMergedPayload: mergedToolPayloadRef.current,
+        //   lastToolPayload: lastToolPayloadRef.current,
+        //   normalizedSnapshot: lastNormalizedRef.current,
+        //   conversationHistory: conversationRef.current,
+        // });
 
         // Trigger normalize-csa with onset/service on call end
         (async () => {
@@ -280,7 +287,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
             });
             if (res.ok) {
               const data = await res.json();
-              console.log('[VoiceIntake] normalize-csa response', data);
+           
               const normalized = data?.normalized;
               if (normalized && typeof window !== 'undefined' && typeof (window as any).__autofillCSA === 'function') {
                 // Use normalized response to autofill (service, onset_date, etc.)
@@ -313,7 +320,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
         
         // Log tool/function call results (updateMedicalIntake output)
         if (msg.type === "tool-calls" || msg.type === "function-call") {
-          console.log('[VAPI TOOL CALL MESSAGE]', msg.type);
+          // console.log('[VAPI TOOL CALL MESSAGE]', msg.type);
           
           // Extract tool calls
           if (msg.toolCalls) {
@@ -323,10 +330,10 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
         
         // Log function call results
         if (msg.functionCall) {
-          console.log('[VAPI FUNCTION CALL DATA]', {
-            name: msg.functionCall.name,
-            parameters: msg.functionCall.parameters
-          });
+          // console.log('[VAPI FUNCTION CALL DATA]', {
+          //   name: msg.functionCall.name,
+          //   parameters: msg.functionCall.parameters
+          // });
         }
         // User speaking detection: show red wave on any user transcript
         if (msg.type === "transcript" && msg.role === "user") {
@@ -398,11 +405,11 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
 
   const handleToggleVoice = async () => {
     if (!isVoiceActive) {
-      console.log('Start Voice Intake button clicked');
+      // console.log('Start Voice Intake button clicked');
       await startVoice();
       setIsVoiceActive(true);
     } else {
-      console.log('Stop Voice Intake button clicked');
+      // console.log('Stop Voice Intake button clicked');
       stopVoice();
       setIsVoiceActive(false);
     }
@@ -418,8 +425,8 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
           alignItems: 'center',
           gap: '0.75rem',
           background: isVoiceActive
-            ? 'linear-gradient(90deg, #ff7a00 0%, #ff3c00 100%)'
-            : 'linear-gradient(90deg, #ff7a00 0%, #ff3c00 100%)',
+            ? 'linear-gradient(90deg, #DC143C 0%, #B91C1C 100%)'
+            : 'linear-gradient(90deg, #DC143C 0%, #B91C1C 100%)',
           color: '#fff',
           border: 'none',
           borderRadius: '999px',
@@ -427,7 +434,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
           fontWeight: 600,
           fontSize: '1.25rem',
           cursor: 'pointer',
-          boxShadow: '0 2px 8px 0 rgba(255,122,0,0.10)',
+          boxShadow: '0 2px 8px 0 rgba(220,20,60,0.10)',
           outline: 'none',
           transition: 'background 0.2s',
         }}

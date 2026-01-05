@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function POST(req: NextRequest) {
   try {
-    const { appointmentId, pdfBase64 } = await req.json();
-    console.log('[upload-consent] incoming', { appointmentId: String(appointmentId || ''), hasPdf: !!pdfBase64, pdfLength: pdfBase64?.length });
+    const { appointmentId, pdfBase64, formType = 'telemedicine' } = await req.json();
+    console.log('[upload-consent] incoming', { appointmentId: String(appointmentId || ''), formType, hasPdf: !!pdfBase64, pdfLength: pdfBase64?.length });
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -22,8 +22,18 @@ export async function POST(req: NextRequest) {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const buffer = Buffer.from(pdfBase64, 'base64');
-    const bucket = 'telemedicine_signed_form';
     const tableName = 'signed_form';
+
+    // Map form type to bucket and column
+    const formMap: Record<string, { bucket: string; column: string }> = {
+      telemedicine: { bucket: 'telemedicine_signed_form', column: 'telemedicine_form_path' },
+      hipaa: { bucket: 'HIPAACompliance_form', column: 'hipaacompliance_form_path' },
+      general: { bucket: 'GeneralSurgery_form', column: 'generalsurgery_form_path' },
+    };
+
+    const mapping = formMap[formType] || formMap.telemedicine;
+    const bucket = mapping.bucket;
+    const column = mapping.column;
     const path = `${appointmentId}/consent.pdf`;
 
     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -47,7 +57,10 @@ export async function POST(req: NextRequest) {
 
     const { data: upsertData, error: upsertError } = await supabase
       .from(tableName)
-      .upsert({ appointment_id: appointmentId, telemedicine_form_path: storedPath })
+      .upsert(
+        { appointment_id: appointmentId, [column]: storedPath },
+        { onConflict: 'appointment_id' }
+      )
       .select('appointment_id')
       .single();
     if (upsertError) {
@@ -65,9 +78,9 @@ export async function POST(req: NextRequest) {
       .from(bucket)
       .createSignedUrl(path, 60 * 60 * 24);
 
-    console.log('[upload-consent] success', { path, signedUrl: signed?.signedUrl ? 'present' : 'missing' });
+    console.log('[upload-consent] success', { formType, bucket, column, path, signedUrl: signed?.signedUrl ? 'present' : 'missing' });
 
-    return NextResponse.json({ path, storedPath, signedUrl: signed?.signedUrl }, { status: 200 });
+    return NextResponse.json({ path, storedPath, signedUrl: signed?.signedUrl, bucket, column }, { status: 200 });
   } catch (err: any) {
     console.error('[upload-consent] unexpected error', err?.message || err);
     return NextResponse.json({ error: err?.message || 'Unexpected error' }, { status: 500 });

@@ -100,7 +100,7 @@ const Input = ({
             } justify-center`}
     >
         <label className="text-[16px] text-customGray font-poppins font-bold">
-            {label}:
+            {label}
         </label>
         <input
             type={type}
@@ -143,7 +143,9 @@ const DatePicker = ({
             selected={value}
             onChange={(date) => onChange(date)}
             placeholderText={placeholder}
-            dateFormat="yyyy-MM-dd HH:MM"
+            dateFormat="MM/dd/yyyy"
+            maxDate={new Date()}
+            isClearable={false}
             calendarClassName="fixed-calendar-height"
             className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
         />
@@ -451,7 +453,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         <div className="flex w-full items-center justify-center gap-3">
                             <h1
                                 className={`${styles.sectionHeadText} `}
-                                style={{ textAlign: "center", color: "#FF9100" }}
+                                style={{ textAlign: "center", color: "#DC143C" }}
                             >
                                 {t("self_form_title")}
                             </h1>
@@ -650,7 +652,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         value={medicalForm.severity}
                                         onChange={e => handleMedicalChange('severity', e.target.value)}
                                     >
-                                        <option value="">Select</option>
+                                        <option value="" disabled>Select</option>
                                         {[...Array(10)].map((_, i) => (
                                             <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
                                         ))}
@@ -1037,7 +1039,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             </p>
                             <button
                                 onClick={() => setIsSignatureModalOpen(true)}
-                                className="px-6 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors"
+                                className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
                                 type="button"
                             >
                                 {t('digital_signature_button')}
@@ -1098,7 +1100,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             </div> */}
                             <div className="flex gap-3 flex-col md:flex-row w-full md:w-auto justify-end">
                                  <Button
-                                    text="Preview PDF"
+                                    text="Preview PDFs"
                                     size={{ width: "250px", height: "50px" }}
                                     route={""}
                                     bgColor={"#6B7280"}
@@ -1107,54 +1109,90 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         setPdfPreviewed(true);
                                         const signatureData = buildSignatureDataUrl();
                                         
-                                        generateConsentPDF({
-                                            firstName,
-                                            lastName,
-                                            dob,
-                                            signature: signatureData
-                                        }, {
-                                            onReady: (dataUrl) => setConsentPdfDataUrl(dataUrl)
-                                        });
+                                        try {
+                                                // Generate combined PDF with all three forms (telemedicine page 1, HIPAA page 2, General/Surgery page 3)
+                                            const combinedPdfUrl = generateConsentPDF({
+                                                firstName,
+                                                lastName,
+                                                dob,
+                                                signature: signatureData
+                                            }, {
+                                                formType: 'combined',
+                                                preview: false,
+                                                onReady: (dataUrl) => setConsentPdfDataUrl(dataUrl)
+                                            });
+
+                                            console.log('Combined PDF URL:', combinedPdfUrl);
+
+                                            // Open the combined PDF in a new tab
+                                            const pdfWindow = window.open(combinedPdfUrl, '_blank');
+
+                                            if (!pdfWindow) {
+                                                alert('Please allow popups for this site to preview the PDF');
+                                            }
+                                        } catch (error) {
+                                            console.error('Error generating PDF:', error);
+                                            alert('Error generating PDF. Please try again.');
+                                        }
                                     }}
                                 /> 
                                 <Button
                                     text={t("button_label")}
                                     size={{ width: "250px", height: "50px" }}
                                     route={""}
-                                    bgColor={"#FF7A00"}
+                                    bgColor={"#C81E3A"}
                                     textColor={"#ffffff"}
                                     onClick={async () => {
+                                        // Require preview before submit
+                                        if (!pdfPreviewed) {
+                                            toast.warning('Please preview your signed docs before submitting');
+                                            return;
+                                        }
+
                                         // Validate all consents are checked
                                         if (!consentTelemedicine || !consentHIPAA || !consentGeneral) {
                                             toast.warning('Please agree to all consent documents before submitting');
                                             return;
                                         }
 
-                                        const submitWithPdf = async (dataUrl?: string) => {
-                                            await submitAppointmentDetails(dataUrl || undefined);
-                                            resetSignatureState();
-                                        };
+                                        const signatureData = buildSignatureDataUrl();
 
-                                        // If no PDF generated yet, create it on submit using the current signature state
-                                        if (!consentPdfDataUrl) {
-                                            const signatureData = buildSignatureDataUrl();
-
-                                            generateConsentPDF({
-                                                firstName,
-                                                lastName,
-                                                dob,
-                                                signature: signatureData
-                                            }, {
-                                                preview: false,
-                                                onReady: async (dataUrl) => {
-                                                    setConsentPdfDataUrl(dataUrl);
-                                                    await submitWithPdf(dataUrl);
-                                                }
+                                        // Helper to get data URL for a given form type
+                                        const generateDataUrl = (formType: 'telemedicine' | 'hipaa' | 'general') =>
+                                            new Promise<string>((resolve) => {
+                                                generateConsentPDF({
+                                                    firstName,
+                                                    lastName,
+                                                    dob,
+                                                    signature: signatureData
+                                                }, {
+                                                    formType,
+                                                    preview: false,
+                                                    onReady: (dataUrl) => resolve(dataUrl)
+                                                });
                                             });
-                                            return;
-                                        }
 
-                                        await submitWithPdf(consentPdfDataUrl);
+                                        try {
+                                            const [telemedicineDataUrl, hipaaDataUrl, generalDataUrl] = await Promise.all([
+                                                generateDataUrl('telemedicine'),
+                                                generateDataUrl('hipaa'),
+                                                generateDataUrl('general'),
+                                            ]);
+
+                                            // Keep telemedicine in state for any downstream needs
+                                            setConsentPdfDataUrl(telemedicineDataUrl);
+
+                                            await submitAppointmentDetails({
+                                                telemedicine: telemedicineDataUrl,
+                                                hipaa: hipaaDataUrl,
+                                                general: generalDataUrl,
+                                            });
+
+                                            resetSignatureState();
+                                        } catch (error) {
+                                            console.error('Error generating PDFs for submission:', error);
+                                            toast.error('Could not generate consent PDFs for submission');
+                                        }
                                     }}
                                 />
                             </div>
@@ -1345,7 +1383,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         }}
                         className={`px-6 py-2 rounded-t-lg font-semibold transition-colors ${
                             signatureMode === 'draw'
-                                ? 'bg-orange-500 text-white'
+                                ? 'bg-red-600 text-white'
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         }`}
                         type="button"
@@ -1363,7 +1401,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                         }}
                         className={`px-6 py-2 rounded-t-lg font-semibold transition-colors ${
                             signatureMode === 'type'
-                                ? 'bg-orange-500 text-white'
+                                ? 'bg-red-600 text-white'
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         }`}
                         type="button"
@@ -1406,7 +1444,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 value={typedSignature}
                                 onChange={(e) => setTypedSignature(e.target.value)}
                                 placeholder="Enter your signature"
-                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg outline-none focus:border-orange-500"
+                                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg outline-none focus:border-red-600"
                             />
                             
                             <div className="space-y-2">
@@ -1416,7 +1454,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         onClick={() => setSelectedFont('font1')}
                                         className={`p-4 border-2 rounded-lg transition-all ${
                                             selectedFont === 'font1'
-                                                ? 'border-orange-500 bg-orange-50'
+                                                ? 'border-red-600 bg-red-50'
                                                 : 'border-gray-300 hover:border-gray-400'
                                         }`}
                                         type="button"
@@ -1429,7 +1467,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         onClick={() => setSelectedFont('font2')}
                                         className={`p-4 border-2 rounded-lg transition-all ${
                                             selectedFont === 'font2'
-                                                ? 'border-orange-500 bg-orange-50'
+                                                ? 'border-red-600 bg-red-50'
                                                 : 'border-gray-300 hover:border-gray-400'
                                         }`}
                                         type="button"

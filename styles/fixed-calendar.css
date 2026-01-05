@@ -3,3 +3,13 @@
   min-height: 320px !important;
   max-height: 320px !important;
 }
+
+/* Hide Clear/Today footer controls in the date picker */
+.fixed-calendar-height .react-datepicker__today-button,
+.fixed-calendar-height .react-datepicker__close-icon,
+.fixed-calendar-height .react-datepicker__clear-button,
+.fixed-calendar-height .react-datepicker__clear-btn,
+.fixed-calendar-height .react-datepicker__clear,
+.fixed-calendar-height .react-datepicker__footer {
+  display: none !important;
+}

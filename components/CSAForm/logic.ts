@@ -322,7 +322,13 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
         }));
     };
 
-    const submitAppointmentDetails = async (consentPdfDataUrl?: string) => {
+    type ConsentPdfPayload = {
+        telemedicine?: string;
+        hipaa?: string;
+        general?: string;
+    };
+
+    const submitAppointmentDetails = async (consentPdfs?: ConsentPdfPayload) => {
         // console.log('=== SUBMIT APPOINTMENT STARTED ===');
         // console.log('[STEP 1] Button clicked with consentPdfDataUrl:', consentPdfDataUrl ? 'Present' : 'None');
         
@@ -658,31 +664,39 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
         // Upload consent PDF to private bucket and store path
         // console.log('[STEP 6] Checking consent PDF upload...');
         let consentUploadSucceeded = false;
-        if (appointmentId && intakeInserted && consentPdfDataUrl) {
-            // console.log('[STEP 6a] Uploading consent PDF for appointmentId:', appointmentId);
+        const uploadForm = async (label: 'telemedicine' | 'hipaa' | 'general', dataUrl?: string) => {
+            if (!dataUrl) return { ok: false, reason: 'missing' } as const;
             try {
-                const base64 = consentPdfDataUrl.split(',')[1];
-                // console.log('[STEP 6b] Calling /api/upload-consent...');
+                const base64 = dataUrl.split(',')[1];
                 const res = await fetch('/api/upload-consent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ appointmentId, pdfBase64: base64 })
+                    body: JSON.stringify({ appointmentId, pdfBase64: base64, formType: label })
                 });
-                // console.log('[STEP 6c] Upload response status:', res.status);
                 if (!res.ok) {
                     const errText = await res.text();
-                    console.error('[STEP 6c ERROR] Upload consent failed:', res.status, errText);
-                    toast.error('Could not upload consent form');
-                } else {
-                    consentUploadSucceeded = true;
-                    // console.log('[STEP 6c SUCCESS] Consent PDF uploaded successfully');
+                    console.error(`[STEP 6 ERROR] Upload ${label} consent failed:`, res.status, errText);
+                    return { ok: false, reason: 'upload' } as const;
                 }
+                return { ok: true } as const;
             } catch (err) {
-                // console.error('[STEP 6 EXCEPTION] Upload consent error:', err);
-                toast.error('Could not upload consent form');
+                console.error(`[STEP 6 EXCEPTION] Upload ${label} consent error:`, err);
+                return { ok: false, reason: 'exception' } as const;
+            }
+        };
+
+        if (appointmentId && intakeInserted && consentPdfs) {
+            const tele = await uploadForm('telemedicine', consentPdfs.telemedicine);
+            const hipaa = await uploadForm('hipaa', consentPdfs.hipaa);
+            const general = await uploadForm('general', consentPdfs.general);
+
+            consentUploadSucceeded = tele.ok && hipaa.ok && general.ok;
+
+            if (!consentUploadSucceeded) {
+                toast.error('Could not upload all consent forms');
             }
         } else {
-            // console.log('[STEP 6] Skipping consent PDF upload - appointmentId:', appointmentId, 'consentPdfDataUrl:', consentPdfDataUrl ? 'Present' : 'None');
+            // console.log('[STEP 6] Skipping consent PDF upload - appointmentId:', appointmentId, 'consentPdfs present:', !!consentPdfs);
         }
         const requiredFields = [
             'location_id',

@@ -249,16 +249,23 @@ export const LocationsData = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
         {isLoading || isSearching
           ? [...Array(9)].map((_, i) => <LoadingLocationCard key={i} />)
-          : locationData.map((location) => (
-              <Location
-                key={location.id}
-                id={location.id}
-                locationName={location.title}
-                number={location.phone}
-                route=""
-                location={location.direction}
-              />
-            ))}
+          : locationData.map((location) => {
+              const addr = (location.address || "").trim();
+              const mapValue = addr.length >= 3
+                ? addr
+                : (location.direction || location.title);
+              return (
+                <Location
+                  key={location.id}
+                  id={location.id}
+                  locationName={location.title}
+                  number={location.phone}
+                  route=""
+                  // Prefer clean address; if missing/blank, fallback to pb or title
+                  location={mapValue}
+                />
+              );
+            })}
       </div>
     </div>
   );

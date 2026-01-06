@@ -40,6 +40,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
     if (data?.firstName !== undefined) normalized.first_name = data.firstName;
     if (data?.lastName !== undefined) normalized.last_name = data.lastName;
     if (data?.email !== undefined) normalized.email = data.email;
+    if (data?.streetAddress !== undefined) normalized.street_address = data.streetAddress;
     if (data?.phoneNumber !== undefined) normalized.phone = data.phoneNumber;
     if (data?.sex !== undefined) normalized.sex = data.sex;
     if (data?.severity !== undefined) normalized.severity = data.severity;
@@ -226,11 +227,11 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
       const args = toolCall?.function?.arguments || toolCall?.arguments;
       const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
 
-      // console.log(`[TOOL: ${toolName}]`, {
-      //   toolId: toolCall?.id,
-      //   toolName,
-      //   arguments: parsedArgs,
-      // });
+      console.log(`[TOOL CALL: ${toolName}]`, {
+        toolId: toolCall?.id,
+        toolName,
+        arguments: parsedArgs,
+      });
 
       if (toolName === 'updateMedicalIntake') {
         // Merge incremental payloads for a single summary at call-end
@@ -240,10 +241,13 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
         };
         lastToolPayloadRef.current = parsedArgs;
 
+        console.log('[MERGED TOOL PAYLOAD]', mergedToolPayloadRef.current);
+
         // Use the existing __autofillCSA with the merged data
         if (typeof window !== 'undefined' && typeof (window as any).__autofillCSA === 'function') {
           const normalized = mapToolPayloadToNormalized(mergedToolPayloadRef.current);
           lastNormalizedRef.current = normalized;
+          console.log('[NORMALIZED DATA]', normalized);
           (window as any).__autofillCSA(normalized);
         } else {
           console.error('[VoiceIntake] __autofillCSA not found on window!');
@@ -252,6 +256,7 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
     };
     if (instance) {
       instance.on("call-start", () => {
+        console.log('[VAPI] Call started');
         // Reset on call start
         mergedToolPayloadRef.current = {};
         lastToolPayloadRef.current = null;
@@ -260,19 +265,22 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
         normalizeTriggeredRef.current = false;
       });
       instance.on("call-end", () => {
+        console.log('[VAPI] Call ended');
         if (normalizeTriggeredRef.current) {
+          console.log('[VAPI] Normalize already triggered, skipping');
           return; // Prevent multiple normalize calls for the same call
         }
         normalizeTriggeredRef.current = true;
 
         setIsVoiceActive(false); // Always reset button to blue on call end
         // Single consolidated log to inspect Vapi return data
-        // console.log('[VAPI CALL-END SUMMARY]', {
-        //   rawMergedPayload: mergedToolPayloadRef.current,
-        //   lastToolPayload: lastToolPayloadRef.current,
-        //   normalizedSnapshot: lastNormalizedRef.current,
-        //   conversationHistory: conversationRef.current,
-        // });
+        console.log('================================');
+        console.log('[VAPI CALL-END SUMMARY]');
+        console.log('Raw Merged Payload:', mergedToolPayloadRef.current);
+        console.log('Last Tool Payload:', lastToolPayloadRef.current);
+        console.log('Normalized Snapshot:', lastNormalizedRef.current);
+        console.log('Conversation History:', conversationRef.current);
+        console.log('================================');
 
         // Trigger normalize-csa with onset/service on call end
         (async () => {
@@ -303,7 +311,17 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
       });
       // Direct tool-call events (when Vapi surfaces tools outside of message payload)
       instance.on("tool-call", handleToolCall);
+      instance.on("error", (error: any) => {
+        console.error('[VAPI ERROR]', error);
+      });
+      instance.on("speech-start", () => {
+        console.log('[VAPI] User speech started');
+      });
+      instance.on("speech-end", () => {
+        console.log('[VAPI] User speech ended');
+      });
       instance.on("message", (msg: any) => {
+        console.log('[VAPI MESSAGE]', msg.type, msg);
         // Capture clean conversation turns from Vapi's LLM messages
         if (msg.type === "message" && msg.role && msg.content) {
           conversationRef.current.push({

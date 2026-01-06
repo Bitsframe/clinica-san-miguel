@@ -385,6 +385,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
             setLastName,
             email,
             setEmail,
+            streetAddress,
+            setStreetAddress,
             sex,
             setSex,
             dob,
@@ -572,6 +574,13 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         <span className="text-red-600 text-xs mt-1">{t('email_error')}</span>
                                     )}
                                 </div>
+                                <Input
+                                    label={t("form_f9")}
+                                    placeholder="Enter your street address"
+                                    breakpoint={true}
+                                    onChange={setStreetAddress}
+                                    value={streetAddress}
+                                />
                                 <PhoneNumberInput
                                     label={t("form_f6")}
                                     placeholder="ex. +1 (123) 456-7890"

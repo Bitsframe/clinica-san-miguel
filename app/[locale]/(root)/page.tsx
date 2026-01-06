@@ -33,12 +33,12 @@ export default async function Home() {
       <div className="w-full bg-white border-b border-gray-200 py-3 px-4 overflow-x-auto">
         <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 flex-wrap sm:flex-nowrap text-xs sm:text-sm md:text-base whitespace-nowrap">
           <a 
-            href="tel:+14697710829" 
+            href="tel:+14698868060" 
             className="flex items-center gap-2 text-[#19192C] hover:text-[#C1001F] transition-colors cursor-pointer"
           >
             <span className="font-medium">Dallas</span>
             <FaPhone className="text-[#C1001F]" size={14} />
-            <span>+1 469-771-0829</span>
+            <span>+1 (469) 886-8060</span>
           </a>
           
           <span className="hidden sm:inline text-gray-300">|</span>

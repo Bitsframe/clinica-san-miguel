@@ -13,9 +13,20 @@ export const Map: React.FC<MapProps> = ({ height, location }) => {
   //   googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY!,
   // });
 
+  // Heuristic: if the value looks like a Google "pb" payload, use the pb embed;
+  // otherwise treat it as a free-text address/coordinates using q= for a
+  // consistent default (roadmap) style.
+  const looksLikePb = typeof location === "string" && (
+    location.includes("!1m") || location.includes("!2d") || location.length > 80
+  );
+
+  const src = looksLikePb
+    ? `https://www.google.com/maps/embed?pb=${location}`
+    : `https://www.google.com/maps?q=${encodeURIComponent(location)}&output=embed`;
+
   return (
     <iframe
-      src={`https://www.google.com/maps/embed?pb=${location}`}
+      src={src}
       // src={location}
       // width="350"
       height={height}

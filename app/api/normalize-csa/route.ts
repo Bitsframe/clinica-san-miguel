@@ -31,6 +31,10 @@ export const POST = async (req: NextRequest) => {
       "EKG",
       "Pap Smear",
       "Dentist",
+      "Ingrown Toenail Removal",
+      "Primary Care",
+      "Ultrasound",
+      "Thyroid Care",
     ];
     const normalizedSnapshot = body?.normalizedSnapshot || body?.normalized || null;
     const rawMergedPayload = body?.rawMergedPayload || null;

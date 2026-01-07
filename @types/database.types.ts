@@ -17,6 +17,17 @@ export interface Database {
           content: string | null;
         };
       };
+
+      // Special pictures used on the Specials page
+      special_picture: {
+        Row: {
+          id: number;
+          file_path: string;
+          display: boolean;
+          created_at: string;
+          title: string | null;
+        };
+      };
       About_Short_es: {
         Row: {
           // the data expected from .select()

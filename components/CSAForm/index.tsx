@@ -1246,15 +1246,15 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     route={""}
                                     bgColor={"#6B7280"}
                                     textColor={"#ffffff"}
-                                    onClick={() => {
+                                    onClick={async () => {
                                         setPdfPreviewed(true);
                                         const signatureData = buildSignatureDataUrl();
-                                        
                                         try {
-                                                // Generate combined PDF with all three forms (telemedicine page 1, HIPAA page 2, General/Surgery page 3)
-                                            const combinedPdfUrl = generateConsentPDF({
+                                            // Await the PDF generation
+                                            const combinedPdfUrl = await generateConsentPDF({
                                                 firstName,
                                                 lastName,
+                                                patient_name: `${firstName} ${lastName}`.trim(),
                                                 dob,
                                                 signature: signatureData
                                             }, {
@@ -1262,12 +1262,9 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 preview: false,
                                                 onReady: (dataUrl) => setConsentPdfDataUrl(dataUrl)
                                             });
-
                                             console.log('Combined PDF URL:', combinedPdfUrl);
-
                                             // Open the combined PDF in a new tab
                                             const pdfWindow = window.open(combinedPdfUrl, '_blank');
-
                                             if (!pdfWindow) {
                                                 alert('Please allow popups for this site to preview the PDF');
                                             }
@@ -1314,6 +1311,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 generateConsentPDF({
                                                     firstName,
                                                     lastName,
+                                                    patient_name: `${firstName} ${lastName}`.trim(),
                                                     dob,
                                                     signature: signatureData
                                                 }, {
@@ -1323,12 +1321,41 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 });
                                             });
 
+                                        function dataURLtoBlob(dataurl) {
+                                            const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                                                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                                            for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+                                            return new Blob([u8arr], { type: mime });
+                                        }
+
                                         try {
                                             const [telemedicineDataUrl, hipaaDataUrl, generalDataUrl] = await Promise.all([
                                                 generateDataUrl('telemedicine'),
                                                 generateDataUrl('hipaa'),
                                                 generateDataUrl('general'),
                                             ]);
+
+                                            // Convert Data URLs to Blobs
+                                            const telemedicineBlob = dataURLtoBlob(telemedicineDataUrl);
+                                            const hipaaBlob = dataURLtoBlob(hipaaDataUrl);
+                                            const generalBlob = dataURLtoBlob(generalDataUrl);
+
+                                            // Upload to Supabase Storage
+                                            const { data: tmUpload, error: tmError } = await supabase.storage
+                                                .from('consent-pdfs')
+                                                .upload(`telemedicine/${Date.now()}.pdf`, telemedicineBlob, {
+                                                    contentType: 'application/pdf'
+                                                });
+                                            const { data: hipaaUpload, error: hipaaError } = await supabase.storage
+                                                .from('consent-pdfs')
+                                                .upload(`hipaa/${Date.now()}.pdf`, hipaaBlob, {
+                                                    contentType: 'application/pdf'
+                                                });
+                                            const { data: generalUpload, error: generalError } = await supabase.storage
+                                                .from('consent-pdfs')
+                                                .upload(`general/${Date.now()}.pdf`, generalBlob, {
+                                                    contentType: 'application/pdf'
+                                                });
 
                                             // Keep telemedicine in state for any downstream needs
                                             setConsentPdfDataUrl(telemedicineDataUrl);
@@ -1341,8 +1368,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                                             resetSignatureState();
                                         } catch (error) {
-                                            console.error('Error generating PDFs for submission:', error);
-                                            toast.error('Could not generate consent PDFs for submission');
+                                            console.error('Error generating/uploading PDFs for submission:', error);
+                                            toast.error('Could not generate or upload consent PDFs for submission');
                                         }
                                     }}
                                 />

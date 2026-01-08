@@ -1321,9 +1321,14 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 });
                                             });
 
-                                        function dataURLtoBlob(dataurl) {
-                                            const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                                                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                                        function dataURLtoBlob(dataurl: string) {
+                                            const arr = dataurl.split(',');
+                                            const mimeMatch = arr[0].match(/:(.*?);/);
+                                            if (!mimeMatch) {
+                                                throw new Error('Invalid data URL format');
+                                            }
+                                            const mime = mimeMatch[1];
+                                            const bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
                                             for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
                                             return new Blob([u8arr], { type: mime });
                                         }

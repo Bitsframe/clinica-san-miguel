@@ -11,13 +11,6 @@ export const sendEmail = async ({
   data: EmailBodyInterface;
 }): Promise<void> => {
   try {
-    // Check if email service URL is configured
-    const emailServiceUrl = process.env.NEXT_PUBLIC_EMAIL_SENDER_URL;
-    if (!emailServiceUrl) {
-      console.warn('Email service URL not configured. Skipping email send.');
-      return;
-    }
-
     const emailHtml = getEmailTemplates({ lang, emailType, data });
 
     const fromEmail = emailFromDetails[emailType];
@@ -29,7 +22,7 @@ export const sendEmail = async ({
       html: emailHtml,
     };
 
-    const endpoint = `${emailServiceUrl}/send-batch-email`; 
+    const endpoint = '/api/send-email'; 
 
     const response = await axios.post(endpoint, payload, {
       headers: {

@@ -122,11 +122,11 @@ const DatePicker = ({
     {/* @ts-ignore */}
     <ReactDatePicker
       selected={value}
-      onChange={(date) => onChange(date)}
+      onChange={(date: Date | null) => onChange(date)}
       placeholderText={placeholder}
       dateFormat="yyyy-MM-dd"
       popperPlacement="bottom-start"
-      maxDate={maxDate}
+      maxDate={maxDate || undefined}
       className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
     />
  
@@ -538,7 +538,7 @@ export const RequestAppointment = ({
                             {/* @ts-ignore */}
                             <ReactDatePicker
                               selected={onsetDate}
-                              onChange={(date) => handleOnsetDateChange(date)}
+                              onChange={(date: Date | null) => handleOnsetDateChange(date)}
                               placeholderText={"Select onset date"}
                               dateFormat="yyyy-MM-dd"
                               maxDate={new Date()}

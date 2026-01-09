@@ -4,7 +4,7 @@ import "@/styles/custom-checkbox.css";
 
 import { styles } from "@/app/[locale]/styles";
 import { supabase } from "@/supabaseClient";
-import { useEffect, useState, useRef, RefObject } from "react";
+import { useEffect, useState, useRef, RefObject, forwardRef } from "react";
 import { Button } from "@/utils";
 import { Modal } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -13,6 +13,7 @@ import TranscriptDisplay from "../TranscriptDisplay";
 import moment from "moment";
 
 import ReactDatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import ScheduleDateTime from "../Modal/ScheduleDateTime";
 import { toast } from "react-toastify";
 import VoiceIntake from "../VoiceIntake";
@@ -137,10 +138,9 @@ const DatePicker = ({
             {label}:
         </label>
 
-        {/* @ts-ignore */}
         <ReactDatePicker
             selected={value}
-            onChange={(date) => onChange(date)}
+            onChange={(date: Date | null) => onChange(date)}
             placeholderText={placeholder}
             dateFormat="MM/dd/yyyy"
             maxDate={new Date()}
@@ -260,10 +260,25 @@ function AllergyTagInput({ allergies, setAllergies, placeholder = "List allergie
     );
 }
 
-import { forwardRef } from "react";
+const CustomDateInput = forwardRef<HTMLInputElement, any>(({ value, onClick, placeholder }, ref) => (
+    <input
+        type="text"
+        value={value}
+        onClick={onClick}
+        placeholder={placeholder}
+        ref={ref}
+        readOnly
+        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 pr-12 bg-transparent outline-none rounded-[10px] cursor-pointer"
+    />
+));
+CustomDateInput.displayName = "CustomDateInput";
 
 const Self_Appointment = forwardRef(({ location }: any, ref) => {
-    const logic = useCSAFormLogic({ location, ref });
+    const logic = useCSAFormLogic({ 
+        location, 
+        ref,
+        onSuccess: () => setShowSuccessModal(true)
+    });
     const { inOfficePatient, setInOfficePatient, newPatient, setNewPatient } = logic;
     // Signature canvas ref and state
     const sigCanvasRef = useRef<SignatureCanvas>(null);
@@ -272,6 +287,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     const [selectedFont, setSelectedFont] = useState<'font1' | 'font2'>('font1');
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
     const [hasSignature, setHasSignature] = useState(false);
+    const [pdfPreviewed, setPdfPreviewed] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [savedSignatureDataUrl, setSavedSignatureDataUrl] = useState<string | null>(null);
     const [savedSignatureMode, setSavedSignatureMode] = useState<'draw' | 'type' | null>(null);
 
@@ -301,8 +318,6 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
-    // Track if PDF preview has been clicked
-    const [pdfPreviewed, setPdfPreviewed] = useState(false);
     // Store last generated consent PDF data URL for upload
     const [consentPdfDataUrl, setConsentPdfDataUrl] = useState<string | null>(null);
     // Track booked time slots for selected date
@@ -597,13 +612,39 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 />
                                 <div className="flex flex-col items-start w-full justify-center">
                                     <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('form_f7')}</label>
-                                    <input
-                                        type="date"
-                                        value={dob ? dob.toISOString().split('T')[0] : ''}
-                                        onChange={e => setDob(e.target.value ? new Date(e.target.value) : null)}
-                                        max={new Date().toISOString().split('T')[0]}
-                                        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                                    />
+                                    <div className="relative w-full">
+                                        <ReactDatePicker
+                                            selected={dob}
+                                            onChange={(date: Date | null) => setDob(date)}
+                                            dateFormat="MM/dd/yyyy"
+                                            maxDate={new Date()}
+                                            placeholderText="mm/dd/yyyy"
+                                            showYearDropdown
+                                            scrollableYearDropdown
+                                            yearDropdownItemNumber={100}
+                                            customInput={<CustomDateInput />}
+                                        />
+                                        <svg 
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" 
+                                            width="20" 
+                                            height="20" 
+                                            viewBox="0 0 24 24" 
+                                            fill="none" 
+                                            stroke="#C1001F" 
+                                            strokeWidth="2" 
+                                            strokeLinecap="round" 
+                                            strokeLinejoin="round"
+                                            onClick={(e) => {
+                                                const input = e.currentTarget.previousElementSibling?.querySelector('input');
+                                                if (input) input.click();
+                                            }}
+                                        >
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                    </div>
                                 </div>
                                 <div className="flex flex-col items-start w-full justify-center">
                                     <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('age_label')}</label>
@@ -701,13 +742,39 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 />
                                 <div className="flex flex-col items-start w-full justify-center">
                                     <label className="text-[16px] text-customGray font-poppins font-bold">{t('duration_label')}</label>
-                                    <input
-                                        type="date"
-                                        value={onsetDate ? onsetDate.toISOString().split('T')[0] : ''}
-                                        onChange={e => handleOnsetDateChange(e.target.value ? new Date(e.target.value) : null)}
-                                        max={new Date().toISOString().split('T')[0]}
-                                        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
-                                    />
+                                    <div className="relative w-full">
+                                        <ReactDatePicker
+                                            selected={onsetDate}
+                                            onChange={(date: Date | null) => handleOnsetDateChange(date)}
+                                            dateFormat="MM/dd/yyyy"
+                                            maxDate={new Date()}
+                                            placeholderText="mm/dd/yyyy"
+                                            showYearDropdown
+                                            scrollableYearDropdown
+                                            yearDropdownItemNumber={100}
+                                            customInput={<CustomDateInput />}
+                                        />
+                                        <svg 
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" 
+                                            width="20" 
+                                            height="20" 
+                                            viewBox="0 0 24 24" 
+                                            fill="none" 
+                                            stroke="#C1001F" 
+                                            strokeWidth="2" 
+                                            strokeLinecap="round" 
+                                            strokeLinejoin="round"
+                                            onClick={(e) => {
+                                                const input = e.currentTarget.previousElementSibling?.querySelector('input');
+                                                if (input) input.click();
+                                            }}
+                                        >
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                    </div>
                                 </div>
                                 <Input
                                     label={t('symptom_location_label')}
@@ -1291,12 +1358,6 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             return;
                                         }
 
-                                        // Require preview before submit
-                                        if (!pdfPreviewed) {
-                                            toast.warning('Please preview your signed docs before submitting');
-                                            return;
-                                        }
-
                                         // Validate all consents are checked
                                         if (!consentTelemedicine || !consentHIPAA || !consentGeneral) {
                                             toast.warning('Please agree to all consent documents before submitting');
@@ -1321,46 +1382,12 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 });
                                             });
 
-                                        function dataURLtoBlob(dataurl: string) {
-                                            const arr = dataurl.split(',');
-                                            const mimeMatch = arr[0].match(/:(.*?);/);
-                                            if (!mimeMatch) {
-                                                throw new Error('Invalid data URL format');
-                                            }
-                                            const mime = mimeMatch[1];
-                                            const bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-                                            for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
-                                            return new Blob([u8arr], { type: mime });
-                                        }
-
                                         try {
                                             const [telemedicineDataUrl, hipaaDataUrl, generalDataUrl] = await Promise.all([
                                                 generateDataUrl('telemedicine'),
                                                 generateDataUrl('hipaa'),
                                                 generateDataUrl('general'),
                                             ]);
-
-                                            // Convert Data URLs to Blobs
-                                            const telemedicineBlob = dataURLtoBlob(telemedicineDataUrl);
-                                            const hipaaBlob = dataURLtoBlob(hipaaDataUrl);
-                                            const generalBlob = dataURLtoBlob(generalDataUrl);
-
-                                            // Upload to Supabase Storage
-                                            const { data: tmUpload, error: tmError } = await supabase.storage
-                                                .from('consent-pdfs')
-                                                .upload(`telemedicine/${Date.now()}.pdf`, telemedicineBlob, {
-                                                    contentType: 'application/pdf'
-                                                });
-                                            const { data: hipaaUpload, error: hipaaError } = await supabase.storage
-                                                .from('consent-pdfs')
-                                                .upload(`hipaa/${Date.now()}.pdf`, hipaaBlob, {
-                                                    contentType: 'application/pdf'
-                                                });
-                                            const { data: generalUpload, error: generalError } = await supabase.storage
-                                                .from('consent-pdfs')
-                                                .upload(`general/${Date.now()}.pdf`, generalBlob, {
-                                                    contentType: 'application/pdf'
-                                                });
 
                                             // Keep telemedicine in state for any downstream needs
                                             setConsentPdfDataUrl(telemedicineDataUrl);
@@ -1714,6 +1741,31 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                 </button>
             </div>
         </Modal.Footer>
+    </Modal>
+
+    {/* Success Modal */}
+    <Modal show={showSuccessModal} onClose={() => setShowSuccessModal(false)} size="md">
+        <Modal.Body>
+            <div className="text-center py-8" style={{ background: 'linear-gradient(90deg, rgb(220, 20, 60) 0%, rgb(185, 28, 28) 100%)' }}>
+                <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-white mb-6">
+                    <svg className="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 className="mb-3 text-2xl font-bold text-white">Thanks for Booking!</h3>
+                <p className="text-white mb-6">Your appointment has been successfully submitted.</p>
+                <div className="flex justify-center">
+                    <Button
+                        text="Close"
+                        size={{ width: "150px", height: "45px" }}
+                        route={""}
+                        bgColor={"#ffffff"}
+                        textColor={"#DC143C"}
+                        onClick={() => setShowSuccessModal(false)}
+                    />
+                </div>
+            </div>
+        </Modal.Body>
     </Modal>
 </>);
 },);

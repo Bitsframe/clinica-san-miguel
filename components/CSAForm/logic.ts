@@ -7,7 +7,7 @@ import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
 import { sendEmail } from "@/utils/emailService";
 import { submitAppointmentFlow } from "@/lib/submitAppointment";
 
-export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any } = {}) {
+export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; ref?: any; onSuccess?: () => void } = {}) {
     const t = useTranslations("appoinment_form");
     const locale = useLocale();
     const tableName = locale === "es" ? "services_es" : "services";
@@ -397,8 +397,8 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
             service: service,
             in_office_patient: false,
             new_patient: false,
-            dob: null,
-            address: null,
+            dob: dob ? dob.toISOString().split('T')[0] : null,
+            address: streetAddress || null,
             email_opt,
             text_opt
         };
@@ -506,16 +506,31 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
                     dateAndTime = `${(location as any).id}|${date_and_time.date} ${date_and_time.time}`;
                     // console.log('[STEP 3b] Formatted dateAndTime (object):', dateAndTime);
                 } else {
-                    // console.log('[STEP 3b] Date or time is empty, keeping dateAndTime as null');
+                    // Generate unique timestamp to avoid constraint violations
+                    const now = new Date();
+                    const uniqueDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                    const uniqueTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${now.getMilliseconds()}`;
+                    dateAndTime = `${(location as any).id}|${uniqueDate} ${uniqueTime}`;
+                    // console.log('[STEP 3b] Generated unique dateAndTime:', dateAndTime);
                 }
             } else if (typeof date_and_time === 'string' && date_and_time.trim() && (location as any)?.id) {
                 dateAndTime = `${(location as any).id}|${date_and_time}`;
                 // console.log('[STEP 3b] Formatted dateAndTime (string):', dateAndTime);
             } else {
-                // console.log('[STEP 3b] Invalid date_and_time format, keeping as null');
+                // Generate unique timestamp to avoid constraint violations
+                const now = new Date();
+                const uniqueDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                const uniqueTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${now.getMilliseconds()}`;
+                dateAndTime = `${(location as any).id}|${uniqueDate} ${uniqueTime}`;
+                // console.log('[STEP 3b] Generated unique dateAndTime:', dateAndTime);
             }
         } else {
-            // console.log('[STEP 3b] No date_and_time provided, keeping as null');
+            // Generate unique timestamp to avoid constraint violations when no date_and_time is provided
+            const now = new Date();
+            const uniqueDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const uniqueTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${now.getMilliseconds()}`;
+            dateAndTime = `${(location as any).id}|${uniqueDate} ${uniqueTime}`;
+            // console.log('[STEP 3b] No date_and_time provided, generated unique timestamp:', dateAndTime);
         }
         
         // console.log('[STEP 3 COMPLETE] Final dateAndTime value:', dateAndTime);
@@ -540,13 +555,13 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
         // ALWAYS create a new appointment - no duplicate checking
         let appointmentId = null;
         try {
-            // console.log('[STEP 4c] Creating new appointment (always insert new record)...');
-            // console.log('[STEP 4c] Inserting into Appoinments table with:');
-            // console.log('[STEP 4c]   - service:', service);
-            // console.log('[STEP 4c]   - location_id:', (location as any)?.id);
-            // console.log('[STEP 4c]   - patient_id:', patientId, '(existing patient ID or newly created)');
-            // console.log('[STEP 4c]   - new_patient:', isNewPatientForAppointment, '(based on patientCount =', patientCount + ')');
-            // console.log('[STEP 4c]   - date_and_time:', dateAndTime);
+            console.log('[STEP 4c] Creating new appointment (always insert new record)...');
+            console.log('[STEP 4c] Inserting into Appoinments table with:');
+            console.log('[STEP 4c]   - service:', service);
+            console.log('[STEP 4c]   - location_id:', (location as any)?.id);
+            console.log('[STEP 4c]   - patient_id:', patientId, '(existing patient ID or newly created)');
+            console.log('[STEP 4c]   - new_patient:', isNewPatientForAppointment, '(based on patientCount =', patientCount + ')');
+            console.log('[STEP 4c]   - date_and_time:', dateAndTime);
             
             // Insert appointment into Appoinments table - ALWAYS CREATE NEW
             const { data: appointmentInsertData, error: appointmentInsertError } = await supabase.from('Appoinments').insert([
@@ -559,24 +574,24 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
                 }
             ] as any).select('id') as any;
             // [BookNow] Appoinments insert result
-            // console.log('[STEP 4d] Appointment insert result:', JSON.stringify(appointmentInsertData, null, 2));
+            console.log('[STEP 4d] Appointment insert result:', JSON.stringify(appointmentInsertData, null, 2));
             if (appointmentInsertError) {
-                // console.error('[STEP 4d ERROR] Appointment insert error:', appointmentInsertError);
+                console.error('[STEP 4d ERROR] Appointment insert error:', appointmentInsertError);
                 throw appointmentInsertError;
             }
             if (appointmentInsertData && appointmentInsertData.length > 0) {
                 appointmentId = appointmentInsertData[0].id;
-                // console.log('[STEP 4d SUCCESS] New appointment created with ID:', appointmentId);
-                // console.log('[STEP 4d SUCCESS] Appointment record inserted into Appoinments table');
+                console.log('[STEP 4d SUCCESS] New appointment created with ID:', appointmentId);
+                console.log('[STEP 4d SUCCESS] Appointment record inserted into Appoinments table');
             } else {
-                // console.warn('[STEP 4d WARNING] No appointment ID returned!');
+                console.warn('[STEP 4d WARNING] No appointment ID returned!');
             }
         } catch (err) {
-            // console.error('[STEP 4 EXCEPTION] Error inserting into Appoinments:', err);
-            // console.error('[STEP 4 EXCEPTION] Error details:', JSON.stringify(err, null, 2));
+            console.error('[STEP 4 EXCEPTION] Error inserting into Appoinments:', err);
+            console.error('[STEP 4 EXCEPTION] Error details:', JSON.stringify(err, null, 2));
             toast.error('Failed to create appointment. Please try again.');
         }
-        // console.log('[STEP 4 COMPLETE] Final appointmentId:', appointmentId, '| new_patient:', isNewPatientForAppointment);
+        console.log('[STEP 4 COMPLETE] Final appointmentId:', appointmentId, '| new_patient:', isNewPatientForAppointment);
 
         // CRITICAL CHECK: If appointment creation failed, stop here
         if (!appointmentId) {
@@ -787,9 +802,7 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
                 return;
             }
         }
-        const postData = {
-            ...appointmentDetails,
-        }
+        // Send confirmation email to user
         const lang = locale
         const emailType = EmailBodyTempEnum.CONFIRMATION_OF_FORM_SUBMISSION
         const emailData: any = {
@@ -798,45 +811,24 @@ export function useCSAFormLogic({ location, ref }: { location?: any; ref?: any }
             location: location,
             service: service,
         }
-        const result = await submitAppointmentFlow({
-            supabase,
-            postData,
-            medicalForm: {
-                ...medicalForm,
-                symptoms_description: Array.isArray(medicalForm.symptoms_description)
-                    ? medicalForm.symptoms_description.join(', ')
-                    : medicalForm.symptoms_description || '',
-                medical_conditions: Array.isArray(medicalForm.medical_conditions)
-                    ? medicalForm.medical_conditions.join(', ')
-                    : medicalForm.medical_conditions || '',
-                allergies: Array.isArray(medicalForm.allergies)
-                    ? medicalForm.allergies.join(', ')
-                    : medicalForm.allergies || '',
-            },
-            onsetDate,
-            reliefSelect: reliefSelect.join(', '),
-            reliefOther,
-            surgeryChoice,
-            allergyChoice,
-            options: {
-                primaryTable: 'Appoinments',
-                invokeEdge: true,
-                email: {
-                    sendEmail,
-                    emailType,
-                    lang,
-                    emailData,
-                }
-            }
-        });
-        if (!result.success) {
-            // toast.error(`Error submitting appointment: ${result.error?.message || result.error || 'Unknown error'}`);
-            // return;
+        
+        // Send email directly instead of using submitAppointmentFlow to avoid duplicate appointment insertion
+        try {
+            await sendEmail({
+                lang,
+                emailType,
+                data: emailData,
+            });
+        } catch (emailErr) {
+            console.error('Error sending confirmation email:', emailErr);
         }
 
         // Only show success once consent file is stored
         if (consentUploadSucceeded) {
             toast.success("Appointment Submitted");
+            if (onSuccess) {
+                onSuccess();
+            }
         }
 
         // Reset all form fields after successful submission

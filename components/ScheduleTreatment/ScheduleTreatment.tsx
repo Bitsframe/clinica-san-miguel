@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/utils";
 
-import DatePicker, { ReactDatePickerProps } from "react-datepicker";
+import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 // icons
@@ -25,8 +25,7 @@ interface DropdownProps {
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; // Adjusted type here
 }
 
-interface DateTimeProps
-  extends Omit<ReactDatePickerProps, "onChange" | "value"> {
+interface DateTimeProps {
   label: string;
   value: Date | null;
   onChange: (date: Date | null) => void;
@@ -128,7 +127,7 @@ const DateTime: React.FC<DateTimeProps> = ({
           {/* @ts-ignore */}
           <DatePicker
             selected={value}
-            onChange={(date) => onChange(date as Date)}
+            onChange={(date: Date | null) => onChange(date)}
             dateFormat="yyyy-MM-dd'T'HH:mm"
             showTimeInput
             timeInputLabel="Time:"

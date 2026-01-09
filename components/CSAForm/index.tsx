@@ -264,14 +264,11 @@ function AllergyTagInput({ allergies, setAllergies, placeholder = "List allergie
 
 const CustomDateInput = React.forwardRef(({ value, onClick, onChange, placeholder }: any, ref: any) => (
     <input
-        type="text"
+        ref={ref}
         value={value}
         onClick={onClick}
-        onChange={onChange}
         placeholder={placeholder}
-        ref={ref}
-        readOnly
-        className="w-full h-[52px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 pr-12 bg-transparent outline-none rounded-[10px] cursor-pointer"
+        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 pr-12 bg-transparent outline-none rounded-[10px]"
     />
 ));
 CustomDateInput.displayName = "CustomDateInput";
@@ -774,8 +771,12 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     onChange={(val) => handleMedicalChange('chief_complaint', val)}
                                     value={medicalForm.chief_complaint}
                                 />
-                                <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('duration_label')}</label>
+                                <div className="flex flex-col items-start w-full gap-1">
+                                    {/* Label */}
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">
+                                        {t('duration_label')}
+                                    </label>
+
                                     <div className="relative w-full">
                                         <ReactDatePicker
                                             selected={onsetDate}
@@ -786,28 +787,27 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             showYearDropdown
                                             scrollableYearDropdown
                                             yearDropdownItemNumber={100}
+                                            wrapperClassName="w-full"
                                             customInput={<CustomDateInput />}
                                         />
-                                        <svg 
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" 
-                                            width="20" 
-                                            height="20" 
-                                            viewBox="0 0 24 24" 
-                                            fill="none" 
-                                            stroke="#C1001F" 
-                                            strokeWidth="2" 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round"
-                                            onClick={(e) => {
-                                                const input = e.currentTarget.previousElementSibling?.querySelector('input');
-                                                if (input) input.click();
-                                            }}
-                                        >
-                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                                        </svg>
+                                        {/* Icon positioned absolutely inside the input area */}
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                            <svg 
+                                                width="20" 
+                                                height="20" 
+                                                viewBox="0 0 24 24" 
+                                                fill="none" 
+                                                stroke="#C1001F" 
+                                                strokeWidth="2" 
+                                                strokeLinecap="round" 
+                                                strokeLinejoin="round"
+                                            >
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
                                 <Input

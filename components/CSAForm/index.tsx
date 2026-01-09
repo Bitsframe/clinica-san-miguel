@@ -30,6 +30,7 @@ import { sendEmail } from "@/utils/emailService";
 import { submitAppointmentFlow } from "@/lib/submitAppointment";
 import { generateConsentPDF } from "@/lib/generateConsentPDF";
 import SignatureCanvas from "react-signature-canvas";
+import { usStates } from "@/utils/us-states";
 
 const RadioButton = ({ value, name, label, checked, onChange }: any) => (
     <div className="flex items-center justify-start gap-3">
@@ -87,6 +88,7 @@ const Input = ({
     value,
     type = 'text',
     onChange,
+    className = ""
 }: {
     label: string;
     placeholder: string;
@@ -94,10 +96,10 @@ const Input = ({
     value: string;
     type?: string;
     onChange: (value: string) => void;
+    className?: string;
 }) => (
     <div
-        className={`flex flex-col items-start w-full
-            } justify-center`}
+        className={`flex flex-col items-start w-full justify-center`}
     >
         <label className="text-[16px] text-customGray font-poppins font-bold">
             {label}
@@ -105,7 +107,7 @@ const Input = ({
         <input
             type={type}
             placeholder={`${placeholder}`}
-            className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+            className={`w-full h-[52px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px] ${className}`}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             autoComplete="on"
@@ -260,15 +262,16 @@ function AllergyTagInput({ allergies, setAllergies, placeholder = "List allergie
     );
 }
 
-const CustomDateInput = forwardRef<HTMLInputElement, any>(({ value, onClick, placeholder }, ref) => (
+const CustomDateInput = React.forwardRef(({ value, onClick, onChange, placeholder }: any, ref: any) => (
     <input
         type="text"
         value={value}
         onClick={onClick}
+        onChange={onChange}
         placeholder={placeholder}
         ref={ref}
         readOnly
-        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 pr-12 bg-transparent outline-none rounded-[10px] cursor-pointer"
+        className="w-full h-[52px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 pr-12 bg-transparent outline-none rounded-[10px] cursor-pointer"
     />
 ));
 CustomDateInput.displayName = "CustomDateInput";
@@ -589,13 +592,41 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         <span className="text-red-600 text-xs mt-1">{t('email_error')}</span>
                                     )}
                                 </div>
-                                <Input
-                                    label={t("form_f9")}
-                                    placeholder="Enter your street address"
-                                    breakpoint={true}
-                                    onChange={setStreetAddress}
-                                    value={streetAddress}
-                                />
+                                {/* State and Zipcode - use grid for equal width */}
+                                <div className="w-full">
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2 text-left block">State:</label>
+                                    <select
+                                        className="w-full h-[52px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]"
+                                        value={medicalForm.state || ""}
+                                        onChange={e => handleMedicalChange('state', e.target.value)}
+                                    >
+                                        <option value="">State</option>
+                                        {usStates.map((state, idx) => (
+                                            <option key={state.value + '-' + idx} value={state.name}>{`${state.name} - ${state.value}`}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="w-full">
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2 text-left block">Zipcode:</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter zipcode"
+                                        className="w-full h-[52px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                                        value={medicalForm.zipcode || ""}
+                                        onChange={e => handleMedicalChange('zipcode', e.target.value.replace(/[^0-9]/g, '').slice(0, 5))}
+                                    />
+                                </div>
+                                {/* Address Field - Full Width Row */}
+                                <div className="md:col-span-2">
+                                    <Input
+                                        label={t("form_f9")}
+                                        placeholder="Enter your street address"
+                                        breakpoint={true}
+                                        onChange={setStreetAddress}
+                                        value={streetAddress}
+                                        className="h-[52px]"
+                                    />
+                                </div>
                                 <PhoneNumberInput
                                     label={t("form_f6")}
                                     placeholder="ex. +1 (123) 456-7890"
@@ -610,52 +641,55 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     onChange={setSex}
                                     selectedValue={sex}
                                 />
-                                <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('form_f7')}</label>
-                                    <div className="relative w-full">
-                                        <ReactDatePicker
-                                            selected={dob}
-                                            onChange={(date: Date | null) => setDob(date)}
-                                            dateFormat="MM/dd/yyyy"
-                                            maxDate={new Date()}
-                                            placeholderText="mm/dd/yyyy"
-                                            showYearDropdown
-                                            scrollableYearDropdown
-                                            yearDropdownItemNumber={100}
-                                            customInput={<CustomDateInput />}
-                                        />
-                                        <svg 
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" 
-                                            width="20" 
-                                            height="20" 
-                                            viewBox="0 0 24 24" 
-                                            fill="none" 
-                                            stroke="#C1001F" 
-                                            strokeWidth="2" 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round"
-                                            onClick={(e) => {
-                                                const input = e.currentTarget.previousElementSibling?.querySelector('input');
-                                                if (input) input.click();
-                                            }}
-                                        >
-                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('age_label')}</label>
-                                    <input
-                                        type="text"
-                                        value={dob ? moment().diff(moment(dob), 'years') : ''}
-                                        readOnly
-                                        placeholder={t('age_placeholder')}
-                                        className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-gray-100 outline-none rounded-[10px] cursor-not-allowed"
-                                    />
-                                </div>
+                                                                {/* Date of Birth and Age - direct children of main grid */}
+                                                                                                                                <div className="w-full flex flex-col items-start">
+                                                                                                                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2 text-left block">
+                                                                                                                                        {t('form_f7')}
+                                                                                                                                    </label>
+                                                                                                                                    <div className="relative w-full">
+                                                                                                                                        <ReactDatePicker
+                                                                                                                                            selected={dob}
+                                                                                                                                            onChange={(date: Date | null) => setDob(date)}
+                                                                                                                                            dateFormat="MM/dd/yyyy"
+                                                                                                                                            maxDate={new Date()}
+                                                                                                                                            placeholderText="mm/dd/yyyy"
+                                                                                                                                            showYearDropdown
+                                                                                                                                            scrollableYearDropdown
+                                                                                                                                            yearDropdownItemNumber={100}
+                                                                                                                                            customInput={<CustomDateInput />}
+                                                                                                                                            wrapperClassName="w-full"
+                                                                                                                                        />
+                                                                                                                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                                                                                                            <svg
+                                                                                                                                                width="20"
+                                                                                                                                                height="20"
+                                                                                                                                                viewBox="0 0 24 24"
+                                                                                                                                                fill="none"
+                                                                                                                                                stroke="#C1001F"
+                                                                                                                                                strokeWidth="2"
+                                                                                                                                                strokeLinecap="round"
+                                                                                                                                                strokeLinejoin="round"
+                                                                                                                                            >
+                                                                                                                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                                                                                                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                                                                                                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                                                                                                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                                                                                                                            </svg>
+                                                                                                                                        </div>
+                                                                                                                                    </div>
+                                                                                                                                </div>
+                                                                <div className="w-full">
+                                                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2 text-left block">
+                                                                        {t('age_label')}
+                                                                    </label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={dob ? moment().diff(moment(dob), 'years') : ''}
+                                                                        readOnly
+                                                                        placeholder={t('age_placeholder')}
+                                                                        className="w-full h-[52px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-gray-50 outline-none rounded-[10px] cursor-not-allowed"
+                                                                    />
+                                                                </div>
                                 {/* Schedule Date and Time Picker */}
                                 {/* TypeScript: define type for date_and_time */}
                                 {/* Place this type at the top of the file or in the component scope */}
@@ -1772,6 +1806,12 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
 
 export default Self_Appointment
+
+
+
+
+
+import React from "react";
 
 
 

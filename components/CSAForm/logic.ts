@@ -66,6 +66,8 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
         drug_use: false,
         occupation: "",
         cancer_type: "",
+        state: "",
+        zipcode: "",
         // Preventive/Reproductive history fields
         num_pregnancies: "",
         birth_control: "",
@@ -398,7 +400,9 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
             in_office_patient: false,
             new_patient: false,
             dob: dob ? dob.toISOString().split('T')[0] : null,
-            address: streetAddress || null,
+            address: streetAddress && medicalForm.state && medicalForm.zipcode
+                ? `${streetAddress}, ${medicalForm.state}, ${medicalForm.zipcode}`
+                : streetAddress || null,
             email_opt,
             text_opt
         };
@@ -450,7 +454,9 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
                     gender: sex,
                     dob: dob ? dob.toISOString().split('T')[0] : null,
                     phone: phone,
-                    address: streetAddress || null,
+                    address: streetAddress && medicalForm.state && medicalForm.zipcode
+                        ? `${streetAddress}, ${medicalForm.state}, ${medicalForm.zipcode}`
+                        : streetAddress || null,
                     locationid: (location as any)?.id,
                     onsite: true,  // Set to true for new patients booking through CSA form
                     email_opt: email_opt || false,
@@ -871,6 +877,8 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
             drug_use: false,
             occupation: "",
             cancer_type: "",
+            state: "",
+            zipcode: "",
             num_pregnancies: "",
             birth_control: "",
             pap_smear: "",

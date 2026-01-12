@@ -57,7 +57,7 @@ const usStates = [
     { value: 'WY', name: 'Wyoming'}
 ];
 
-function normalizeState(input) {
+function normalizeState(input: string | undefined | null) {
   if (!input) return undefined;
   const cleaned = String(input).replace(/\s+/g, '').toLowerCase();
   // Try to match by name or abbreviation

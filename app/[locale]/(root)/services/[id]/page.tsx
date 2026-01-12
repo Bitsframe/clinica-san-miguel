@@ -85,7 +85,7 @@ export default function ServicePage() {
 
       {combined.faqs && (
         <section>
-          <FAQs faqs={combined.faqs} />
+          <FAQs faqs={combined.faqs} locale={locale} />
         </section>
       )}
 

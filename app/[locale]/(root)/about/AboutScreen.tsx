@@ -104,14 +104,17 @@ const AboutScreen = () => {
 
   return (
     <main className="py-[5%] flex flex-col gap-20 px-2 lg:px-[20px] items-center justify-center">
-      <section className="flex flex-col items-center justify-center gap-10 lg:gap-32">
-        <article className="flex flex-col md:flex-row justify-center items-start w-full gap-5 lg:gap-20">
-          <div className="flex items-start flex-col">
-            <h1 className="text-[40px] lg:text-[50px] text-[#000000] font-poppins">
-              {data?.title_1}
+      <section className="flex flex-col items-center justify-center gap-10 lg:gap-32 px-4 md:px-12 w-full">
+        <article className="flex flex-col items-center justify-center w-full gap-5 lg:gap-8 text-center px-2 md:px-8">
+          <div className="flex flex-col items-start w-full md:w-[60%] mx-auto">
+            <h1 className="text-[48px] lg:text-[60px] text-[#000000] font-poppins font-bold leading-tight text-left">
+              About
             </h1>
+            <span className="block text-[32px] lg:text-[36px] text-[#C8102E] font-semibold mt-1 text-left">
+              Clinica San Miguel
+            </span>
           </div>
-          <p className="w-full md:w-[60%] text-[18px] lg:text-[24px] text-[#000000]">
+          <p className="w-full md:w-[60%] text-[18px] lg:text-[24px] text-[#000000] text-left mx-auto">
             {data?.text_1}
           </p>
         </article>
@@ -130,7 +133,7 @@ const AboutScreen = () => {
           ) : null}
           </article>
 
-        <article className="flex flex-col md:flex-row justify-center gap-6 items-start w-full">
+        <article className="flex flex-col md:flex-row justify-center gap-6 items-start w-full px-2 md:px-8">
           <div className="flex items-start flex-col gap-2">
             <Image
               src={data?.image_2 || earth_care}
@@ -155,11 +158,21 @@ const AboutScreen = () => {
 
       {expertise.map((item, index) => (
         <Fragment key={item.id}>
-          <Expertise
-            image={item.image}
-            heading={item.heading}
-            description={item.description}
-          />
+          {index === 0 || index === 2 ? (
+            <article className="flex flex-col items-center justify-center w-full gap-5 lg:gap-8 text-center">
+              <Expertise
+                image={item.image}
+                heading={item.heading}
+                description={item.description}
+              />
+            </article>
+          ) : (
+            <Expertise
+              image={item.image}
+              heading={item.heading}
+              description={item.description}
+            />
+          )}
           {index !== expertise.length - 1 && <Divider />}
         </Fragment>
       ))}

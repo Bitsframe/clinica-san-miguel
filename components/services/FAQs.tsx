@@ -10,16 +10,22 @@ type Faq = {
   answer: FaqAnswerBlock[] | string | string[];
 };
 
+
 type FaqsProps = {
   faqs: Faq[] | null;
+  locale?: string;
 };
 
-export default function Faqs({ faqs }: FaqsProps) {
+export default function Faqs({ faqs, locale }: FaqsProps) {
   if (!faqs || faqs.length === 0) return null;
+
+  const heading = locale === "es"
+    ? "Preguntas Frecuentes"
+    : "Frequently Asked Questions";
 
   return (
     <section className="space-y-6 bg-white shadow rounded-lg p-6 border">
-      <h2 className="text-xl font-bold text-[#C1001F]">Frequently Asked Questions</h2>
+      <h2 className="text-xl font-bold text-[#C1001F]">{heading}</h2>
 
       {faqs.map((faq, index) => (
         <div key={index} className="space-y-2">

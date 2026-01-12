@@ -274,13 +274,13 @@ export default function VoiceIntake({ setForm, setOnsetDate, onTranscript, vapi:
 
         setIsVoiceActive(false); // Always reset button to blue on call end
         // Single consolidated log to inspect Vapi return data
-        console.log('================================');
-        console.log('[VAPI CALL-END SUMMARY]');
-        console.log('Raw Merged Payload:', mergedToolPayloadRef.current);
-        console.log('Last Tool Payload:', lastToolPayloadRef.current);
-        console.log('Normalized Snapshot:', lastNormalizedRef.current);
-        console.log('Conversation History:', conversationRef.current);
-        console.log('================================');
+        // console.log('================================');
+        // console.log('[VAPI CALL-END SUMMARY]');
+        // console.log('Raw Merged Payload:', mergedToolPayloadRef.current);
+        // console.log('Last Tool Payload:', lastToolPayloadRef.current);
+        // console.log('Normalized Snapshot:', lastNormalizedRef.current);
+        // console.log('Conversation History:', conversationRef.current);
+        // console.log('================================');
 
         // Trigger normalize-csa with onset/service on call end
         (async () => {

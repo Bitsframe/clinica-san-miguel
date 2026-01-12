@@ -1486,12 +1486,12 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                               {t('voice_intake_description')}
                             </p>
                             <div className="flex flex-col items-center w-full gap-2">
-                              <VoiceIntake
-                                setForm={setMedicalForm}
-                                onTranscript={onTranscript}
-                                vapi={vapi}
-                                onUserSpeaking={handleUserSpeaking}
-                              />
+                                                            <VoiceIntake
+                                                                setForm={setMedicalForm}
+                                                                onTranscript={onTranscript}
+                                                                vapi={vapi}
+                                                                onUserSpeaking={handleUserSpeaking}
+                                                            />
                               <VoiceWave isActive={isSpeaking || isUserSpeaking} color="#000" />
                               <p className="text-xs text-gray-500 mt-2">
                                 {isUserSpeaking

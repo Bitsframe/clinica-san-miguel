@@ -111,6 +111,13 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
             // Convert "New" | "Returning" to boolean
             setNewPatient(normalized.patient_type === "New");
         }
+        // Direct autofill for state and zipcode if present
+        if (normalized.state !== undefined) {
+            setMedicalForm((prev) => ({ ...prev, state: normalized.state || "" }));
+        }
+        if (normalized.zipcode !== undefined) {
+            setMedicalForm((prev) => ({ ...prev, zipcode: normalized.zipcode || "" }));
+        }
         if (normalized.schedule_date || normalized.schedule_time || normalized.appointmentDate || normalized.appointmentTime) {
             setDate_and_time((prev: any) => {
                 const prevDate = prev && typeof prev === 'object' && 'date' in prev ? (prev as any).date : '';
@@ -188,11 +195,18 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
             if (normalized.tobacco_use !== undefined) next.tobacco_use = !!normalized.tobacco_use;
             if (normalized.alcohol_use !== undefined) next.alcohol_use = !!normalized.alcohol_use;
             if (normalized.drug_use !== undefined) next.drug_use = !!normalized.drug_use;
-            if (normalized.lifestyle !== undefined) {
-                next.tobacco_use = !!normalized.lifestyle.tobacco;
-                next.alcohol_use = !!normalized.lifestyle.alcohol;
-                next.drug_use = !!normalized.lifestyle.drugs;
-            }
+                if (normalized.lifestyle !== undefined) {
+                    next.tobacco_use = !!normalized.lifestyle.tobacco;
+                    next.alcohol_use = !!normalized.lifestyle.alcohol;
+                    next.drug_use = !!normalized.lifestyle.drugs;
+                    // Autofill state and zipcode if present in lifestyle
+                    if (normalized.lifestyle.state !== undefined) {
+                        next.state = normalized.lifestyle.state || prev.state;
+                    }
+                    if (normalized.lifestyle.zipcode !== undefined) {
+                        next.zipcode = normalized.lifestyle.zipcode || prev.zipcode;
+                    }
+                }
             if (normalized.occupation !== undefined) next.occupation = normalized.occupation || "";
             if (normalized.cancer_type !== undefined) next.cancer_type = normalized.cancer_type || "";
             if (normalized.cancerType !== undefined) next.cancer_type = normalized.cancerType || "";
@@ -561,13 +575,13 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
         // ALWAYS create a new appointment - no duplicate checking
         let appointmentId = null;
         try {
-            console.log('[STEP 4c] Creating new appointment (always insert new record)...');
-            console.log('[STEP 4c] Inserting into Appoinments table with:');
-            console.log('[STEP 4c]   - service:', service);
-            console.log('[STEP 4c]   - location_id:', (location as any)?.id);
-            console.log('[STEP 4c]   - patient_id:', patientId, '(existing patient ID or newly created)');
-            console.log('[STEP 4c]   - new_patient:', isNewPatientForAppointment, '(based on patientCount =', patientCount + ')');
-            console.log('[STEP 4c]   - date_and_time:', dateAndTime);
+            // console.log('[STEP 4c] Creating new appointment (always insert new record)...');
+            // console.log('[STEP 4c] Inserting into Appoinments table with:');
+            // console.log('[STEP 4c]   - service:', service);
+            // console.log('[STEP 4c]   - location_id:', (location as any)?.id);
+            // console.log('[STEP 4c]   - patient_id:', patientId, '(existing patient ID or newly created)');
+            // console.log('[STEP 4c]   - new_patient:', isNewPatientForAppointment, '(based on patientCount =', patientCount + ')');
+            // console.log('[STEP 4c]   - date_and_time:', dateAndTime);
             
             // Insert appointment into Appoinments table - ALWAYS CREATE NEW
             const { data: appointmentInsertData, error: appointmentInsertError } = await supabase.from('Appoinments').insert([

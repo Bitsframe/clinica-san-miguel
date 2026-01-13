@@ -11,8 +11,6 @@ import FAQs from "@/components/services/FAQs";
 import EndNote from "@/components/services/EndNote";
 import ServiceSkeleton from "@/components/services/ServiceSkeleton";
 
-
-
 export default function ServicePage() {
   const { fetchLocalizedRowById } = useSupabase();
   const locale = useLocale();
@@ -45,9 +43,7 @@ export default function ServicePage() {
   }, [locale, id, fetchLocalizedRowById]);
 
   if (loading)
-    return (
-     <ServiceSkeleton />
-    );
+    return <ServiceSkeleton />;
 
   if (!combined)
     return (
@@ -70,12 +66,14 @@ export default function ServicePage() {
         />
       </section>
 
-      <section>
-        <SubContentSection
-          subheading={combined.subheading}
-          sub_content={combined.sub_content}
-        />
-      </section>
+      <div className="bg-white rounded-lg p-6 mt-8 shadow">
+        <section>
+          <SubContentSection
+            subheading={combined.subheading}
+            sub_content={combined.sub_content}
+          />
+        </section>
+      </div>
 
       {combined.question_answers && (
         <section>

@@ -515,238 +515,173 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
         // console.log('[STEP 3a] Location ID:', (location as any)?.id);
         // console.log('[STEP 3a] date_and_time raw:', date_and_time);
         // console.log('[STEP 3a] date_and_time type:', typeof date_and_time);
-        
+
         let dateAndTime = null; // Default to null
-        
+        let appointmentId = null;
+        let intakeInserted = false;
+        let intakeId = null;
+
         // Only format if date_and_time is actually provided
         if (date_and_time) {
             if (typeof date_and_time === 'object' && 'date' in date_and_time && 'time' in date_and_time) {
-                // Check if both date and time have actual values
                 if (date_and_time.date && date_and_time.time && (location as any)?.id) {
                     dateAndTime = `${(location as any).id}|${date_and_time.date} ${date_and_time.time}`;
-                    // console.log('[STEP 3b] Formatted dateAndTime (object):', dateAndTime);
                 } else {
-                    // Generate unique timestamp to avoid constraint violations
                     const now = new Date();
                     const uniqueDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
                     const uniqueTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${now.getMilliseconds()}`;
                     dateAndTime = `${(location as any).id}|${uniqueDate} ${uniqueTime}`;
-                    // console.log('[STEP 3b] Generated unique dateAndTime:', dateAndTime);
                 }
             } else if (typeof date_and_time === 'string' && date_and_time.trim() && (location as any)?.id) {
                 dateAndTime = `${(location as any).id}|${date_and_time}`;
-                // console.log('[STEP 3b] Formatted dateAndTime (string):', dateAndTime);
             } else {
-                // Generate unique timestamp to avoid constraint violations
                 const now = new Date();
                 const uniqueDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
                 const uniqueTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${now.getMilliseconds()}`;
                 dateAndTime = `${(location as any).id}|${uniqueDate} ${uniqueTime}`;
-                // console.log('[STEP 3b] Generated unique dateAndTime:', dateAndTime);
             }
         } else {
-            // Generate unique timestamp to avoid constraint violations when no date_and_time is provided
             const now = new Date();
             const uniqueDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             const uniqueTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${now.getMilliseconds()}`;
             dateAndTime = `${(location as any).id}|${uniqueDate} ${uniqueTime}`;
-            // console.log('[STEP 3b] No date_and_time provided, generated unique timestamp:', dateAndTime);
         }
-        
-        // console.log('[STEP 3 COMPLETE] Final dateAndTime value:', dateAndTime);
-        // [BookNow] dateAndTime
-        // STEP 3: Insert into Appoinments table
-        // console.log('[STEP 4] Preparing appointment data for Appoinments table...');
-        
-        // Determine if patient is new based on patient count
-        // If patientCount === 1, it means this is first record in allpatients table = new patient
-        // If patientCount > 1, patient ID exists multiple times = returning patient
-        const isNewPatientForAppointment = patientCount === 1;
-        // console.log('[STEP 4a] Patient count:', patientCount, '→ new_patient flag:', isNewPatientForAppointment);
-        
-        const appoinmentData = {
-            service: service,
-            location_id: (location as any)?.id,
-            patient_id: patientId,
-            new_patient: isNewPatientForAppointment
-        };
-        // console.log('[STEP 4b] Appointment data to insert:', JSON.stringify(appoinmentData, null, 2));
-        
-        // ALWAYS create a new appointment - no duplicate checking
-        let appointmentId = null;
+
+        // Insert into Appoinments table
         try {
-            // console.log('[STEP 4c] Creating new appointment (always insert new record)...');
-            // console.log('[STEP 4c] Inserting into Appoinments table with:');
-            // console.log('[STEP 4c]   - service:', service);
-            // console.log('[STEP 4c]   - location_id:', (location as any)?.id);
-            // console.log('[STEP 4c]   - patient_id:', patientId, '(existing patient ID or newly created)');
-            // console.log('[STEP 4c]   - new_patient:', isNewPatientForAppointment, '(based on patientCount =', patientCount + ')');
-            // console.log('[STEP 4c]   - date_and_time:', dateAndTime);
-            
-            // Insert appointment into Appoinments table - ALWAYS CREATE NEW
             const { data: appointmentInsertData, error: appointmentInsertError } = await supabase.from('Appoinments').insert([
                 {
                     service: service,
                     date_and_time: dateAndTime,
                     patient_id: patientId,
                     location_id: (location as any)?.id,
-                    new_patient: isNewPatientForAppointment  // true if patientCount=1, false otherwise
+                    new_patient: isNewPatient  // true if new patient, false otherwise
                 }
             ] as any).select('id') as any;
-            // [BookNow] Appoinments insert result
-            console.log('[STEP 4d] Appointment insert result:', JSON.stringify(appointmentInsertData, null, 2));
             if (appointmentInsertError) {
-                console.error('[STEP 4d ERROR] Appointment insert error:', appointmentInsertError);
                 throw appointmentInsertError;
             }
             if (appointmentInsertData && appointmentInsertData.length > 0) {
                 appointmentId = appointmentInsertData[0].id;
-                console.log('[STEP 4d SUCCESS] New appointment created with ID:', appointmentId);
-                console.log('[STEP 4d SUCCESS] Appointment record inserted into Appoinments table');
-            } else {
-                console.warn('[STEP 4d WARNING] No appointment ID returned!');
             }
         } catch (err) {
-            console.error('[STEP 4 EXCEPTION] Error inserting into Appoinments:', err);
-            console.error('[STEP 4 EXCEPTION] Error details:', JSON.stringify(err, null, 2));
             toast.error('Failed to create appointment. Please try again.');
-        }
-        console.log('[STEP 4 COMPLETE] Final appointmentId:', appointmentId, '| new_patient:', isNewPatientForAppointment);
-
-        // CRITICAL CHECK: If appointment creation failed, stop here
-        if (!appointmentId) {
-            // console.error('[CRITICAL ERROR] Appointment creation failed - stopping submission process');
-            // console.error('[CRITICAL ERROR] Cannot proceed without valid appointmentId');
-            toast.error('Appointment creation failed. Please check the date/time and try again.');
-            return; // Stop execution - do not proceed to intake_form or any other steps
+            return;
         }
 
-        // STEP 4: Insert into intake_form table
-        // console.log('[STEP 5] Preparing medical information for intake_form table...');
-        // console.log('[STEP 5a] Using appointmentId:', appointmentId);
-        
-        let intakeInserted = false;
-        if (!appointmentId) {
-            // console.error('[STEP 5 ERROR] Cannot insert intake_form - no appointmentId available!');
-        } else {
+        // Insert into intake_form
+        try {
+            // Prepare relieving factors as JSON - ensure it's always an array or null
+            let relievingFactorsJson = null;
+            if (reliefSelect && reliefSelect.length > 0) {
+                relievingFactorsJson = reliefSelect;
+            } else if (medicalForm.relieving_factors) {
+                relievingFactorsJson = [medicalForm.relieving_factors];
+            }
+            // Prepare medical conditions - handle string or array, ensure data is saved
+            let medicalConditionsJson = null;
+            if (Array.isArray(medicalForm.medical_conditions) && medicalForm.medical_conditions.length > 0) {
+                medicalConditionsJson = medicalForm.medical_conditions;
+            } else if (typeof medicalForm.medical_conditions === 'string' && (medicalForm.medical_conditions as string).trim()) {
+                medicalConditionsJson = [(medicalForm.medical_conditions as string).trim()];
+            }
+            // Prepare surgeries - handle string or array, ensure data is saved
+            let surgeriesJson = null;
+            if (Array.isArray(medicalForm.surgeries) && medicalForm.surgeries.length > 0) {
+                surgeriesJson = medicalForm.surgeries;
+            } else if (typeof medicalForm.surgeries === 'string' && (medicalForm.surgeries as string).trim()) {
+                surgeriesJson = [(medicalForm.surgeries as string).trim()];
+            }
+            // Prepare allergies - handle string or array, ensure data is saved
+            let allergiesJson = null;
+            if (Array.isArray(medicalForm.allergies) && medicalForm.allergies.length > 0) {
+                allergiesJson = medicalForm.allergies;
+            } else if (typeof medicalForm.allergies === 'string' && (medicalForm.allergies as string).trim()) {
+                allergiesJson = [(medicalForm.allergies as string).trim()];
+            }
+            // Prepare current medications - handle string or array, ensure data is saved
+            let currentMedicationsJson = null;
+            if (medicalForm.current_medications) {
+                if (Array.isArray(medicalForm.current_medications)) {
+                    currentMedicationsJson = medicalForm.current_medications;
+                } else if (typeof medicalForm.current_medications === 'string' && medicalForm.current_medications.trim()) {
+                    currentMedicationsJson = [medicalForm.current_medications.trim()];
+                }
+            }
+            // Prepare intake form data according to schema
+            const intakeFormData = {
+                appointment_id: appointmentId,
+                chief_complaint: medicalForm.chief_complaint || null,
+                location: medicalForm.location || null,
+                severity: medicalForm.severity ? parseInt(medicalForm.severity) : null,
+                symptoms_description: Array.isArray(medicalForm.symptoms_description) 
+                    ? medicalForm.symptoms_description.join(', ') 
+                    : (medicalForm.symptoms_description || null),
+                // JSON fields - now guaranteed to save if data exists
+                medical_conditions: medicalConditionsJson,
+                surgeries: surgeriesJson,
+                allergies: allergiesJson,
+                current_medications: currentMedicationsJson,
+                relieving_factors: relievingFactorsJson,
+                // Family history booleans
+                fh_diabetes: medicalForm.family_history?.diabetes ?? false,
+                fh_hypertension: medicalForm.family_history?.hypertension ?? false,
+                fh_cancer: medicalForm.family_history?.cancer ?? false,
+                fh_heart_disease: medicalForm.family_history?.heart_disease ?? false,
+                // Lifestyle (boolean fields)
+                tobacco_use: medicalForm.tobacco_use ?? false,
+                alcohol_use: medicalForm.alcohol_use ?? false,
+                drug_use: medicalForm.drug_use ?? false,
+                occupation: medicalForm.occupation || null,
+                onset: onsetDate ? onsetDate.toISOString().split('T')[0] : null,
+                cancer_type: medicalForm.family_history?.cancer ? (medicalForm.cancer_type || null) : null,
+                // Female specific fields
+                number_of_pregnancies: medicalForm.num_pregnancies ? parseInt(medicalForm.num_pregnancies) : null,
+                birth_control: medicalForm.birth_control || null,
+                // Exam status enums and dates
+                last_pap_smear_status: medicalForm.pap_smear || null,
+                last_pap_smear_month_year: medicalForm.pap_smear === 'Month & Year' ? medicalForm.pap_smear_date : null,
+                mammography_status: medicalForm.mammogram || null,
+                mammography_month_year: medicalForm.mammogram === 'Month & Year' ? medicalForm.mammogram_date : null,
+                last_prostate_exam_status: medicalForm.prostate_exam || null,
+                last_prostate_exam_month_year: medicalForm.prostate_exam === 'Month & Year' ? medicalForm.prostate_exam_date : null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            // Insert into intake_form and get the inserted id
+            const intakeResult = await supabase.from('intake_form').insert([intakeFormData] as any).select('id');
+            if (intakeResult.error) {
+                // console.error('[STEP 5d ERROR] Failed to insert intake_form:', intakeResult.error);
+                // console.error('[STEP 5d ERROR] Error details:', intakeResult.error.message);
+            } else {
+                intakeInserted = true;
+                if (intakeResult.data && intakeResult.data.length > 0) {
+                    intakeId = intakeResult.data[0].id;
+                }
+            }
+        } catch (err) {
+            // console.error('[STEP 5 EXCEPTION] Error inserting into intake_form:', err);
+            // console.error('[STEP 5 EXCEPTION] Stack:', (err as any)?.stack);
+        }
+
+        // Insert into encounter table after intake_form
+        let encounterInserted = false;
+        if (appointmentId && patientId && intakeId) {
             try {
-                // Prepare relieving factors as JSON - ensure it's always an array or null
-                let relievingFactorsJson = null;
-                if (reliefSelect && reliefSelect.length > 0) {
-                    relievingFactorsJson = reliefSelect;
-                } else if (medicalForm.relieving_factors) {
-                    // Fallback if reliefSelect is empty but relieving_factors has data
-                    relievingFactorsJson = [medicalForm.relieving_factors];
-                }
-                
-                // Prepare medical conditions - handle string or array, ensure data is saved
-                let medicalConditionsJson = null;
-                if (Array.isArray(medicalForm.medical_conditions) && medicalForm.medical_conditions.length > 0) {
-                    medicalConditionsJson = medicalForm.medical_conditions;
-                } else if (typeof medicalForm.medical_conditions === 'string' && (medicalForm.medical_conditions as string).trim()) {
-                    medicalConditionsJson = [(medicalForm.medical_conditions as string).trim()];
-                }
-                
-                // Prepare surgeries - handle string or array, ensure data is saved
-                let surgeriesJson = null;
-                if (Array.isArray(medicalForm.surgeries) && medicalForm.surgeries.length > 0) {
-                    surgeriesJson = medicalForm.surgeries;
-                } else if (typeof medicalForm.surgeries === 'string' && (medicalForm.surgeries as string).trim()) {
-                    surgeriesJson = [(medicalForm.surgeries as string).trim()];
-                }
-                
-                // Prepare allergies - handle string or array, ensure data is saved
-                let allergiesJson = null;
-                if (Array.isArray(medicalForm.allergies) && medicalForm.allergies.length > 0) {
-                    allergiesJson = medicalForm.allergies;
-                } else if (typeof medicalForm.allergies === 'string' && (medicalForm.allergies as string).trim()) {
-                    allergiesJson = [(medicalForm.allergies as string).trim()];
-                }
-                
-                // Prepare current medications - handle string or array, ensure data is saved
-                let currentMedicationsJson = null;
-                if (medicalForm.current_medications) {
-                    if (Array.isArray(medicalForm.current_medications)) {
-                        currentMedicationsJson = medicalForm.current_medications;
-                    } else if (typeof medicalForm.current_medications === 'string' && medicalForm.current_medications.trim()) {
-                        currentMedicationsJson = [medicalForm.current_medications.trim()];
-                    }
-                }
-                
-                // console.log('[STEP 5b-prep] Processed JSON fields:');
-                // console.log('[STEP 5b-prep]   - relieving_factors:', relievingFactorsJson);
-                // console.log('[STEP 5b-prep]   - medical_conditions:', medicalConditionsJson);
-                // console.log('[STEP 5b-prep]   - surgeries:', surgeriesJson);
-                // console.log('[STEP 5b-prep]   - allergies:', allergiesJson);
-                // console.log('[STEP 5b-prep]   - current_medications:', currentMedicationsJson);
-                
-                // Prepare intake form data according to schema
-                const intakeFormData = {
+                const encounterData = {
                     appointment_id: appointmentId,
-                    chief_complaint: medicalForm.chief_complaint || null,
-                    location: medicalForm.location || null,
-                    severity: medicalForm.severity ? parseInt(medicalForm.severity) : null,
-                    symptoms_description: Array.isArray(medicalForm.symptoms_description) 
-                        ? medicalForm.symptoms_description.join(', ') 
-                        : (medicalForm.symptoms_description || null),
-                    
-                    // JSON fields - now guaranteed to save if data exists
-                    medical_conditions: medicalConditionsJson,
-                    surgeries: surgeriesJson,
-                    allergies: allergiesJson,
-                    current_medications: currentMedicationsJson,
-                    relieving_factors: relievingFactorsJson,
-                    
-                    // Family history booleans
-                    fh_diabetes: medicalForm.family_history?.diabetes ?? false,
-                    fh_hypertension: medicalForm.family_history?.hypertension ?? false,
-                    fh_cancer: medicalForm.family_history?.cancer ?? false,
-                    fh_heart_disease: medicalForm.family_history?.heart_disease ?? false,
-                    
-                    // Lifestyle (boolean fields)
-                    tobacco_use: medicalForm.tobacco_use ?? false,
-                    alcohol_use: medicalForm.alcohol_use ?? false,
-                    drug_use: medicalForm.drug_use ?? false,
-                    
-                    occupation: medicalForm.occupation || null,
-                    onset: onsetDate ? onsetDate.toISOString().split('T')[0] : null,
-                    cancer_type: medicalForm.family_history?.cancer ? (medicalForm.cancer_type || null) : null,
-                    
-                    // Female specific fields
-                    number_of_pregnancies: medicalForm.num_pregnancies ? parseInt(medicalForm.num_pregnancies) : null,
-                    birth_control: medicalForm.birth_control || null,
-                    
-                    // Exam status enums and dates
-                    last_pap_smear_status: medicalForm.pap_smear || null,
-                    last_pap_smear_month_year: medicalForm.pap_smear === 'Month & Year' ? medicalForm.pap_smear_date : null,
-                    
-                    mammography_status: medicalForm.mammogram || null,
-                    mammography_month_year: medicalForm.mammogram === 'Month & Year' ? medicalForm.mammogram_date : null,
-                    
-                    last_prostate_exam_status: medicalForm.prostate_exam || null,
-                    last_prostate_exam_month_year: medicalForm.prostate_exam === 'Month & Year' ? medicalForm.prostate_exam_date : null,
-                    
+                    patient_id: patientId,
+                    intake_id: intakeId,
+                    encounter_date: new Date().toISOString(),
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString()
                 };
-                
-                // console.log('[STEP 5b] Intake form data prepared:', JSON.stringify(intakeFormData, null, 2));
-                // console.log('[STEP 5c] Inserting into intake_form table...');
-                
-                const intakeResult = await supabase.from('intake_form').insert([intakeFormData] as any);
-                
-                // console.log('[STEP 5d] Intake form insert result:', JSON.stringify(intakeResult, null, 2));
-                
-                if (intakeResult.error) {
-                    // console.error('[STEP 5d ERROR] Failed to insert intake_form:', intakeResult.error);
-                    // console.error('[STEP 5d ERROR] Error details:', intakeResult.error.message);
-                } else {
-                    intakeInserted = true;
-                    // console.log('[STEP 5d SUCCESS] Medical information inserted into intake_form table');
+                const encounterResult = await supabase.from('encounter').insert([encounterData] as any);
+                if (!encounterResult.error) {
+                    encounterInserted = true;
                 }
             } catch (err) {
-                // console.error('[STEP 5 EXCEPTION] Error inserting into intake_form:', err);
-                // console.error('[STEP 5 EXCEPTION] Stack:', (err as any)?.stack);
+                // Optionally log error
             }
         }
         // console.log('[STEP 5 COMPLETE] intake_form processing finished');
@@ -870,10 +805,20 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
         }
 
         // Only show success once consent file is stored
+        // Only show success once consent file is stored AND email is sent successfully
         if (consentUploadSucceeded) {
-            toast.success("Appointment Submitted");
-            if (onSuccess) {
-                onSuccess();
+            let emailSent = false;
+            try {
+                await sendEmail({ lang, emailType, data: emailData });
+                emailSent = true;
+            } catch (emailErr) {
+                console.error('Error sending confirmation email:', emailErr);
+            }
+            if (emailSent) {
+                toast.success("Appointment Submitted");
+                if (onSuccess) {
+                    onSuccess();
+                }
             }
         }
 

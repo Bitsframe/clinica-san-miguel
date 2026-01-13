@@ -1,4 +1,3 @@
-
 "use client";
 import "@/styles/custom-checkbox.css";
 
@@ -240,7 +239,7 @@ function AllergyTagInput({ allergies, setAllergies, placeholder = "List allergie
     };
 
     return (
-        <div className="w-full min-h-[46px] border-[1px] border-[#E0E0E0] rounded-[10px] flex flex-wrap items-center px-2 py-1 bg-transparent mt-2">
+        <div className="w-full min-h-[46px] border-[1px] border-[#E0E0E0] rounded-[10px] flex flex-wrap items-center px-2 py-1 bg-transparent mt-2" style={{ minWidth: '340px', maxWidth: '100%' }}>
             {allergies.map((tag, idx) => (
                 <span key={tag + idx} className="flex items-center m-1 px-2 py-1 bg-[#C1001F] text-white rounded-full text-xs font-semibold">
                     {tag}
@@ -249,7 +248,8 @@ function AllergyTagInput({ allergies, setAllergies, placeholder = "List allergie
             ))}
             <input
                 ref={inputRef}
-                className="flex-1 min-w-[100px] h-[32px] border-none outline-none bg-transparent text-[16px] px-2"
+                className="flex-1 min-w-[240px] h-[46px] border-none outline-none bg-transparent text-[16px] px-2 w-full"
+                style={{ minWidth: '240px' }}
                 placeholder={allergies.length === 0 ? placeholder : "Add more..."}
                 value={input}
                 onChange={onInput}
@@ -882,7 +882,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             </label>
                                         </div>
                                         {medicalForm.pap_smear === 'Month & Year' && (
-                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.pap_smear_date || ''} onChange={e => handleMedicalChange('pap_smear_date', e.target.value)} />
+                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.pap_smear_date || ''} onChange={e => handleMedicalChange('pap_smear_date', e.target.value)} />
                                         )}
                                     </div>
                                 )}
@@ -905,7 +905,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             </label>
                                         </div>
                                         {medicalForm.mammogram === 'Month & Year' && (
-                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.mammogram_date || ''} onChange={e => handleMedicalChange('mammogram_date', e.target.value)} />
+                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.mammogram_date || ''} onChange={e => handleMedicalChange('mammogram_date', e.target.value)} />
                                         )}
                                     </div>
                                 )}
@@ -928,7 +928,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             </label>
                                         </div>
                                         {medicalForm.prostate_exam === 'Month & Year' && (
-                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.prostate_exam_date || ''} onChange={e => handleMedicalChange('prostate_exam_date', e.target.value)} />
+                                            <input type="month" className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]" value={medicalForm.prostate_exam_date || ''} onChange={e => handleMedicalChange('prostate_exam_date', e.target.value)} />
                                         )}
                                     </div>
                                 )}
@@ -1049,8 +1049,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             </div>
 
                             {/* Grid Container: Increased horizontal gap (gap-x-24) and tighter vertical spacing on web */}
-                            <div className="grid md:grid-cols-2 grid-cols-1 gap-y-8 md:gap-x-24 md:gap-y-4 items-start">
-                                {/* Column 1: Surgeries */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 md:gap-x-96 items-start w-full">
+                                {/* Column 1: Surgeries (move left) */}
                                 <div className="flex flex-col items-start w-full">
                                     <label className="text-[16px] text-customGray font-poppins font-bold min-h-[24px]">{t('surgeries_label')}</label>
                                     <div className="flex flex-row gap-6 my-3 h-[30px] items-center">
@@ -1080,7 +1080,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             <span className="text-customGray text-[16px]">{t('surgeries_no')}</span>
                                         </label>
                                     </div>
-                                    <div className="w-full min-h-[50px]">
+                                 <div className="w-full md:max-w-[400px] min-h-[50px]">
                                         {surgeryChoice === 'Yes' ? (
                                             <AllergyTagInput
                                                 allergies={Array.isArray(medicalForm.surgeries) ? medicalForm.surgeries : (medicalForm.surgeries ? [medicalForm.surgeries] : [])}
@@ -1093,8 +1093,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     </div>
                                 </div>
 
-                                {/* Column 2: Allergies */}
-                                <div className="flex flex-col items-start w-full">
+                                {/* Column 2: Allergies (move right, add left margin) */}
+                      <div className="flex flex-col items-start w-full">
                                     <label className="text-[16px] text-customGray font-poppins font-bold min-h-[24px]">{t('allergies_label')}</label>
                                     <div className="flex flex-row gap-6 my-3 h-[30px] items-center">
                                         <label className="flex items-center gap-2 cursor-pointer">
@@ -1123,13 +1123,15 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                             <span className="text-customGray text-[16px]">{t('allergies_no')}</span>
                                         </label>
                                     </div>
-                                    <div className="w-full min-h-[50px]">
+                             <div className="w-full md:max-w-[400px] min-h-[50px]">
                                         {allergyChoice === 'Yes' ? (
-                                            <AllergyTagInput
-                                                allergies={medicalForm.allergies}
-                                                setAllergies={(allergies: string[]) => setMedicalForm((prev: typeof medicalForm) => ({ ...prev, allergies }))}
-                                                placeholder="List allergies"
-                                            />
+                                      
+                                                <AllergyTagInput
+                                                    allergies={medicalForm.allergies}
+                                                    setAllergies={(allergies) => setMedicalForm((prev: typeof medicalForm) => ({ ...prev, allergies }))}
+                                                    placeholder="List allergies"
+                                                />
+                                     
                                         ) : (
                                             <div className={`${isDesktop ? 'hidden md:block h-[50px]' : 'h-2'}`}></div>
                                         )}
@@ -1167,7 +1169,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     </div>
                                     {medicalForm.family_history?.cancer && (
                                         <div className="mt-2">
-                                            <label className="text-[16px] text-customGray font-poppins font-bold">Cancer Type:</label>
+                                            <label className="text-[16px] text-customGray font-poppins font-bold block text-left">Cancer Type:</label>
                                             <select
                                                 className="w-full h-[46px] border-[1px] border-[#000000] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                                                 value={medicalForm.cancer_type}
@@ -1347,8 +1349,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                <div className="w-full mt-4 flex justify-center md:justify-end">
                                     <Button
                                         text={t("button_label")}
-                                       className="w-full md:w-fit" 
-                                    size={{ width: "300px", height: "56px" }}
+                                       className="!w-full md:!w-fit md:!max-w-[200px] md:!px-6"
+                                   size={{ width: "auto", height: "56px" }}
                                         route={""}
                                         bgColor={"#C81E3A"}
                                         textColor={"#ffffff"}
@@ -1617,8 +1619,9 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                     </button>
                 </div>
 
+               
                 {signatureMode === 'draw' && (
-                    <>
+<>
                         <p className="text-gray-600 mb-4">Draw your signature below</p>
                         <div className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white">
                             <SignatureCanvas

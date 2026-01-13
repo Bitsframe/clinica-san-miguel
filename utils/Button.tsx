@@ -10,7 +10,8 @@ export const Button = ({
   bgColor,
   textColor,
   onClick,
-  disabled = false
+  disabled = false,
+  className = ""
 }: {
   text: string;
   size: { width: string; height: string };
@@ -19,6 +20,7 @@ export const Button = ({
   textColor: string;
   onClick: any;
   disabled?: boolean;
+  className?: string;
 }) => {
   const [windowWidth, setWindowWidth] = useState<number>(0);
 
@@ -53,9 +55,9 @@ export const Button = ({
   return (
     <button
       disabled={disabled}
-      className={`rounded-[10px] font-poppins flex justify-center items-center text-[14px] md:text-[17px] text-opacity-8 hover:opacity-75 active:opacity-90 disabled:opacity-30`}
+      className={`rounded-[10px] font-poppins flex justify-center items-center text-[14px] md:text-[17px] text-opacity-8 hover:opacity-75 active:opacity-90 disabled:opacity-30 ${className}`}
       style={{
-        width: calculatedWidth,
+        width: className.includes('w-full') ? '100%' : calculatedWidth,
         height: calculatedHeight,
         backgroundColor: `${bgColor}`,
         color: `${textColor}`,

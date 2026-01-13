@@ -320,6 +320,8 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
     };
     // Store last generated consent PDF data URL for upload
     const [consentPdfDataUrl, setConsentPdfDataUrl] = useState<string | null>(null);
+    // Prevent double submission
+    const [isSubmitting, setIsSubmitting] = useState(false);
     // Track booked time slots for selected date
     const [bookedSlots, setBookedSlots] = useState<string[]>([]);
     // Consent checkboxes state
@@ -1340,119 +1342,85 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             {/* <div className="w-full mb-3">
                                 <p className="text-red-600 font-semibold text-sm">⚠️ Please review the telemedicine consent form before submitting</p>
                             </div> */}
-                            <div className="flex gap-3 flex-col md:flex-row w-full md:w-auto justify-end">
-                                 <Button
-                                    text="Preview PDFs"
-                                    size={{ width: "250px", height: "50px" }}
-                                    route={""}
-                                    bgColor={"#6B7280"}
-                                    textColor={"#ffffff"}
-                                    onClick={async () => {
-                                        setPdfPreviewed(true);
-                                        const signatureData = buildSignatureDataUrl();
-                                        try {
-                                            // Await the PDF generation
-                                            const combinedPdfUrl = await generateConsentPDF({
-                                                firstName,
-                                                lastName,
-                                                patient_name: `${firstName} ${lastName}`.trim(),
-                                                dob,
-                                                signature: signatureData
-                                            }, {
-                                                formType: 'combined',
-                                                preview: false,
-                                                onReady: (dataUrl) => setConsentPdfDataUrl(dataUrl)
-                                            });
-                                            console.log('Combined PDF URL:', combinedPdfUrl);
-                                            // Open the combined PDF in a new tab
-                                            const pdfWindow = window.open(combinedPdfUrl, '_blank');
-                                            if (!pdfWindow) {
-                                                alert('Please allow popups for this site to preview the PDF');
-                                            }
-                                        } catch (error) {
-                                            console.error('Error generating PDF:', error);
-                                            alert('Error generating PDF. Please try again.');
-                                        }
-                                    }}
-                                /> 
-                                <Button
-                                    text={t("button_label")}
-                                    size={{ width: "250px", height: "50px" }}
-                                    route={""}
-                                    bgColor={"#C81E3A"}
-                                    textColor={"#ffffff"}
-                                    onClick={async () => {
-                                        if (!dob) {
-                                            toast.warning('Please fill Date of Birth');
-                                            return;
-                                        }
+                            <div className="w-full flex flex-col gap-3 justify-end">
+                               
+                               <div className="w-full mt-4 flex justify-center md:justify-end">
+                                    <Button
+                                        text={t("button_label")}
+                                       className="w-full md:w-fit" 
+                                    size={{ width: "300px", height: "56px" }}
+                                        route={""}
+                                        bgColor={"#C81E3A"}
+                                        textColor={"#ffffff"}
+                                        disabled={isSubmitting}
+                                        onClick={async () => {
+                                            if (isSubmitting) return;
+                                            setIsSubmitting(true);
+                                            try {
+                                                if (!dob) {
+                                                    toast.warning('Please fill Date of Birth');
+                                                    return;
+                                                }
 
-                                        if (!onsetDate) {
-                                            toast.warning('Please fill onset date');
-                                            return;
-                                        }
+                                                if (!onsetDate) {
+                                                    toast.warning('Please fill onset date');
+                                                    return;
+                                                }
 
-                                        // Validate all consents are checked
-                                        if (!consentTelemedicine || !consentHIPAA || !consentGeneral) {
-                                            toast.warning('Please agree to all consent documents before submitting');
-                                            return;
-                                        }
+                                                // Validate all consents are checked
+                                                if (!consentTelemedicine || !consentHIPAA || !consentGeneral) {
+                                                    toast.warning('Please agree to all consent documents before submitting');
+                                                    return;
+                                                }
 
-                                        const signatureData = buildSignatureDataUrl();
+                                                const signatureData = buildSignatureDataUrl();
 
-                                        // Helper to get data URL for a given form type
-                                        const generateDataUrl = (formType: 'telemedicine' | 'hipaa' | 'general') =>
-                                            new Promise<string>((resolve) => {
-                                                generateConsentPDF({
-                                                    firstName,
-                                                    lastName,
-                                                    patient_name: `${firstName} ${lastName}`.trim(),
-                                                    dob,
-                                                    signature: signatureData
-                                                }, {
-                                                    formType,
-                                                    preview: false,
-                                                    onReady: (dataUrl) => resolve(dataUrl)
+                                                // Helper to get data URL for a given form type
+                                                const generateDataUrl = (formType: 'telemedicine' | 'hipaa' | 'general') =>
+                                                    new Promise<string>((resolve) => {
+                                                        generateConsentPDF({
+                                                            firstName,
+                                                            lastName,
+                                                            patient_name: `${firstName} ${lastName}`.trim(),
+                                                            dob,
+                                                            signature: signatureData
+                                                        }, {
+                                                            formType,
+                                                            preview: false,
+                                                            onReady: (dataUrl) => resolve(dataUrl)
+                                                        });
+                                                    });
+
+                                                const [telemedicineDataUrl, hipaaDataUrl, generalDataUrl] = await Promise.all([
+                                                    generateDataUrl('telemedicine'),
+                                                    generateDataUrl('hipaa'),
+                                                    generateDataUrl('general'),
+                                                ]);
+
+                                                // Keep telemedicine in state for any downstream needs
+                                                setConsentPdfDataUrl(telemedicineDataUrl);
+
+                                                await submitAppointmentDetails({
+                                                    telemedicine: telemedicineDataUrl,
+                                                    hipaa: hipaaDataUrl,
+                                                    general: generalDataUrl,
                                                 });
-                                            });
 
-                                        try {
-                                            const [telemedicineDataUrl, hipaaDataUrl, generalDataUrl] = await Promise.all([
-                                                generateDataUrl('telemedicine'),
-                                                generateDataUrl('hipaa'),
-                                                generateDataUrl('general'),
-                                            ]);
-
-                                            // Keep telemedicine in state for any downstream needs
-                                            setConsentPdfDataUrl(telemedicineDataUrl);
-
-                                            await submitAppointmentDetails({
-                                                telemedicine: telemedicineDataUrl,
-                                                hipaa: hipaaDataUrl,
-                                                general: generalDataUrl,
-                                            });
-
-                                            resetSignatureState();
-                                        } catch (error) {
-                                            console.error('Error generating/uploading PDFs for submission:', error);
-                                            toast.error('Could not generate or upload consent PDFs for submission');
-                                        }
-                                    }}
-                                />
+                                                toast.success('Your appointment has been successfully submitted.');
+                                                resetSignatureState();
+                                            } catch (error) {
+                                                console.error('Error generating/uploading PDFs for submission:', error);
+                                                toast.error('Could not generate or upload consent PDFs for submission');
+                                            } finally {
+                                                setIsSubmitting(false);
+                                            }
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div> 
 
-                        {!isDesktop && (
-                            <div className="col-span-full md:hidden mt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(3)}
-                                    className="w-full px-6 py-4 bg-gray-500 text-white rounded-full text-base font-semibold"
-                                >
-                                    Back to Social History
-                                </button>
-                            </div>
-                        )}
+                        {/* Removed Back to Social History button on phone */}
 
                         </>
                         )}

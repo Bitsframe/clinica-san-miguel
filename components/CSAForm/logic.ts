@@ -755,9 +755,18 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
         // console.log('[STEP 6] Checking consent PDF upload...');
         let consentUploadSucceeded = false;
         const uploadForm = async (label: 'telemedicine' | 'hipaa' | 'general', dataUrl?: string) => {
-            if (!dataUrl) return { ok: false, reason: 'missing' } as const;
+            console.log(`[CONSENT UPLOAD] Attempting upload for label: ${label}`);
+            if (!dataUrl) {
+                console.warn(`[CONSENT UPLOAD] No dataUrl provided for ${label}`);
+                return { ok: false, reason: 'missing' } as const;
+            }
             try {
                 const base64 = dataUrl.split(',')[1];
+                if (!base64) {
+                    console.error(`[CONSENT UPLOAD] No base64 data found in dataUrl for ${label}`);
+                    return { ok: false, reason: 'no_base64' } as const;
+                }
+                console.log(`[CONSENT UPLOAD] Sending POST to /api/upload-consent for ${label} with appointmentId:`, appointmentId);
                 const res = await fetch('/api/upload-consent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -768,6 +777,7 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
                     console.error(`[STEP 6 ERROR] Upload ${label} consent failed:`, res.status, errText);
                     return { ok: false, reason: 'upload' } as const;
                 }
+                console.log(`[CONSENT UPLOAD] Upload for ${label} succeeded.`);
                 return { ok: true } as const;
             } catch (err) {
                 console.error(`[STEP 6 EXCEPTION] Upload ${label} consent error:`, err);
@@ -776,17 +786,33 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
         };
 
         if (appointmentId && intakeInserted && consentPdfs) {
+            console.log('[CONSENT UPLOAD] Starting consent PDF uploads:', {
+                appointmentId,
+                intakeInserted,
+                consentPdfsPresent: !!consentPdfs,
+                telemedicine: !!consentPdfs.telemedicine,
+                hipaa: !!consentPdfs.hipaa,
+                general: !!consentPdfs.general
+            });
             const tele = await uploadForm('telemedicine', consentPdfs.telemedicine);
             const hipaa = await uploadForm('hipaa', consentPdfs.hipaa);
             const general = await uploadForm('general', consentPdfs.general);
 
+            console.log('[CONSENT UPLOAD] Results:', { tele, hipaa, general });
             consentUploadSucceeded = tele.ok && hipaa.ok && general.ok;
 
             if (!consentUploadSucceeded) {
                 toast.error('Could not upload all consent forms');
+                if (!tele.ok) console.error('[CONSENT UPLOAD] Telemedicine upload failed:', tele);
+                if (!hipaa.ok) console.error('[CONSENT UPLOAD] HIPAA upload failed:', hipaa);
+                if (!general.ok) console.error('[CONSENT UPLOAD] General upload failed:', general);
             }
         } else {
-            // console.log('[STEP 6] Skipping consent PDF upload - appointmentId:', appointmentId, 'consentPdfs present:', !!consentPdfs);
+            console.warn('[CONSENT UPLOAD] Skipping consent PDF upload - missing appointmentId, intakeInserted, or consentPdfs:', {
+                appointmentId,
+                intakeInserted,
+                consentPdfsPresent: !!consentPdfs
+            });
         }
         if (!dob) {
             toast.warning('Please fill Date of Birth');

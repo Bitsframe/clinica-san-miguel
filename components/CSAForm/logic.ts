@@ -815,7 +815,7 @@ export function useCSAFormLogic({ location, ref, onSuccess }: { location?: any; 
                 console.error('Error sending confirmation email:', emailErr);
             }
             if (emailSent) {
-                toast.success("Appointment Submitted");
+                // toast.success("Appointment Submitted");
                 if (onSuccess) {
                     onSuccess();
                 }

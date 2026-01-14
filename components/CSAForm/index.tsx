@@ -551,7 +551,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 </div>
 
                                 <Dropdown
-                                    label={t("form_f10")}
+                                    label={<span>{t("form_f10")} <span style={{color: '#C81E3A'}}>*</span></span>}
                                     options={services}
                                     breakpoint={true}
                                     onChange={setService}
@@ -560,14 +560,14 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 />
                                 {/* Removed misplaced input and invalid onChange/value lines */}
                                 <Input
-                                    label={t("form_f3")}
+                                    label={<span>{t("form_f3")} <span style={{color: '#C81E3A'}}>*</span></span>}
                                     placeholder="Enter your first name"
                                     breakpoint={true}
                                     onChange={setFirstName}
                                     value={firstName}
                                 />
                                 <Input
-                                    label={t("form_f4")}
+                                    label={<span>{t("form_f4")} <span style={{color: '#C81E3A'}}>*</span></span>}
                                     placeholder="Enter your last name"
                                     breakpoint={true}
                                     onChange={setLastName}
@@ -575,7 +575,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 />
                                 {/* Email Address Field */}
                                 <div className="flex flex-col items-start w-full justify-center">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('email_label')}</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2">{t('email_label')} <span style={{color: '#C81E3A'}}>*</span></label>
                                     <input
                                         type="email"
                                         value={email}
@@ -590,10 +590,20 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     {email && !/^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,})$/.test(email) && (
                                         <span className="text-red-600 text-xs mt-1">{t('email_error')}</span>
                                     )}
+                                    {/* Voice input instructions */}
+                                    {isUserSpeaking && (
+                                        <div className="mt-2 text-sm text-blue-700 bg-blue-50 rounded p-2 w-full">
+                                            <div className="mb-1 font-semibold">Email Instructions</div>
+                                            <div><b>Step 1: Username</b></div>
+                                            <div>"Please enter the part of your email address that comes before the '@' symbol (e.g., if your email is john.doe@gmail.com, type john.doe)."</div>
+                                            <div className="mt-2"><b>Step 2: Domain</b></div>
+                                            <div>"Now, enter the email domain that comes after the '@' symbol (e.g., gmail.com or outlook.com)."</div>
+                                        </div>
+                                    )}
                                 </div>
                                 {/* State and Zipcode - use grid for equal width */}
                                 <div className="w-full">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2 text-left block">State:</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2 text-left block">State: <span style={{color: '#C81E3A'}}>*</span></label>
                                     <select
                                         className="w-full h-[52px] border-[1px] border-[#E0E0E0] text-[16px] text-[#000000] px-5 bg-transparent outline-none rounded-[10px]"
                                         value={medicalForm.state || ""}
@@ -606,7 +616,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     </select>
                                 </div>
                                 <div className="w-full">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2 text-left block">Zipcode:</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold mb-2 text-left block">Zipcode: <span style={{color: '#C81E3A'}}>*</span></label>
                                     <input
                                         type="text"
                                         placeholder="Enter zipcode"
@@ -618,7 +628,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 {/* Address Field - Full Width Row */}
                                 <div className="md:col-span-2">
                                     <Input
-                                        label={t("form_f9")}
+                                        label={<span>{t("form_f9")} <span style={{color: '#C81E3A'}}>*</span></span>}
                                         placeholder="Enter your street address"
                                         breakpoint={true}
                                         onChange={setStreetAddress}
@@ -627,7 +637,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     />
                                 </div>
                                 <PhoneNumberInput
-                                    label={t("form_f6")}
+                                    label={<span>{t("form_f6")} <span style={{color: '#C81E3A'}}>*</span></span>}
                                     placeholder="ex. +1 (123) 456-7890"
                                     breakpoint={false}
                                     onChange={setPhone}
@@ -636,14 +646,14 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 <RadioButtons
                                     name="gender"
                                     options={genderOptions}
-                                    label={t("form_f8")}
+                                    label={<span>{t("form_f8")} <span style={{color: '#C81E3A'}}>*</span></span>}
                                     onChange={setSex}
                                     selectedValue={sex}
                                 />
                                                                 {/* Date of Birth and Age - direct children of main grid */}
                                                                                                                                 <div className="w-full flex flex-col items-start">
                                                                                                                                     <label className="text-[16px] text-customGray font-poppins font-bold mb-2 text-left block">
-                                                                                                                                        {t('form_f7')}
+                                                                                                                                        {t('form_f7')} <span style={{color: '#C81E3A'}}>*</span>
                                                                                                                                     </label>
                                                                                                                                     <div className="relative w-full">
                                                                                                                                         <ReactDatePicker
@@ -767,7 +777,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
                                 {/* Move Reason for Visit, Location, Severity before Number of Pregnancies/Birth Control */}
                                 <Input
-                                    label={t('reason_visit_label')}
+                                    label={<span>{t('reason_visit_label')} <span style={{color: '#C81E3A'}}>*</span></span>}
                                     placeholder={t('reason_visit_placeholder')}
                                     breakpoint={true}
                                     onChange={(val) => handleMedicalChange('chief_complaint', val)}
@@ -776,7 +786,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 <div className="flex flex-col items-start w-full gap-1">
                                     {/* Label */}
                                     <label className="text-[16px] text-customGray font-poppins font-bold">
-                                        {t('duration_label')}
+                                        {t('duration_label')} <span style={{color: '#C81E3A'}}>*</span>
                                     </label>
 
                                     <div className="relative w-full">
@@ -934,7 +944,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 )}
          
                                 <div className="flex flex-col items-start w-full justify-center md:col-span-2">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('symptom_details_label')}</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold">{t('symptom_details_label')} <span style={{color: '#C81E3A'}}>*</span></label>
                                     <AllergyTagInput
                                         allergies={medicalForm.symptoms_description}
                                         setAllergies={(symptoms_description: string[]) => setMedicalForm((prev: typeof medicalForm) => ({ ...prev, symptoms_description }))}
@@ -1052,7 +1062,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 md:gap-x-96 items-start w-full">
                                 {/* Column 1: Surgeries (move left) */}
                                 <div className="flex flex-col items-start w-full">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold min-h-[24px]">{t('surgeries_label')}</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold min-h-[24px]">{t('surgeries_label')} <span style={{color: '#C81E3A'}}>*</span></label>
                                     <div className="flex flex-row gap-6 my-3 h-[30px] items-center">
                                         <label className="flex items-center gap-2 cursor-pointer">
                                             <input
@@ -1095,7 +1105,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                                 {/* Column 2: Allergies (move right, add left margin) */}
                       <div className="flex flex-col items-start w-full">
-                                    <label className="text-[16px] text-customGray font-poppins font-bold min-h-[24px]">{t('allergies_label')}</label>
+                                    <label className="text-[16px] text-customGray font-poppins font-bold min-h-[24px]">{t('allergies_label')} <span style={{color: '#C81E3A'}}>*</span></label>
                                     <div className="flex flex-row gap-6 my-3 h-[30px] items-center">
                                         <label className="flex items-center gap-2 cursor-pointer">
                                             <input
@@ -1277,7 +1287,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
 
                         {/* Digital Signature Section */}
                                  <div className="w-full col-span-full mt-8">
-                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6 text-center md:text-left">{t('digital_signature_title')}</h2>
+                            <h2 className="text-[26px] font-bold text-gray-900 border-b-2 border-[#E0E0E0] pb-2 mb-6 text-center md:text-left">{t('digital_signature_title')} <span style={{color: '#C81E3A'}}>*</span></h2>
                             <p className="text-gray-600 mb-4 text-center md:text-left">
                                 {t('digital_signature_description')}
                             </p>
@@ -1356,14 +1366,84 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         textColor={"#ffffff"}
                                         disabled={isSubmitting}
                                         onClick={async () => {
+
                                             if (isSubmitting) return;
-                                            setIsSubmitting(true);
-                                            try {
-                                                if (!dob) {
-                                                    toast.warning('Please fill Date of Birth');
+                                            // Required fields check
+                                            const toastOptions = { style: { background: '#C1001F', color: '#fff' } };
+                                            // Required fields (asterisk):
+                                            if (!firstName || !firstName.trim()) {
+                                                toast.warning('First name is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!lastName || !lastName.trim()) {
+                                                toast.warning('Last name is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!dob) {
+                                                toast.warning('Date of Birth is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!medicalForm.state || !medicalForm.state.trim()) {
+                                                toast.warning('State is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!streetAddress || !streetAddress.trim()) {
+                                                toast.warning('Address is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!email || !email.trim()) {
+                                                toast.warning('Email address is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!medicalForm.zipcode || !medicalForm.zipcode.trim()) {
+                                                toast.warning('Zipcode is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!phone || phone.replace(/\D/g, '').length !== 10) {
+                                                toast.warning('Mobile number is required and must be 10 digits.', toastOptions);
+                                                return;
+                                            }
+                                            if (!sex || !sex.trim()) {
+                                                toast.warning('Gender is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!service || !service.trim()) {
+                                                toast.warning('Service is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!medicalForm.chief_complaint || !medicalForm.chief_complaint.trim()) {
+                                                toast.warning('Reason of visit is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!onsetDate) {
+                                                toast.warning('Onset date is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!medicalForm.symptoms_description || !Array.isArray(medicalForm.symptoms_description) || medicalForm.symptoms_description.length === 0) {
+                                                toast.warning('Symptom details are required.', toastOptions);
+                                                return;
+                                            }
+                                            if (!surgeryChoice || !surgeryChoice.trim()) {
+                                                toast.warning('Surgeries selection is required.', toastOptions);
+                                                return;
+                                            }
+                                            if (surgeryChoice === 'Yes' && (!medicalForm.surgeries || (Array.isArray(medicalForm.surgeries) ? medicalForm.surgeries.length === 0 : !medicalForm.surgeries.trim()))) {
+                                                toast.warning('Please specify surgery details.', toastOptions);
+                                                return;
+                                            }
+                                            if (typeof allergyChoice !== 'undefined' && allergyChoice === 'Yes') {
+                                                if (!medicalForm.allergies || !Array.isArray(medicalForm.allergies) || medicalForm.allergies.length === 0) {
+                                                    toast.warning('Allergies are required.', toastOptions);
                                                     return;
                                                 }
+                                            }
+                                            if (!hasSignature) {
+                                                toast.warning('Digital signature is required.', toastOptions);
+                                                return;
+                                            }
 
+                                            setIsSubmitting(true);
+                                            try {
                                                 if (!onsetDate) {
                                                     toast.warning('Please fill onset date');
                                                     return;
@@ -1372,6 +1452,20 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 // Validate all consents are checked
                                                 if (!consentTelemedicine || !consentHIPAA || !consentGeneral) {
                                                     toast.warning('Please agree to all consent documents before submitting');
+                                                    return;
+                                                }
+
+                                                // Email validation
+                                                const emailPattern = /^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,})$/;
+                                                if (!emailPattern.test(email)) {
+                                                    toast.warning('Please enter a valid email address.');
+                                                    return;
+                                                }
+
+                                                // Phone number validation: US number, 10 digits
+                                                const phoneDigits = (phone || '').replace(/\D/g, '');
+                                                if (phoneDigits.length !== 10) {
+                                                    toast.warning('Please enter a valid 10-digit US phone number.');
                                                     return;
                                                 }
 
@@ -1402,14 +1496,18 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                                 // Keep telemedicine in state for any downstream needs
                                                 setConsentPdfDataUrl(telemedicineDataUrl);
 
+                                                // Always prepend +1 to phone number for DB
+                                                const phoneForDb = '+1' + phone;
                                                 await submitAppointmentDetails({
                                                     telemedicine: telemedicineDataUrl,
                                                     hipaa: hipaaDataUrl,
                                                     general: generalDataUrl,
+                                                    phone: phoneForDb,
                                                 });
 
-                                                toast.success('Your appointment has been successfully submitted.');
+                                                // Success toast removed as requested
                                                 resetSignatureState();
+                                                setStreetAddress('');
                                             } catch (error) {
                                                 console.error('Error generating/uploading PDFs for submission:', error);
                                                 toast.error('Could not generate or upload consent PDFs for submission');

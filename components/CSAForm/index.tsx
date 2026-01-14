@@ -551,7 +551,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 </div>
 
                                 <Dropdown
-                                    label={<span>{t("form_f10")} <span style={{color: '#C81E3A'}}>*</span></span>}
+                                    label={`${t("form_f10")} *`}
                                     options={services}
                                     breakpoint={true}
                                     onChange={setService}
@@ -560,14 +560,14 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 />
                                 {/* Removed misplaced input and invalid onChange/value lines */}
                                 <Input
-                                    label={<span>{t("form_f3")} <span style={{color: '#C81E3A'}}>*</span></span>}
+                                    label={`${t("form_f3")} *`}
                                     placeholder="Enter your first name"
                                     breakpoint={true}
                                     onChange={setFirstName}
                                     value={firstName}
                                 />
                                 <Input
-                                    label={<span>{t("form_f4")} <span style={{color: '#C81E3A'}}>*</span></span>}
+                                    label={`${t("form_f4")} *`}
                                     placeholder="Enter your last name"
                                     breakpoint={true}
                                     onChange={setLastName}
@@ -628,7 +628,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 {/* Address Field - Full Width Row */}
                                 <div className="md:col-span-2">
                                     <Input
-                                        label={<span>{t("form_f9")} <span style={{color: '#C81E3A'}}>*</span></span>}
+                                        label={`${t("form_f9")} *`}
                                         placeholder="Enter your street address"
                                         breakpoint={true}
                                         onChange={setStreetAddress}
@@ -637,7 +637,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                     />
                                 </div>
                                 <PhoneNumberInput
-                                    label={<span>{t("form_f6")} <span style={{color: '#C81E3A'}}>*</span></span>}
+                                    label={`${t("form_f6")} *`}
                                     placeholder="ex. +1 (123) 456-7890"
                                     breakpoint={false}
                                     onChange={setPhone}
@@ -646,7 +646,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                 <RadioButtons
                                     name="gender"
                                     options={genderOptions}
-                                    label={<span>{t("form_f8")} <span style={{color: '#C81E3A'}}>*</span></span>}
+                                    label={`${t("form_f8")} *`}
                                     onChange={setSex}
                                     selectedValue={sex}
                                 />
@@ -777,7 +777,7 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
                                 {/* Move Reason for Visit, Location, Severity before Number of Pregnancies/Birth Control */}
                                 <Input
-                                    label={<span>{t('reason_visit_label')} <span style={{color: '#C81E3A'}}>*</span></span>}
+                                    label={`${t('reason_visit_label')} *`}
                                     placeholder={t('reason_visit_placeholder')}
                                     breakpoint={true}
                                     onChange={(val) => handleMedicalChange('chief_complaint', val)}

@@ -6,7 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import ScheduleDateTime from "./ScheduleDateTime";
 import { usStates } from "@/utils/us-states";
-import PhoneNumberInput from "../CSAForm/PhoneNumberInput";
+import PhoneNumberInput from "../PhoneNumberInput";
 import { supabase } from "../../supabaseClient";
 import { styles } from "../../app/[locale]/styles";
 import { Button } from "../../utils/Button";
@@ -129,7 +129,7 @@ const DatePicker = ({
       maxDate={maxDate || undefined}
       className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
     />
- 
+
   </div>
 );
 
@@ -291,91 +291,91 @@ export const RequestAppointment = ({
           <Modal.Body className="max-h-[660px]">
             {page === 1 && (
               <section className="flex flex-col px-5 justify-start items-start gap-4 p-4">
-              <RadioButtons
-                name="visit type"
-                options={visitType}
-                label={t("form_f1")}
-                onChange={setInOfficePatient}
-                selectedValue={inOfficePatient}
-              />
-              <RadioButtons
-                name="patient type"
-                options={patientType}
-                label={t("form_f2")}
-                onChange={setNewPatient}
-                selectedValue={newPatient}
-              />
-              <article className="flex flex-col md:flex-row justify-center w-full gap-5 items-center">
-                <Input
-                  label={t("form_f3")}
-                  placeholder="Enter your first name"
-                  breakpoint={true}
-                  onChange={setFirstName}
-                  value={firstName}
+                <RadioButtons
+                  name="visit type"
+                  options={visitType}
+                  label={t("form_f1")}
+                  onChange={setInOfficePatient}
+                  selectedValue={inOfficePatient}
                 />
-                <Input
-                  label={t("form_f4")}
-                  placeholder="Enter your last name"
-                  breakpoint={true}
-                  onChange={setLastName}
-                  value={lastName}
+                <RadioButtons
+                  name="patient type"
+                  options={patientType}
+                  label={t("form_f2")}
+                  onChange={setNewPatient}
+                  selectedValue={newPatient}
                 />
-              </article>
-              <Input
-                label={t("form_f5")}
-                placeholder="Your current email address"
-                breakpoint={false}
-                onChange={setEmail}
-                value={email}
-              />
-              <article className="flex flex-col md:flex-row justify-center w-full gap-5 items-center">
+                <article className="flex flex-col md:flex-row justify-center w-full gap-5 items-center">
+                  <Input
+                    label={t("form_f3")}
+                    placeholder="Enter your first name"
+                    breakpoint={true}
+                    onChange={setFirstName}
+                    value={firstName}
+                  />
+                  <Input
+                    label={t("form_f4")}
+                    placeholder="Enter your last name"
+                    breakpoint={true}
+                    onChange={setLastName}
+                    value={lastName}
+                  />
+                </article>
+                <Input
+                  label={t("form_f5")}
+                  placeholder="Your current email address"
+                  breakpoint={false}
+                  onChange={setEmail}
+                  value={email}
+                />
+                <article className="flex flex-col md:flex-row justify-center w-full gap-5 items-center">
 
-                <div className="flex-1">
-                  <PhoneNumberInput
-                    label={t("form_f6")}
-                    placeholder="ex. +1 (123) 456-7890"
-                    breakpoint={false}
-                    onChange={setPhone}
-                    value={phone}
-                  />
+                  <div className="flex-1">
+                    <PhoneNumberInput
+                      label={t("form_f6")}
+                      placeholder="ex. +1 (123) 456-7890"
+                      breakpoint={false}
+                      onChange={setPhone}
+                      value={phone}
+                    />
+                  </div>
+                  <div className="flex-1 ">
+                    {/* @ts-ignore */}
+                    <DatePicker
+                      label={t("form_f7")}
+                      placeholder="your date of birth"
+                      breakpoint={false}
+                      onChange={setDob}
+                      value={dob}
+                      maxDate={new Date()}
+                    />
+                  </div>
+                </article>
+                <RadioButtons
+                  name="gender"
+                  options={genderOptions}
+                  label={t("form_f8")}
+                  onChange={setSex}
+                  selectedValue={sex}
+                />
+                <div className='w-full grid grid-cols-2 gap-4'>
+                  <div className=''>
+                    <Label htmlFor='locations' className='font-bold'>
+                      State
+                    </Label>
+                    <Select style={{ backgroundColor: '#f8f5f0', paddingTop: '9px', paddingBottom: '9px' }} className='flex-1 ' sizing='md' onChange={(e: any) => setState(e.target.value)} id="state" required>
+                      <option selected disabled value=''>State</option>
+                      {usStates?.map(({ value, name }, index: any) => <option key={index} value={name}>{`${name} - ${value}`}</option>)}
+                    </Select>
+                  </div>
+                  <div className=''>
+                    <Input breakpoint={false} max={5} label='Zipcode' value={zipcode} onChange={(e: string) => setzipcode(e)} placeholder='Enter zipcode' />
+                  </div>
+                  <div className='col-span-2'>
+                    <Input breakpoint={false} label='Street Address' value={street_address} onChange={(e: string) => setStreet_address(e)} placeholder='Enter zipcode' />
+                  </div>
                 </div>
-                <div className="flex-1 ">
-                  {/* @ts-ignore */}
-                  <DatePicker
-                    label={t("form_f7")}
-                    placeholder="your date of birth"
-                    breakpoint={false}
-                    onChange={setDob}
-                    value={dob}
-                    maxDate={new Date()}
-                  />
-                </div>
-              </article>
-              <RadioButtons
-                name="gender"
-                options={genderOptions}
-                label={t("form_f8")}
-                onChange={setSex}
-                selectedValue={sex}
-              />
-              <div className='w-full grid grid-cols-2 gap-4'>
-                <div className=''>
-                  <Label htmlFor='locations' className='font-bold'>
-                    State
-                  </Label>
-                  <Select style={{ backgroundColor: '#f8f5f0', paddingTop: '9px', paddingBottom: '9px' }} className='flex-1 ' sizing='md' onChange={(e: any) => setState(e.target.value)} id="state" required>
-                    <option selected disabled value=''>State</option>
-                    {usStates?.map(({ value, name }, index: any) => <option key={index} value={name}>{`${name} - ${value}`}</option>)}
-                  </Select>
-                </div>
-                <div className=''>
-                  <Input breakpoint={false} max={5} label='Zipcode' value={zipcode} onChange={(e: string) => setzipcode(e)} placeholder='Enter zipcode' />
-                </div>
-                <div className='col-span-2'>
-                  <Input breakpoint={false} label='Street Address' value={street_address} onChange={(e: string) => setStreet_address(e)} placeholder='Enter zipcode' />
-                </div>
-              </div>
-              {/* <Input
+                {/* <Input
                 label={t("form_f9")}
                 placeholder="enter your address with zip code."
                 breakpoint={false}
@@ -384,37 +384,37 @@ export const RequestAppointment = ({
               /> */}
 
 
-              <ScheduleDateTime
-                data={detailedData[0]}
-                selectDateTimeSlotHandle={selectDateTimeSlotHandle}
-                initialDate={scheduleDate}
-                initialSlot={scheduleSlot}
-              />
-              <div className="flex flex-col md:flex-row justify-start w-full gap-5 items-center">
-                <Dropdown
-                  label={t("form_f10")}
-                  options={servicesState}
-                  breakpoint={true}
-                  onChange={setService}
-                  value={service}
+                <ScheduleDateTime
+                  data={detailedData[0]}
+                  selectDateTimeSlotHandle={selectDateTimeSlotHandle}
+                  initialDate={scheduleDate}
+                  initialSlot={scheduleSlot}
                 />
-              </div>
-
-
-
-              <div className="space-y-2">
-                <div className="flex space-x-2 items-center">
-                  <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
-                    I agree to receive <strong>email</strong> updates from Clinica San Miguel, including appointment confirmations, health tips, promotional offers, and other important information.
-                  </h1>
-                </div>
-                <div className="flex space-x-2 items-center">
-                  <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
-                    I agree to receive <strong>SMS</strong> notifications from Clinica San Miguel, including appointment reminders, health updates, and other related messages.
-                  </h1>
+                <div className="flex flex-col md:flex-row justify-start w-full gap-5 items-center">
+                  <Dropdown
+                    label={t("form_f10")}
+                    options={servicesState}
+                    breakpoint={true}
+                    onChange={setService}
+                    value={service}
+                  />
                 </div>
 
-              </div>
+
+
+                <div className="space-y-2">
+                  <div className="flex space-x-2 items-center">
+                    <input checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
+                      I agree to receive <strong>email</strong> updates from Clinica San Miguel, including appointment confirmations, health tips, promotional offers, and other important information.
+                    </h1>
+                  </div>
+                  <div className="flex space-x-2 items-center">
+                    <input checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" /> <h1 className="text-xs">
+                      I agree to receive <strong>SMS</strong> notifications from Clinica San Miguel, including appointment reminders, health updates, and other related messages.
+                    </h1>
+                  </div>
+
+                </div>
               </section>
             )}
 
@@ -758,7 +758,7 @@ export const RequestAppointment = ({
                             >
                               <option value="">Select severity (1-10)</option>
                               {[...Array(10)].map((_, idx) => (
-                                <option key={idx+1} value={(idx+1).toString()}>{idx+1}</option>
+                                <option key={idx + 1} value={(idx + 1).toString()}>{idx + 1}</option>
                               ))}
                             </select>
                           </div>

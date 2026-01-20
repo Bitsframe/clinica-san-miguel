@@ -595,9 +595,9 @@ const Self_Appointment = forwardRef(({ location }: any, ref) => {
                                         <div className="mt-2 text-sm text-blue-700 bg-blue-50 rounded p-2 w-full">
                                             <div className="mb-1 font-semibold">Email Instructions</div>
                                             <div><b>Step 1: Username</b></div>
-                                            <div>"Please enter the part of your email address that comes before the '@' symbol (e.g., if your email is john.doe@gmail.com, type john.doe)."</div>
+                                            <div>&quot;Please enter the part of your email address that comes before the &apos;@&apos; symbol (e.g., if your email is john.doe@gmail.com, type john.doe).&quot;</div>
                                             <div className="mt-2"><b>Step 2: Domain</b></div>
-                                            <div>"Now, enter the email domain that comes after the '@' symbol (e.g., gmail.com or outlook.com)."</div>
+                                            <div>&quot;Now, enter the email domain that comes after the &apos;@&apos; symbol (e.g., gmail.com or outlook.com).&quot;</div>
                                         </div>
                                     )}
                                 </div>

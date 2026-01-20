@@ -420,9 +420,7 @@ export const RequestAppointment = ({
 
             {page >= 2 && (
               <section className="flex flex-col px-5 justify-start items-start gap-4 p-4">
-                {/* Vapi Voice Intake mic button for medical info autofill */}
                 <div className="mb-4 w-full">
-                  {/* <VoiceIntake setForm={setMedicalForm} setOnsetDate={setOnsetDate} /> */}
                 </div>
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
                   {(() => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import moment from "moment";
 import { toast } from "react-toastify";
 import { supabase } from "@/supabaseClient";
@@ -10,7 +10,6 @@ import { submitAppointmentFlow } from "@/lib/submitAppointment";
 export interface MedicalFormType {
   chief_complaint: string;
   onset: string;
-  duration: string;
   location: string;
   severity: string;
   symptoms_description: string;
@@ -36,7 +35,6 @@ export interface MedicalFormType {
 const initialMedicalForm: MedicalFormType = {
   chief_complaint: "",
   onset: "",
-  duration: "",
   location: "",
   severity: "",
   symptoms_description: "",
@@ -62,7 +60,6 @@ const initialMedicalForm: MedicalFormType = {
 export const medicalFields = [
   { key: 'chief_complaint', label: 'Reason for Visit' },
   { key: 'onset', label: 'how long are you feeling this?' },
-  { key: 'duration', label: 'Duration' },
   { key: 'location', label: 'Location' },
   { key: 'severity', label: 'Severity' },
   { key: 'symptoms_description', label: 'Symptom Details' },
@@ -122,7 +119,6 @@ export function useRequestAppointmentLogic({
   const [service, setService] = useState("");
   const [phone, setPhone] = useState("");
   const [inOfficePatient, setInOfficePatient] = useState("");
-  const [newPatient, setNewPatient] = useState("");
   const [date_and_time, setDate_and_time] = useState("");
   const [email_opt, setEmail_opt] = useState(false);
   const [text_opt, setText_opt] = useState(false);
@@ -207,19 +203,17 @@ export function useRequestAppointmentLogic({
   const handleOnsetDateChange = (date: Date | null) => {
     setOnsetDate(date);
     if (!date) {
-      setMedicalForm((prev) => ({ ...prev, onset: "", duration: "" }));
+      setMedicalForm((prev) => ({ ...prev, onset: "" }));
       return;
     }
 
     const selected = moment(date).startOf('day');
     const today = moment().startOf('day');
     const diffDays = today.diff(selected, 'days');
-    const durationLabel = formatDuration(diffDays);
 
     setMedicalForm((prev) => ({
       ...prev,
       onset: selected.format('YYYY-MM-DD'),
-      duration: durationLabel,
     }));
   };
 
@@ -228,7 +222,7 @@ export function useRequestAppointmentLogic({
       setScheduleDate(date as Date);
       setScheduleSlot(time as string);
       const formated_date = moment(date).format('DD-MM-YYYY');
-      const createSlotForDB = `${detailedData?.[0]?.id}|${formated_date} - ${time}`;
+      const createSlotForDB = `${locationID}|${formated_date} - ${time}`;
       setDate_and_time(createSlotForDB);
     } else {
       setScheduleDate(date ? (date as Date) : null);
@@ -246,7 +240,6 @@ export function useRequestAppointmentLogic({
     setService("");
     setPhone("");
     setInOfficePatient("");
-    setNewPatient("");
     setDate_and_time("");
     setEmail_opt(false);
     setText_opt(false);
@@ -319,7 +312,6 @@ export function useRequestAppointmentLogic({
     setStreet_address(sample.street_address);
     setService(sample.service as string);
     setInOfficePatient(sample.visit_type);
-    setNewPatient(sample.patient_type);
     setDate_and_time(sample.date_and_time);
     setEmail_opt(sample.email_opt_in);
     setText_opt(sample.text_opt_in);
@@ -366,20 +358,10 @@ export function useRequestAppointmentLogic({
     if (isSubmitting) return;
 
     // [BookNow] Button clicked
-    let appointmentDetails: any = {
+    const appointmentDetails: any = {
       location_id: locationID,
-      first_name: firstName,
-      last_name: lastName,
-      email_address: email,
-      sex: sex,
-      phone: phone,
       service: service,
-      in_office_patient: false,
-      new_patient: false,
-      dob: dob ? dob.toISOString().split('T')[0] : null,
-      address: `${street_address}, ${state}, ${zipcode}`,
-      email_opt,
-      text_opt
+      date_and_time: date_and_time,
     };
 
     // [BookNow] appointmentDetails
@@ -388,33 +370,58 @@ export function useRequestAppointmentLogic({
       firstname: firstName,
       lastname: lastName,
       email: email,
-      gender: sex,
-      dob: dob ? dob.toISOString().split('T')[0] : null,
       phone: phone,
-      locationid: locationID
+      treatmenttype: service,
+      gender: sex,
+      lastvisit: scheduleDate ? scheduleDate.toISOString() : null,
+      locationid: locationID,
+      onsite: false,
+      text_opt,
+      email_opt,
+      note: '',
+      dob: dob ? dob.toISOString().split('T')[0] : null,
+      address: `${street_address}, ${state}, ${zipcode}`,
     };
     let patientId = null;
     let patientCount = 0;
     // [BookNow] allPatientsData to insert
     try {
-      // Insert patient
-      const insertResult = await supabase.from('allpatients').insert([allPatientsData]);
-      // [BookNow] allpatients insert result
-      // Fetch all patient records with same phone and email
-      const { data: patientRows, error: patientFetchError } = await supabase
+      // Check for existing patient by phone + email
+      const { data: existingPatients, error: existingPatientError } = await supabase
         .from('allpatients')
-        .select('id, firstname, lastname, email, phone, onsite, created_at')
+        .select('id, created_at')
         .eq('phone', phone)
-        .eq('email', email);
-      // [BookNow] allpatients fetched patientRows
-      if (patientFetchError) {
-        console.error('[BookNow] Error fetching patient_id:', patientFetchError);
-      } else if (patientRows && patientRows.length > 0) {
-        patientId = patientRows[patientRows.length - 1].id; // latest
-        patientCount = patientRows.length;
+        .eq('email', email)
+        .order('created_at', { ascending: true });
+
+      if (existingPatientError) {
+        console.error('[BookNow] Error fetching existing patient:', existingPatientError);
+      }
+
+      if (existingPatients && existingPatients.length > 0) {
+        patientId = existingPatients[existingPatients.length - 1].id; // latest
+        patientCount = existingPatients.length;
+      } else {
+        const { data: insertedPatients, error: insertError } = await supabase
+          .from('allpatients')
+          .insert([allPatientsData])
+          .select('id');
+
+        if (insertError) {
+          console.error('[BookNow] Error inserting into allpatients:', insertError);
+        } else if (insertedPatients && insertedPatients.length > 0) {
+          patientId = insertedPatients[0].id;
+          patientCount = 1;
+        }
       }
     } catch (err) {
       console.error('[BookNow] Error inserting/fetching from allpatients:', err);
+    }
+
+    if (!patientId) {
+      toast.error('Unable to identify patient record. Please try again.');
+      setIsSubmitting(false);
+      return;
     }
 
     // Insert into Appoinments table as per new requirement
@@ -477,32 +484,45 @@ export function useRequestAppointmentLogic({
       return;
     }
 
+    // Prepare intake_form data
+    const intakeFormData = {
+      appointment_id: appointmentId,
+      chief_complaint: medicalForm.chief_complaint || null,
+      location: medicalForm.location || null,
+      severity: medicalForm.severity ? parseInt(medicalForm.severity) : null,
+      symptoms_description: medicalForm.symptoms_description || null,
+      medical_conditions: medicalForm.medical_conditions ? [medicalForm.medical_conditions] : null,
+      surgeries: medicalForm.surgeries || null,
+      allergies: medicalForm.allergies ? [medicalForm.allergies] : null,
+      current_medications: typeof medicalForm.current_medications === 'string' ? [medicalForm.current_medications] : null,
+      fh_diabetes: medicalForm.family_history?.diabetes ?? null,
+      fh_hypertension: medicalForm.family_history?.hypertension ?? null,
+      fh_cancer: medicalForm.family_history?.cancer ?? null,
+      fh_heart_disease: medicalForm.family_history?.heart_disease ?? null,
+      tobacco_use: medicalForm.tobacco_use ? 'true' : 'false',
+      alcohol_use: medicalForm.alcohol_use ? 'true' : 'false',
+      drug_use: medicalForm.drug_use ? 'true' : 'false',
+      occupation: medicalForm.occupation || null,
+      onset: onsetDate ? onsetDate.toISOString().split('T')[0] : null,
+      relieving_factors: Array.isArray(medicalForm.relieving_factors) && medicalForm.relieving_factors.length > 0 ? medicalForm.relieving_factors : null,
+      cancer_type: medicalForm.cancer_type || null,
+    };
+
     // Insert into intake_form table
+    let intakeFormId = null;
     try {
-      await supabase.from('intake_form').insert([
-        {
-          appointment_id: appointmentId,
-          chief_complaint: medicalForm.chief_complaint || null,
-          location: medicalForm.location || null,
-          severity: medicalForm.severity ? parseInt(medicalForm.severity) : null,
-          symptoms_description: medicalForm.symptoms_description || null,
-          medical_conditions: medicalForm.medical_conditions ? [medicalForm.medical_conditions] : null,
-          surgeries: medicalForm.surgeries || null,
-          allergies: medicalForm.allergies ? [medicalForm.allergies] : null,
-          current_medications: typeof medicalForm.current_medications === 'string' ? [medicalForm.current_medications] : null,
-          fh_diabetes: medicalForm.family_history?.diabetes ?? null,
-          fh_hypertension: medicalForm.family_history?.hypertension ?? null,
-          fh_cancer: medicalForm.family_history?.cancer ?? null,
-          fh_heart_disease: medicalForm.family_history?.heart_disease ?? null,
-          tobacco_use: medicalForm.tobacco_use ? 'true' : 'false',
-          alcohol_use: medicalForm.alcohol_use ? 'true' : 'false',
-          drug_use: medicalForm.drug_use ? 'true' : 'false',
-          occupation: medicalForm.occupation || null,
-          onset: onsetDate ? onsetDate.toISOString().split('T')[0] : null,
-          relieving_factors: Array.isArray(medicalForm.relieving_factors) && medicalForm.relieving_factors.length > 0 ? medicalForm.relieving_factors : null,
-          cancer_type: medicalForm.cancer_type || null,
-        }
-      ]);
+      const { data: intakeFormInsertData, error: intakeFormError } = await supabase
+        .from('intake_form')
+        .insert([intakeFormData])
+        .select('id');
+      
+      if (intakeFormError) {
+        throw intakeFormError;
+      }
+      
+      if (intakeFormInsertData && intakeFormInsertData.length > 0) {
+        intakeFormId = intakeFormInsertData[0].id;
+      }
       
       // Show success message after successful database inserts
       if (appointmentId) {
@@ -516,7 +536,6 @@ export function useRequestAppointmentLogic({
     }
 
     const requiredFields = [
-      'location_id',
       'first_name',
       'last_name',
       'email_address',
@@ -529,7 +548,16 @@ export function useRequestAppointmentLogic({
       'street_address',
       'date_and_time',
     ];
-    const validateData = validateFormData({ ...appointmentDetails, email: email, state, zipcode, street_address }, true);
+    const validateData = validateFormData(
+      {
+        email,
+        phone,
+        state,
+        zipcode,
+        street_address,
+      },
+      true
+    );
     if (!validateData) {
       setIsSubmitting(false);
       return;
@@ -541,7 +569,19 @@ export function useRequestAppointmentLogic({
           setIsSubmitting(false);
           return;
         }
-      } else if (!{ ...appointmentDetails, email: email, state, zipcode, street_address, date_and_time }[field]) {
+      } else if (!{
+        first_name: firstName,
+        last_name: lastName,
+        email_address: email,
+        sex,
+        phone,
+        service,
+        dob: dob ? dob.toISOString().split('T')[0] : null,
+        state,
+        zipcode,
+        street_address,
+        date_and_time,
+      }[field]) {
         toast.warning(`Please fill in the ${field}`);
         setIsSubmitting(false);
         return;
@@ -590,6 +630,32 @@ export function useRequestAppointmentLogic({
       // Error already handled above or in duplicate check
       // Don't return here - appointment was already successfully inserted above
       console.error('submitAppointmentFlow failed but appointment was already created:', result.error);
+    } else {
+      // Trigger Supabase Edge Function with intake_form data after successful email
+      try {
+        const soapApiResponse = await fetch('https://ivwviiupkkrrrtmnksyk.supabase.co/functions/v1/intake-form-soap-ts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            ...intakeFormData,
+            id: intakeFormId, // Add the intake_form id from database
+          }),
+        });
+
+        if (!soapApiResponse.ok) {
+          console.error('SOAP API error:', soapApiResponse.statusText);
+          toast.warning('Appointment booked but failed to sync medical records');
+        } else {
+          const soapResult = await soapApiResponse.json();
+          console.log('SOAP API response:', soapResult);
+        }
+      } catch (apiError) {
+        console.error('Error calling SOAP API:', apiError);
+        toast.warning('Appointment booked but failed to sync medical records');
+      }
     }
     
     // Reset form and close modal
@@ -614,7 +680,6 @@ export function useRequestAppointmentLogic({
     service,
     phone,
     inOfficePatient,
-    newPatient,
     date_and_time,
     email_opt,
     text_opt,
@@ -644,7 +709,6 @@ export function useRequestAppointmentLogic({
     setService,
     setPhone,
     setInOfficePatient,
-    setNewPatient,
     setPage,
     setEmail_opt,
     setText_opt,
@@ -664,4 +728,5 @@ export function useRequestAppointmentLogic({
     fillTestData,
   };
 }
+
 

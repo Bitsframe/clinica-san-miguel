@@ -1,6 +1,8 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState, useEffect, useRef } from 'react';
 import ReactDatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import { supabase } from '@/supabaseClient';
+import moment from 'moment';
 
 type DayTimings = {
     mon_timing: string;
@@ -21,13 +23,16 @@ interface Props {
 interface ScheduleDateTimeProps extends Props {
     initialDate?: Date | null;
     initialSlot?: string;
+    locationID?: number;
 }
 
-const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotHandle, initialDate, initialSlot }) => {
+const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotHandle, initialDate, initialSlot, locationID }) => {
         const [date, setDate] = useState<Date>(initialDate || new Date());
         const [availableTimes, setAvailableTimes] = useState<string[]>([]);
         const [isClosed, setIsClosed] = useState<boolean>(false);
         const [selectedSlot, setSelectedSlot] = useState(initialSlot || '');
+        const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+        const isFirstRender = useRef(true);
 
     const getTimingKey = (date: Date): keyof DayTimings => {
         const days = ['sunday_timing', 'mon_timing', 'tuesday_timing', 'wednesday_timing', 'thursday_timing', 'friday_timing', 'saturday_timing'] as const;
@@ -66,24 +71,67 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
 
 
     useEffect(() => {
+        if (date && locationID) {
+            const formattedDate = moment(date).format('DD-MM-YYYY');
+            
+            // Fetch booked appointments for this date and location
+            const fetchBookedSlots = async () => {
+                try {
+                    const { data: appointmentData, error } = await supabase
+                        .from('Appoinments')
+                        .select('date_and_time')
+                        .eq('location_id', locationID);
+
+                    if (error) {
+                        console.error('Error fetching booked slots:', error);
+                        setBookedSlots([]);
+                    } else if (appointmentData) {
+                        // Extract time slots for the selected date
+                        const booked = appointmentData
+                            .filter((apt: any) => apt.date_and_time && apt.date_and_time.includes(formattedDate))
+                            .map((apt: any) => {
+                                const parts = apt.date_and_time.split(' - ');
+                                return parts.length > 1 ? parts[1].trim() : '';
+                            })
+                            .filter((time: string) => time !== '');
+                        setBookedSlots(booked);
+                    }
+                } catch (err) {
+                    console.error('Error in fetchBookedSlots:', err);
+                    setBookedSlots([]);
+                }
+            };
+
+            fetchBookedSlots();
+        }
+    }, [date, locationID]);
+
+    useEffect(() => {
         if (date) {
             const timingKey = getTimingKey(date);
             const timings = data[timingKey];
 
             if (timings && timings.toLowerCase() !== 'closed') {
                 const timeSlots = generateTimeSlots(timings);
-                setAvailableTimes(timeSlots);
+                // Filter out booked slots
+                const availableSlots = timeSlots.filter((slot) => !bookedSlots.includes(slot));
+                setAvailableTimes(availableSlots);
                 setIsClosed(false);
             } else {
                 setAvailableTimes([]);
                 setIsClosed(true);
             }
-            // Only reset slot if the date actually changes
-            setSelectedSlot('');
-            selectDateTimeSlotHandle(date, '');
+            
+            // Only reset slot and notify parent when date actually changes (not on first render)
+            if (!isFirstRender.current) {
+                setSelectedSlot('');
+                selectDateTimeSlotHandle(date, '');
+            } else {
+                isFirstRender.current = false;
+            }
         }
-    // Only run when date changes
-    }, [date, data, selectDateTimeSlotHandle]);
+    // Only run when date, data or bookedSlots change
+    }, [date, data, bookedSlots]);
 
 
     const dateTimeChangeHandle = (date: Date | null) => {
@@ -148,3 +196,4 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
 }
 
 export default ScheduleDateTime;
+

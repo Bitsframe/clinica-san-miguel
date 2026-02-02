@@ -198,7 +198,6 @@ export const RequestAppointment = ({
     service,
     phone,
     inOfficePatient,
-    newPatient,
     date_and_time,
     email_opt,
     text_opt,
@@ -226,7 +225,6 @@ export const RequestAppointment = ({
     setService,
     setPhone,
     setInOfficePatient,
-    setNewPatient,
     setPage,
     setEmail_opt,
     setText_opt,
@@ -279,13 +277,6 @@ export const RequestAppointment = ({
               >
                 {t("form_title")}
               </h1>
-              <button
-                type="button"
-                onClick={fillTestData}
-                className="rounded-md border border-black px-3 py-2 text-sm font-semibold text-black hover:bg-black hover:text-white transition"
-              >
-                Fill test data
-              </button>
             </div>
           </Modal.Header>
           <Modal.Body className="max-h-[660px]">
@@ -297,13 +288,6 @@ export const RequestAppointment = ({
                   label={t("form_f1")}
                   onChange={setInOfficePatient}
                   selectedValue={inOfficePatient}
-                />
-                <RadioButtons
-                  name="patient type"
-                  options={patientType}
-                  label={t("form_f2")}
-                  onChange={setNewPatient}
-                  selectedValue={newPatient}
                 />
                 <article className="flex flex-col md:flex-row justify-center w-full gap-5 items-center">
                   <Input
@@ -363,8 +347,8 @@ export const RequestAppointment = ({
                     <Label htmlFor='locations' className='font-bold'>
                       State
                     </Label>
-                    <Select style={{ backgroundColor: '#f8f5f0', paddingTop: '9px', paddingBottom: '9px' }} className='flex-1 ' sizing='md' onChange={(e: any) => setState(e.target.value)} id="state" required>
-                      <option selected disabled value=''>State</option>
+                    <Select style={{ backgroundColor: '#f8f5f0', paddingTop: '9px', paddingBottom: '9px' }} className='flex-1 ' sizing='md' onChange={(e: any) => setState(e.target.value)} id="state" value={state} required>
+                      <option disabled value=''>State</option>
                       {usStates?.map(({ value, name }, index: any) => <option key={index} value={name}>{`${name} - ${value}`}</option>)}
                     </Select>
                   </div>
@@ -389,6 +373,7 @@ export const RequestAppointment = ({
                   selectDateTimeSlotHandle={selectDateTimeSlotHandle}
                   initialDate={scheduleDate}
                   initialSlot={scheduleSlot}
+                  locationID={locationID}
                 />
                 <div className="flex flex-col md:flex-row justify-start w-full gap-5 items-center">
                   <Dropdown
@@ -543,17 +528,6 @@ export const RequestAppointment = ({
                               className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
                             />
                           </div>
-                        );
-                      } else if (f.key === 'duration') {
-                        elem = (
-                          <Input
-                            key={f.key}
-                            label={f.label}
-                            placeholder={""}
-                            breakpoint={false}
-                            value={(medicalForm as any)[f.key]}
-                            onChange={() => { }}
-                          />
                         );
                       } else if (f.key === 'relieving_factors') {
                         elem = (

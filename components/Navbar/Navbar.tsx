@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Link } from "@/navigation";
 import Hamburger from "hamburger-react";
-import { Logo, Globe } from "@/assets/images";
+import { Logo } from "@/assets/images";
 import { useRouter } from "next/navigation";
 import LanguageChanger from "../LanguageChanger";
 import { useLocale, useTranslations } from "next-intl";
@@ -15,18 +15,6 @@ export const Navbar = () => {
   const locale = useLocale();
 
   const [isOpen, setOpen] = useState(false);
-  const [showLangMenu, setShowLangMenu] = useState(false);
-  const langRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) {
-        setShowLangMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const navLinks = [
     { id: 1, heading: t("link_home"), route: "/" },
@@ -87,18 +75,8 @@ export const Navbar = () => {
           </ul>
 
           {/* Language Selector on Mobile */}
-          <div className="mt-8 flex flex-col items-center gap-2 relative" ref={langRef}>
-            <div
-              onClick={() => setShowLangMenu((prev) => !prev)}
-              className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full cursor-pointer"
-            >
-              <Image src={Globe} alt="Globe" width={18} height={18} />
-            </div>
-            {showLangMenu && (
-              <div className="absolute top-12 left-0 bg-white border border-gray-200 rounded-md shadow p-2 z-50">
-                <LanguageChanger locale={locale} />
-              </div>
-            )}
+          <div className="mt-8 flex flex-col items-center gap-4 w-full">
+            <LanguageChanger locale={locale} />
           </div>
 
           {/* Book Button (Mobile) */}
@@ -115,27 +93,16 @@ export const Navbar = () => {
       )}
 
       {/* Desktop Right Side */}
-      <div className="hidden tablet:flex gap-4 sm:gap-7 items-center">
-        {/* Globe + Dropdown */}
-        <div className="relative" ref={langRef}>
-          <button
-            onClick={() => setShowLangMenu((prev) => !prev)}
-            className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full"
-          >
-            <Image src={Globe} alt="Globe" width={18} height={18} />
-          </button>
-
-          {showLangMenu && (
-            <div className="absolute top-12 -left-4 bg-white border border-gray-300 rounded-md shadow-md p-2 z-50">
-              <LanguageChanger locale={locale} />
-            </div>
-          )}
+      <div className="hidden tablet:flex gap-3 lg:gap-4 items-center justify-end">
+        {/* Language Selector */}
+        <div className="flex-shrink-0">
+          <LanguageChanger locale={locale} />
         </div>
 
         {/* Book Button (Desktop) */}
         <button
           onClick={() => router.push("/contact")}
-          className="bg-[#C1001F] text-white font-medium text-[15px] px-6 py-3 rounded-full hover:bg-red-700 transition whitespace-nowrap"
+          className="bg-[#C1001F] text-white font-medium text-[15px] px-6 py-3 rounded-full hover:bg-red-700 transition whitespace-nowrap flex-shrink-0"
         >
           {t("book_your_visit")}
         </button>

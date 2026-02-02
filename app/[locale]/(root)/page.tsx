@@ -38,7 +38,7 @@ export default async function Home() {
           >
             <span className="font-medium">Dallas</span>
             <FaPhone className="text-[#C1001F]" size={14} />
-            <span>+1 (469) 886-8060</span>
+            <span>+1 469-886-8060</span>
           </a>
           
           <span className="hidden sm:inline text-gray-300">|</span>

@@ -11,9 +11,11 @@ import {
   doctor,
 } from "@/assets/images/cover";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 
 export function AboveFooter() {
   const t = useTranslations("above_footer");
+  const router = useRouter();
 
   return (
     <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center overflow-visible mt-20">
@@ -30,7 +32,11 @@ export function AboveFooter() {
 
           {/* ✅ Buttons */}
           <div className="flex gap-4 mb-6 flex-wrap">
-            <button className="bg-[#C1001F] hover:bg-red-800 text-white px-8 sm:px-10 md:px-12 py-3 sm:py-4 rounded-full text-sm font-medium">
+            <button
+              type="button"
+              onClick={() => router.push("/contact")}
+              className="bg-[#C1001F] hover:bg-red-800 text-white px-8 sm:px-10 md:px-12 py-3 sm:py-4 rounded-full text-sm font-medium"
+            >
               {t("cta_book")}
             </button>
             {/* <button className="border border-white text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-white hover:text-[#0F172A] transition">

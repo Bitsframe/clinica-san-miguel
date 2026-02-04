@@ -370,7 +370,7 @@ export function useRequestAppointmentLogic({
       firstname: firstName,
       lastname: lastName,
       email: email,
-      phone: phone,
+      phone: phone.startsWith('+1') ? phone : `+1${phone}`,
       treatmenttype: service,
       gender: sex,
       lastvisit: scheduleDate ? scheduleDate.toISOString() : null,
@@ -436,7 +436,7 @@ export function useRequestAppointmentLogic({
       dob: dob ? dob.toISOString().split('T')[0] : null,
       sex: sex,
       service: service,
-      phone: phone,
+      phone: phone.startsWith('+1') ? phone : `+1${phone}`,
       date_and_time: dateAndTime,
       patient_id: patientId
     };
@@ -452,29 +452,39 @@ export function useRequestAppointmentLogic({
         console.error('[BookNow] Error checking for existing appointment:', checkError);
       }
       if (existingAppointments && existingAppointments.length > 0) {
-        // Appointment already exists for this slot
         appointmentId = existingAppointments[0].id;
         console.error('[BookNow] Duplicate appointment: An appointment already exists for this date and time.');
         toast.error('Sorry, Appointment time slot is not available, Please select any other time slot');
         setIsSubmitting(false);
-        return; // Stop further processing
+        return;
       } else {
-        // Insert appointment into Appoinments table, now including location_id
-        const { data: appointmentInsertData, error: appointmentInsertError } = await supabase.from('Appoinments').insert([
-          {
-            service,
-            date_and_time: dateAndTime,
-            patient_id: patientId,
-            location_id: locationID,
-            new_patient: patientCount === 1 // true if new, false if old
+        try {
+          const { data: appointmentInsertData, error: appointmentInsertError } = await supabase.from('Appoinments').insert([
+            {
+              service,
+              date_and_time: dateAndTime,
+              patient_id: patientId,
+              location_id: locationID,
+              new_patient: patientCount === 1 // true if new, false if old
+            }
+          ]).select('id');
+          if (appointmentInsertError && appointmentInsertError.code === '23505') {
+            // Duplicate key error, slot was just booked
+            toast.error('Sorry, this slot was just booked. Please select another.');
+            setIsSubmitting(false);
+            return;
+          } else if (appointmentInsertError) {
+            throw appointmentInsertError;
           }
-        ]).select('id');
-        // [BookNow] Appoinments insert result
-        if (appointmentInsertError) {
-          throw appointmentInsertError;
-        }
-        if (appointmentInsertData && appointmentInsertData.length > 0) {
-          appointmentId = appointmentInsertData[0].id;
+          if (appointmentInsertData && appointmentInsertData.length > 0) {
+            appointmentId = appointmentInsertData[0].id;
+            // Refetch booked slots here if needed (UI update logic)
+          }
+        } catch (insertErr) {
+          console.error('[BookNow] Error inserting into Appoinments:', insertErr);
+          toast.error(`Error submitting appointment: ${insertErr}`);
+          setIsSubmitting(false);
+          return;
         }
       }
     } catch (err) {

@@ -201,8 +201,8 @@ export const RequestAppointment = ({
       if (!scheduleSlot) missingFields.push("Schedule Time");
     } else {
       // Logic for subsequent medical info pages
-      if (!(medicalForm as any).reason_for_visit?.trim()) missingFields.push("Reason for Visit");
-      if (!(medicalForm as any).symptom_details?.trim()) missingFields.push("Symptom Details");
+      if (!(medicalForm as any).chief_complaint?.trim()) missingFields.push("Reason for Visit");
+      if (!(medicalForm as any).symptoms_description?.trim()) missingFields.push("Symptom Details");
     }
 
     if (missingFields.length > 0) {
@@ -235,7 +235,7 @@ export const RequestAppointment = ({
                 <Input label={t("form_f5")} placeholder="email@example.com" breakpoint={false} onChange={setEmail} value={email} />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <PhoneNumberInput label={t("form_f6")} placeholder="+1 (555) 000-0000" breakpoint={false} onChange={setPhone} value={phone} />
+                  <PhoneNumberInput label={t("form_f6")} placeholder="(555) 000-0000" breakpoint={false} onChange={setPhone} value={phone} />
                   <DatePicker label={t("form_f7")} placeholder="YYYY-MM-DD" breakpoint={false} onChange={setDob} value={dob} maxDate={new Date()} />
                 </div>
 

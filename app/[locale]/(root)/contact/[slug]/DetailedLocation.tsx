@@ -1,8 +1,8 @@
+
 "use client";
 
 import { styles } from "@/app/[locale]/styles";
 import { ImageCarousel, Testimonial } from "@/components";
-// import Image from "next/image";
 import StarRatings from "react-star-ratings";
 
 // icons
@@ -14,7 +14,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useSupabase } from "@/context/supabaseContext";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "react-i18next";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 
@@ -27,35 +26,27 @@ const ServiceTab = ({
   name: string | null | undefined;
   icon: string | null | undefined;
 }) => {
-  const router = useRouter();
-
-  const handleService = () => {
-    router.push(`/services/${id}`);
-  };
   return (
-    <article className=" w-full bg-[#D9D9D9] flex justify-between items-center p-3">
+    <article className="w-full bg-[#D9D9D9] flex justify-between items-center p-4 rounded-sm transition-all hover:bg-gray-300">
       <div className="flex items-center gap-3">
-        <div className="rounded-full aspect-square flex w-10 h-10 justify-center items-center bg-[#C1001F]">
+        <div className="rounded-full aspect-square flex w-10 h-10 justify-center items-center bg-[#C1001F] shrink-0 overflow-hidden">
           {icon && (
             <Image
               src={icon}
               alt={"service icon"}
-              className="object-contain aspect-square w-10 h-10 rounded-[50%]"
+              className="object-contain"
               width={40}
               height={40}
             />
           )}
         </div>
 
-        <h3 className="text-[18px] text-black font-semibold font-poppins">
+        <h3 className="text-[16px] md:text-[18px] text-black font-semibold font-poppins">
           {name}
         </h3>
       </div>
       <Link href={`/services/${id}`}>
-        <div
-          // onClick={handleService}
-          className="cursor-pointer rounded-full aspect-square flex w-10 h-10 justify-center items-center bg-black"
-        >
+        <div className="cursor-pointer rounded-full aspect-square flex w-10 h-10 justify-center items-center bg-black transition-transform hover:scale-105">
           <IoIosArrowForward className="text-[16px] text-white" />
         </div>
       </Link>
@@ -105,9 +96,6 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
       const totalResults = ratings.length;
       const sumOfRatings = ratings.reduce((acc, rating) => acc + rating, 0);
       const averageRating = totalResults > 0 ? sumOfRatings / totalResults : 0;
-      const averageRatingFormatted = averageRating.toFixed(2);
-      console.log("Average Rating:", averageRatingFormatted);
-
       setTotalRatings(averageRating);
     }
   }, [filteredData]);
@@ -166,6 +154,7 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
   const groupedTimings: GroupedTimings = clinicDetails.timings.reduce(
     (acc: GroupedTimings, timing) => {
       const timingKey = timing.timing;
+      if (!timingKey) return acc;
       if (acc[timingKey]) {
         acc[timingKey].push(timing.day);
       } else {
@@ -182,99 +171,84 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
 
   const displayTimings = Object.entries(groupedTimings).map(
     ([timing, days]: [string, string[]]) => {
-      const daysString = days.map((lable) => transformLableCase(lable)).join(", ");
+      const daysString = days.map((label) => transformLableCase(label)).join(", ");
       return (
-        <p
+        <div
           key={timing}
-          className="flex flex-col items-start text-[16px] text-black font-normal"
+          className="flex flex-col items-start text-[16px] text-black font-normal leading-tight"
         >
           <span className="font-semibold">{daysString}:</span>
           <span className="pb-1"> {timing}</span>
-        </p>
+        </div>
       );
     }
   );
+
   return (
     <>
-      <main className="flex flex-col gap-10 justify-center items-center py-5 px-2 md:px-[5%] lg:px-[10%]">
-        <section className="flex flex-col justify-start gap-10 w-full">
-          <h2 className={`${styles.sectionHeadText} text-headingColor`}>
-            {/* Clinica San Miguel Houston, TX Office */}
+      <main className="flex flex-col gap-8 md:gap-12 justify-center items-center py-8 px-4 md:px-[5%] lg:px-[10%]">
+        {/* Section 1: Hero */}
+        <section className="flex flex-col justify-start gap-6 w-full">
+          <h2 className={`${styles.sectionHeadText} text-headingColor text-left`}>
             {title}
           </h2>
 
-          <article className="flex flex-col lg:flex-row justify-center w-full items-start gap-5">
+          <article className="flex flex-col lg:flex-row justify-between w-full items-start gap-6 lg:gap-10">
             <div className="w-full lg:w-1/2">
               <ImageCarousel imagesData={locationGallery} />
             </div>
-            <div className="flex flex-col w-full lg:w-1/2 gap-4">
+            
+            <div className="flex flex-col w-full lg:w-1/2 gap-6 items-start">
               <Button
                 text={t("str7")}
-                size={{ width: "250px", height: "50px" }}
-                route={""}
-                bgColor={"#C1001F"}
-                textColor={"#ffffff"}
+                className="w-full md:w-[280px]"
+                bgColor="#C1001F"
+                textColor="#ffffff"
                 onClick={() => setOpenAppointmentModal(true)}
               />
 
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-col">
-                  <h3 className="text-[18px] font-bold text-black capitalize">
-                    {t("str1")}:
-                  </h3>
+              <div className="flex flex-col gap-4 w-full">
+                <div>
+                  <h3 className="text-[18px] font-bold text-black capitalize">{t("str1")}:</h3>
                   <p className="text-[16px] text-black font-normal">{phone}</p>
                 </div>
 
-                <div className="flex flex-col">
-                  <h3 className="text-[18px] font-bold text-black capitalize">
-                    {t("str2")}:
-                  </h3>
-                <div className="text-[16px] text-black font-normal space-y-1">
-              {displayTimings}
-            </div>
+                <div>
+                  <h3 className="text-[18px] font-bold text-black capitalize mb-1">{t("str2")}:</h3>
+                  <div className="space-y-1">{displayTimings}</div>
                 </div>
 
-                <div className="flex flex-col">
-                  <h3 className="text-[18px] font-bold text-black capitalize">
-                    {t("str3")}:
-                  </h3>
-                  <p className="text-[16px] text-black font-normal">
-                    {address}
-                  </p>
+                <div>
+                  <h3 className="text-[18px] font-bold text-black capitalize">{t("str3")}:</h3>
+                  <p className="text-[16px] text-black font-normal max-w-md">{address}</p>
                 </div>
               </div>
             </div>
           </article>
         </section>
 
-        <section className="flex flex-col justify-start gap-5 w-full">
-          <h2
-            className={`${styles.sectionHeadText} text-headingColor`}
-            style={{ textAlign: "left" }}
-          >
+        {/* Section 2: Testimonials */}
+        <section className="flex flex-col justify-start gap-6 w-full">
+          <h2 className={`${styles.sectionHeadText} text-headingColor text-left`}>
             {t("str4")}:
           </h2>
-          <article className="flex flex-col gap-3 justify-start">
-            <div className="flex flex-col justify-start gap-3">
-              <div className="text-[40px] md:text-[60px] lg:text-[80px] text-customGray">
-                {totalRatings.toFixed(1)}/5
-              </div>
-              <div className="hidden lg:block">
-                {isMounted && (
-                  <StarRatings
-                    rating={totalRatings}
-                    starDimension="45px"
-                    starSpacing="1px"
-                    numberOfStars={5}
-                    starRatedColor="#C1001F"
-                  />
-                )}
-              </div>
+          <div className="flex flex-col gap-2 items-start mb-2">
+            <div className="text-[48px] md:text-[60px] lg:text-[72px] font-bold text-customGray leading-none">
+              {totalRatings.toFixed(1)}/5
             </div>
-          </article>
+            {isMounted && (
+              <StarRatings
+                rating={totalRatings}
+                starDimension="30px"
+                starSpacing="2px"
+                numberOfStars={5}
+                starRatedColor="#C1001F"
+              />
+            )}
+          </div>
 
-          <article className="flex flex-wrap justify-start gap-5 items-center">
-            {filteredData?.map((item, index) => (
+          <article className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full">
+            {filteredData?.map((item) => (
               <Testimonial
                 key={item.id}
                 author={item.name}
@@ -286,15 +260,13 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
           </article>
         </section>
 
-        <section className="flex flex-col justify-start gap-5 w-full">
-          <h2
-            className={`${styles.sectionHeadText} text-headingColor`}
-            style={{ textAlign: "left" }}
-          >
+        {/* Section 3: Services */}
+        <section className="flex flex-col justify-start gap-6 w-full">
+          <h2 className={`${styles.sectionHeadText} text-headingColor text-left`}>
             {t("str5")}:
           </h2>
-          <article className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
-            {services_data.map((item, index) => (
+          <article className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {services_data.map((item) => (
               <ServiceTab
                 key={item.id}
                 id={item.id}
@@ -305,19 +277,17 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
           </article>
         </section>
 
-        <section className="flex flex-col justify-start gap-5 w-full">
-          <h2
-            className={`${styles.sectionHeadText} text-headingColor`}
-            style={{ textAlign: "left" }}
-          >
+        {/* Section 4: Map */}
+        <section className="flex flex-col justify-start gap-6 w-full">
+          <h2 className={`${styles.sectionHeadText} text-headingColor text-left`}>
             {t("str6")}:
           </h2>
-
-          <div className="min-w-[300px] w-[80vw] max-w-[1200px] rounded-[60px]">
-            <Map height={600} location={direction} />
+          <div className="w-full h-[400px] md:h-[550px] overflow-hidden rounded-[30px] md:rounded-[50px] border border-gray-100">
+            <Map height={400} location={direction} />
           </div>
         </section>
       </main>
+
       <RequestAppointment
         detailedData={detailedData}
         locationID={parseInt(slug)}

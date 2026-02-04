@@ -6,18 +6,14 @@ import { Divider } from "@/utils";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { family  } from "@/assets/images/cover/"
 import React, { useEffect, useState, Fragment } from "react";
 import LoadingSkeletonAboutScreen from "@/components/loading/LoadingSkeletonAboutScreen";
-
-
 
 const customLoader = ({ src, width, quality }: any) => {
   const urlWithoutQuery = src.split("?")[0];
   const qualityParam = quality ? `&q=${quality}` : "";
   return `${urlWithoutQuery}?w=${width}${qualityParam}`;
 };
-
 
 const Expertise = ({
   image,
@@ -41,13 +37,12 @@ const Expertise = ({
       <h1 className="text-[23px] md:text-[30px] lg:text-[35px] leading-[23px] md:leading-[31px] lg:leading-[35px] text-center text-[#000000] font-bold">
         {heading}
       </h1>
-      <p className="text-[18px] lg:text-[24px] leading-[24px] lg:leading-[30px] w-[80%] md:w-[70%] text-center text-[#000000]">
+      <p className="text-[18px] lg:text-[24px] leading-[24px] lg:leading-[30px] w-[90%] md:w-[80%] lg:w-[70%] text-center text-[#000000]">
         {description}
       </p>
     </article>
   );
 };
-
 
 const AboutScreen = () => {
   const t = useTranslations("common");
@@ -55,13 +50,12 @@ const AboutScreen = () => {
   const locale = useLocale();
   const { fetchLocalizedTable } = useSupabase();
 
-  const [data, setData] = useState<any>(null);  
+  const [data, setData] = useState<any>(null);
 
-  
   useEffect(() => {
     fetchLocalizedTable("about", locale)
       .then((rows) => {
-        setData(rows[0]); 
+        setData(rows[0]);
       })
       .catch((err) => console.error("Error fetching about data:", err));
   }, [locale, fetchLocalizedTable]);
@@ -99,56 +93,59 @@ const AboutScreen = () => {
   ];
 
   if (!data) {
-  return <LoadingSkeletonAboutScreen />;
-}
+    return <LoadingSkeletonAboutScreen />;
+  }
 
   return (
-    <main className="py-[5%] flex flex-col gap-20 px-2 lg:px-[20px] items-center justify-center">
-      <section className="flex flex-col items-center justify-center gap-10 lg:gap-32 px-4 md:px-12 w-full">
-        <article className="flex flex-col items-center justify-center w-full gap-5 lg:gap-8 text-center px-2 md:px-8">
-          <div className="flex flex-col items-start w-full md:w-[60%] mx-auto">
-            <h1 className="text-[48px] lg:text-[60px] text-[#000000] font-poppins font-bold leading-tight text-left">
+    <main className="py-[5%] flex flex-col gap-20 px-4 lg:px-[20px] items-center justify-center">
+      <section className="flex flex-col items-center justify-center gap-10 lg:gap-32 w-full">
+        {/* Header Section */}
+        <article className="flex flex-col items-center justify-center w-full gap-5 lg:gap-8 text-center">
+          <div className="flex flex-col items-center lg:items-start w-full lg:w-[60%] mx-auto">
+            <h1 className="text-[48px] lg:text-[60px] text-[#000000] font-poppins font-bold leading-tight text-center lg:text-left">
               About
             </h1>
-            <span className="block text-[32px] lg:text-[36px] text-[#C8102E] font-semibold mt-1 text-left">
+            <span className="block text-[32px] lg:text-[36px] text-[#C8102E] font-semibold mt-1 text-center lg:text-left">
               Clinica San Miguel
             </span>
           </div>
-          <p className="w-full md:w-[60%] text-[18px] lg:text-[24px] text-[#000000] text-left mx-auto">
+          <p className="w-full lg:w-[60%] text-[18px] lg:text-[24px] text-[#000000] text-center lg:text-left mx-auto">
             {data?.text_1}
           </p>
         </article>
 
-          <article className="w-[95%] md:w-[75%] lg:w-[50%] flex justify-center items-center">
+        {/* Main Image */}
+        <article className="w-full md:w-[85%] lg:w-[50%] flex justify-center items-center">
           {data?.image_1 ? (
-          <Image
-          src={data.image_1}
-          alt=""
-          loading="lazy"
-          width={100}
-          height={100}
-          className="w-[100%] aspect-auto object-contain"
-          loader={customLoader}
-          />
+            <Image
+              src={data.image_1}
+              alt=""
+              loading="lazy"
+              width={800}
+              height={500}
+              className="w-full aspect-auto object-contain"
+              loader={customLoader}
+            />
           ) : null}
-          </article>
+        </article>
 
-        <article className="flex flex-col md:flex-row justify-center gap-6 items-start w-full px-2 md:px-8">
-          <div className="flex items-start flex-col gap-2">
+        {/* Bilingual Services Section - Updated for Tablet Stacking */}
+        <article className="flex flex-col lg:flex-row justify-center gap-10 lg:gap-16 items-center lg:items-start w-full max-w-[1200px] mx-auto">
+          <div className="flex items-center lg:items-start flex-col gap-4 w-full lg:w-auto">
             <Image
               src={data?.image_2 || earth_care}
               width={60}
               height={60}
               loading="lazy"
-              className="w-[60px] aspect-auto"
+              className="w-[60px] lg:w-[80px] aspect-auto"
               alt={""}
               loader={customLoader}
             />
-            <h1 className="text-[40px] lg:text-[50px] leading-[40px] lg:leading-[50px] text-[#000000] font-poppins">
+            <h1 className="text-[36px] md:text-[40px] lg:text-[50px] leading-tight text-[#000000] font-poppins text-center lg:text-left">
               {data?.title_2}
             </h1>
           </div>
-          <p className="w-full md:w-[60%] text-[18px] lg:text-[24px]">
+          <p className="w-full lg:w-[60%] text-[18px] lg:text-[24px] text-center lg:text-left text-[#000000]">
             {data?.text_2 || whatwedo}
           </p>
         </article>
@@ -156,26 +153,19 @@ const AboutScreen = () => {
 
       <Divider />
 
-      {expertise.map((item, index) => (
-        <Fragment key={item.id}>
-          {index === 0 || index === 2 ? (
-            <article className="flex flex-col items-center justify-center w-full gap-5 lg:gap-8 text-center">
-              <Expertise
-                image={item.image}
-                heading={item.heading}
-                description={item.description}
-              />
-            </article>
-          ) : (
+      {/* Expertise Loop */}
+      <div className="flex flex-col gap-20 w-full">
+        {expertise.map((item, index) => (
+          <Fragment key={item.id}>
             <Expertise
               image={item.image}
               heading={item.heading}
               description={item.description}
             />
-          )}
-          {index !== expertise.length - 1 && <Divider />}
-        </Fragment>
-      ))}
+            {index !== expertise.length - 1 && <Divider />}
+          </Fragment>
+        ))}
+      </div>
     </main>
   );
 };

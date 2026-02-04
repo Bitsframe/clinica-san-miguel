@@ -1,66 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+interface ButtonProps {
+  text: string;
+  size?: { width?: string; height?: string }; // Made optional to favor className
+  bgColor: string;
+  textColor: string;
+  onClick: () => void;
+  disabled?: boolean;
+  className?: string;
+}
 
-// Button Component
 export const Button = ({
   text,
   size,
-  route,
   bgColor,
   textColor,
   onClick,
   disabled = false,
   className = ""
-}: {
-  text: string;
-  size: { width: string; height: string };
-  route?: string;
-  bgColor: string;
-  textColor: string;
-  onClick: any;
-  disabled?: boolean;
-  className?: string;
-}) => {
-  const [windowWidth, setWindowWidth] = useState<number>(0);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    // Check if window is defined before using it
-    if (typeof window !== "undefined") {
-      setWindowWidth(window.innerWidth);
-      window.addEventListener("resize", handleResize);
-
-      return () => {
-        window.removeEventListener("resize", handleResize);
-      };
-    }
-  }, []);
-
-  const widthWithoutPx = parseInt(size.width);
-  const heightWithoutPx = parseInt(size.height);
-
-  const isMediumScreen = windowWidth < 1024;
-
-  const calculatedWidth = isMediumScreen
-    ? `calc(${widthWithoutPx}px - ${widthWithoutPx * 0.4}px)`
-    : size.width;
-  const calculatedHeight = isMediumScreen
-    ? `calc(${heightWithoutPx}px - ${heightWithoutPx * 0.25}px)`
-    : size.height;
-
+}: ButtonProps) => {
   return (
     <button
       disabled={disabled}
-      className={`rounded-[10px] font-poppins flex justify-center items-center text-[14px] md:text-[17px] text-opacity-8 hover:opacity-75 active:opacity-90 disabled:opacity-30 ${className}`}
+      /* - w-full: default to 100% width for mobile
+         - md:w-auto: revert to content-width on tablets+
+         - h-[50px]: default height if none provided
+      */
+      className={`rounded-[10px] font-poppins flex justify-center items-center 
+        transition-all duration-200
+        text-[14px] md:text-[17px] 
+        hover:opacity-85 active:scale-95 
+        disabled:opacity-30 disabled:pointer-events-none
+        ${!className.includes('w-') ? 'w-full md:w-max' : ''} 
+        ${className}`}
       style={{
-        width: className.includes('w-full') ? '100%' : calculatedWidth,
-        height: calculatedHeight,
-        backgroundColor: `${bgColor}`,
-        color: `${textColor}`,
+        backgroundColor: bgColor,
+        color: textColor,
+        // Use the passed size only if specific Tailwind width classes aren't provided
+        width: className.includes('w-') ? undefined : size?.width,
+        height: size?.height || "50px",
       }}
       onClick={onClick}
     >

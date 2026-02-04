@@ -198,7 +198,6 @@ export const ScheduleTreatment: React.FC = () => {
             width: "161px",
             height: "62px",
           }}
-          route={""}
           bgColor={"#C1001F"}
           textColor={"#ffffff"}
           onClick={() => {}}

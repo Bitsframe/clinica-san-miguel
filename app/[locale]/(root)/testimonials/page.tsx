@@ -84,7 +84,6 @@ const Testimonials = () => {
                 width: "270px",
                 height: "73px",
               }}
-              route={""}
               bgColor={"#C1001F"}
               textColor={"#ffffff"}
               onClick={() => {}}

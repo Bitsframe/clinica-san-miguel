@@ -14,7 +14,6 @@ export const SearchBox = () => {
       <Button
         text={"search"}
         size={{ width: "192px", height: "48px" }}
-        route={""}
         bgColor={"#3D3D3C"}
         textColor={"#ffffff"}
         onClick={() => {}}

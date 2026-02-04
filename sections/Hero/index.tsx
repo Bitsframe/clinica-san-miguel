@@ -62,7 +62,7 @@ export const Hero = () => {
               <Button
                 text={t("hero_section_button")}
                 size={{ width: "270px", height: "73px" }}
-                route={""}
+               
                 bgColor={"#3D3D3C"}
                 textColor={"#ffffff"}
                 onClick={go_to_contact_handle}

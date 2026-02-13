@@ -59,7 +59,8 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
         if (start.includes("am") && startHour === 12) startHour = 0;
         if (end.includes("am") && endHour === 12) endHour = 0;
 
-        for (let hour = startHour; hour <= endHour; hour++) {
+        // Generate slots from start to one hour before end (endHour - 1)
+        for (let hour = startHour; hour < endHour; hour++) {
             let period = hour < 12 || hour === 24 ? 'AM' : 'PM';
             let formattedHour = hour % 12 === 0 ? 12 : hour % 12;
             let timeSlot = `${formattedHour}:00 ${period}`;
@@ -146,9 +147,9 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
     }
 
     return (
-        <div className="flex flex-col md:flex-row justify-center w-full gap-5 items-center">
-            <div className="flex flex-col items-start md:w-1/2 justify-center">
-                <label className="text-[16px] text-customGray font-poppins font-bold">
+        <div className="flex flex-col sm:flex-row justify-center w-full gap-3 sm:gap-5 items-stretch">
+            <div className="flex flex-col items-start w-full sm:w-1/2 justify-center">
+                <label className="text-xs sm:text-sm md:text-[16px] text-customGray font-poppins font-bold mb-1">
                     Select Schedule Date:
                 </label>
                 {/* @ts-ignore */}
@@ -159,18 +160,18 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
                     placeholderText={"Select Schedule date"}
                     dateFormat="dd-MM-yyyy"
                     popperPlacement="bottom-start"
-                    className="w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]"
+                    className="w-full h-[44px] sm:h-[46px] border-[1px] border-[#d1d5db] text-sm sm:text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-3 sm:px-5 bg-transparent outline-none rounded-[10px]"
                 />
             </div>
 
-            <div className="flex flex-col items-start md:w-1/2 justify-center">
-                <label className="text-[16px] text-customGray font-poppins font-bold">
+            <div className="flex flex-col items-start w-full sm:w-1/2 justify-center">
+                <label className="text-xs sm:text-sm md:text-[16px] text-customGray font-poppins font-bold mb-1">
                     Select Schedule Time:
                 </label>
                 <select
                 value={selectedSlot}
                 onChange={(e)=>selectSlotHandle(e.target.value)}
-                    className='w-full h-[46px] border-[1px] border-[#d1d5db] text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-5 bg-transparent outline-none rounded-[10px]'
+                    className='w-full h-[44px] sm:h-[46px] border-[1px] border-[#d1d5db] text-sm sm:text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-3 sm:px-5 bg-transparent outline-none rounded-[10px]'
                     disabled={isClosed}
                 >
                     {isClosed ? (

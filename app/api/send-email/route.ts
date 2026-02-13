@@ -23,13 +23,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error('Resend API error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
-    console.error('Error in send-email API:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to send email' },
       { status: 500 }

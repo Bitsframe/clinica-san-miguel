@@ -22,6 +22,11 @@
   font-weight: 600 !important;
   font-size: 16px !important;
   margin-bottom: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+  line-height: 1.3 !important;
 }
 
 /* Navigation arrows */
@@ -331,5 +336,67 @@
 .fixed-calendar-height .react-datepicker__clear-btn,
 .fixed-calendar-height .react-datepicker__clear,
 .fixed-calendar-height .react-datepicker__footer {
+  display: none !important;
+}
+
+/* Custom calendar with year/month picker */
+.custom-calendar .react-datepicker__month-container {
+  width: 100% !important;
+  position: relative !important;
+}
+
+.custom-calendar .react-datepicker__children-container {
+  width: 100% !important;
+  margin: 0 !important;
+  position: relative !important;
+}
+
+.custom-calendar .react-datepicker__children-container > div {
+  position: relative !important;
+}
+
+/* Hide calendar body when year/month picker is shown */
+.hide-calendar-body .react-datepicker__month-container .react-datepicker__month,
+.hide-calendar-body .react-datepicker__day-names,
+.hide-calendar-body .react-datepicker__week {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+.hide-calendar-body .react-datepicker__month-container {
+  height: auto !important;
+  min-height: auto !important;
+}
+
+.hide-calendar-body .react-datepicker__month {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+}
+
+.hide-calendar-body.react-datepicker .react-datepicker__day-names {
+  display: none !important;
+}
+
+.hide-calendar-body.react-datepicker .react-datepicker__month {
+  display: none !important;
+}
+
+/* Additional specificity for hiding calendar days */
+.react-datepicker.hide-calendar-body .react-datepicker__month-container .react-datepicker__month {
+  display: none !important;
+}
+
+.react-datepicker.hide-calendar-body .react-datepicker__day-names {
+  display: none !important;
+}
+
+.react-datepicker.hide-calendar-body .react-datepicker__day {
+  display: none !important;
+}
+
+.react-datepicker.hide-calendar-body .react-datepicker__week {
   display: none !important;
 }

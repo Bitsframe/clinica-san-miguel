@@ -12,7 +12,6 @@ export const sendEmail = async ({
 }): Promise<void> => {
   try {
     const emailHtml = getEmailTemplates({ lang, emailType, data });
-
     const fromEmail = emailFromDetails[emailType];
 
     const payload = {
@@ -24,17 +23,13 @@ export const sendEmail = async ({
 
     const endpoint = '/api/send-email'; 
 
-    const response = await axios.post(endpoint, payload, {
+    await axios.post(endpoint, payload, {
       headers: {
         'Content-Type': 'application/json',
       },
-      timeout: 10000, // 10 second timeout
+      timeout: 30000,
     });
-
-    console.log('Email sent successfully:', response.data);
   } catch (error:any) {
-    console.error('Error sending email:', error.response?.data || error.message);
-    // Don't throw error to prevent form submission from failing
-    console.warn('Email sending failed, but form submission will continue');
+    // Silently fail to not disrupt appointment booking
   }
 };

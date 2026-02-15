@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from "react";
 import { Label, Modal, Select } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
-import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import ScheduleDateTime from "./ScheduleDateTime";
@@ -14,6 +13,7 @@ import { Button } from "../../utils/Button";
 import { useRequestAppointmentLogic, medicalFields, perPage } from "./logic";
 import { useState } from "react";
 import { extractStateZip } from "@/utils/addressExtractor";
+import CustomDatePicker from "../CustomDatePicker";
 
 const RadioButton = ({ value, name, label, checked, onChange, disabled }: any) => (
   <div className={`flex items-center justify-start gap-2 ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} group`}>
@@ -95,198 +95,6 @@ const Input = ({
     />
   </div>
 );
-
-const DatePicker = ({
-  label,
-  placeholder,
-  breakpoint,
-  value,
-  onChange,
-  maxDate,
-}: {
-  label: string;
-  placeholder: string;
-  breakpoint: boolean;
-  value: Date | null;
-  onChange: (value: Date | null) => void;
-  maxDate?: Date | null;
-}) => {
-  const [showYearPicker, setShowYearPicker] = useState(false);
-  const [showMonthPicker, setShowMonthPicker] = useState(false);
-  const [tempDate, setTempDate] = useState(value || new Date());
-
-  const currentYear = new Date().getFullYear();
-  const startYear = 1900;
-  const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => currentYear - i);
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const handleYearSelect = (year: number) => {
-    const newDate = new Date(tempDate);
-    newDate.setFullYear(year);
-    setTempDate(newDate);
-    setShowYearPicker(false);
-    setShowMonthPicker(true);
-  };
-
-  const handleMonthSelect = (monthIndex: number) => {
-    const newDate = new Date(tempDate);
-    newDate.setMonth(monthIndex);
-    setTempDate(newDate);
-    setShowMonthPicker(false);
-  };
-
-  return (
-    <div className={`flex flex-col items-start w-full ${breakpoint ? "md:w-1/2" : ""}`}>
-      <label className="text-sm sm:text-base text-customGray font-poppins font-bold mb-1">
-        {label}:
-      </label>
-      <div className="relative w-full">
-        <ReactDatePicker
-          selected={value}
-          onChange={(date: Date | null) => {
-            onChange(date);
-            if (date) setTempDate(date);
-          }}
-          placeholderText={placeholder}
-          dateFormat="yyyy-MM-dd"
-          maxDate={maxDate || undefined}
-          onCalendarOpen={() => {
-            setShowYearPicker(false);
-            setShowMonthPicker(false);
-          }}
-          className="w-full h-11 border border-gray-300 text-sm sm:text-base text-black px-4 bg-white outline-none rounded-lg focus:ring-1 focus:ring-[#C1001F] focus:border-[#C1001F]"
-          calendarClassName={showYearPicker || showMonthPicker ? "hide-calendar-body" : ""}
-          renderCustomHeader={({
-            date,
-            decreaseMonth,
-            increaseMonth,
-            prevMonthButtonDisabled,
-            nextMonthButtonDisabled,
-          }) => (
-            <div>
-              {!showYearPicker && !showMonthPicker && (
-                <div className="flex items-center justify-between px-2 py-2">
-                  <button
-                    onClick={decreaseMonth}
-                    disabled={prevMonthButtonDisabled}
-                    type="button"
-                    className="text-white hover:bg-white/10 rounded p-1 transition-colors"
-                  >
-                    <span className="text-xl font-bold">{"<"}</span>
-                  </button>
-                  <div className="flex flex-col items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setShowMonthPicker(true)}
-                      className="text-white font-semibold text-base hover:bg-white/10 px-3 py-1 rounded transition-colors"
-                    >
-                      {date.toLocaleString('en-US', { month: 'long' })}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowYearPicker(true)}
-                      className="text-white font-semibold text-base hover:bg-white/10 px-3 py-1 rounded transition-colors"
-                    >
-                      {date.getFullYear()}
-                    </button>
-                  </div>
-                  <button
-                    onClick={increaseMonth}
-                    disabled={nextMonthButtonDisabled}
-                    type="button"
-                    className="text-white hover:bg-white/10 rounded p-1 transition-colors"
-                  >
-                    <span className="text-xl font-bold">{">"}</span>
-                  </button>
-                </div>
-              )}
-              
-              {showYearPicker && (
-                <div className="bg-[#C1001F] p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-white font-semibold text-base">Select Year</span>
-                    <button
-                      type="button"
-                      onClick={() => setShowYearPicker(false)}
-                      className="text-white hover:bg-white/10 px-2 py-1 rounded text-sm"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {showMonthPicker && (
-                <div className="bg-[#C1001F] p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowMonthPicker(false);
-                        setShowYearPicker(true);
-                      }}
-                      className="text-white hover:bg-white/10 px-2 py-1 rounded text-sm"
-                    >
-                      ← {tempDate.getFullYear()}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowMonthPicker(false)}
-                      className="text-white hover:bg-white/10 px-2 py-1 rounded text-sm"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        >
-          {showYearPicker && (
-            <div className="bg-white p-4 grid grid-cols-3 gap-2 max-h-64 overflow-y-auto absolute top-0 left-0 right-0 z-10" style={{ marginTop: '0' }}>
-              {years.map((year) => (
-                <button
-                  key={year}
-                  type="button"
-                  onClick={() => handleYearSelect(year)}
-                  className={`p-2 rounded text-sm font-medium transition-colors ${
-                    year === tempDate.getFullYear()
-                      ? 'bg-[#C1001F] text-white'
-                      : 'hover:bg-[#ffe6eb] text-gray-700'
-                  }`}
-                >
-                  {year}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {showMonthPicker && (
-            <div className="bg-white p-4 grid grid-cols-3 gap-2 absolute top-0 left-0 right-0 z-10 min-h-[280px]" style={{ marginTop: '0' }}>
-              {months.map((month, index) => (
-                <button
-                  key={month}
-                  type="button"
-                  onClick={() => handleMonthSelect(index)}
-                  className={`p-3 rounded text-sm font-medium transition-colors ${
-                    index === tempDate.getMonth()
-                      ? 'bg-[#C1001F] text-white'
-                      : 'hover:bg-[#ffe6eb] text-gray-700'
-                  }`}
-                >
-                  {month.substring(0, 3)}
-                </button>
-              ))}
-            </div>
-          )}
-        </ReactDatePicker>
-      </div>
-    </div>
-  );
-};
 
 const Dropdown = ({
   label,
@@ -472,7 +280,6 @@ export const RequestAppointment = ({
 
     if (!firstName.trim()) missingFields.push("First Name");
     if (!lastName.trim()) missingFields.push("Last Name");
-    if (!email.trim()) missingFields.push("Email Address");
     if (!phone.trim()) missingFields.push("Mobile Number");
     if (!dob) missingFields.push("Date of Birth");
     if (!sex) missingFields.push("Gender");
@@ -515,7 +322,13 @@ export const RequestAppointment = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <PhoneNumberInput label={t("form_f6")} placeholder="(555) 000-0000" breakpoint={false} onChange={setPhone} value={phone} />
-                  <DatePicker label={t("form_f7")} placeholder="YYYY-MM-DD" breakpoint={false} onChange={setDob} value={dob} maxDate={new Date()} />
+                  <CustomDatePicker 
+                    label={t("form_f7")} 
+                    placeholder="YYYY-MM-DD" 
+                    value={dob} 
+                    onChange={setDob} 
+                    maxDate={new Date()} 
+                  />
                 </div>
 
                 <RadioButtons name="gender" options={genderOptions} label={t("form_f8")} onChange={setSex} selectedValue={sex} />
@@ -586,7 +399,7 @@ export const RequestAppointment = ({
         </Modal.Body>
 
         <Modal.Footer className="border-t border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex flex-row items-center justify-center bg-white sticky bottom-0">
-          <div className="w-full sm:max-w-md">
+          <div className="w-full sm:max-w-none">
             <Button
               text={t("button_label")}
               size={{ width: "100%", height: "44px" }}

@@ -365,7 +365,6 @@ export function useRequestAppointmentLogic({
       const requiredFields = [
         'first_name',
         'last_name',
-        'email_address',
         'sex',
         'phone',
         'service',
@@ -376,7 +375,7 @@ export function useRequestAppointmentLogic({
 
       const validateData = validateFormData(
         {
-          email,
+          email: email || '', // Provide empty string if email is null/undefined
           phone,
           street_address,
         },
@@ -398,7 +397,6 @@ export function useRequestAppointmentLogic({
         } else if (!{
           first_name: firstName,
           last_name: lastName,
-          email_address: email,
           sex,
           phone,
           service,
@@ -425,7 +423,7 @@ export function useRequestAppointmentLogic({
 
       // Call the edge function
       const edgeResponse = await fetch(
-        'https://vsvueqtgulraaczqnnvh.supabase.co/functions/v1/insert-appointment-patient',
+        'https://vsvueqtgulraaczqnnvh.supabase.co/functions/v1/appointment-insert-with-dob-check',
         {
           method: 'POST',
           headers: {
@@ -435,7 +433,7 @@ export function useRequestAppointmentLogic({
           body: JSON.stringify({
             firstname: firstName,
             lastname: lastName,
-            email: email,
+            email: email && email.trim() ? email : null,
             phone: phone.startsWith('+1') ? phone : `+1${phone}`,
             gender: sex,
             dob: dob ? dob.toISOString().split('T')[0] : null,
@@ -460,24 +458,26 @@ export function useRequestAppointmentLogic({
       // Show success message
       toast.success("Appointment Booked Successfully");
 
-      // Send confirmation email
-      const lang = locale;
-      const emailType = EmailBodyTempEnum.CONFIRMATION_OF_FORM_SUBMISSION;
-      const emailData: any = {
-        email,
-        name: `${firstName} ${lastName}`,
-        location: detailedData[0],
-        service: service,
-      };
+      // Send confirmation email only if email is provided
+      if (email && email.trim()) {
+        const lang = locale;
+        const emailType = EmailBodyTempEnum.CONFIRMATION_OF_FORM_SUBMISSION;
+        const emailData: any = {
+          email,
+          name: `${firstName} ${lastName}`,
+          location: detailedData[0],
+          service: service,
+        };
 
-      try {
-        await sendEmail({
-          lang,
-          emailType,
-          data: emailData
-        });
-      } catch (emailError) {
-        // Silently fail to not disrupt appointment booking
+        try {
+          await sendEmail({
+            lang,
+            emailType,
+            data: emailData
+          });
+        } catch (emailError) {
+          // Silently fail to not disrupt appointment booking
+        }
       }
 
       // Reset form and close modal

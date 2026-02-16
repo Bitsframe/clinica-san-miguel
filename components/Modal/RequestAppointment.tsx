@@ -169,6 +169,7 @@ export const RequestAppointment = ({
   // SmartyStreets Integration State
   const [isSmartyIntegrated, setIsSmartyIntegrated] = useState<boolean | null>(null);
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
+  const [isAddressSelected, setIsAddressSelected] = useState(false); // Track if user selected from dropdown
   const addressFetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Computed values for address suggestions
@@ -198,16 +199,29 @@ export const RequestAppointment = ({
 
   // Fetch address suggestions with debouncing
   useEffect(() => {
+    console.log("[SmartyStreets] useEffect triggered - street_address:", street_address);
+    
+    // Don't fetch if user just selected an address from dropdown
+    if (isAddressSelected) {
+      console.log("[SmartyStreets] Skipping fetch - address was just selected from dropdown");
+      setIsAddressSelected(false); // Reset the flag
+      return;
+    }
+    
     // Clear previous timeout
     if (addressFetchTimeoutRef.current) {
       clearTimeout(addressFetchTimeoutRef.current);
     }
 
     const query = street_address.trim();
-    console.log("[SmartyStreets] Address changed:", { query, length: query.length, isSmartyIntegrated });
+    console.log("[SmartyStreets] Address changed:", { 
+      query, 
+      length: query.length, 
+      isSmartyIntegrated,
+      willFetch: query.length >= 4
+    });
 
     // Don't fetch if query is too short
-    // Temporarily removed: || isSmartyIntegrated === false
     if (!query || query.length < 4) {
       setAddressSuggestions([]);
       console.log("[SmartyStreets] Skipping fetch:", { 
@@ -217,11 +231,11 @@ export const RequestAppointment = ({
       return;
     }
 
-    console.log("[SmartyStreets] Setting timeout for address fetch...");
+    console.log("[SmartyStreets] Setting timeout for address fetch in 300ms...");
 
     // Debounce: Wait 300ms after user stops typing
     addressFetchTimeoutRef.current = setTimeout(async () => {
-      console.log("[SmartyStreets] Fetching suggestions for:", query);
+      console.log("[SmartyStreets] Timeout fired! Fetching suggestions for:", query);
       try {
         const response = await fetch("/api/address", {
           method: "POST",
@@ -229,18 +243,17 @@ export const RequestAppointment = ({
           body: JSON.stringify({ address: query })
         });
 
-        console.log("[SmartyStreets] API response:", response.ok, response.status);
-
-        if (!response.ok) {
-          setAddressSuggestions([]);
-          return;
-        }
-
+        console
         const data = await response.json();
         console.log("[SmartyStreets] Suggestions received:", data);
-        setAddressSuggestions(Array.isArray(data?.suggestions) ? data.suggestions : []);
+        console.log("[SmartyStreets] Suggestions array:", data?.suggestions);
+        console.log("[SmartyStreets] Is array?:", Array.isArray(data?.suggestions));
+        
+        const suggestions = Array.isArray(data?.suggestions) ? data.suggestions : [];
+        console.log("[SmartyStreets] Setting suggestions state:", suggestions);
+        setAddressSuggestions(suggestions);
       } catch (error) {
-        console.error("Error fetching address recommendations:", error);
+        console.error("[SmartyStreets] Error fetching address recommendations:", error);
         setAddressSuggestions([]);
       }
     }, 300);
@@ -255,6 +268,9 @@ export const RequestAppointment = ({
 
   // Handle address suggestion click
   const handleAddressSuggestionClick = (suggestion: string) => {
+    // Set flag to prevent refetching
+    setIsAddressSelected(true);
+    
     // Store the full address in the street_address field (no extraction for UI)
     setStreet_address(suggestion);
     

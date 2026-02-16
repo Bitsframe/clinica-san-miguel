@@ -144,16 +144,40 @@ export function useRequestAppointmentLogic({
   // Fetch services
   useEffect(() => {
     const fetchServices = async () => {
+      console.log('[Services] Fetching services for locationID:', locationID);
+      
       let { data, error } = await supabase.from(tableName).select("title");
 
       if (data) {
-        const serviceData = data.map((item: any) => item.title);
+        console.log('[Services] Raw services from DB:', data.map((item: any) => item.title));
+        
+        let serviceData = data.map((item: any) => item.title);
+        
+        // Filter out "Dentist" service if location is not 2 or 3
+        console.log('[Services] Checking if should filter Dentist:', {
+          locationID,
+          locationIDType: typeof locationID,
+          shouldShowDentist: locationID === 2 || locationID === 3
+        });
+        
+        if (locationID !== 2 && locationID !== 3) {
+          console.log('[Services] Filtering out Dentist service');
+          serviceData = serviceData.filter((service: string) => {
+            const isDentist = service.toLowerCase() === 'dentist';
+            console.log(`[Services] Service "${service}" - isDentist: ${isDentist}`);
+            return !isDentist;
+          });
+        } else {
+          console.log('[Services] Location is 2 or 3, keeping Dentist service');
+        }
+        
+        console.log('[Services] Final filtered services:', serviceData);
         setServicesState(serviceData);
       }
     };
 
     fetchServices();
-  }, [tableName]);
+  }, [tableName, locationID]);
 
   // Handlers
   const handleMedicalChange = (key: string, value: string) => {

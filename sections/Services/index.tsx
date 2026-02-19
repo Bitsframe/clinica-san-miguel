@@ -56,16 +56,19 @@ export const Services = () => {
       {/* Render services after data is fetched */}
       <article className="flex flex-wrap justify-center h-auto mx-auto">
         {hasFetched && data.length > 0 ? (
-          data.slice(0, 6).map((service) => (
-            <CompactService
-              id={service.id}
-              heading={service.title}
-              icon={service.icon}
-              description={service.description}
-              mode={service.id % 2 === 0 ? "light" : "dark"}
-              key={service.id}
-            />
-          ))
+          data
+            .filter((service) => service.title?.toLowerCase() !== "others")
+            .slice(0, 6)
+            .map((service) => (
+              <CompactService
+                id={service.id}
+                heading={service.title}
+                icon={service.icon}
+                description={service.description}
+                mode={service.id % 2 === 0 ? "light" : "dark"}
+                key={service.id}
+              />
+            ))
         ) : (
           <p>Loading services...</p>  // Show a loading state until data is fetched
         )}

@@ -24,7 +24,10 @@ export const ServicesComponent = () => {
   }, [locale, fetchLocalizedTable]); 
 
   const sortedData = useMemo(() => {
-    return [...data].sort((a, b) => a.id - b.id);
+    // Filter out "Others" service and sort by id
+    return [...data]
+      .filter((service) => service.title?.toLowerCase() !== "others")
+      .sort((a, b) => a.id - b.id);
   }, [data]);
 
   return (

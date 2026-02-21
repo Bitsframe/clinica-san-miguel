@@ -76,6 +76,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           />
         )}
         {/* End Google Tag Manager */}
+        
+        {/* Google tag (gtag.js) for Google Ads Conversion Tracking */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-368434703"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-368434703');
+            `,
+          }}
+        />
       </head>
       <NextIntlClientProvider locale={locale} messages={messages}>
       <body className="font-inter bg-[#F4F5F6] sm:bg-[#F8F5F0] relative overflow-x-hidden w-[100vw]">

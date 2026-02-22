@@ -1,0 +1,298 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 10,
+    "passes": 6,
+    "pending": 0,
+    "failures": 4,
+    "start": "2026-02-21T19:45:33.429Z",
+    "end": "2026-02-21T19:55:43.450Z",
+    "duration": 610021,
+    "testsRegistered": 10,
+    "passPercent": 60,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "f8b441c0-7770-41b2-9552-5948794c35df",
+      "title": "",
+      "fullFile": "cypress\\e2e\\spanish-language.cy.ts",
+      "file": "cypress\\e2e\\spanish-language.cy.ts",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+          "title": "Spanish Language Test",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "should load the homepage successfully",
+              "fullTitle": "Spanish Language Test should load the homepage successfully",
+              "timedOut": null,
+              "duration": 29636,
+              "state": "passed",
+              "speed": "slow",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Check that page loads\ncy.url().should(\"include\", \"localhost:3000\");\n// Verify page is loaded with title or body content\ncy.get(\"body\").should(\"be.visible\");",
+              "err": {},
+              "uuid": "985a639e-c8a6-4837-be11-b533127cf0f4",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should have a language switcher",
+              "fullTitle": "Spanish Language Test should have a language switcher",
+              "timedOut": null,
+              "duration": 20436,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Look for language selector/button in navbar/header area\ncy.get('nav, header, [role=\"navigation\"]')\n    .first()\n    .then(function ($nav) {\n    // Check if ES or Spanish language option exists\n    var hasLanguageSwitch = $nav.find('[href*=\"/es\"]').length > 0 ||\n        $nav.find('[data-language=\"es\"]').length > 0 ||\n        $nav.find('img[alt*=\"flag\" i]').length > 0 ||\n        $nav.find('[class*=\"language\" i]').length > 0 ||\n        $nav.text().includes(\"ES\") ||\n        $nav.text().includes(\"Español\");\n    // If language switcher doesn't exist, log what we found\n    if (!hasLanguageSwitch) {\n        cy.log(\"Language switcher not found. Check if it's implemented.\");\n        cy.log(\"This might be a BUG if language switching should be supported.\");\n    }\n    expect(hasLanguageSwitch, \"Language switcher should exist in navbar\").to\n        .be.true;\n});",
+              "err": {
+                "message": "Error: Syntax error, unrecognized expression: img[alt*=\"flag\" i]",
+                "estack": "Error: Syntax error, unrecognized expression: img[alt*=\"flag\" i]\n    at Sizzle.error (http://localhost:3000/__cypress/runner/cypress_runner.js:8465:8)\n    at Sizzle.tokenize (http://localhost:3000/__cypress/runner/cypress_runner.js:9121:11)\n    at Function.Sizzle [as find] (http://localhost:3000/__cypress/runner/cypress_runner.js:7740:15)\n    at jQuery.fn.init.find (http://localhost:3000/__cypress/runner/cypress_runner.js:9801:11)\n    at getRet (http://localhost:3000/__cypress/runner/cypress_runner.js:119314:20)\n    at tryCatcher (http://localhost:3000/__cypress/runner/cypress_runner.js:1830:23)\n    at Promise.attempt.Promise.try (http://localhost:3000/__cypress/runner/cypress_runner.js:4338:29)\n    at Context.thenFn (http://localhost:3000/__cypress/runner/cypress_runner.js:119325:66)\n    at Context.then (http://localhost:3000/__cypress/runner/cypress_runner.js:119576:21)\n    at wrapped (http://localhost:3000/__cypress/runner/cypress_runner.js:138092:19)\n    at <unknown> (http://localhost:3000/__cypress/runner/cypress_runner.js:144016:15)\n    at tryCatcher (http://localhost:3000/__cypress/runner/cypress_runner.js:1830:23)\n    at Promise._settlePromiseFromHandler (http://localhost:3000/__cypress/runner/cypress_runner.js:1542:31)\n    at Promise._settlePromise (http://localhost:3000/__cypress/runner/cypress_runner.js:1599:18)\n    at Promise._settlePromiseCtx (http://localhost:3000/__cypress/runner/cypress_runner.js:1636:10)\n    at _drainQueueStep (http://localhost:3000/__cypress/runner/cypress_runner.js:2434:12)\n    at _drainQueue (http://localhost:3000/__cypress/runner/cypress_runner.js:2423:9)\n    at Async._drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2439:5)\n    at Async.drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2309:14)",
+                "diff": null
+              },
+              "uuid": "34b85dc6-f53b-4e01-ab39-5aa994a97350",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should have a navbar dropdown with Spanish flag",
+              "fullTitle": "Spanish Language Test should have a navbar dropdown with Spanish flag",
+              "timedOut": null,
+              "duration": 32571,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Find the navbar\ncy.get('nav, header, [role=\"navigation\"]').should(\"exist\");\n// Look for language dropdown toggle button\n// Common patterns: language selector, flag, language icon\ncy.get(\"nav, header\")\n    .first()\n    .within(function () {\n    // Try to find dropdown button or toggle\n    cy.get(\"body\").then(function ($body) {\n        var e_1, _a;\n        // Look for dropdown trigger (button, div, or link with dropdown functionality)\n        var dropdownSelectors = [\n            'button:has(img[alt*=\"flag\"])',\n            'button:has(img[src*=\"flag\"])',\n            '[class*=\"language\"]',\n            '[class*=\"Language\"]',\n            '[data-testid*=\"language\"]',\n            '[aria-label*=\"language\" i]',\n            '[aria-label*=\"idioma\" i]',\n        ];\n        var dropdownFound = false;\n        try {\n            // Try each selector\n            for (var dropdownSelectors_1 = __values(dropdownSelectors), dropdownSelectors_1_1 = dropdownSelectors_1.next(); !dropdownSelectors_1_1.done; dropdownSelectors_1_1 = dropdownSelectors_1.next()) {\n                var selector = dropdownSelectors_1_1.value;\n                if ($body.find(selector).length > 0) {\n                    cy.get(selector).first().click({ force: true });\n                    dropdownFound = true;\n                    break;\n                }\n            }\n        }\n        catch (e_1_1) { e_1 = { error: e_1_1 }; }\n        finally {\n            try {\n                if (dropdownSelectors_1_1 && !dropdownSelectors_1_1.done && (_a = dropdownSelectors_1.return)) _a.call(dropdownSelectors_1);\n            }\n            finally { if (e_1) throw e_1.error; }\n        }\n        // If no specific dropdown found, look for any button with flag image\n        if (!dropdownFound) {\n            cy.get(\"nav, header\")\n                .find(\"button, div, a\")\n                .each(function ($el) {\n                var hasFlag = $el.find('img[alt*=\"flag\" i]').length > 0 ||\n                    $el.find('img[src*=\"flag\" i]').length > 0 ||\n                    $el.find('img[alt*=\"ES\"]').length > 0 ||\n                    $el.find('img[alt*=\"EN\"]').length > 0 ||\n                    $el.text().includes(\"🇪🇸\") ||\n                    $el.text().includes(\"🇺🇸\");\n                if (hasFlag) {\n                    cy.wrap($el).click({ force: true });\n                    return false; // break the loop\n                }\n            });\n        }\n    });\n});\n// Wait for dropdown to open\ncy.wait(500);\n// Look for Spanish flag option in the dropdown\ncy.get(\"body\").then(function ($body) {\n    // Check if Spanish flag or ES option is visible in dropdown\n    var spanishOptionExists = $body.find('img[alt*=\"spanish\" i]').length > 0 ||\n        $body.find('img[alt*=\"español\" i]').length > 0 ||\n        $body.find('img[src*=\"es.\"]').length > 0 ||\n        $body.find('img[src*=\"spain\"]').length > 0 ||\n        $body.find('[data-language=\"es\"]').length > 0 ||\n        $body.text().includes(\"🇪🇸\") ||\n        $body.text().includes(\"Español\") ||\n        $body.text().includes(\"ES\");\n    expect(spanishOptionExists).to.be.true;\n});\ncy.log(\"✓ Navbar has language dropdown with Spanish flag option\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `body`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `body`, but never found it.\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/spanish-language.cy.ts:56:0)",
+                "diff": null
+              },
+              "uuid": "e7024470-227a-49b4-b200-aa21a86a2962",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should switch to Spanish using navbar dropdown flag",
+              "fullTitle": "Spanish Language Test should switch to Spanish using navbar dropdown flag",
+              "timedOut": null,
+              "duration": 32348,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Open the language dropdown in navbar\ncy.get(\"nav, header\")\n    .first()\n    .within(function () {\n    // Find and click dropdown toggle\n    cy.get(\"body\").then(function ($body) {\n        var e_2, _a;\n        var dropdownSelectors = [\n            'button:has(img[alt*=\"flag\"])',\n            'button:has(img[src*=\"flag\"])',\n            '[class*=\"language\"]',\n            '[class*=\"Language\"]',\n            '[data-testid*=\"language\"]',\n        ];\n        try {\n            for (var dropdownSelectors_2 = __values(dropdownSelectors), dropdownSelectors_2_1 = dropdownSelectors_2.next(); !dropdownSelectors_2_1.done; dropdownSelectors_2_1 = dropdownSelectors_2.next()) {\n                var selector = dropdownSelectors_2_1.value;\n                if ($body.find(selector).length > 0) {\n                    cy.get(selector).first().click({ force: true });\n                    break;\n                }\n            }\n        }\n        catch (e_2_1) { e_2 = { error: e_2_1 }; }\n        finally {\n            try {\n                if (dropdownSelectors_2_1 && !dropdownSelectors_2_1.done && (_a = dropdownSelectors_2.return)) _a.call(dropdownSelectors_2);\n            }\n            finally { if (e_2) throw e_2.error; }\n        }\n    });\n});\n// Wait for dropdown menu to appear\ncy.wait(500);\n// Click on Spanish flag option\ncy.get(\"body\").then(function ($body) {\n    // Try different selectors for Spanish option\n    if ($body.find('[href*=\"/es\"]').is(\":visible\")) {\n        cy.get('[href*=\"/es\"]').first().click();\n    }\n    else if ($body.find('[data-language=\"es\"]').is(\":visible\")) {\n        cy.get('[data-language=\"es\"]').first().click();\n    }\n    else if ($body.find('img[alt*=\"spanish\" i]').length > 0) {\n        cy.get('img[alt*=\"spanish\" i]').first().parent().click();\n    }\n    else if ($body.find('img[alt*=\"español\" i]').length > 0) {\n        cy.get('img[alt*=\"español\" i]').first().parent().click();\n    }\n    else {\n        // Look for Spanish flag emoji or ES text\n        cy.contains(\"li, a, button, div\", /🇪🇸|Español|ES/)\n            .first()\n            .click();\n    }\n});\n// Wait for navigation\ncy.wait(1500);\n// Verify URL changed to Spanish\ncy.url().should(\"include\", \"/es\");\n// Verify Spanish content is displayed\ncy.get(\"body\").should(\"satisfy\", function ($body) {\n    var spanishTerms = [\"Inicio\", \"Nosotros\", \"Servicios\", \"Contacto\"];\n    return spanishTerms.some(function (term) { return $body.text().includes(term); });\n});\ncy.log(\"✓ Successfully switched to Spanish using navbar dropdown flag\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `body`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `body`, but never found it.\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/spanish-language.cy.ts:129:0)",
+                "diff": null
+              },
+              "uuid": "977204fc-6d71-4ad5-9136-9559ed8b9643",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should switch to Spanish when language selector is clicked",
+              "fullTitle": "Spanish Language Test should switch to Spanish when language selector is clicked",
+              "timedOut": null,
+              "duration": 33187,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Try to find and click Spanish language option\ncy.get(\"body\").then(function ($body) {\n    // Try multiple selectors for language switcher\n    if ($body.find('[href*=\"/es\"]').length > 0) {\n        cy.get('[href*=\"/es\"]').first().click();\n    }\n    else if ($body.find('[data-language=\"es\"]').length > 0) {\n        cy.get('[data-language=\"es\"]').first().click();\n    }\n    else if ($body.find(\"button, a\").filter(':contains(\"ES\"), :contains(\"Español\")')\n        .length > 0) {\n        cy.contains(\"button, a\", /ES|Español/)\n            .first()\n            .click();\n    }\n});\n// Wait for page to load\ncy.wait(1000);\n// Verify URL contains /es/ for Spanish\ncy.url().should(\"include\", \"/es\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: expected 'http://localhost:3000/' to include '/es'",
+                "estack": "AssertionError: Timed out retrying after 10000ms: expected 'http://localhost:3000/' to include '/es'\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/spanish-language.cy.ts:211:0)",
+                "diff": null
+              },
+              "uuid": "ea325d3b-73c4-493d-b572-4538badb474d",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should display Spanish content after switching language",
+              "fullTitle": "Spanish Language Test should display Spanish content after switching language",
+              "timedOut": null,
+              "duration": 45627,
+              "state": "passed",
+              "speed": "slow",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Switch to Spanish\ncy.get(\"body\").then(function ($body) {\n    if ($body.find('[href*=\"/es\"]').length > 0) {\n        cy.get('[href*=\"/es\"]').first().click();\n    }\n    else {\n        // If no ES link, visit /es directly\n        cy.visit(\"/es\");\n    }\n});\n// Wait for content to load\ncy.wait(1500);\n// Check for common Spanish words in the page\ncy.get(\"body\").then(function ($body) {\n    var spanishTerms = [\"Nosotros\", \"Servicios\", \"Contacto\", \"Inicio\"];\n    var bodyText = $body.text();\n    var hasSpanishContent = spanishTerms.some(function (term) {\n        return bodyText.includes(term);\n    });\n    expect(hasSpanishContent, \"Page should contain Spanish content after language switch\").to.be.true;\n});",
+              "err": {},
+              "uuid": "c6e21584-a57a-422f-921d-83a9d98959ce",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should have Spanish navigation menu items",
+              "fullTitle": "Spanish Language Test should have Spanish navigation menu items",
+              "timedOut": null,
+              "duration": 43217,
+              "state": "passed",
+              "speed": "slow",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Navigate to Spanish version\ncy.visit(\"/es\");\n// Wait for page load\ncy.wait(1500);\n// Check for Spanish navigation terms\nvar spanishTerms = [\n    \"Inicio\",\n    \"Nosotros\",\n    \"Servicios\",\n    \"Ubicaciones\",\n    \"Contacto\",\n];\ncy.get('nav, header, [role=\"navigation\"]').then(function ($nav) {\n    var navText = $nav.text();\n    var hasSpanishTerm = spanishTerms.some(function (term) {\n        return navText.includes(term);\n    });\n    expect(hasSpanishTerm).to.be.true;\n});",
+              "err": {},
+              "uuid": "7cc1dd70-31d9-4da7-9a59-2fe9a6e500b0",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should maintain Spanish language on page navigation",
+              "fullTitle": "Spanish Language Test should maintain Spanish language on page navigation",
+              "timedOut": null,
+              "duration": 43423,
+              "state": "passed",
+              "speed": "slow",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Visit Spanish homepage\ncy.visit(\"/es\");\ncy.wait(1000);\n// Find and click a link (if available)\ncy.get('a[href*=\"/es\"]')\n    .first()\n    .then(function ($link) {\n    if ($link.length > 0) {\n        cy.wrap($link).click();\n        // Verify still on Spanish version\n        cy.url().should(\"include\", \"/es\");\n    }\n});",
+              "err": {},
+              "uuid": "4592cb5e-fabd-436f-a82b-0f5db854c24f",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should display forms in Spanish",
+              "fullTitle": "Spanish Language Test should display forms in Spanish",
+              "timedOut": null,
+              "duration": 42876,
+              "state": "passed",
+              "speed": "slow",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Visit Spanish version\ncy.visit(\"/es\");\ncy.wait(1500);\n// Look for form elements with Spanish labels\ncy.get(\"body\").then(function ($body) {\n    var spanishFormTerms = [\n        \"Nombre\",\n        \"Correo\",\n        \"Email\",\n        \"Teléfono\",\n        \"Mensaje\",\n        \"Enviar\",\n        \"Apellido\",\n    ];\n    var bodyText = $body.text();\n    var hasSpanishFormTerm = spanishFormTerms.some(function (term) {\n        return bodyText.includes(term);\n    });\n    // If forms exist, they should have Spanish labels\n    if ($body.find('form, input, textarea, button[type=\"submit\"]').length > 0) {\n        expect(hasSpanishFormTerm).to.be.true;\n    }\n});",
+              "err": {},
+              "uuid": "d86d4de9-48a4-4bf6-8a3e-a878d5c59054",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should show error messages in Spanish",
+              "fullTitle": "Spanish Language Test should show error messages in Spanish",
+              "timedOut": null,
+              "duration": 35159,
+              "state": "passed",
+              "speed": "slow",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Visit Spanish version\ncy.visit(\"/es\");\ncy.wait(1000);\n// Try to find and submit a form without required fields\ncy.get(\"form\")\n    .first()\n    .then(function ($form) {\n    if ($form.length > 0) {\n        // Find submit button\n        cy.get('button[type=\"submit\"], input[type=\"submit\"]')\n            .first()\n            .click({ force: true });\n        // Wait for validation\n        cy.wait(500);\n        // Check for Spanish error messages\n        cy.get(\"body\").then(function ($body) {\n            var spanishErrors = [\n                \"requerido\",\n                \"obligatorio\",\n                \"necesario\",\n                \"error\",\n                \"inválido\",\n                \"campo\",\n            ];\n            var bodyText = $body.text().toLowerCase();\n            var hasSpanishError = spanishErrors.some(function (term) {\n                return bodyText.includes(term);\n            });\n            // Log for debugging\n            cy.log(\"Checking for Spanish error messages\");\n        });\n    }\n});",
+              "err": {},
+              "uuid": "e3d3a5df-e696-4bd3-9d63-4b5a2c54978d",
+              "parentUUID": "ff90fe7d-53de-42ad-8d37-fe4a53e130e2",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [
+            "985a639e-c8a6-4837-be11-b533127cf0f4",
+            "c6e21584-a57a-422f-921d-83a9d98959ce",
+            "7cc1dd70-31d9-4da7-9a59-2fe9a6e500b0",
+            "4592cb5e-fabd-436f-a82b-0f5db854c24f",
+            "d86d4de9-48a4-4bf6-8a3e-a878d5c59054",
+            "e3d3a5df-e696-4bd3-9d63-4b5a2c54978d"
+          ],
+          "failures": [
+            "34b85dc6-f53b-4e01-ab39-5aa994a97350",
+            "e7024470-227a-49b4-b200-aa21a86a2962",
+            "977204fc-6d71-4ad5-9136-9559ed8b9643",
+            "ea325d3b-73c4-493d-b572-4538badb474d"
+          ],
+          "pending": [],
+          "skipped": [],
+          "duration": 358480,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.4"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "cypress/results",
+        "overwrite": false,
+        "html": true,
+        "json": true,
+        "timestamp": "mmddyyyy_HHMMss",
+        "charts": true,
+        "reportPageTitle": "Clinicsanmiguel Test Report",
+        "embeddedScreenshots": true,
+        "inlineAssets": true
+      },
+      "version": "6.3.2"
+    }
+  }
+}

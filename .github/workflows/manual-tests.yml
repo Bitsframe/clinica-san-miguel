@@ -1,0 +1,214 @@
+name: Manual Test Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: "Select test suite to run"
+        required: true
+        type: choice
+        options:
+          - all
+          - main-flow
+          - responsive
+          - spanish-language
+          - data-integrity
+          - accessibility
+          - performance
+      browser:
+        description: "Browser to run tests on"
+        required: true
+        type: choice
+        default: "chrome"
+        options:
+          - chrome
+          - firefox
+          - edge
+      environment:
+        description: "Environment to test"
+        required: true
+        type: choice
+        default: "staging"
+        options:
+          - staging
+          - production
+          - local-build
+      record_video:
+        description: "Record test videos"
+        required: false
+        type: boolean
+        default: true
+      debug_mode:
+        description: "Enable debug mode"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: "20.x"
+
+jobs:
+  manual-test-run:
+    name: Manual Test - ${{ inputs.test_suite }} on ${{ inputs.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: mavra-testing
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build application
+        if: inputs.environment == 'local-build'
+        run: yarn build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Set base URL for staging
+        if: inputs.environment == 'staging'
+        run: echo "CYPRESS_BASE_URL=${{ secrets.STAGING_URL }}" >> $GITHUB_ENV
+
+      - name: Set base URL for production
+        if: inputs.environment == 'production'
+        run: echo "CYPRESS_BASE_URL=${{ secrets.PRODUCTION_URL }}" >> $GITHUB_ENV
+
+      - name: Run all tests
+        if: inputs.test_suite == 'all'
+        uses: cypress-io/github-action@v6
+        with:
+          start: ${{ inputs.environment == 'local-build' && 'yarn start' || '' }}
+          wait-on: ${{ inputs.environment == 'local-build' && 'http://localhost:3000' || '' }}
+          command: yarn test:e2e
+          browser: ${{ inputs.browser }}
+          config: video=${{ inputs.record_video }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          DEBUG: ${{ inputs.debug_mode && 'cypress:*' || '' }}
+
+      - name: Run specific test suite
+        if: inputs.test_suite != 'all'
+        uses: cypress-io/github-action@v6
+        with:
+          start: ${{ inputs.environment == 'local-build' && 'yarn start' || '' }}
+          wait-on: ${{ inputs.environment == 'local-build' && 'http://localhost:3000' || '' }}
+          command: yarn test:${{ inputs.test_suite }}
+          browser: ${{ inputs.browser }}
+          config: video=${{ inputs.record_video }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          DEBUG: ${{ inputs.debug_mode && 'cypress:*' || '' }}
+
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: manual-test-screenshots-${{ inputs.test_suite }}-${{ inputs.browser }}
+          path: cypress/screenshots
+          retention-days: 14
+
+      - name: Upload videos
+        uses: actions/upload-artifact@v4
+        if: inputs.record_video && always()
+        with:
+          name: manual-test-videos-${{ inputs.test_suite }}-${{ inputs.browser }}
+          path: cypress/videos
+          retention-days: 14
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manual-test-results-${{ inputs.test_suite }}-${{ inputs.browser }}
+          path: cypress/results
+          retention-days: 14
+
+      - name: Generate test report
+        if: always()
+        run: yarn cypress:report || echo "Report generation skipped"
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manual-test-html-report-${{ inputs.test_suite }}
+          path: cypress/reports
+          retention-days: 14
+
+      - name: Create summary
+        if: always()
+        run: |
+          echo "## 🧪 Manual Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Suite:** ${{ inputs.test_suite }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Browser:** ${{ inputs.browser }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Video Recording:** ${{ inputs.record_video }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Debug Mode:** ${{ inputs.debug_mode }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 Check artifacts for detailed test results and reports." >> $GITHUB_STEP_SUMMARY
+
+  parallel-test-run:
+    name: Parallel Test Execution
+    runs-on: ubuntu-latest
+    if: inputs.test_suite == 'all'
+    strategy:
+      fail-fast: false
+      matrix:
+        container: [1, 2, 3, 4]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build application
+        if: inputs.environment == 'local-build'
+        run: yarn build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Run Cypress in parallel
+        uses: cypress-io/github-action@v6
+        with:
+          start: ${{ inputs.environment == 'local-build' && 'yarn start' || '' }}
+          wait-on: ${{ inputs.environment == 'local-build' && 'http://localhost:3000' || '' }}
+          command: yarn test:e2e
+          browser: ${{ inputs.browser }}
+          record: true
+          parallel: true
+          group: "Manual Parallel Run"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          DEBUG: ${{ inputs.debug_mode && 'cypress:*' || '' }}
+
+      - name: Upload results - Container ${{ matrix.container }}
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: parallel-results-${{ matrix.container }}
+          path: |
+            cypress/screenshots
+            cypress/videos
+          retention-days: 7

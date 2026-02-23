@@ -6,29 +6,18 @@ export default defineConfig({
     baseUrl: "http://localhost:3000",
     viewportWidth: 1920,
     viewportHeight: 1080,
-    video: false, // Disabled - Cypress Cloud captures all recordings
-    screenshotOnRunFailure: false, // Disabled - Cypress Cloud captures on failure
+    video: false,
+    screenshotOnRunFailure: false,
 
-    defaultCommandTimeout: 10000,
-    pageLoadTimeout: 60000,
+    defaultCommandTimeout: 8000,
+    pageLoadTimeout: 30000,
     retries: {
-      runMode: 2,
+      runMode: 1,
       openMode: 0,
     },
 
-    // Self-hosted reporting
-    reporter: "mochawesome",
-    reporterOptions: {
-      reportDir: "cypress/results",
-      overwrite: false,
-      html: true,
-      json: true,
-      timestamp: "mmddyyyy_HHMMss",
-      charts: true,
-      reportPageTitle: "Clinicsanmiguel Test Report",
-      embeddedScreenshots: true,
-      inlineAssets: true,
-    },
+    // Cypress Cloud built-in reporting (faster)
+    reporter: "spec",
 
     setupNodeEvents(on, config) {
       return config;

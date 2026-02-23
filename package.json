@@ -10,11 +10,14 @@
     "test:e2e": "cypress run",
     "test:e2e:open": "cypress open",
     "test:responsive": "cypress run --spec 'cypress/e2e/responsive.cy.ts'",
+    "test:navigation": "cypress run --spec 'cypress/e2e/navigation.cy.ts'",
+    "test:forms": "cypress run --spec 'cypress/e2e/forms.cy.ts'",
     "test:spanish": "cypress run --spec 'cypress/e2e/spanish-language.cy.ts'",
     "test:data": "cypress run --spec 'cypress/e2e/data-integrity.cy.ts'",
     "test:flow": "cypress run --spec 'cypress/e2e/main-flow.cy.ts'",
     "test:performance": "cypress run --spec 'cypress/e2e/performance.cy.ts'",
     "test:a11y": "cypress run --spec 'cypress/e2e/accessibility.cy.ts'",
+    "test:all": "cypress run --spec 'cypress/e2e/*.cy.ts'",
     "cypress:report": "mochawesome-merge cypress/results/*.json > cypress/reports/report.json && marge cypress/reports/report.json -f report -o cypress/reports"
   },
   "dependencies": {

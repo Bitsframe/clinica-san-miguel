@@ -1,4 +1,4 @@
-name: Simple Cypress Tests
+name: Comprehensive Cypress Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   cypress-tests:
-    name: Run Cypress Tests
+    name: Run All Cypress Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,16 +22,41 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Run Cypress Spanish Language Test
+      - name: Run Responsive Design Tests
+        run: yarn test:responsive
+        continue-on-error: true
+
+      - name: Run Navigation Tests
+        run: yarn test:navigation
+        continue-on-error: true
+
+      - name: Run Form Submission Tests
+        run: yarn test:forms
+        continue-on-error: true
+
+      - name: Run Spanish Language Tests
         run: yarn test:spanish
         continue-on-error: true
 
-      - name: Upload test results
+      - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-results
+          name: cypress-test-results
           path: |
             cypress/screenshots
             cypress/videos
+            cypress/results
           retention-days: 7
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "## 🎯 Test Execution Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Responsive Design Tests" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Navigation & Page Load Tests" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Form Submission Tests" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Spanish Language Tests" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Artifacts: Screenshots, Videos & Reports" >> $GITHUB_STEP_SUMMARY

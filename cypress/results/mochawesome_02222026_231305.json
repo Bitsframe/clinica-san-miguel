@@ -1,0 +1,750 @@
+{
+  "stats": {
+    "suites": 10,
+    "tests": 22,
+    "passes": 7,
+    "pending": 0,
+    "failures": 15,
+    "start": "2026-02-22T17:45:52.184Z",
+    "end": "2026-02-22T18:13:05.741Z",
+    "duration": 1633557,
+    "testsRegistered": 22,
+    "passPercent": 31.818181818181817,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "42be9184-fb13-455d-b93e-679a34bdb14d",
+      "title": "",
+      "fullFile": "cypress\\e2e\\forms.cy.ts",
+      "file": "cypress\\e2e\\forms.cy.ts",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "347cfa1d-cdca-4fc8-95d9-b0e2d246cd43",
+          "title": "Form Submission Test",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [],
+          "suites": [
+            {
+              "uuid": "7567eaf0-2f59-4ee2-b037-6a441b7df4ef",
+              "title": "Contact Form",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should display contact form fields",
+                  "fullTitle": "Form Submission Test Contact Form should display contact form fields",
+                  "timedOut": null,
+                  "duration": 26379,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get(\"form\").should(\"exist\");",
+                  "err": {},
+                  "uuid": "de749aec-0f8d-418c-ad6b-10b42484b6cc",
+                  "parentUUID": "7567eaf0-2f59-4ee2-b037-6a441b7df4ef",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should validate required fields",
+                  "fullTitle": "Form Submission Test Contact Form should validate required fields",
+                  "timedOut": null,
+                  "duration": 25600,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Try to submit empty form\ncy.get('button[type=\"submit\"], input[type=\"submit\"]')\n    .first()\n    .click({ force: true });\n// Should show validation errors or prevent submission\ncy.wait(500);",
+                  "err": {},
+                  "uuid": "9dd3a5b8-3ed4-4394-82d7-4005b51fce22",
+                  "parentUUID": "7567eaf0-2f59-4ee2-b037-6a441b7df4ef",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should fill and submit contact form with valid data",
+                  "fullTitle": "Form Submission Test Contact Form should fill and submit contact form with valid data",
+                  "timedOut": null,
+                  "duration": 32436,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get(\"form\")\n    .first()\n    .within(function () {\n    // Fill name field\n    cy.get('input[name*=\"name\" i], input[placeholder*=\"name\" i]')\n        .first()\n        .type(\"John Doe\", { force: true });\n    // Fill email field\n    cy.get('input[type=\"email\"], input[name*=\"email\" i], input[placeholder*=\"email\" i]')\n        .first()\n        .type(\"john.doe@example.com\", { force: true });\n    // Fill phone field\n    cy.get('input[type=\"tel\"], input[name*=\"phone\" i], input[placeholder*=\"phone\" i]')\n        .first()\n        .type(\"4691234567\", { force: true });\n    // Fill message/comment field\n    cy.get('textarea, input[name*=\"message\" i], input[name*=\"comment\" i]')\n        .first()\n        .type(\"This is a test message for Cypress automation.\", {\n        force: true,\n    });\n    cy.wait(500);\n    // Submit form\n    cy.get('button[type=\"submit\"], input[type=\"submit\"]')\n        .first()\n        .click({ force: true });\n    cy.wait(2000);\n});\n// Check for success message or confirmation\ncy.get(\"body\").then(function ($body) {\n    var bodyText = $body.text().toLowerCase();\n    var successIndicators = [\n        \"success\",\n        \"thank\",\n        \"submitted\",\n        \"received\",\n        \"sent\",\n    ];\n    var hasSuccess = successIndicators.some(function (indicator) {\n        return bodyText.includes(indicator);\n    });\n    cy.log(hasSuccess\n        ? \"✓ Form submitted successfully\"\n        : \"Form submission completed\");\n});",
+                  "err": {
+                    "message": "Error: Syntax error, unrecognized expression: input[name*=\"name\" i], input[placeholder*=\"name\" i]",
+                    "estack": "Error: Syntax error, unrecognized expression: input[name*=\"name\" i], input[placeholder*=\"name\" i]\n    at Sizzle.error (http://localhost:3000/__cypress/runner/cypress_runner.js:8465:8)\n    at Sizzle.tokenize (http://localhost:3000/__cypress/runner/cypress_runner.js:9121:11)\n    at Function.Sizzle [as find] (http://localhost:3000/__cypress/runner/cypress_runner.js:7740:15)\n    at jQuery.fn.init.find (http://localhost:3000/__cypress/runner/cypress_runner.js:9801:11)\n    at new jQuery.fn.init (http://localhost:3000/__cypress/runner/cypress_runner.js:9911:32)\n    at Object.query (http://localhost:3000/__cypress/runner/cypress_runner.js:35133:10)\n    at $Cy.$$ (http://localhost:3000/__cypress/runner/cypress_runner.js:140050:57)\n    at <unknown> (http://localhost:3000/__cypress/runner/cypress_runner.js:131980:18)\n    at Object.subjectFn (http://localhost:3000/__cypress/runner/cypress_runner.js:143866:16)\n    at $Cy.verifyUpcomingAssertions (http://localhost:3000/__cypress/runner/cypress_runner.js:143205:31)\n    at onRetry (http://localhost:3000/__cypress/runner/cypress_runner.js:143857:15)\n    at retryQuery (http://localhost:3000/__cypress/runner/cypress_runner.js:143870:10)\n    at <unknown> (http://localhost:3000/__cypress/runner/cypress_runner.js:144023:17)\n    at tryCatcher (http://localhost:3000/__cypress/runner/cypress_runner.js:1830:23)\n    at Promise._settlePromiseFromHandler (http://localhost:3000/__cypress/runner/cypress_runner.js:1542:31)\n    at Promise._settlePromise (http://localhost:3000/__cypress/runner/cypress_runner.js:1599:18)\n    at Promise._settlePromiseCtx (http://localhost:3000/__cypress/runner/cypress_runner.js:1636:10)\n    at _drainQueueStep (http://localhost:3000/__cypress/runner/cypress_runner.js:2434:12)\n    at _drainQueue (http://localhost:3000/__cypress/runner/cypress_runner.js:2423:9)\n    at Async._drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2439:5)\n    at Async.drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2309:14)",
+                    "diff": null
+                  },
+                  "uuid": "efa251ba-6b66-4a7d-8874-30a1bdb1c0cb",
+                  "parentUUID": "7567eaf0-2f59-4ee2-b037-6a441b7df4ef",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should validate email format",
+                  "fullTitle": "Form Submission Test Contact Form should validate email format",
+                  "timedOut": null,
+                  "duration": 30974,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get('input[type=\"email\"], input[name*=\"email\" i]')\n    .first()\n    .type(\"invalid-email\", { force: true })\n    .blur();\n// HTML5 validation should trigger\ncy.get('input[type=\"email\"]')\n    .first()\n    .then(function ($input) {\n    expect($input[0].validationMessage).to.not.be.empty;\n});",
+                  "err": {},
+                  "uuid": "6141c047-1074-46c0-88f4-28fdea2c9b18",
+                  "parentUUID": "7567eaf0-2f59-4ee2-b037-6a441b7df4ef",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should validate phone number format",
+                  "fullTitle": "Form Submission Test Contact Form should validate phone number format",
+                  "timedOut": null,
+                  "duration": 68796,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get('input[type=\"tel\"], input[name*=\"phone\" i]')\n    .first()\n    .type(\"123\", { force: true }); // Too short\ncy.wait(500);",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[type=\"tel\"], input[name*=\"phone\" i]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[type=\"tel\"], input[name*=\"phone\" i]`, but never found it.\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:85:0)",
+                    "diff": null
+                  },
+                  "uuid": "b669645a-1f8f-48c0-9651-ad675019d5da",
+                  "parentUUID": "7567eaf0-2f59-4ee2-b037-6a441b7df4ef",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "de749aec-0f8d-418c-ad6b-10b42484b6cc",
+                "9dd3a5b8-3ed4-4394-82d7-4005b51fce22",
+                "6141c047-1074-46c0-88f4-28fdea2c9b18"
+              ],
+              "failures": [
+                "efa251ba-6b66-4a7d-8874-30a1bdb1c0cb",
+                "b669645a-1f8f-48c0-9651-ad675019d5da"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 184185,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "0a59caf8-c8b0-406d-bfea-e1a23c10c393",
+              "title": "Appointment/Schedule Form",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should find and interact with appointment form",
+                  "fullTitle": "Form Submission Test Appointment/Schedule Form should find and interact with appointment form",
+                  "timedOut": null,
+                  "duration": 14060,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Look for appointment scheduling on homepage or services\ncy.get(\"body\").then(function ($body) {\n    if ($body.find(\"button, a\").text().includes(\"Schedule\") ||\n        $body.find(\"button, a\").text().includes(\"Appointment\")) {\n        cy.log(\"✓ Found appointment scheduling option\");\n    }\n});",
+                  "err": {},
+                  "uuid": "ee13c02d-7177-4df4-ae23-449a2e37e58d",
+                  "parentUUID": "0a59caf8-c8b0-406d-bfea-e1a23c10c393",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should fill patient information form",
+                  "fullTitle": "Form Submission Test Appointment/Schedule Form should fill patient information form",
+                  "timedOut": null,
+                  "duration": 16226,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get(\"form\")\n    .first()\n    .within(function () {\n    // First Name\n    cy.get('input[placeholder*=\"First\" i], input[name*=\"first\" i]')\n        .first()\n        .type(\"Juan\", { force: true });\n    // Last Name\n    cy.get('input[placeholder*=\"Last\" i], input[name*=\"last\" i]')\n        .first()\n        .type(\"Rodriguez\", { force: true });\n    // Date of Birth\n    cy.get('input[type=\"date\"], input[name*=\"birth\" i], input[name*=\"dob\" i]')\n        .first()\n        .type(\"1990-01-15\", { force: true });\n    // Phone\n    cy.get('input[type=\"tel\"], input[name*=\"phone\" i]')\n        .first()\n        .type(\"4691234567\", { force: true });\n    // Email\n    cy.get('input[type=\"email\"], input[name*=\"email\" i]')\n        .first()\n        .type(\"juan.rodriguez@example.com\", { force: true });\n    cy.wait(500);\n});",
+                  "err": {
+                    "message": "Error: Syntax error, unrecognized expression: input[placeholder*=\"First\" i], input[name*=\"first\" i]",
+                    "estack": "Error: Syntax error, unrecognized expression: input[placeholder*=\"First\" i], input[name*=\"first\" i]\n    at Sizzle.error (http://localhost:3000/__cypress/runner/cypress_runner.js:8465:8)\n    at Sizzle.tokenize (http://localhost:3000/__cypress/runner/cypress_runner.js:9121:11)\n    at Function.Sizzle [as find] (http://localhost:3000/__cypress/runner/cypress_runner.js:7740:15)\n    at jQuery.fn.init.find (http://localhost:3000/__cypress/runner/cypress_runner.js:9801:11)\n    at jQuery.fn.init (http://localhost:3000/__cypress/runner/cypress_runner.js:9911:32)\n    at Object.query (http://localhost:3000/__cypress/runner/cypress_runner.js:35133:10)\n    at $Cy.$$ (http://localhost:3000/__cypress/runner/cypress_runner.js:140050:57)\n    at <unknown> (http://localhost:3000/__cypress/runner/cypress_runner.js:131980:18)\n    at Object.subjectFn (http://localhost:3000/__cypress/runner/cypress_runner.js:143866:16)\n    at $Cy.verifyUpcomingAssertions (http://localhost:3000/__cypress/runner/cypress_runner.js:143205:31)\n    at onRetry (http://localhost:3000/__cypress/runner/cypress_runner.js:143857:15)\n    at retryQuery (http://localhost:3000/__cypress/runner/cypress_runner.js:143870:10)\n    at <unknown> (http://localhost:3000/__cypress/runner/cypress_runner.js:144023:17)\n    at tryCatcher (http://localhost:3000/__cypress/runner/cypress_runner.js:1830:23)\n    at Promise._settlePromiseFromHandler (http://localhost:3000/__cypress/runner/cypress_runner.js:1542:31)\n    at Promise._settlePromise (http://localhost:3000/__cypress/runner/cypress_runner.js:1599:18)\n    at Promise._settlePromiseCtx (http://localhost:3000/__cypress/runner/cypress_runner.js:1636:10)\n    at _drainQueueStep (http://localhost:3000/__cypress/runner/cypress_runner.js:2434:12)\n    at _drainQueue (http://localhost:3000/__cypress/runner/cypress_runner.js:2423:9)\n    at Async._drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2439:5)\n    at Async.drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2309:14)",
+                    "diff": null
+                  },
+                  "uuid": "91a25e28-4201-447f-acf6-b7e4ccd728a5",
+                  "parentUUID": "0a59caf8-c8b0-406d-bfea-e1a23c10c393",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should select gender option",
+                  "fullTitle": "Form Submission Test Appointment/Schedule Form should select gender option",
+                  "timedOut": null,
+                  "duration": 23324,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get('input[type=\"radio\"][name*=\"gender\" i], input[type=\"radio\"][value*=\"male\" i]')\n    .first()\n    .check({ force: true });\ncy.wait(300);",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[type=\"radio\"][name*=\"gender\" i], input[type=\"radio\"][value*=\"male\" i]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[type=\"radio\"][name*=\"gender\" i], input[type=\"radio\"][value*=\"male\" i]`, but never found it.\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:129:0)",
+                    "diff": null
+                  },
+                  "uuid": "13bd4f2f-0fe8-415d-b9d7-7aa3f79adafb",
+                  "parentUUID": "0a59caf8-c8b0-406d-bfea-e1a23c10c393",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should fill address information",
+                  "fullTitle": "Form Submission Test Appointment/Schedule Form should fill address information",
+                  "timedOut": null,
+                  "duration": 24086,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Address\ncy.get('input[name*=\"address\" i], input[placeholder*=\"address\" i]')\n    .first()\n    .type(\"123 Main Street\", { force: true });\n// City\ncy.get('input[name*=\"city\" i], input[placeholder*=\"city\" i]')\n    .first()\n    .type(\"Dallas\", { force: true });\n// State\ncy.get('input[name*=\"state\" i], select[name*=\"state\" i]')\n    .first()\n    .type(\"TX\", { force: true });\n// ZIP Code\ncy.get('input[name*=\"zip\" i], input[name*=\"postal\" i]')\n    .first()\n    .type(\"75201\", { force: true });\ncy.wait(500);",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name*=\"address\" i], input[placeholder*=\"address\" i]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name*=\"address\" i], input[placeholder*=\"address\" i]`, but never found it.\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:136:0)",
+                    "diff": null
+                  },
+                  "uuid": "83c93d6e-9a7d-44b1-a848-d3e1768fc3b1",
+                  "parentUUID": "0a59caf8-c8b0-406d-bfea-e1a23c10c393",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "ee13c02d-7177-4df4-ae23-449a2e37e58d"
+              ],
+              "failures": [
+                "91a25e28-4201-447f-acf6-b7e4ccd728a5",
+                "13bd4f2f-0fe8-415d-b9d7-7aa3f79adafb",
+                "83c93d6e-9a7d-44b1-a848-d3e1768fc3b1"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 77696,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "4d2dca41-b040-4534-abfd-5666678081c7",
+              "title": "Newsletter Signup Form",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should find newsletter signup in footer",
+                  "fullTitle": "Form Submission Test Newsletter Signup Form should find newsletter signup in footer",
+                  "timedOut": null,
+                  "duration": 14673,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.scrollTo(\"bottom\");\ncy.wait(500);\ncy.get(\"footer\").within(function () {\n    cy.get('input[type=\"email\"], input[placeholder*=\"email\" i]').should(\"exist\");\n});",
+                  "err": {
+                    "message": "Error: Syntax error, unrecognized expression: input[type=\"email\"], input[placeholder*=\"email\" i]",
+                    "estack": "Error: Syntax error, unrecognized expression: input[type=\"email\"], input[placeholder*=\"email\" i]\n    at Sizzle.error (http://localhost:3000/__cypress/runner/cypress_runner.js:8465:8)\n    at Sizzle.tokenize (http://localhost:3000/__cypress/runner/cypress_runner.js:9121:11)\n    at Function.Sizzle [as find] (http://localhost:3000/__cypress/runner/cypress_runner.js:7740:15)\n    at jQuery.fn.init.find (http://localhost:3000/__cypress/runner/cypress_runner.js:9801:11)\n    at jQuery.fn.init (http://localhost:3000/__cypress/runner/cypress_runner.js:9911:32)\n    at Object.query (http://localhost:3000/__cypress/runner/cypress_runner.js:35133:10)\n    at $Cy.$$ (http://localhost:3000/__cypress/runner/cypress_runner.js:140050:57)\n    at <unknown> (http://localhost:3000/__cypress/runner/cypress_runner.js:131980:18)\n    at Object.subjectFn (http://localhost:3000/__cypress/runner/cypress_runner.js:143866:16)\n    at $Cy.verifyUpcomingAssertions (http://localhost:3000/__cypress/runner/cypress_runner.js:143205:31)\n    at onRetry (http://localhost:3000/__cypress/runner/cypress_runner.js:143857:15)\n    at retryQuery (http://localhost:3000/__cypress/runner/cypress_runner.js:143870:10)\n    at <unknown> (http://localhost:3000/__cypress/runner/cypress_runner.js:144023:17)\n    at tryCatcher (http://localhost:3000/__cypress/runner/cypress_runner.js:1830:23)\n    at Promise._settlePromiseFromHandler (http://localhost:3000/__cypress/runner/cypress_runner.js:1542:31)\n    at Promise._settlePromise (http://localhost:3000/__cypress/runner/cypress_runner.js:1599:18)\n    at Promise._settlePromiseCtx (http://localhost:3000/__cypress/runner/cypress_runner.js:1636:10)\n    at _drainQueueStep (http://localhost:3000/__cypress/runner/cypress_runner.js:2434:12)\n    at _drainQueue (http://localhost:3000/__cypress/runner/cypress_runner.js:2423:9)\n    at Async._drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2439:5)\n    at Async.drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2309:14)",
+                    "diff": null
+                  },
+                  "uuid": "1e675475-3890-4102-a0cb-067dde1c29cf",
+                  "parentUUID": "4d2dca41-b040-4534-abfd-5666678081c7",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should subscribe to newsletter",
+                  "fullTitle": "Form Submission Test Newsletter Signup Form should subscribe to newsletter",
+                  "timedOut": null,
+                  "duration": 24986,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.scrollTo(\"bottom\");\ncy.wait(500);\ncy.get(\"footer\").within(function () {\n    cy.get('input[type=\"email\"]')\n        .first()\n        .type(\"subscriber@example.com\", { force: true });\n    // Find and click subscribe button\n    cy.get(\"button\")\n        .contains(/subscribe|sign up|join/i)\n        .click({ force: true });\n    cy.wait(2000);\n});\n// Check for success indication\ncy.get(\"body\").then(function ($body) {\n    var bodyText = $body.text().toLowerCase();\n    if (bodyText.includes(\"subscribed\") || bodyText.includes(\"thank\")) {\n        cy.log(\"✓ Newsletter subscription successful\");\n    }\n});",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find content: '/subscribe|sign up|join/i' within the element: <button..rounded-full.aspect-square.bg-[#C1001F].text-white.text-[18px].w-[40px].h-[40px].flex.justify-center.items-center.disabled:bg-gray-500.transition.> but never did.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find content: '/subscribe|sign up|join/i' within the element: <button..rounded-full.aspect-square.bg-[#C1001F].text-white.text-[18px].w-[40px].h-[40px].flex.justify-center.items-center.disabled:bg-gray-500.transition.> but never did.\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:171:0)",
+                    "diff": null
+                  },
+                  "uuid": "85309e70-3e41-4ef0-a24a-121946e999fc",
+                  "parentUUID": "4d2dca41-b040-4534-abfd-5666678081c7",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "1e675475-3890-4102-a0cb-067dde1c29cf",
+                "85309e70-3e41-4ef0-a24a-121946e999fc"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 39659,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "24394d1a-1702-40f3-b1a0-1ea5d395fd16",
+              "title": "Form Input Validation",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should prevent special characters in name fields",
+                  "fullTitle": "Form Submission Test Form Input Validation should prevent special characters in name fields",
+                  "timedOut": null,
+                  "duration": 41724,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get('input[name*=\"name\" i]').first().type(\"Test@#$%\", { force: true });\ncy.wait(300);",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name*=\"name\" i]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name*=\"name\" i]`, but never found it.\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:190:0)",
+                    "diff": null
+                  },
+                  "uuid": "583e0fd1-0861-4d6e-8f86-6071188fd1ef",
+                  "parentUUID": "24394d1a-1702-40f3-b1a0-1ea5d395fd16",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should accept valid phone number formats",
+                  "fullTitle": "Form Submission Test Form Input Validation should accept valid phone number formats",
+                  "timedOut": null,
+                  "duration": 37166,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "var validPhones = [\n    \"4691234567\",\n    \"(469) 123-4567\",\n    \"469-123-4567\",\n    \"+14691234567\",\n];\nvalidPhones.forEach(function (phone) {\n    cy.get('input[type=\"tel\"]')\n        .first()\n        .clear({ force: true })\n        .type(phone, { force: true });\n    cy.wait(200);\n});",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[type=\"tel\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[type=\"tel\"]`, but never found it.\n    at eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:201:0)\nat Array.forEach (<anonymous>)\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:200:0)",
+                    "diff": null
+                  },
+                  "uuid": "369fdaab-d1be-44b9-a79d-c476a87cbba4",
+                  "parentUUID": "24394d1a-1702-40f3-b1a0-1ea5d395fd16",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should limit input length for specific fields",
+                  "fullTitle": "Form Submission Test Form Input Validation should limit input length for specific fields",
+                  "timedOut": null,
+                  "duration": 36712,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Phone should be limited\ncy.get('input[type=\"tel\"]')\n    .first()\n    .type(\"12345678901234567890\", { force: true })\n    .should(\"have.value\")\n    .and(\"have.length.lessThan\", 20);",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[type=\"tel\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[type=\"tel\"]`, but never found it.\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:210:0)",
+                    "diff": null
+                  },
+                  "uuid": "36228df7-0f5e-429d-a723-24c5752681eb",
+                  "parentUUID": "24394d1a-1702-40f3-b1a0-1ea5d395fd16",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "583e0fd1-0861-4d6e-8f86-6071188fd1ef",
+                "369fdaab-d1be-44b9-a79d-c476a87cbba4",
+                "36228df7-0f5e-429d-a723-24c5752681eb"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 115602,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "52d5f477-2be4-467e-9483-a843adc9e1cd",
+              "title": "Form Accessibility",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should have labels for all inputs",
+                  "fullTitle": "Form Submission Test Form Accessibility should have labels for all inputs",
+                  "timedOut": null,
+                  "duration": 42014,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get(\"input, textarea, select\").each(function ($input) {\n    var id = $input.attr(\"id\");\n    var name = $input.attr(\"name\");\n    var ariaLabel = $input.attr(\"aria-label\");\n    var placeholder = $input.attr(\"placeholder\");\n    // Should have some form of label\n    expect(id || name || ariaLabel || placeholder).to.exist;\n});",
+                  "err": {
+                    "message": "AssertionError: expected undefined to exist",
+                    "estack": "AssertionError: expected undefined to exist\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:229:0)",
+                    "diff": null
+                  },
+                  "uuid": "07499776-058c-45d5-99af-a0a0404716ea",
+                  "parentUUID": "52d5f477-2be4-467e-9483-a843adc9e1cd",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should allow keyboard navigation through form",
+                  "fullTitle": "Form Submission Test Form Accessibility should allow keyboard navigation through form",
+                  "timedOut": null,
+                  "duration": 36475,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get(\"input\").first().focus();\n// Tab through inputs\ncy.focused().tab();\ncy.wait(200);\ncy.focused().should(\"match\", \"input, textarea, select, button\");",
+                  "err": {
+                    "message": "TypeError: cy.focused(...).tab is not a function",
+                    "estack": "TypeError: cy.focused(...).tab is not a function\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:235:0)",
+                    "diff": null
+                  },
+                  "uuid": "1be974f2-6d11-4640-9def-b5b7ce4583fd",
+                  "parentUUID": "52d5f477-2be4-467e-9483-a843adc9e1cd",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should show focus indicators",
+                  "fullTitle": "Form Submission Test Form Accessibility should show focus indicators",
+                  "timedOut": null,
+                  "duration": 44798,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get(\"input\").first().focus();\ncy.focused().should(\"have.css\", \"outline\").or(\"have.css\", \"box-shadow\");",
+                  "err": {
+                    "message": "TypeError: cy.focused(...).should(...).or is not a function",
+                    "estack": "TypeError: cy.focused(...).should(...).or is not a function\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:241:0)",
+                    "diff": null
+                  },
+                  "uuid": "008f432f-981f-4f32-a195-294e29560681",
+                  "parentUUID": "52d5f477-2be4-467e-9483-a843adc9e1cd",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "07499776-058c-45d5-99af-a0a0404716ea",
+                "1be974f2-6d11-4640-9def-b5b7ce4583fd",
+                "008f432f-981f-4f32-a195-294e29560681"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 123287,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "1f752429-f6fa-4d42-8d19-da14a7cfd9bd",
+              "title": "Multi-Step Form Navigation",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should navigate through form steps if applicable",
+                  "fullTitle": "Form Submission Test Multi-Step Form Navigation should navigate through form steps if applicable",
+                  "timedOut": null,
+                  "duration": 25536,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get(\"body\").then(function ($body) {\n    // Check if there's a multi-step form\n    if ($body.find(\"button\").text().includes(\"Next\") ||\n        $body.find(\"button\").text().includes(\"Continue\")) {\n        cy.log(\"✓ Multi-step form detected\");\n        // Click next/continue button\n        cy.contains(/next|continue/i).click({ force: true });\n        cy.wait(1000);\n        // Check if we moved to next step\n        cy.get(\"body\").should(\"be.visible\");\n    }\n});",
+                  "err": {},
+                  "uuid": "b260bb71-2f80-402e-88ef-a3c63780afd6",
+                  "parentUUID": "1f752429-f6fa-4d42-8d19-da14a7cfd9bd",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "b260bb71-2f80-402e-88ef-a3c63780afd6"
+              ],
+              "failures": [],
+              "pending": [],
+              "skipped": [],
+              "duration": 25536,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "c9695d90-21c8-4a55-90e7-65a099aa7373",
+              "title": "Form Error Handling",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should display error for missing required fields",
+                  "fullTitle": "Form Submission Test Form Error Handling should display error for missing required fields",
+                  "timedOut": null,
+                  "duration": 48378,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Submit without filling\ncy.get('button[type=\"submit\"]').first().click({ force: true });\ncy.wait(1000);\n// Check for error messages\ncy.get(\"body\").then(function ($body) {\n    var bodyText = $body.text().toLowerCase();\n    var errorIndicators = [\n        \"required\",\n        \"error\",\n        \"invalid\",\n        \"must\",\n        \"please\",\n    ];\n    var hasError = errorIndicators.some(function (indicator) {\n        return bodyText.includes(indicator);\n    });\n    if (hasError) {\n        cy.log(\"✓ Validation errors displayed correctly\");\n    }\n});",
+                  "err": {},
+                  "uuid": "d8c50597-a4b2-41bc-8e69-df0f3306271b",
+                  "parentUUID": "c9695d90-21c8-4a55-90e7-65a099aa7373",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should clear errors when field is corrected",
+                  "fullTitle": "Form Submission Test Form Error Handling should clear errors when field is corrected",
+                  "timedOut": null,
+                  "duration": 35199,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Trigger error\ncy.get('input[type=\"email\"]')\n    .first()\n    .type(\"invalid\", { force: true })\n    .blur();\ncy.wait(500);\n// Correct the error\ncy.get('input[type=\"email\"]')\n    .first()\n    .clear({ force: true })\n    .type(\"valid@example.com\", { force: true })\n    .blur();\ncy.wait(500);",
+                  "err": {},
+                  "uuid": "84903f5b-fbf2-48ff-a7e4-f86113e9d9a2",
+                  "parentUUID": "c9695d90-21c8-4a55-90e7-65a099aa7373",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "d8c50597-a4b2-41bc-8e69-df0f3306271b",
+                "84903f5b-fbf2-48ff-a7e4-f86113e9d9a2"
+              ],
+              "failures": [],
+              "pending": [],
+              "skipped": [],
+              "duration": 83577,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "48ca833c-02d5-4a6e-bb47-dfb145a6cc8e",
+              "title": "Form Data Persistence",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should retain form data on validation error",
+                  "fullTitle": "Form Submission Test Form Data Persistence should retain form data on validation error",
+                  "timedOut": null,
+                  "duration": 24259,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get('input[name*=\"name\" i]')\n    .first()\n    .type(\"Test User\", { force: true });\nvar enteredValue = \"Test User\";\n// Try to submit (might fail validation)\ncy.get('button[type=\"submit\"]').first().click({ force: true });\ncy.wait(1000);\n// Check if data is still there\ncy.get('input[name*=\"name\" i]')\n    .first()\n    .should(\"have.value\", enteredValue);",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name*=\"name\" i]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name*=\"name\" i]`, but never found it.\n    at Context.eval (webpack://clinica-san-miguel/./cypress/e2e/forms.cy.ts:305:0)",
+                    "diff": null
+                  },
+                  "uuid": "94b75d7c-02fc-46ad-a009-a5e036580dde",
+                  "parentUUID": "48ca833c-02d5-4a6e-bb47-dfb145a6cc8e",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "94b75d7c-02fc-46ad-a009-a5e036580dde"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 24259,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "7e3e8e84-f78f-4c59-a1dd-1928cfc0731d",
+              "title": "Form Success Confirmation",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should show success message after valid submission",
+                  "fullTitle": "Form Submission Test Form Success Confirmation should show success message after valid submission",
+                  "timedOut": null,
+                  "duration": 13516,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.get(\"form\")\n    .first()\n    .within(function () {\n    // Fill form with valid data\n    cy.get('input[name*=\"name\" i]')\n        .first()\n        .type(\"John Doe\", { force: true });\n    cy.get('input[type=\"email\"]')\n        .first()\n        .type(\"john.doe@example.com\", { force: true });\n    cy.get('input[type=\"tel\"]')\n        .first()\n        .type(\"4691234567\", { force: true });\n    cy.get('textarea, input[name*=\"message\" i]')\n        .first()\n        .type(\"Test message\", { force: true });\n    cy.wait(500);\n    // Submit\n    cy.get('button[type=\"submit\"]').first().click({ force: true });\n});\ncy.wait(3000);\n// Look for success indicators\ncy.get(\"body\").then(function ($body) {\n    var bodyText = $body.text().toLowerCase();\n    var successPatterns = [\n        \"success\",\n        \"thank you\",\n        \"submitted\",\n        \"received\",\n        \"confirmation\",\n        \"sent\",\n    ];\n    var hasSuccess = successPatterns.some(function (pattern) {\n        return bodyText.includes(pattern);\n    });\n    cy.log(hasSuccess ? \"✓ Success message displayed\" : \"Form submitted\");\n});",
+                  "err": {
+                    "message": "Error: Syntax error, unrecognized expression: input[name*=\"name\" i]",
+                    "estack": "Error: Syntax error, unrecognized expression: input[name*=\"name\" i]\n    at Sizzle.error (http://localhost:3000/__cypress/runner/cypress_runner.js:8465:8)\n    at Sizzle.tokenize (http://localhost:3000/__cypress/runner/cypress_runner.js:9121:11)\n    at Function.Sizzle [as find] (http://localhost:3000/__cypress/runner/cypress_runner.js:7740:15)\n    at jQuery.fn.init.find (http://localhost:3000/__cypress/runner/cypress_runner.js:9801:11)\n    at new jQuery.fn.init (http://localhost:3000/__cypress/runner/cypress_runner.js:9911:32)\n    at Object.query (http://localhost:3000/__cypress/runner/cypress_runner.js:35133:10)\n    at $Cy.$$ (http://localhost:3000/__cypress/runner/cypress_runner.js:140050:57)\n    at <unknown> (http://localhost:3000/__cypress/runner/cypress_runner.js:131980:18)\n    at Object.subjectFn (http://localhost:3000/__cypress/runner/cypress_runner.js:143866:16)\n    at $Cy.verifyUpcomingAssertions (http://localhost:3000/__cypress/runner/cypress_runner.js:143205:31)\n    at onRetry (http://localhost:3000/__cypress/runner/cypress_runner.js:143857:15)\n    at retryQuery (http://localhost:3000/__cypress/runner/cypress_runner.js:143870:10)\n    at <unknown> (http://localhost:3000/__cypress/runner/cypress_runner.js:144023:17)\n    at tryCatcher (http://localhost:3000/__cypress/runner/cypress_runner.js:1830:23)\n    at Promise._settlePromiseFromHandler (http://localhost:3000/__cypress/runner/cypress_runner.js:1542:31)\n    at Promise._settlePromise (http://localhost:3000/__cypress/runner/cypress_runner.js:1599:18)\n    at Promise._settlePromiseCtx (http://localhost:3000/__cypress/runner/cypress_runner.js:1636:10)\n    at _drainQueueStep (http://localhost:3000/__cypress/runner/cypress_runner.js:2434:12)\n    at _drainQueue (http://localhost:3000/__cypress/runner/cypress_runner.js:2423:9)\n    at Async._drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2439:5)\n    at Async.drainQueues (http://localhost:3000/__cypress/runner/cypress_runner.js:2309:14)",
+                    "diff": null
+                  },
+                  "uuid": "652924a0-a781-4511-963f-c650c0445c10",
+                  "parentUUID": "7e3e8e84-f78f-4c59-a1dd-1928cfc0731d",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "652924a0-a781-4511-963f-c650c0445c10"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 13516,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            }
+          ],
+          "passes": [],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 0,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.4"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "cypress/results",
+        "overwrite": false,
+        "html": true,
+        "json": true,
+        "timestamp": "mmddyyyy_HHMMss",
+        "charts": true,
+        "reportPageTitle": "Clinicsanmiguel Test Report",
+        "embeddedScreenshots": true,
+        "inlineAssets": true
+      },
+      "version": "6.3.2"
+    }
+  }
+}

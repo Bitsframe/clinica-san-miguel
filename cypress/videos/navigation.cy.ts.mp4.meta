@@ -1,0 +1,286 @@
+;FFMETADATA1
+[CHAPTER]
+TIMEBASE=1/1000
+START=-8556
+END=5880
+title=Navigation and Page Load Test Homepage Loading should load the homepage successfully
+[CHAPTER]
+TIMEBASE=1/1000
+START=5844
+END=20385
+title=Navigation and Page Load Test Homepage Loading should display all homepage sections
+[CHAPTER]
+TIMEBASE=1/1000
+START=10343
+END=35019
+title=Navigation and Page Load Test Homepage Loading should display phone numbers
+[CHAPTER]
+TIMEBASE=1/1000
+START=35430
+END=60313
+title=Navigation and Page Load Test Homepage Loading should display phone numbersattempt 1
+[CHAPTER]
+TIMEBASE=1/1000
+START=60661
+END=85313
+title=Navigation and Page Load Test Homepage Loading should display phone numbersattempt 2
+[CHAPTER]
+TIMEBASE=1/1000
+START=90930
+END=110139
+title=Navigation and Page Load Test Main Navigation Links should navigate to Home page
+[CHAPTER]
+TIMEBASE=1/1000
+START=104640
+END=129390
+title=Navigation and Page Load Test Main Navigation Links should load Home page directly
+[CHAPTER]
+TIMEBASE=1/1000
+START=129230
+END=154178
+title=Navigation and Page Load Test Main Navigation Links should navigate to About page
+[CHAPTER]
+TIMEBASE=1/1000
+START=153812
+END=179297
+title=Navigation and Page Load Test Main Navigation Links should navigate to About pageattempt 1
+[CHAPTER]
+TIMEBASE=1/1000
+START=153782
+END=204955
+title=Navigation and Page Load Test Main Navigation Links should load About page directly
+[CHAPTER]
+TIMEBASE=1/1000
+START=222899
+END=256235
+title=Navigation and Page Load Test Main Navigation Links should navigate to Services page
+[CHAPTER]
+TIMEBASE=1/1000
+START=266197
+END=289785
+title=Navigation and Page Load Test Main Navigation Links should navigate to Services pageattempt 1
+[CHAPTER]
+TIMEBASE=1/1000
+START=281357
+END=313440
+title=Navigation and Page Load Test Main Navigation Links should load Services page directly
+[CHAPTER]
+TIMEBASE=1/1000
+START=317777
+END=345587
+title=Navigation and Page Load Test Main Navigation Links should navigate to Career page
+[CHAPTER]
+TIMEBASE=1/1000
+START=336477
+END=373427
+title=Navigation and Page Load Test Main Navigation Links should load Career page directly
+[CHAPTER]
+TIMEBASE=1/1000
+START=380120
+END=410444
+title=Navigation and Page Load Test Main Navigation Links should navigate to Specials page
+[CHAPTER]
+TIMEBASE=1/1000
+START=408405
+END=440820
+title=Navigation and Page Load Test Main Navigation Links should load Specials page directly
+[CHAPTER]
+TIMEBASE=1/1000
+START=446124
+END=473277
+title=Navigation and Page Load Test Main Navigation Links should navigate to Contact page
+[CHAPTER]
+TIMEBASE=1/1000
+START=481837
+END=500512
+title=Navigation and Page Load Test Main Navigation Links should navigate to Contact pageattempt 1
+[CHAPTER]
+TIMEBASE=1/1000
+START=489761
+END=519255
+title=Navigation and Page Load Test Main Navigation Links should load Contact page directly
+[CHAPTER]
+TIMEBASE=1/1000
+START=518167
+END=548795
+title=Navigation and Page Load Test Services Page Navigation should load services page with service cards
+[CHAPTER]
+TIMEBASE=1/1000
+START=542471
+END=579491
+title=Navigation and Page Load Test Services Page Navigation should navigate to individual service pages
+[CHAPTER]
+TIMEBASE=1/1000
+START=576171
+END=616623
+title=Navigation and Page Load Test Services Page Navigation should navigate to individual service pagesattempt 1
+[CHAPTER]
+TIMEBASE=1/1000
+START=618972
+END=657164
+title=Navigation and Page Load Test Services Page Navigation should navigate to individual service pagesattempt 2
+[CHAPTER]
+TIMEBASE=1/1000
+START=659317
+END=695537
+title=Navigation and Page Load Test Services Page Navigation should display all services without errors
+[CHAPTER]
+TIMEBASE=1/1000
+START=694313
+END=731896
+title=Navigation and Page Load Test Services Page Navigation should display all services without errorsattempt 1
+[CHAPTER]
+TIMEBASE=1/1000
+START=732242
+END=769599
+title=Navigation and Page Load Test Services Page Navigation should display all services without errorsattempt 2
+[CHAPTER]
+TIMEBASE=1/1000
+START=759907
+END=807112
+title=Navigation and Page Load Test Additional Services should load additional services page
+[CHAPTER]
+TIMEBASE=1/1000
+START=818878
+END=854365
+title=Navigation and Page Load Test Special Offers Page should load special offers page
+[CHAPTER]
+TIMEBASE=1/1000
+START=852983
+END=889937
+title=Navigation and Page Load Test Special Offers Page should display special offer posters
+[CHAPTER]
+TIMEBASE=1/1000
+START=889185
+END=926991
+title=Navigation and Page Load Test Contact/Locations Page should load contact page
+[CHAPTER]
+TIMEBASE=1/1000
+START=932943
+END=964860
+title=Navigation and Page Load Test Contact/Locations Page should filter locations by city
+[CHAPTER]
+TIMEBASE=1/1000
+START=954042
+END=996832
+title=Navigation and Page Load Test Contact/Locations Page should load individual location details
+[CHAPTER]
+TIMEBASE=1/1000
+START=1002200
+END=1039717
+title=Navigation and Page Load Test Contact/Locations Page should load individual location detailsattempt 1
+[CHAPTER]
+TIMEBASE=1/1000
+START=1038660
+END=1077523
+title=Navigation and Page Load Test Contact/Locations Page should load individual location detailsattempt 2
+[CHAPTER]
+TIMEBASE=1/1000
+START=1074868
+END=1116545
+title=Navigation and Page Load Test About Page should load about page
+[CHAPTER]
+TIMEBASE=1/1000
+START=1120608
+END=1158402
+title=Navigation and Page Load Test About Page should load about pageattempt 1
+[CHAPTER]
+TIMEBASE=1/1000
+START=1161620
+END=1196381
+title=Navigation and Page Load Test About Page should load about pageattempt 2
+[CHAPTER]
+TIMEBASE=1/1000
+START=1205541
+END=1231313
+title=Navigation and Page Load Test About Page should display company information
+[CHAPTER]
+TIMEBASE=1/1000
+START=1220507
+END=1257166
+title=Navigation and Page Load Test Career Page should load career page
+[CHAPTER]
+TIMEBASE=1/1000
+START=1272178
+END=1293956
+title=Navigation and Page Load Test Footer Links should navigate from footer links
+[CHAPTER]
+TIMEBASE=1/1000
+START=1298586
+END=1315838
+title=Navigation and Page Load Test Footer Links should have working social media links
+[CHAPTER]
+TIMEBASE=1/1000
+START=1279725
+END=1333201
+title=Navigation and Page Load Test Back & Forward Navigation should handle browser back button
+[CHAPTER]
+TIMEBASE=1/1000
+START=1318905
+END=1386756
+title=Navigation and Page Load Test Back & Forward Navigation should handle browser forward button
+[CHAPTER]
+TIMEBASE=1/1000
+START=1428351
+END=1454688
+title=Navigation and Page Load Test Direct URL Access should load / directly via URL
+[CHAPTER]
+TIMEBASE=1/1000
+START=1454084
+END=1481096
+title=Navigation and Page Load Test Direct URL Access should load /about directly via URL
+[CHAPTER]
+TIMEBASE=1/1000
+START=1478788
+END=1508183
+title=Navigation and Page Load Test Direct URL Access should load /services directly via URL
+[CHAPTER]
+TIMEBASE=1/1000
+START=1509542
+END=1537661
+title=Navigation and Page Load Test Direct URL Access should load /contact directly via URL
+[CHAPTER]
+TIMEBASE=1/1000
+START=1539251
+END=1565836
+title=Navigation and Page Load Test Direct URL Access should load /career directly via URL
+[CHAPTER]
+TIMEBASE=1/1000
+START=1561111
+END=1592495
+title=Navigation and Page Load Test Direct URL Access should load /special directly via URL
+[CHAPTER]
+TIMEBASE=1/1000
+START=1587656
+END=1623934
+title=Navigation and Page Load Test Direct URL Access should load /additionalservices directly via URL
+[CHAPTER]
+TIMEBASE=1/1000
+START=1641835
+END=1660317
+title=Navigation and Page Load Test 404 Error Handling should handle non-existent pages gracefully
+[CHAPTER]
+TIMEBASE=1/1000
+START=1650579
+END=1678880
+title=Navigation and Page Load Test Page Performance should load pages within acceptable time
+[CHAPTER]
+TIMEBASE=1/1000
+START=1678695
+END=1707314
+title=Navigation and Page Load Test Page Performance should load pages within acceptable timeattempt 1
+[CHAPTER]
+TIMEBASE=1/1000
+START=1708953
+END=1736117
+title=Navigation and Page Load Test Page Performance should load pages within acceptable timeattempt 2
+[CHAPTER]
+TIMEBASE=1/1000
+START=1704727
+END=1763495
+title=Navigation and Page Load Test Scroll Behavior should maintain scroll position on back navigation
+[CHAPTER]
+TIMEBASE=1/1000
+START=1789314
+END=1822325
+title=Navigation and Page Load Test Scroll Behavior should scroll to top on new page navigation

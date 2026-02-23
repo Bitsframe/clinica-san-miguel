@@ -8,12 +8,6 @@ on:
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
-    # Runs tests in parallel with matrix strategy
-    # https://docs.cypress.io/guides/guides/parallelization
-    strategy:
-      fail-fast: false
-      matrix:
-        containers: [1, 2] # Uses 2 parallel instances
 
     steps:
       - name: Checkout
@@ -38,7 +32,6 @@ jobs:
 
           # Record to Cypress Cloud
           record: true
-          parallel: true
 
           # Spec files to run
           spec: |
@@ -51,9 +44,6 @@ jobs:
           # Cypress Cloud credentials
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-
-          # GitHub token for parallelization
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Test Report
         if: always()

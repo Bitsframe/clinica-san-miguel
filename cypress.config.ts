@@ -6,9 +6,9 @@ export default defineConfig({
     baseUrl: "http://localhost:3000",
     viewportWidth: 1920,
     viewportHeight: 1080,
-    video: true,
-    screenshotOnRunFailure: true,
-    videoCompression: 32,
+    video: false, // Disabled - Cypress Cloud captures all recordings
+    screenshotOnRunFailure: false, // Disabled - Cypress Cloud captures on failure
+
     defaultCommandTimeout: 10000,
     pageLoadTimeout: 60000,
     retries: {

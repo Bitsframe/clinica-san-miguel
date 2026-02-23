@@ -38,3 +38,7 @@ next-env.d.ts
 
 # Contentlayer
 .contentlayer
+# Cypress - Videos and Screenshots (uploaded to Cypress Cloud instead)
+cypress/videos/
+cypress/screenshots/
+cypress/results/

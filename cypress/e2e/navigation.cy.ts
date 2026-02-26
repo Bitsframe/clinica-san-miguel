@@ -282,8 +282,8 @@ describe("Navigation and Page Load Test", () => {
         .then(() => {
           const loadTime = Date.now() - startTime;
           // Should load within 5 seconds
-          expect(loadTime).to.be10 seconds (relaxed for CI)
-          expect(loadTime).to.be.lessThan(10
+          expect(loadTime).to.be.lessThan(5000);
+        });
     });
   });
 

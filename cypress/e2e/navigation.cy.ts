@@ -261,7 +261,7 @@ describe("Navigation and Page Load Test", () => {
     });
   });
 
-  describe("404 Error Handling", () => {
+  describe(" Error Handling", () => {
     it("should handle non-existent pages gracefully", () => {
       cy.visit("/this-page-does-not-exist", { failOnStatusCode: false });
       cy.wait(2000);

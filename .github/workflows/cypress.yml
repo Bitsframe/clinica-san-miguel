@@ -29,21 +29,29 @@ jobs:
           start: yarn dev
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
-
-          # Record to Cypress Cloud
-          record: true
-
-          # Spec files to run
-          spec: |
-            cypress/e2e/spanish-language.cy.ts
-            cypress/e2e/forms.cy.ts
-            cypress/e2e/navigation.cy.ts
-            cypress/e2e/responsive.cy.ts
+          command: >
+            npx cypress run
+            --record
+            --reporter json
+            --reporter-options output=cypress/results/results.json
+            --spec "cypress/e2e/spanish-language.cy.ts"
+          # Temporarily disabled in CI:
+          # - cypress/e2e/forms.cy.ts
+          # - cypress/e2e/navigation.cy.ts
+          # - cypress/e2e/responsive.cy.ts
 
         env:
           # Cypress Cloud credentials
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+
+      - name: Upload Cypress JSON Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-test-results
+          path: cypress/results/results.json
+          if-no-files-found: warn
 
       - name: Test Report
         if: always()

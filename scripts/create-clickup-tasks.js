@@ -1,4 +1,5 @@
 const axios = require("axios");
+const fs = require("fs");
 
 /**
  * Creates ClickUp tasks for failed Cypress tests
@@ -12,15 +13,30 @@ const GITHUB_BRANCH = process.env.GITHUB_REF_NAME || "unknown";
 const GITHUB_RUN_URL = process.env.GITHUB_SERVER_URL
   ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
   : "N/A";
+const RESULTS_FILE = process.env.RESULTS_FILE || "cypress/results/results.json";
 
-const failedTests = [
-  {
-    suite: "Form Submission Test",
-    test: "should validate email format",
-    error: "Timeout waiting for element",
-  },
-  // Add more as detected
-];
+function loadFailedTests() {
+  if (!fs.existsSync(RESULTS_FILE)) {
+    console.warn(`⚠️ Results file not found: ${RESULTS_FILE}`);
+    return [];
+  }
+
+  const raw = fs.readFileSync(RESULTS_FILE, "utf8");
+  const report = JSON.parse(raw);
+
+  const failures = Array.isArray(report.failures) ? report.failures : [];
+
+  return failures.map((failure) => ({
+    suite: failure.fullTitle
+      ? failure.fullTitle.split(" ").slice(0, -1).join(" ") || "Cypress Suite"
+      : "Cypress Suite",
+    test: failure.title || "Failed test",
+    error:
+      failure.err?.message ||
+      failure.err?.stack ||
+      "Cypress test failed. Check run logs for details.",
+  }));
+}
 
 async function createClickUpTask(testFailure) {
   const taskData = {
@@ -76,7 +92,24 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("Creating ClickUp tasks for failed tests...");
+  const failedTests = loadFailedTests();
+
+  if (failedTests.length === 0) {
+    console.log(
+      "No failed tests found in Cypress report. Creating summary task.",
+    );
+    await createClickUpTask({
+      suite: "Cypress Run Failure",
+      test: "Workflow failed before test report parsing",
+      error: `Run failed. Check GitHub Actions: ${GITHUB_RUN_URL}`,
+    });
+    console.log("\n✅ Created 1 ClickUp summary task");
+    return;
+  }
+
+  console.log(
+    `Creating ClickUp tasks for ${failedTests.length} failed tests...`,
+  );
 
   for (const failure of failedTests) {
     await createClickUpTask(failure);

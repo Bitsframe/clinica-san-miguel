@@ -32,8 +32,8 @@ jobs:
           command: >
             npx cypress run
             --record
-            --reporter json
-            --reporter-options output=cypress/results/results.json
+            --reporter mochawesome
+            --reporter-options reportDir=cypress/results,reportFilename=results,overwrite=true,html=false,json=true
             --spec cypress/e2e/spanish-language.cy.ts
           # Temporarily disabled in CI:
           # - cypress/e2e/forms.cy.ts

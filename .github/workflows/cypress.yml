@@ -22,9 +22,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create results directory
-        run: mkdir -p cypress/results
-
       - name: Cypress run with Cloud Recording
         uses: cypress-io/github-action@v6
         with:

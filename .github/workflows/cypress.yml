@@ -34,7 +34,7 @@ jobs:
             --record
             --reporter json
             --reporter-options output=cypress/results/results.json
-            --spec "cypress/e2e/spanish-language.cy.ts"
+            --spec cypress/e2e/spanish-language.cy.ts
           # Temporarily disabled in CI:
           # - cypress/e2e/forms.cy.ts
           # - cypress/e2e/navigation.cy.ts

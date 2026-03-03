@@ -25,9 +25,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      # 4️⃣ Cypress Cloud run (records results in Cypress Cloud)
+      # 4️⃣ Run Cypress with Cloud recording
       - name: Cypress Cloud Run
-        id: cypress-cloud
+        id: cypress
         uses: cypress-io/github-action@v6
         continue-on-error: true
         with:
@@ -39,44 +39,28 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 
-      # 5️⃣ Cypress JSON report run (for ClickUp)
-      - name: Cypress JSON Report
-        id: cypress-json
-        run: npx cypress run --spec cypress/e2e/spanish-language.cy.ts --reporter json --reporter-options output=./cypress-report.json
-
-      # 6️⃣ Debug JSON report
-      - name: Verify Cypress JSON
-        if: always()
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Files:"
-          ls -la
-          echo "Check cypress-report.json contents:"
-          cat cypress-report.json || echo "⚠️ JSON not found"
-
-      # 7️⃣ Create ClickUp tasks for each failed test
-      - name: Create ClickUp Task if Tests Failed
+      # 5️⃣ Create ClickUp tasks from Cypress Cloud run
+      - name: Create ClickUp tasks
         if: always()
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
           CLICKUP_LIST_ID: ${{ secrets.CLICKUP_LIST_ID }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RUN_ID: ${{ steps.cypress.outputs.runId }} # Cypress Cloud run ID
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
-          GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-        run: node scripts/create-clickup-tasks.js
+        run: node scripts/create-clickup-tasks-cloud.js
 
-      # 8️⃣ Fail workflow properly if any tests failed
+      # 6️⃣ Fail workflow if Cypress failed
       - name: Fail workflow if Cypress failed
-        if: steps.cypress-json.outcome == 'failure'
+        if: steps.cypress.outcome == 'failure'
         run: exit 1
 
-      # 9️⃣ Show Cypress Cloud results
+      # 7️⃣ Optional: Print Cypress Cloud link
       - name: Cypress Cloud Report
         if: always()
         run: |
           echo "📊 Cypress Cloud Results:"
-          echo "https://cloud.cypress.io/projects/${{ secrets.CYPRESS_PROJECT_ID }}"
+          echo "https://cloud.cypress.io/projects/${{ secrets.CYPRESS_PROJECT_ID }}/runs/${{ steps.cypress.outputs.runId }}"

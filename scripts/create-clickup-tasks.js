@@ -1,81 +1,50 @@
 const axios = require("axios");
-
-/**
- * Creates simple ClickUp task when Cypress tests fail
- * No JSON parsing - just report the failure
- */
+const fs = require("fs");
 
 const CLICKUP_API_TOKEN = process.env.CLICKUP_API_TOKEN;
 const CLICKUP_LIST_ID = process.env.CLICKUP_LIST_ID;
-const GITHUB_SHA = process.env.GITHUB_SHA || "unknown";
-const GITHUB_BRANCH = process.env.GITHUB_REF_NAME || "unknown";
-const GITHUB_RUN_URL = process.env.GITHUB_SERVER_URL
-  ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
-  : "N/A";
 
-async function createClickUpTask() {
-  const taskData = {
-    name: `🐛 Test Failure - ${GITHUB_BRANCH} - Spanish Language Tests`,
-    description:
-      `**Test Suite**: Spanish Language Tests\n\n` +
-      `**Branch**: \`${GITHUB_BRANCH}\`\n` +
-      `**Commit**: \`${GITHUB_SHA.substring(0, 7)}\`\n\n` +
-      `**GitHub Actions Run**:\n${GITHUB_RUN_URL}\n\n` +
-      `**Cypress Cloud**:\nhttps://cloud.cypress.io/projects/cfoa1c\n\n` +
-      `Action required: Review failed tests in the links above.`,
-    status: "to do",
-    priority: 2,
-    tags: ["cypress", "bug", "test-failure"],
-  };
-
+async function getFailedTestName() {
   try {
-    const response = await axios.post(
-      `https://api.clickup.com/api/v2/list/${CLICKUP_LIST_ID}/task`,
-      taskData,
-      {
-        headers: {
-          Authorization: CLICKUP_API_TOKEN,
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    const report = JSON.parse(fs.readFileSync("cypress-report.json", "utf8"));
 
-    console.log(
-      `✅ ClickUp task created: ${response.data.task.name} (${response.data.task.id})`,
-    );
-    return response.data;
-  } catch (error) {
-    console.error(
-      "❌ Failed to create ClickUp task:",
-      error.response?.data || error.message,
-    );
-    throw error;
+    for (const run of report.runs || []) {
+      for (const test of run.tests || []) {
+        if (test.state === "failed") {
+          return test.title.join(" > ");
+        }
+      }
+    }
+
+    return "Unknown Test Failure";
+  } catch (err) {
+    return "Test Failure (Could not parse report)";
   }
 }
 
+async function createClickUpTask(testName) {
+  const taskData = {
+    name: `❌ ${testName}`,
+    description: `Cypress test failed:\n\n${testName}`,
+  };
+
+  const response = await axios.post(
+    `https://api.clickup.com/api/v2/list/${CLICKUP_LIST_ID}/task`,
+    taskData,
+    {
+      headers: {
+        Authorization: CLICKUP_API_TOKEN,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  console.log(`✅ Task created: ${response.data.name}`);
+}
+
 async function main() {
-  console.log("Starting ClickUp task creation...");
-  console.log(`TOKEN exists: ${!!CLICKUP_API_TOKEN}`);
-  console.log(`LIST_ID: ${CLICKUP_LIST_ID}`);
-  console.log(`BRANCH: ${GITHUB_BRANCH}`);
-  console.log(`RUN_URL: ${GITHUB_RUN_URL}`);
-
-  if (!CLICKUP_API_TOKEN || !CLICKUP_LIST_ID) {
-    console.error("❌ Missing required environment variables:");
-    if (!CLICKUP_API_TOKEN) console.error("   - CLICKUP_API_TOKEN");
-    if (!CLICKUP_LIST_ID) console.error("   - CLICKUP_LIST_ID");
-    process.exit(1);
-  }
-
-  try {
-    console.log("Creating ClickUp task for test failure...");
-    await createClickUpTask();
-    console.log("✅ ClickUp task created successfully");
-  } catch (error) {
-    console.error("❌ Failed to create task");
-    console.error(error.message);
-    process.exit(1);
-  }
+  const failedTestName = await getFailedTestName();
+  await createClickUpTask(failedTestName);
 }
 
 main();

@@ -10,19 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "yarn"
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      # 👇 IMPORTANT: allow workflow to continue even if tests fail
+      # 4️⃣ Run Cypress with Cloud Recording + JSON reporter
       - name: Cypress run with Cloud Recording
         id: cypress
         uses: cypress-io/github-action@v6
@@ -31,13 +34,23 @@ jobs:
           start: yarn dev
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
-          command: npx cypress run --record --spec cypress/e2e/spanish-language.cy.ts --reporter json --reporter-options output=cypress-report.json
+          command: npx cypress run --spec cypress/e2e/spanish-language.cy.ts --record --reporter json --reporter-options output=./cypress-report.json
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 
-        
-      # 👇 Create ClickUp task ONLY if Cypress failed
+      # 5️⃣ Debug JSON report (Optional but highly recommended)
+      - name: Verify Cypress JSON
+        if: always()
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files:"
+          ls -la
+          echo "Check cypress-report.json contents:"
+          cat cypress-report.json || echo "⚠️ JSON not found"
+
+      # 6️⃣ Create ClickUp tasks for each failed test
       - name: Create ClickUp Task if Tests Failed
         if: steps.cypress.outcome == 'failure'
         env:
@@ -50,11 +63,12 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: node scripts/create-clickup-tasks.js
 
-      # 👇 Fail the workflow properly after creating ticket
+      # 7️⃣ Fail workflow properly for CI if tests failed
       - name: Fail workflow if tests failed
         if: steps.cypress.outcome == 'failure'
         run: exit 1
 
+      # 8️⃣ Show Cypress Cloud results
       - name: Test Report
         if: always()
         run: |

@@ -1,4 +1,4 @@
-name: Cypress Tests with Cloud Recording
+name: Cypress Tests with Cloud Recording + ClickUp
 
 on:
   push:
@@ -22,24 +22,40 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      # 👇 IMPORTANT: allow workflow to continue even if tests fail
       - name: Cypress run with Cloud Recording
+        id: cypress
         uses: cypress-io/github-action@v6
+        continue-on-error: true
         with:
-          # Start dev server
           start: yarn dev
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
           command: npx cypress run --record --spec cypress/e2e/spanish-language.cy.ts
-
         env:
-          # Cypress Cloud credentials
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+
+      # 👇 Create ClickUp task ONLY if Cypress failed
+      - name: Create ClickUp Task if Tests Failed
+        if: steps.cypress.outcome == 'failure'
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+          CLICKUP_LIST_ID: ${{ secrets.CLICKUP_LIST_ID }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: node scripts/create-clickup-tasks.js
+
+      # 👇 Fail the workflow properly after creating ticket
+      - name: Fail workflow if tests failed
+        if: steps.cypress.outcome == 'failure'
+        run: exit 1
 
       - name: Test Report
         if: always()
         run: |
-          echo "✅ Cypress Tests Completed!"
-          echo ""
-          echo "📊 View Results on Cypress Cloud:"
-          echo "   https://cloud.cypress.io/organizations/YOUR-ORG-NAME/projects/${{ secrets.CYPRESS_PROJECT_ID }}"
+          echo "📊 Cypress Cloud Results:"
+          echo "https://cloud.cypress.io/projects/${{ secrets.CYPRESS_PROJECT_ID }}"

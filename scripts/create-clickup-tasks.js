@@ -1,9 +1,8 @@
 const axios = require("axios");
-const fs = require("fs");
 
 /**
- * Creates ClickUp tasks for failed Cypress tests
- * Usage: node scripts/create-clickup-tasks.js
+ * Creates simple ClickUp task when Cypress tests fail
+ * No JSON parsing - just report the failure
  */
 
 const CLICKUP_API_TOKEN = process.env.CLICKUP_API_TOKEN;
@@ -13,52 +12,20 @@ const GITHUB_BRANCH = process.env.GITHUB_REF_NAME || "unknown";
 const GITHUB_RUN_URL = process.env.GITHUB_SERVER_URL
   ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
   : "N/A";
-const RESULTS_FILE = process.env.RESULTS_FILE || "cypress/results/results.json";
 
-function loadFailedTests() {
-  if (!fs.existsSync(RESULTS_FILE)) {
-    console.warn(`⚠️ Results file not found: ${RESULTS_FILE}`);
-    return [];
-  }
-
-  const raw = fs.readFileSync(RESULTS_FILE, "utf8");
-  const report = JSON.parse(raw);
-
-  const failures = Array.isArray(report.failures) ? report.failures : [];
-
-  return failures.map((failure) => ({
-    suite: failure.fullTitle
-      ? failure.fullTitle.split(" ").slice(0, -1).join(" ") || "Cypress Suite"
-      : "Cypress Suite",
-    test: failure.title || "Failed test",
-    error:
-      failure.err?.message ||
-      failure.err?.stack ||
-      "Cypress test failed. Check run logs for details.",
-  }));
-}
-
-async function createClickUpTask(testFailure) {
+async function createClickUpTask() {
   const taskData = {
-    name: `🐛 Fix: ${testFailure.suite} - ${testFailure.test}`,
+    name: `🐛 Test Failure - ${GITHUB_BRANCH} - Spanish Language Tests`,
     description:
-      `**Cypress Test Failure**\n\n` +
-      `**Suite**: ${testFailure.suite}\n` +
-      `**Test**: ${testFailure.test}\n` +
-      `**Error**: ${testFailure.error}\n\n` +
+      `**Test Suite**: Spanish Language Tests\n\n` +
       `**Branch**: \`${GITHUB_BRANCH}\`\n` +
-      `**Commit**: \`${GITHUB_SHA.substring(0, 7)}\`\n` +
-      `**GitHub Actions**: ${GITHUB_RUN_URL}\n` +
-      `**Cypress Cloud**: https://cloud.cypress.io/projects/cfoa1c\n\n` +
-      `**Steps to Reproduce**:\n` +
-      `1. Checkout branch \`${GITHUB_BRANCH}\`\n` +
-      `2. Run: \`npx cypress run --spec "cypress/e2e/*.cy.ts"\`\n` +
-      `3. Review failing test\n\n` +
-      `**Action Required**: Debug and fix the failing test.`,
+      `**Commit**: \`${GITHUB_SHA.substring(0, 7)}\`\n\n` +
+      `**GitHub Actions Run**:\n${GITHUB_RUN_URL}\n\n` +
+      `**Cypress Cloud**:\nhttps://cloud.cypress.io/projects/cfoa1c\n\n` +
+      `Action required: Review failed tests in the links above.`,
     status: "to do",
     priority: 2,
-    tags: ["cypress", "bug", "test-failure", "automated"],
-    custom_fields: [],
+    tags: ["cypress", "bug", "test-failure"],
   };
 
   try {
@@ -73,7 +40,9 @@ async function createClickUpTask(testFailure) {
       },
     );
 
-    console.log(`✅ ClickUp task created: ${response.data.url}`);
+    console.log(
+      `✅ ClickUp task created: ${response.data.task.name} (${response.data.task.id})`,
+    );
     return response.data;
   } catch (error) {
     console.error(
@@ -92,30 +61,9 @@ async function main() {
     process.exit(1);
   }
 
-  const failedTests = loadFailedTests();
-
-  if (failedTests.length === 0) {
-    console.log(
-      "No failed tests found in Cypress report. Creating summary task.",
-    );
-    await createClickUpTask({
-      suite: "Cypress Run Failure",
-      test: "Workflow failed before test report parsing",
-      error: `Run failed. Check GitHub Actions: ${GITHUB_RUN_URL}`,
-    });
-    console.log("\n✅ Created 1 ClickUp summary task");
-    return;
-  }
-
-  console.log(
-    `Creating ClickUp tasks for ${failedTests.length} failed tests...`,
-  );
-
-  for (const failure of failedTests) {
-    await createClickUpTask(failure);
-  }
-
-  console.log(`\n✅ Created ${failedTests.length} ClickUp task(s)`);
+  console.log("Creating ClickUp task for test failure...");
+  await createClickUpTask();
+  console.log("✅ Done");
 }
 
 main().catch((error) => {

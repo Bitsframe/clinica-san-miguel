@@ -20,17 +20,7 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Download Cypress Results Artifact
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: cypress-test-results
-          path: cypress/results
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          run-id: ${{ github.event.workflow_run.id }}
-
-      - name: Install dependencies
+      - name: Install axios
         run: npm install axios
 
       - name: Create ClickUp Task for Failed Tests
@@ -42,7 +32,6 @@ jobs:
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.event.workflow_run.id }}
-          RESULTS_FILE: cypress/results/results.json
         run: node scripts/create-clickup-tasks.js
 
       - name: Comment on PR if exists

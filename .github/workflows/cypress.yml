@@ -47,10 +47,25 @@ jobs:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         run: |
-          # Get the latest run ID from Cypress Cloud API
-          RUN_ID=$(curl -s -H "Authorization: Bearer $CYPRESS_RECORD_KEY" \
-            "https://api.cypress.io/projects/$CYPRESS_PROJECT_ID/runs?limit=1" | \
-            jq -r '.runs[0].id')
+          # Get the latest run ID from Cypress Cloud API with debug output
+          echo "Fetching from Cypress Cloud API..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer $CYPRESS_RECORD_KEY" \
+            "https://api.cypress.io/projects/$CYPRESS_PROJECT_ID/runs?limit=1")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "API Error! Using fallback task."
+            echo "runId=unknown" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          RUN_ID=$(echo "$BODY" | jq -r '.runs[0].id // "unknown"' 2>/dev/null || echo "unknown")
+
           echo "runId=$RUN_ID" >> $GITHUB_OUTPUT
           echo "🎯 Cypress Run ID: $RUN_ID"
           echo "🔗 Cypress Cloud URL: https://cloud.cypress.io/projects/$CYPRESS_PROJECT_ID/runs/$RUN_ID"

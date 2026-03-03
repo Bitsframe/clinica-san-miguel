@@ -27,7 +27,7 @@ jobs:
 
       # 4️⃣ Run Cypress with Cloud recording
       - name: Cypress Cloud Run
-        id: cypress
+        id: cypress  # 👈 This ID is important - it's how we reference this step
         uses: cypress-io/github-action@v6
         continue-on-error: true
         with:
@@ -39,7 +39,14 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 
-      # 5️⃣ Create ClickUp tasks from Cypress Cloud run
+      # 5️⃣ Display the Run ID (for debugging)
+      - name: Display Cypress Run ID
+        if: always()
+        run: |
+          echo "🎯 Cypress Run ID: ${{ steps.cypress.outputs.runId }}"
+          echo "🔗 Cypress Cloud URL: https://cloud.cypress.io/projects/${{ secrets.CYPRESS_PROJECT_ID }}/runs/${{ steps.cypress.outputs.runId }}"
+
+      # 6️⃣ Create ClickUp tasks from Cypress Cloud run
       - name: Create ClickUp tasks
         if: always()
         env:
@@ -47,21 +54,14 @@ jobs:
           CLICKUP_LIST_ID: ${{ secrets.CLICKUP_LIST_ID }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_RUN_ID: ${{ steps.cypress.outputs.runId }}
+          CYPRESS_RUN_ID: ${{ steps.cypress.outputs.runId }}  # 👈 This gets the dynamic runId
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: node scripts/create-clickup-tasks-cloud.js
 
-      # 6️⃣ Fail workflow if Cypress failed
+      # 7️⃣ Fail workflow if Cypress failed
       - name: Fail workflow if Cypress failed
         if: steps.cypress.outcome == 'failure'
         run: exit 1
-
-      # 7️⃣ Optional: Print Cypress Cloud link
-      - name: Cypress Cloud Report
-        if: always()
-        run: |
-          echo "📊 Cypress Cloud Results:"
-          echo "https://cloud.cypress.io/projects/${{ secrets.CYPRESS_PROJECT_ID }}/runs/${{ steps.cypress.outputs.runId }}"

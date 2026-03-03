@@ -14,16 +14,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-#
+
       - name: Install axios
         run: npm install axios
 
       - name: Create ClickUp Task for Failed Tests
+        if: always()
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
           CLICKUP_LIST_ID: ${{ secrets.CLICKUP_LIST_ID }}
@@ -32,7 +35,10 @@ jobs:
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.event.workflow_run.id }}
-        run: node scripts/create-clickup-tasks.js
+        run: |
+          echo "Token exists: ${{ secrets.CLICKUP_API_TOKEN != '' }}"
+          echo "List ID exists: ${{ secrets.CLICKUP_LIST_ID != '' }}"
+          node scripts/create-clickup-tasks.js
 
       - name: Comment on PR if exists
         if: github.event.workflow_run.pull_requests[0]

@@ -54,19 +54,28 @@ async function createClickUpTask() {
 }
 
 async function main() {
+  console.log("Starting ClickUp task creation...");
+  console.log(`TOKEN exists: ${!!CLICKUP_API_TOKEN}`);
+  console.log(`LIST_ID: ${CLICKUP_LIST_ID}`);
+  console.log(`BRANCH: ${GITHUB_BRANCH}`);
+  console.log(`RUN_URL: ${GITHUB_RUN_URL}`);
+
   if (!CLICKUP_API_TOKEN || !CLICKUP_LIST_ID) {
     console.error("❌ Missing required environment variables:");
-    console.error("   - CLICKUP_API_TOKEN");
-    console.error("   - CLICKUP_LIST_ID");
+    if (!CLICKUP_API_TOKEN) console.error("   - CLICKUP_API_TOKEN");
+    if (!CLICKUP_LIST_ID) console.error("   - CLICKUP_LIST_ID");
     process.exit(1);
   }
 
-  console.log("Creating ClickUp task for test failure...");
-  await createClickUpTask();
-  console.log("✅ Done");
+  try {
+    console.log("Creating ClickUp task for test failure...");
+    await createClickUpTask();
+    console.log("✅ ClickUp task created successfully");
+  } catch (error) {
+    console.error("❌ Failed to create task");
+    console.error(error.message);
+    process.exit(1);
+  }
 }
 
-main().catch((error) => {
-  console.error("❌ Script failed:", error);
-  process.exit(1);
-});
+main();

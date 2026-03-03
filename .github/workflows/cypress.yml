@@ -11,7 +11,7 @@ jobs:
 
     steps:
       # 1️⃣ Checkout code
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       # 2️⃣ Setup Node.js
@@ -25,21 +25,26 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      # 4️⃣ Run Cypress with Cloud Recording + JSON reporter
-      - name: Cypress run with Cloud Recording
-        id: cypress
+      # 4️⃣ Cypress Cloud run (records results in Cypress Cloud)
+      - name: Cypress Cloud Run
+        id: cypress-cloud
         uses: cypress-io/github-action@v6
         continue-on-error: true
         with:
           start: yarn dev
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
-          command: npx cypress run --spec cypress/e2e/spanish-language.cy.ts --record --reporter json --reporter-options output=./cypress-report.json
+          command: npx cypress run --spec cypress/e2e/spanish-language.cy.ts --record
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 
-      # 5️⃣ Debug JSON report (Optional but highly recommended)
+      # 5️⃣ Cypress JSON report run (for ClickUp)
+      - name: Cypress JSON Report
+        id: cypress-json
+        run: npx cypress run --spec cypress/e2e/spanish-language.cy.ts --reporter json --reporter-options output=./cypress-report.json
+
+      # 6️⃣ Debug JSON report
       - name: Verify Cypress JSON
         if: always()
         run: |
@@ -50,9 +55,9 @@ jobs:
           echo "Check cypress-report.json contents:"
           cat cypress-report.json || echo "⚠️ JSON not found"
 
-      # 6️⃣ Create ClickUp tasks for each failed test
+      # 7️⃣ Create ClickUp tasks for each failed test
       - name: Create ClickUp Task if Tests Failed
-        if: steps.cypress.outcome == 'failure'
+        if: always()
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
           CLICKUP_LIST_ID: ${{ secrets.CLICKUP_LIST_ID }}
@@ -61,15 +66,16 @@ jobs:
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
         run: node scripts/create-clickup-tasks.js
 
-      # 7️⃣ Fail workflow properly for CI if tests failed
-      - name: Fail workflow if tests failed
-        if: steps.cypress.outcome == 'failure'
+      # 8️⃣ Fail workflow properly if any tests failed
+      - name: Fail workflow if Cypress failed
+        if: steps.cypress-json.outcome == 'failure'
         run: exit 1
 
-      # 8️⃣ Show Cypress Cloud results
-      - name: Test Report
+      # 9️⃣ Show Cypress Cloud results
+      - name: Cypress Cloud Report
         if: always()
         run: |
           echo "📊 Cypress Cloud Results:"

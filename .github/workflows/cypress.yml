@@ -27,7 +27,7 @@ jobs:
 
       # 4️⃣ Run Cypress with Cloud recording
       - name: Cypress Cloud Run
-        id: cypress  # 👈 This ID is important - it's how we reference this step
+        id: cypress # 👈 This ID is important - it's how we reference this step
         uses: cypress-io/github-action@v6
         continue-on-error: true
         with:
@@ -39,12 +39,21 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 
-      # 5️⃣ Display the Run ID (for debugging)
-      - name: Display Cypress Run ID
+      # 5️⃣ Get latest Cypress Run ID from Cloud
+      - name: Fetch latest Cypress Run ID
         if: always()
+        id: get-run-id
+        env:
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         run: |
-          echo "🎯 Cypress Run ID: ${{ steps.cypress.outputs.runId }}"
-          echo "🔗 Cypress Cloud URL: https://cloud.cypress.io/projects/${{ secrets.CYPRESS_PROJECT_ID }}/runs/${{ steps.cypress.outputs.runId }}"
+          # Get the latest run ID from Cypress Cloud API
+          RUN_ID=$(curl -s -H "Authorization: Bearer $CYPRESS_RECORD_KEY" \
+            "https://api.cypress.io/projects/$CYPRESS_PROJECT_ID/runs?limit=1" | \
+            jq -r '.runs[0].id')
+          echo "runId=$RUN_ID" >> $GITHUB_OUTPUT
+          echo "🎯 Cypress Run ID: $RUN_ID"
+          echo "🔗 Cypress Cloud URL: https://cloud.cypress.io/projects/$CYPRESS_PROJECT_ID/runs/$RUN_ID"
 
       # 6️⃣ Create ClickUp tasks from Cypress Cloud run
       - name: Create ClickUp tasks
@@ -54,7 +63,7 @@ jobs:
           CLICKUP_LIST_ID: ${{ secrets.CLICKUP_LIST_ID }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_RUN_ID: ${{ steps.cypress.outputs.runId }}  # 👈 This gets the dynamic runId
+          CYPRESS_RUN_ID: ${{ steps.get-run-id.outputs.runId }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
           GITHUB_REPOSITORY: ${{ github.repository }}

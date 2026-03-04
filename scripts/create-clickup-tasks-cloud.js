@@ -10,17 +10,15 @@ const GITHUB_SHA = process.env.GITHUB_SHA;
 const GITHUB_REF_NAME = process.env.GITHUB_REF_NAME;
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY;
 const GITHUB_RUN_ID = process.env.GITHUB_RUN_ID;
+const GITHUB_ACTOR = process.env.GITHUB_ACTOR;
 
 // Validate required vars
 if (!CLICKUP_API_TOKEN || !CLICKUP_LIST_ID) {
   console.error("❌ Missing: CLICKUP_API_TOKEN and/or CLICKUP_LIST_ID");
-  console.error("Please add these secrets to your GitHub repository:");
-  console.error("- CLICKUP_API_TOKEN: Your ClickUp API token");
-  console.error("- CLICKUP_LIST_ID: Your ClickUp list ID");
   process.exit(1);
 }
 
-// Test ClickUp token validity first
+// Test ClickUp token validity
 async function testClickUpToken() {
   try {
     const res = await axios.get("https://api.clickup.com/api/v2/user", {
@@ -32,15 +30,152 @@ async function testClickUpToken() {
     return true;
   } catch (err) {
     console.error("❌ ClickUp token is invalid:", err.response?.data || err.message);
-    console.error("Please check your CLICKUP_API_TOKEN secret");
     return false;
   }
 }
 
-// Create ClickUp task
-async function createClickUpTask(taskPayload) {
+// Fetch Cypress Cloud run details with failed tests
+async function fetchCypressFailedTests() {
+  if (!CYPRESS_RECORD_KEY || !CYPRESS_PROJECT_ID || !CYPRESS_RUN_ID || CYPRESS_RUN_ID === "undefined") {
+    console.log("⚠️ Cypress Cloud credentials missing or run ID undefined");
+    return null;
+  }
+
   try {
-    console.log("Creating ClickUp task:", taskPayload.name);
+    console.log(`🔍 Fetching Cypress Cloud run data for Run ID: ${CYPRESS_RUN_ID}`);
+    
+    // First, get the run details
+    const runUrl = `https://api.cypress.io/projects/${CYPRESS_PROJECT_ID}/runs/${CYPRESS_RUN_ID}`;
+    const runResponse = await axios.get(runUrl, {
+      headers: {
+        Authorization: `Bearer ${CYPRESS_RECORD_KEY}`,
+      },
+    });
+
+    const runData = runResponse.data;
+    
+    // Then, get the instances (tests) for this run
+    const instancesUrl = `https://api.cypress.io/projects/${CYPRESS_PROJECT_ID}/runs/${CYPRESS_RUN_ID}/instances`;
+    const instancesResponse = await axios.get(instancesUrl, {
+      headers: {
+        Authorization: `Bearer ${CYPRESS_RECORD_KEY}`,
+      },
+    });
+
+    const instances = instancesResponse.data.instances || [];
+    
+    // Filter and map failed tests with detailed information
+    const failedTests = [];
+    
+    for (const instance of instances) {
+      if (instance.state === "failed") {
+        // Get detailed test results including error messages
+        const testUrl = `https://api.cypress.io/projects/${CYPRESS_PROJECT_ID}/runs/${CYPRESS_RUN_ID}/instances/${instance.id}`;
+        const testResponse = await axios.get(testUrl, {
+          headers: {
+            Authorization: `Bearer ${CYPRESS_RECORD_KEY}`,
+          },
+        });
+        
+        const testData = testResponse.data;
+        
+        // Extract the actual error message from the test results
+        const results = testData.results || {};
+        const tests = results.tests || [];
+        
+        tests.forEach(test => {
+          if (test.state === "failed") {
+            failedTests.push({
+              title: test.title || instance.title || "Unknown Test",
+              suite: test.suite ? test.suite.join(" > ") : (instance.suite || "Unknown Suite"),
+              error: test.error || test.displayError || "No error details available",
+              stack: test.stack,
+              duration: test.duration || instance.duration,
+              instanceId: instance.id,
+              cypressUrl: `https://cloud.cypress.io/projects/${CYPRESS_PROJECT_ID}/runs/${CYPRESS_RUN_ID}/instances/${instance.id}`,
+            });
+          }
+        });
+      }
+    }
+
+    console.log(`📊 Found ${failedTests.length} failed tests in Cypress Cloud`);
+    return failedTests;
+  } catch (err) {
+    console.warn("⚠️ Failed to fetch Cypress Cloud run:", err.message);
+    if (err.response) {
+      console.warn("Status:", err.response.status);
+      console.warn("Data:", err.response.data);
+    }
+    return null;
+  }
+}
+
+// Create ClickUp task for a failed test
+async function createClickUpTask(testFailure) {
+  try {
+    // Clean up error message - remove ANSI codes, limit length
+    const cleanError = testFailure.error
+      .replace(/\u001b\[\d+m/g, '') // Remove ANSI color codes
+      .split('\n')
+      .slice(0, 10) // First 10 lines of error
+      .join('\n')
+      .substring(0, 1000); // Limit length
+    
+    // Extract the main error message (usually the first line)
+    const mainError = testFailure.error.split('\n')[0].replace(/\u001b\[\d+m/g, '');
+    
+    const taskPayload = {
+      name: `❌ Test Failed: ${testFailure.title.substring(0, 60)}${testFailure.title.length > 60 ? '...' : ''}`,
+      description: `
+## 🧪 Failed Test Details
+
+**Test Name:** \`${testFailure.title}\`
+**Suite:** ${testFailure.suite}
+**Duration:** ${testFailure.duration ? `${testFailure.duration}ms` : 'Unknown'}
+**Branch:** ${GITHUB_REF_NAME || 'unknown'}
+**Commit:** ${GITHUB_SHA ? GITHUB_SHA.substring(0, 7) : 'unknown'}
+**Triggered by:** ${GITHUB_ACTOR || 'GitHub Actions'}
+
+### ❌ Error Message
+\`\`\`
+${mainError}
+\`\`\`
+
+### 📋 Full Error Details
+\`\`\`
+${cleanError}
+\`\`\`
+
+### 🔗 Links
+- 🔍 **Cypress Cloud Instance:** ${testFailure.cypressUrl}
+- 📊 **Cypress Run:** https://cloud.cypress.io/projects/${CYPRESS_PROJECT_ID}/runs/${CYPRESS_RUN_ID}
+- 🤖 **GitHub Actions:** https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+- 💻 **GitHub Commit:** https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}
+
+### 📝 How to Fix
+1. Check the Cypress Cloud instance for screenshots/videos
+2. Review the error message above
+3. Run tests locally: \`yarn test:spec cypress/e2e/${testFailure.suite.toLowerCase().replace(/\s+/g, '-')}.cy.ts\`
+4. Fix the issue and push changes
+
+---
+
+*This task was automatically created by CI pipeline on ${new Date().toLocaleString()}*
+      `.trim(),
+      status: "to do",
+      priority: 3, // Normal priority
+      assignees: [], // Add assignee emails if needed
+      tags: [
+        "cypress",
+        "test-failure",
+        "automation",
+        GITHUB_REF_NAME || "branch",
+        testFailure.suite.split(' ')[0] // First word of suite as tag
+      ],
+    };
+
+    console.log(`📝 Creating task: ${taskPayload.name}`);
     
     const res = await axios.post(
       `https://api.clickup.com/api/v2/list/${CLICKUP_LIST_ID}/task`,
@@ -50,24 +185,18 @@ async function createClickUpTask(taskPayload) {
           Authorization: CLICKUP_API_TOKEN,
           "Content-Type": "application/json",
         },
-      },
+      }
     );
 
     console.log(`✅ Task created: ${res.data.name}`);
-    console.log(`🔗 Task URL: ${res.data.url || "https://app.clickup.com/t/" + res.data.id}`);
+    console.log(`🔗 Task URL: ${res.data.url || `https://app.clickup.com/t/${res.data.id}`}`);
+    
     return res.data;
   } catch (err) {
     console.error("❌ Failed to create ClickUp task:");
     if (err.response) {
       console.error("Status:", err.response.status);
-      console.error("Data:", err.response.data);
-      
-      if (err.response.status === 401) {
-        console.error("🔑 Token error: Your ClickUp API token is invalid or expired");
-        console.error("Please generate a new token at: https://app.clickup.com/settings/apps");
-      } else if (err.response.status === 404) {
-        console.error("📋 List error: The list ID might be incorrect");
-      }
+      console.error("Data:", JSON.stringify(err.response.data, null, 2));
     } else {
       console.error(err.message);
     }
@@ -75,119 +204,67 @@ async function createClickUpTask(taskPayload) {
   }
 }
 
-// Main
+// Main function
 (async () => {
   try {
-    // First, test the ClickUp token
+    // Test ClickUp token
     const tokenValid = await testClickUpToken();
     if (!tokenValid) {
       process.exit(1);
     }
 
-    // Get test results from Cypress summary or create fallback
-    const failedTests = [];
-    
-    // Try to get failed tests from Cypress Cloud if available
-    if (CYPRESS_RECORD_KEY && CYPRESS_PROJECT_ID && CYPRESS_RUN_ID && CYPRESS_RUN_ID !== "undefined") {
-      try {
-        console.log("Fetching Cypress Cloud run data...");
-        console.log(`Run ID: ${CYPRESS_RUN_ID}`);
-        console.log(`Project ID: ${CYPRESS_PROJECT_ID}`);
-        
-        const url = `https://api.cypress.io/projects/${CYPRESS_PROJECT_ID}/runs/${CYPRESS_RUN_ID}`;
-        const res = await axios.get(url, {
-          headers: {
-            Authorization: `Bearer ${CYPRESS_RECORD_KEY}`,
-          },
-        });
-        
-        const runData = res.data;
-        
-        // Extract failed tests
-        if (runData.tests) {
-          runData.tests.forEach(test => {
-            if (test.state === "failed") {
-              failedTests.push({
-                title: test.title,
-                suite: test.suite?.join(" > ") || "Unknown Suite",
-                error: test.error,
-              });
-            }
-          });
-        }
-        
-        console.log(`Found ${failedTests.length} failed tests in Cypress Cloud`);
-      } catch (err) {
-        console.warn("⚠️ Failed to fetch Cypress Cloud run:", err.message);
-      }
-    }
+    // Fetch failed tests from Cypress Cloud
+    const failedTests = await fetchCypressFailedTests();
 
-    // If no failed tests found via API, create a single task with the summary
-    if (failedTests.length === 0) {
-      console.log("No failed tests detected via API, creating summary task...");
+    if (failedTests && failedTests.length > 0) {
+      console.log(`\n📋 Creating ${failedTests.length} individual tasks for failed tests...\n`);
       
+      for (const test of failedTests) {
+        try {
+          await createClickUpTask(test);
+          console.log(""); // Empty line for readability
+        } catch (err) {
+          console.error(`Failed to create task for: ${test.title}`);
+        }
+      }
+      
+      console.log(`✅ Successfully created ${failedTests.length} ClickUp task(s) for failed tests`);
+    } else {
+      console.log("\n⚠️ No failed tests found in Cypress Cloud or unable to fetch data");
+      console.log("Creating summary task instead...\n");
+      
+      // Create a summary task if no detailed data available
       const summaryTask = {
-        name: `❌ Test Failures - ${GITHUB_REF_NAME || "unknown"} branch`,
+        name: `❌ Test Failures Detected - ${GITHUB_REF_NAME || "unknown"} branch`,
         description: `
-## Test Failure Summary
+## ⚠️ Test Failures Summary
 
 **Branch:** ${GITHUB_REF_NAME || "unknown"}
 **Commit:** ${GITHUB_SHA ? GITHUB_SHA.substring(0, 7) : "unknown"}
 **Run ID:** ${GITHUB_RUN_ID || "unknown"}
 
-### Links
-- 🔗 [GitHub Actions Run](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID || "unknown"})
-- 🔗 [Cypress Cloud Run](https://cloud.cypress.io/projects/${CYPRESS_PROJECT_ID}/runs/${CYPRESS_RUN_ID || "unknown"})
+### 🔗 Links
+- 📊 **Cypress Cloud Run:** https://cloud.cypress.io/projects/${CYPRESS_PROJECT_ID}/runs/${CYPRESS_RUN_ID || "unknown"}
+- 🤖 **GitHub Actions:** https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+- 💻 **GitHub Commit:** https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}
 
-### Test Results
-The Cypress tests failed. Please check the GitHub Actions logs for details.
+### 📋 Next Steps
+1. Click the Cypress Cloud link above
+2. Review the failed test instances
+3. Check error messages and screenshots
+4. Fix the issues locally
+5. Push fixes to the branch
 
 ---
 
-*This task was automatically created by the CI pipeline.*
+*This summary task was created because detailed test data couldn't be fetched from Cypress Cloud.*
         `.trim(),
         status: "to do",
-        priority: 3, // 1 = urgent, 2 = high, 3 = normal, 4 = low
-        tags: ["cypress", "test-failure", "ci"],
+        priority: 3,
+        tags: ["cypress", "test-failure", "summary", GITHUB_REF_NAME || "branch"],
       };
-
+      
       await createClickUpTask(summaryTask);
-      console.log("✅ Summary task created");
-    } else {
-      // Create individual tasks for each failed test
-      console.log(`Creating ${failedTests.length} task(s) for failed tests...`);
-
-      for (const test of failedTests) {
-        const taskPayload = {
-          name: `❌ ${test.title}`,
-          description: `
-## Test Failure Details
-
-**Suite:** ${test.suite}
-**Test:** ${test.title}
-
-### Error
-\`\`\`
-${test.error || "No error details available"}
-\`\`\`
-
-### Links
-- 🔗 [Cypress Cloud Run](https://cloud.cypress.io/projects/${CYPRESS_PROJECT_ID}/runs/${CYPRESS_RUN_ID})
-- 🔗 [GitHub Actions](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})
-
----
-
-*This task was automatically created by the CI pipeline.*
-          `.trim(),
-          status: "to do",
-          priority: 3,
-          tags: ["cypress", "test-failure", "ci"],
-        };
-
-        await createClickUpTask(taskPayload);
-      }
-
-      console.log(`✅ Created ${failedTests.length} task(s)`);
     }
   } catch (err) {
     console.error("❌ Script failed:", err.message);

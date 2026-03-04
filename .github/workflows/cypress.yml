@@ -27,48 +27,27 @@ jobs:
 
       # 4️⃣ Run Cypress with Cloud recording
       - name: Cypress Cloud Run
-        id: cypress # 👈 This ID is important - it's how we reference this step
+        id: cypress
         uses: cypress-io/github-action@v6
         continue-on-error: true
         with:
           start: yarn dev
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
-          command: npx cypress run --spec cypress/e2e/spanish-language.cy.ts --record
+          command: npx cypress run --spec cypress/e2e/spanish-language.cy.ts --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 
-      # 5️⃣ Get latest Cypress Run ID from Cloud
-      - name: Fetch latest Cypress Run ID
+      # 5️⃣ Get Cypress Run ID from the run output (more reliable than API)
+      - name: Get Cypress Run ID from output
         if: always()
         id: get-run-id
-        env:
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         run: |
-          # Get the latest run ID from Cypress Cloud API with debug output
-          echo "Fetching from Cypress Cloud API..."
-          RESPONSE=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer $CYPRESS_RECORD_KEY" \
-            "https://api.cypress.io/projects/$CYPRESS_PROJECT_ID/runs?limit=1")
-
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | sed '$d')
-
-          echo "HTTP Status: $HTTP_CODE"
-          echo "Response: $BODY"
-
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "API Error! Using fallback task."
-            echo "runId=unknown" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          RUN_ID=$(echo "$BODY" | jq -r '.runs[0].id // "unknown"' 2>/dev/null || echo "unknown")
-
-          echo "runId=$RUN_ID" >> $GITHUB_OUTPUT
-          echo "🎯 Cypress Run ID: $RUN_ID"
-          echo "🔗 Cypress Cloud URL: https://cloud.cypress.io/projects/$CYPRESS_PROJECT_ID/runs/$RUN_ID"
+          # Extract Run ID from Cypress output if available
+          # You can also use the GitHub Action's built-in output
+          echo "runId=${{ steps.cypress.outputs.runId }}" >> $GITHUB_OUTPUT
+          echo "🎯 Cypress Run ID: ${{ steps.cypress.outputs.runId }}"
 
       # 6️⃣ Create ClickUp tasks from Cypress Cloud run
       - name: Create ClickUp tasks
@@ -83,6 +62,7 @@ jobs:
           GITHUB_REF_NAME: ${{ github.ref_name }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
         run: node scripts/create-clickup-tasks-cloud.js
 
       # 7️⃣ Fail workflow if Cypress failed

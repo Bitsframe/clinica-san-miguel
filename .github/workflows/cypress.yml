@@ -34,24 +34,23 @@ jobs:
           start: yarn dev
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
-          command: npx cypress run --spec cypress/e2e/spanish-language.cy.ts --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          command: npx cypress run --spec cypress/e2e/spanish-language.cy.ts --record
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 
-      # 5️⃣ Get Cypress Run ID from the run output (more reliable than API)
-      - name: Get Cypress Run ID from output
+      # 5️⃣ Get Cypress Run ID
+      - name: Get Cypress Run ID
         if: always()
         id: get-run-id
         run: |
-          # Extract Run ID from Cypress output if available
-          # You can also use the GitHub Action's built-in output
-          echo "runId=${{ steps.cypress.outputs.runId }}" >> $GITHUB_OUTPUT
-          echo "🎯 Cypress Run ID: ${{ steps.cypress.outputs.runId }}"
+          RUN_ID="${{ steps.cypress.outputs.runId }}"
+          echo "runId=${RUN_ID}" >> $GITHUB_OUTPUT
+          echo "🎯 Cypress Run ID: ${RUN_ID}"
 
-      # 6️⃣ Create ClickUp tasks from Cypress Cloud run
+      # 6️⃣ Create ClickUp tasks
       - name: Create ClickUp tasks
-        if: always()
+        if: always() && (failure() || steps.cypress.outcome == 'failure')
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
           CLICKUP_LIST_ID: ${{ secrets.CLICKUP_LIST_ID }}
@@ -62,7 +61,7 @@ jobs:
           GITHUB_REF_NAME: ${{ github.ref_name }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
-          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+          GITHUB_ACTOR: ${{ github.actor }}
         run: node scripts/create-clickup-tasks-cloud.js
 
       # 7️⃣ Fail workflow if Cypress failed

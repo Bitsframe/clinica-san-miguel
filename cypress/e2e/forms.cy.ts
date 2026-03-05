@@ -27,7 +27,8 @@ describe("Form Submission Test", () => {
         .blur()
         .then(($input) => {
           // HTML5 validation should trigger
-          expect($input[0].validationMessage).to.not.be.empty;
+          const input = $input[0] as HTMLInputElement;
+          expect(input.validationMessage).to.not.be.empty;
         });
     });
 

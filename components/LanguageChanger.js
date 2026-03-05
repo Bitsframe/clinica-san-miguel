@@ -42,7 +42,7 @@ export default function LanguageChanger({ locale }) {
   const currentLanguage = languages.find((lang) => lang.code === locale);
 
   const handleChange = (newLocale) => {
-    // router.push(pathname, { locale: newLocale });
+    router.push(pathname, { locale: newLocale });
     setIsOpen(false);
   };
 

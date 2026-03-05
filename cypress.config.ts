@@ -1,4 +1,24 @@
 import { defineConfig } from "cypress";
+import { supabaseTasks } from "./cypress/support/e2e";
+
+/**
+ * Cypress Configuration for Supabase Contact Form Tests
+ *
+ * ENVIRONMENT VARIABLES:
+ * - CYPRESS_TEST_EMAIL: Provide a custom email for testing (e.g., user@example.com)
+ *   Usage: CYPRESS_TEST_EMAIL=john.doe@company.com npx cypress run
+ *   If not provided, tests will generate unique emails with timestamps
+ *
+ * Example commands:
+ * 1. Run tests with default generated emails:
+ *    npx cypress run cypress/e2e/supabase-contact-form.cy.ts
+ *
+ * 2. Run tests with custom email:
+ *    CYPRESS_TEST_EMAIL=testuser@example.com npx cypress run cypress/e2e/supabase-contact-form.cy.ts
+ *
+ * 3. Open Cypress UI with custom email:
+ *    CYPRESS_TEST_EMAIL=testuser@example.com npx cypress open
+ */
 
 export default defineConfig({
   projectId: "cfoa1c",
@@ -20,6 +40,8 @@ export default defineConfig({
     reporter: "spec",
 
     setupNodeEvents(on, config) {
+      // Register Supabase tasks
+      on("task", supabaseTasks);
       return config;
     },
   },

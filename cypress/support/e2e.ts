@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 // Cypress Support File
 // This file runs before every test file
 

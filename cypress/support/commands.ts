@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 // Custom Cypress Commands
 // Add your custom commands here
 

@@ -34,7 +34,7 @@ jobs:
           start: yarn dev
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
-          command: npx cypress run --spec cypress/e2e/supabase-contact-form.cy.cy.ts --record
+          command: npx cypress run --spec cypress/e2e/supabase-contact-form.cy.ts --record
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -65,5 +65,3 @@ jobs:
           # Pass the test results directly from Cypress output
           TEST_RESULTS: ${{ steps.cypress.outputs.results }}
         run: node scripts/create-clickup-tasks-cloud.js
-
-      

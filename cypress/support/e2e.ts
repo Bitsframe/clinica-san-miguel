@@ -9,34 +9,43 @@ import "./commands";
 // Supabase Client Setup for Task Definitions
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || Cypress.env("SUPABASE_URL");
-const supabaseKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || Cypress.env("SUPABASE_KEY");
+let supabase: any = null;
 
-function initSupabase() {
+function getSupabaseClient() {
+  if (supabase) return supabase;
+
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    (typeof Cypress !== "undefined" ? Cypress.env("SUPABASE_URL") : null);
+  const supabaseKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    (typeof Cypress !== "undefined" ? Cypress.env("SUPABASE_KEY") : null);
+
   if (!supabaseUrl || !supabaseKey) {
     console.warn("⚠️ Supabase credentials not configured for tests");
     return null;
   }
-  return createClient(supabaseUrl, supabaseKey);
+
+  supabase = createClient(supabaseUrl, supabaseKey);
+  return supabase;
 }
 
-const supabase = initSupabase();
+// Only run these when tests are actually executing
+if (typeof Cypress !== "undefined") {
+  // Prevent uncaught exceptions from failing tests
+  Cypress.on("uncaught:exception", (err, runnable) => {
+    // Return false to prevent the error from failing the test
+    // Useful for third-party script errors
+    return false;
+  });
 
-// Prevent uncaught exceptions from failing tests
-Cypress.on("uncaught:exception", (err, runnable) => {
-  // Return false to prevent the error from failing the test
-  // Useful for third-party script errors
-  return false;
-});
-
-// Add custom configuration
-beforeEach(() => {
-  // Clear cookies and local storage before each test
-  cy.clearCookies();
-  cy.clearLocalStorage();
-});
+  // Add custom configuration
+  beforeEach(() => {
+    // Clear cookies and local storage before each test
+    cy.clearCookies();
+    cy.clearLocalStorage();
+  });
+}
 
 // ===== SUPABASE TASK DEFINITIONS FOR DATA INTEGRITY TESTS =====
 // Note: Tasks are registered in cypress.config.ts setupNodeEvents
@@ -47,6 +56,7 @@ export const supabaseTasks = {
    */
   async verifyAppointmentInDB({ email_address, first_name, last_name }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -77,6 +87,7 @@ export const supabaseTasks = {
    */
   async verifyAppointmentFields({ email_address, expectedFields }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -109,6 +120,7 @@ export const supabaseTasks = {
    */
   async verifyPatientFlags({ email_address, expectedInOfficePatient }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -136,6 +148,7 @@ export const supabaseTasks = {
    */
   async verifyLocationId({ email_address }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -167,6 +180,7 @@ export const supabaseTasks = {
     expectedSymptoms,
   }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data: appointment, error: apptError } = await supabase
@@ -208,6 +222,7 @@ export const supabaseTasks = {
    */
   async verifyIntakeFormLinking({ email_address }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data: appointment, error: apptError } = await supabase
@@ -245,6 +260,7 @@ export const supabaseTasks = {
    */
   async verifyServiceStorage({ email_address, expectedService }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -272,6 +288,7 @@ export const supabaseTasks = {
    */
   async verifyUniqueAppointmentIds({ emails }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -304,6 +321,7 @@ export const supabaseTasks = {
    */
   async verifyDataType({ email_address, field, expectedType }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -335,6 +353,7 @@ export const supabaseTasks = {
    */
   async verifyIntakeLinkage({ email_address }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -360,6 +379,7 @@ export const supabaseTasks = {
    */
   async verifySpecialCharacters({ email_address }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -387,6 +407,7 @@ export const supabaseTasks = {
    */
   async cleanupTestData({ emailPattern }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) return { success: false, deleted: 0 };
 
       const { data: toDelete } = await supabase
@@ -414,6 +435,7 @@ export const supabaseTasks = {
    */
   async getAppointmentData({ email_address }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -438,6 +460,7 @@ export const supabaseTasks = {
    */
   async verifyCompleteAppointmentFlow({ email_address }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data: appointment, error: apptError } = await supabase
@@ -495,6 +518,7 @@ export const supabaseTasks = {
     expectedTextConsent,
   }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -526,6 +550,7 @@ export const supabaseTasks = {
    */
   async verifyAddressStorage({ email_address, expectedAddress }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -558,6 +583,7 @@ export const supabaseTasks = {
    */
   async verifyDateFormat({ email_address }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -587,6 +613,7 @@ export const supabaseTasks = {
    */
   async verifyStateExtraction({ email_address, expectedState }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase
@@ -615,6 +642,7 @@ export const supabaseTasks = {
    */
   async verifyZipcodeStorage({ email_address, expectedZipcode }: any) {
     try {
+      const supabase = getSupabaseClient();
       if (!supabase) throw new Error("Supabase not initialized");
 
       const { data, error } = await supabase

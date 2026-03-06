@@ -1,9 +1,8 @@
 /// <reference types="cypress" />
 
-// Custom Cypress Commands
-// Add your custom commands here
+// ========== LANGUAGE COMMANDS ==========
 
-// Example: Custom command to switch language
+// Custom command to switch to Spanish
 Cypress.Commands.add("switchToSpanish", () => {
   // Click the language dropdown button (contains SVG flag)
   cy.get("button").filter(":has(svg)").filter(":visible").first().click();
@@ -14,7 +13,7 @@ Cypress.Commands.add("switchToSpanish", () => {
   cy.wait(1000);
 });
 
-// Example: Custom command to check Spanish content
+// Custom command to check Spanish content
 Cypress.Commands.add("checkSpanishContent", () => {
   const spanishTerms = [
     "Nosotros",
@@ -34,65 +33,70 @@ Cypress.Commands.add("checkSpanishContent", () => {
 Cypress.Commands.add("openLanguageDropdown", () => {
   // Find button with SVG (the flag button)
   cy.get("button").filter(":has(svg)").filter(":visible").first().click();
-  cy.wait(500); // Wait for dropdown to open
+  cy.wait(500);
 });
 
 // Custom command to select Spanish from navbar dropdown
 Cypress.Commands.add("selectSpanishFromDropdown", () => {
   cy.openLanguageDropdown();
-
-  // Click on "Español" option in the dropdown
   cy.contains("Español").click();
   cy.wait(1000);
 });
 
-// ========== FORM FILLING COMMANDS FOR DATA INTEGRITY TESTS ==========
+// ========== FORM FILLING COMMANDS ==========
 
 /**
  * Fill appointment form with user data
  */
-Cypress.Commands.add("fillAppointmentForm", (data: any) => {
+Cypress.Commands.add("fillAppointmentForm", (data: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  streetAddress: string;
+  zipcode: string;
+}) => {
   // First Name
   cy.get('input[placeholder*="First"], input[placeholder*="first"]')
     .first()
     .clear()
-    .type(data.firstName, { delay: 50 });
+    .type(data.firstName);
 
   // Last Name
   cy.get('input[placeholder*="Last"], input[placeholder*="last"]')
     .first()
     .clear()
-    .type(data.lastName, { delay: 50 });
+    .type(data.lastName);
 
   // Email
-  cy.get('input[type="email"]').first().clear().type(data.email, { delay: 50 });
+  cy.get('input[type="email"]').first().clear().type(data.email);
 
-  // Phone (multiple possible selectors)
+  // Phone
   cy.get(
-    'input[placeholder*="555"], input[placeholder*="phone"], input[placeholder*="Phone"], input[placeholder*="Mobile"]',
+    'input[placeholder*="555"], input[placeholder*="phone"], input[placeholder*="Phone"], input[placeholder*="Mobile"]'
   )
     .first()
     .clear()
-    .type(data.phone, { delay: 50 });
+    .type(data.phone);
 
   // Street Address
   cy.get(
-    'input[placeholder*="Address"], input[placeholder*="address"], input[placeholder*="street"], input[placeholder*="Street"]',
+    'input[placeholder*="Address"], input[placeholder*="address"], input[placeholder*="street"], input[placeholder*="Street"]'
   )
     .first()
     .clear()
-    .type(data.streetAddress, { delay: 50 });
+    .type(data.streetAddress);
 
   // Wait for state extraction
   cy.wait(800);
 
   // Zipcode
   cy.get(
-    'input[placeholder*="zip"], input[placeholder*="Zip"], input[placeholder*="zipcode"], input[placeholder*="Zipcode"]',
+    'input[placeholder*="zip"], input[placeholder*="Zip"], input[placeholder*="zipcode"], input[placeholder*="Zipcode"]'
   )
     .first()
     .clear()
-    .type(data.zipcode, { delay: 50 });
+    .type(data.zipcode);
 });
 
 /**
@@ -101,7 +105,7 @@ Cypress.Commands.add("fillAppointmentForm", (data: any) => {
 Cypress.Commands.add("selectDateAndTime", () => {
   // Open date picker
   cy.get(
-    'input[placeholder*="YYYY-MM-DD"], input[placeholder*="Select a date"], input[placeholder*="Date"]',
+    'input[placeholder*="YYYY-MM-DD"], input[placeholder*="Select a date"], input[placeholder*="Date"]'
   )
     .first()
     .click({ force: true });
@@ -109,28 +113,23 @@ Cypress.Commands.add("selectDateAndTime", () => {
   cy.wait(500);
 
   // Select a date (first available future date)
-  cy.get(
-    '.react-datepicker__day[aria-label], .datepicker button, [class*="datepicker"] button',
-  ).then(($dates) => {
-    if ($dates.length > 0) {
-      cy.wrap($dates).first().click();
-    }
-  });
+  cy.get('button:not([disabled])').contains(/\d+/).first().click();
 
   cy.wait(500);
 
   // Select time slot
   cy.get("select").then(($selects) => {
     const timeSelect = Array.from($selects).find((select) =>
-      select.textContent?.toLowerCase().includes("time"),
+      select.textContent?.toLowerCase().includes("time")
     );
 
     if (timeSelect) {
       cy.wrap(timeSelect)
         .find("option")
-        .eq(1)
+        .not(':contains("Select")')
+        .first()
         .then((option) => {
-          const value = option.attr("value") || "";
+          const value = option.attr("value") || option.text();
           cy.wrap(timeSelect).select(value);
         });
     }
@@ -141,72 +140,39 @@ Cypress.Commands.add("selectDateAndTime", () => {
  * Select the same date and time (for duplicate testing)
  */
 Cypress.Commands.add("selectSameDateAndTime", () => {
-  cy.get(
-    'input[placeholder*="YYYY-MM-DD"], input[placeholder*="Select a date"], input[placeholder*="Date"]',
-  )
-    .first()
-    .click({ force: true });
-
-  cy.wait(500);
-
-  cy.get(
-    '.react-datepicker__day[aria-label], .datepicker button, [class*="datepicker"] button',
-  ).then(($dates) => {
-    if ($dates.length > 0) {
-      cy.wrap($dates).first().click();
-    }
-  });
-
-  cy.wait(500);
-
-  cy.get("select").then(($selects) => {
-    const timeSelect = Array.from($selects).find((select) =>
-      select.textContent?.toLowerCase().includes("time"),
-    );
-    if (timeSelect) {
-      cy.wrap(timeSelect)
-        .find("option")
-        .eq(1)
-        .then((option) => {
-          const value = option.attr("value") || "";
-          cy.wrap(timeSelect).select(value);
-        });
-    }
-  });
+  cy.selectDateAndTime();
 });
 
 /**
  * Select a different date and time
  */
 Cypress.Commands.add("selectDifferentDateAndTime", () => {
+  // Open date picker
   cy.get(
-    'input[placeholder*="YYYY-MM-DD"], input[placeholder*="Select a date"], input[placeholder*="Date"]',
+    'input[placeholder*="YYYY-MM-DD"], input[placeholder*="Select a date"], input[placeholder*="Date"]'
   )
     .first()
     .click({ force: true });
 
   cy.wait(500);
 
-  cy.get(
-    '.react-datepicker__day[aria-label], .datepicker button, [class*="datepicker"] button',
-  ).then(($dates) => {
-    if ($dates.length > 1) {
-      cy.wrap($dates).eq(1).click(); // Click 2nd date for variation
-    }
-  });
+  // Select a different date (second available date)
+  cy.get('button:not([disabled])').contains(/\d+/).eq(1).click();
 
   cy.wait(500);
 
+  // Select different time slot
   cy.get("select").then(($selects) => {
     const timeSelect = Array.from($selects).find((select) =>
-      select.textContent?.toLowerCase().includes("time"),
+      select.textContent?.toLowerCase().includes("time")
     );
     if (timeSelect) {
       cy.wrap(timeSelect)
         .find("option")
-        .eq(2)
+        .not(':contains("Select")')
+        .eq(1)
         .then((option) => {
-          const value = option.attr("value") || "";
+          const value = option.attr("value") || option.text();
           cy.wrap(timeSelect).select(value);
         });
     }
@@ -219,7 +185,7 @@ Cypress.Commands.add("selectDifferentDateAndTime", () => {
 Cypress.Commands.add("selectService", (serviceName?: string) => {
   cy.get("select").then(($selects) => {
     const serviceSelect = Array.from($selects).find((select) =>
-      select.textContent?.toLowerCase().includes("service"),
+      select.textContent?.toLowerCase().includes("service")
     );
 
     if (serviceSelect) {
@@ -228,9 +194,10 @@ Cypress.Commands.add("selectService", (serviceName?: string) => {
       } else {
         cy.wrap(serviceSelect)
           .find("option")
-          .eq(1)
+          .not(':contains("Select")')
+          .first()
           .then((option) => {
-            const value = option.attr("value") || "";
+            const value = option.attr("value") || option.text();
             cy.wrap(serviceSelect).select(value);
           });
       }
@@ -238,7 +205,7 @@ Cypress.Commands.add("selectService", (serviceName?: string) => {
   });
 });
 
-// ========== TypeScript declarations for custom commands ==========
+// ========== TypeScript declarations ==========
 
 declare global {
   namespace Cypress {
@@ -260,7 +227,7 @@ declare global {
       }): Chainable<void>;
 
       // Date and time selection
-      selectDateAndTime(): Chainable<any>;
+      selectDateAndTime(): Chainable<void>;
       selectSameDateAndTime(): Chainable<void>;
       selectDifferentDateAndTime(): Chainable<void>;
 

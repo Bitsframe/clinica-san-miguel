@@ -1,35 +1,4 @@
-/**
- * Supabase Contact Form & Appointment Data Integrity Tests
- * Tests cover:
- * - Form field validation and data integrity
- * - Duplicate record prevention
- * - Successful appointment creation and DB storage
- * - Consent checkboxes (email_opt, text_opt)
- * - Patient type flags (in_office_patient, new_patient)
- * - Medical form data persistence
- * - Address validation and storage
- * - Date/time scheduling
- * - Email confirmation flow
- *
- * CONFIGURATION:
- * Use custom emails by setting environment variable: CYPRESS_TEST_EMAIL=user@example.com
- * Or each test will generate unique emails with timestamps for isolation
- */
 
-import { createClient } from "@supabase/supabase-js";
-
-// Supabase client for direct database verification
-const supabaseUrl =
-  Cypress.env("SUPABASE_URL") || process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey =
-  Cypress.env("SUPABASE_KEY") || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-/**
- * Helper function to generate test email
- * Checks for user-provided email via CYPRESS_TEST_EMAIL env var
- * Falls back to generated email with timestamp if not provided
- */
 function getTestEmail(prefix: string = "test"): string {
   const userEmail = Cypress.env("TEST_EMAIL");
   if (userEmail) {
@@ -40,13 +9,7 @@ function getTestEmail(prefix: string = "test"): string {
   return `${prefix}-${Date.now()}@example.com`;
 }
 
-/**
- * Get email for tests - supports custom email input
- * Usage:
- * 1. Set custom email via environment: CYPRESS_TEST_EMAIL=john.doe@company.com
- * 2. Or pass email directly to this function
- * 3. Or let it generate unique test emails (default)
- */
+
 function generateUniqueEmail(baseEmail?: string, prefix?: string): string {
   // If base email provided, use it as-is
   if (baseEmail && baseEmail.includes("@")) {

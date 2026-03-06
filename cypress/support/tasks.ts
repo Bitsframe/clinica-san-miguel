@@ -27,7 +27,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select("*");
-      
+
       // Build query based on provided parameters
       if (email) {
         query = query.eq("email", email);
@@ -40,9 +40,7 @@ export const supabaseTasks = {
       const { data, error } = await query.single();
 
       if (error || !data) {
-        throw new Error(
-          `Patient not found: ${error?.message}`,
-        );
+        throw new Error(`Patient not found: ${error?.message}`);
       }
 
       if (firstname && data.firstname !== firstname) {
@@ -72,7 +70,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select("*");
-      
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -106,13 +104,21 @@ export const supabaseTasks = {
   /**
    * Verify patient flags (onsite, text_opt, email_opt)
    */
-  async verifyPatientFlags({ email, phone, expectedOnsite, expectedTextOpt, expectedEmailOpt }: any) {
+  async verifyPatientFlags({
+    email,
+    phone,
+    expectedOnsite,
+    expectedTextOpt,
+    expectedEmailOpt,
+  }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      let query = supabase.from("allpatients").select("onsite, text_opt, email_opt, email, phone");
-      
+      let query = supabase
+        .from("allpatients")
+        .select("onsite, text_opt, email_opt, email, phone");
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -139,7 +145,10 @@ export const supabaseTasks = {
         );
       }
 
-      if (expectedEmailOpt !== undefined && data.email_opt !== expectedEmailOpt) {
+      if (
+        expectedEmailOpt !== undefined &&
+        data.email_opt !== expectedEmailOpt
+      ) {
         throw new Error(
           `email_opt mismatch: expected ${expectedEmailOpt}, got ${data.email_opt}`,
         );
@@ -160,8 +169,10 @@ export const supabaseTasks = {
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      let query = supabase.from("allpatients").select("locationid, email, phone");
-      
+      let query = supabase
+        .from("allpatients")
+        .select("locationid, email, phone");
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -195,8 +206,10 @@ export const supabaseTasks = {
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      let query = supabase.from("allpatients").select("treatmenttype, email, phone");
-      
+      let query = supabase
+        .from("allpatients")
+        .select("treatmenttype, email, phone");
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -233,7 +246,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select("id, email, phone");
-      
+
       if (emails && emails.length > 0) {
         query = query.in("email", emails);
       } else if (phones && phones.length > 0) {
@@ -271,7 +284,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select(field);
-      
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -308,8 +321,10 @@ export const supabaseTasks = {
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      let query = supabase.from("allpatients").select("firstname, lastname, email, phone");
-      
+      let query = supabase
+        .from("allpatients")
+        .select("firstname, lastname, email, phone");
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -344,7 +359,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select("id");
-      
+
       if (emailPattern) {
         query = query.like("email", emailPattern);
       } else if (phonePattern) {
@@ -378,7 +393,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select("*");
-      
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -409,7 +424,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select("*");
-      
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -425,11 +440,7 @@ export const supabaseTasks = {
       }
 
       // Verify required fields
-      const requiredFields = [
-        "firstname",
-        "lastname",
-        "locationid",
-      ];
+      const requiredFields = ["firstname", "lastname", "locationid"];
       const missingFields = requiredFields.filter((f) => !patient[f]);
 
       if (missingFields.length > 0) {
@@ -459,8 +470,10 @@ export const supabaseTasks = {
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      let query = supabase.from("allpatients").select("email_opt, text_opt, email, phone");
-      
+      let query = supabase
+        .from("allpatients")
+        .select("email_opt, text_opt, email, phone");
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -508,7 +521,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select("address, email, phone");
-      
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -547,7 +560,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select("phone, email");
-      
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -584,7 +597,7 @@ export const supabaseTasks = {
 
     try {
       let query = supabase.from("allpatients").select("dob, email, phone");
-      
+
       if (email) {
         query = query.eq("email", email);
       } else if (phone) {
@@ -600,7 +613,9 @@ export const supabaseTasks = {
       }
 
       if (expectedDob) {
-        const storedDob = data.dob ? new Date(data.dob).toISOString().split('T')[0] : null;
+        const storedDob = data.dob
+          ? new Date(data.dob).toISOString().split("T")[0]
+          : null;
         if (storedDob !== expectedDob) {
           throw new Error(
             `DOB mismatch: expected "${expectedDob}", got "${storedDob}"`,
@@ -619,5 +634,136 @@ export const supabaseTasks = {
   logMessage(message: string) {
     console.log(message);
     return null;
+  },
+
+  /**
+   * Generic query task - wraps Supabase queries with SQL-like interface
+   * Used by tests that expect db:query style calls
+   */
+  async "db:query"({ query, params }: { query: string; params: any[] }) {
+    const supabase = getSupabaseClient();
+    if (!supabase) return { rows: [], error: "Supabase not configured" };
+
+    try {
+      // Parse the query to determine operation type
+      const queryLower = query.toLowerCase().trim();
+
+      // SELECT queries
+      if (queryLower.startsWith("select")) {
+        // Extract table name and where clause
+        const fromMatch = query.match(/from\s+(\w+)/i);
+        const tableName = fromMatch ? fromMatch[1] : "allpatients";
+
+        let supabaseQuery = supabase.from(tableName).select("*");
+
+        // Handle WHERE clause with email
+        if (
+          queryLower.includes("where") &&
+          queryLower.includes("email") &&
+          params[0]
+        ) {
+          supabaseQuery = supabaseQuery.eq("email", params[0]);
+        }
+        // Handle WHERE clause with phone
+        else if (
+          queryLower.includes("where") &&
+          queryLower.includes("phone") &&
+          params[0]
+        ) {
+          supabaseQuery = supabaseQuery.eq("phone", params[0]);
+        }
+        // Handle WHERE clause with id
+        else if (
+          queryLower.includes("where") &&
+          queryLower.includes("id") &&
+          params[0]
+        ) {
+          supabaseQuery = supabaseQuery.eq("id", params[0]);
+        }
+
+        // Handle ORDER BY and LIMIT
+        if (queryLower.includes("order by") && queryLower.includes("desc")) {
+          supabaseQuery = supabaseQuery.order("created_at", {
+            ascending: false,
+          });
+        }
+        if (queryLower.includes("limit 1")) {
+          supabaseQuery = supabaseQuery.limit(1);
+        }
+
+        const { data, error } = await supabaseQuery;
+
+        if (error) {
+          console.error("db:query SELECT error:", error);
+          return { rows: [], error: error.message };
+        }
+
+        return { rows: data || [] };
+      }
+
+      // DELETE queries
+      else if (queryLower.startsWith("delete")) {
+        const fromMatch = query.match(/from\s+(\w+)/i);
+        const tableName = fromMatch ? fromMatch[1] : "allpatients";
+
+        let deleteQuery = supabase.from(tableName).delete();
+
+        // Handle WHERE clause with id
+        if (
+          queryLower.includes("where") &&
+          queryLower.includes("id") &&
+          params[0]
+        ) {
+          deleteQuery = deleteQuery.eq("id", params[0]);
+        }
+        // Handle WHERE clause with email
+        else if (
+          queryLower.includes("where") &&
+          queryLower.includes("email") &&
+          params[0]
+        ) {
+          deleteQuery = deleteQuery.eq("email", params[0]);
+        }
+
+        const { error } = await deleteQuery;
+
+        if (error) {
+          console.error("db:query DELETE error:", error);
+          return { success: false, error: error.message };
+        }
+
+        return { success: true, rows: [] };
+      }
+
+      return { rows: [], error: "Unsupported query type" };
+    } catch (err: any) {
+      console.error("db:query error:", err);
+      return { rows: [], error: err.message };
+    }
+  },
+
+  /**
+   * Delete patient by ID
+   */
+  async deletePatientById({ id }: { id: number }) {
+    const supabase = getSupabaseClient();
+    if (!supabase) return { success: false, error: "Supabase not configured" };
+
+    try {
+      const { error } = await supabase
+        .from("allpatients")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("deletePatientById error:", error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      console.error("deletePatientById error:", err);
+      return { success: false, error: err.message };
+    }
   },
 };

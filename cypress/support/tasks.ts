@@ -19,61 +19,75 @@ const getSupabaseClient = () => {
 // ===== SUPABASE TASK DEFINITIONS FOR DATA INTEGRITY TESTS =====
 export const supabaseTasks = {
   /**
-   * Verify appointment exists in Appoinments table
+   * Verify patient exists in allpatients table
    */
-  async verifyAppointmentInDB({ email_address, first_name, last_name }: any) {
+  async verifyPatientInDB({ email, firstname, lastname, phone }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("*")
-        .eq("email_address", email_address)
-        .single();
+      let query = supabase.from("allpatients").select("*");
+      
+      // Build query based on provided parameters
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
+      }
+
+      const { data, error } = await query.single();
 
       if (error || !data) {
         throw new Error(
-          `Appointment not found for ${email_address}: ${error?.message}`,
+          `Patient not found: ${error?.message}`,
         );
       }
 
-      if (first_name && data.first_name !== first_name) {
+      if (firstname && data.firstname !== firstname) {
         throw new Error(
-          `First name mismatch: expected "${first_name}", got "${data.first_name}"`,
+          `First name mismatch: expected "${firstname}", got "${data.firstname}"`,
         );
       }
-      if (last_name && data.last_name !== last_name) {
+      if (lastname && data.lastname !== lastname) {
         throw new Error(
-          `Last name mismatch: expected "${last_name}", got "${data.last_name}"`,
+          `Last name mismatch: expected "${lastname}", got "${data.lastname}"`,
         );
       }
 
       return { success: true, data };
     } catch (err: any) {
-      console.error("❌ verifyAppointmentInDB error:", err);
+      console.error("❌ verifyPatientInDB error:", err);
       throw err;
     }
   },
 
   /**
-   * Verify all appointment fields match expected values
+   * Verify all patient fields match expected values
    */
-  async verifyAppointmentFields({ email_address, expectedFields }: any) {
+  async verifyPatientFields({ email, phone, expectedFields }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("*")
-        .eq("email_address", email_address)
-        .single();
-
-      if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+      let query = supabase.from("allpatients").select("*");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
       }
 
+      const { data, error } = await query.single();
+
+      if (error || !data) {
+        throw new Error(`Patient not found: ${error?.message}`);
+      }
+
+      // Check each expected field
       Object.keys(expectedFields).forEach((key) => {
         if (data[key] !== expectedFields[key]) {
           throw new Error(
@@ -84,35 +98,50 @@ export const supabaseTasks = {
 
       return { success: true, data };
     } catch (err: any) {
-      console.error("❌ verifyAppointmentFields error:", err);
+      console.error("❌ verifyPatientFields error:", err);
       throw err;
     }
   },
 
   /**
-   * Verify patient flags (in_office_patient, new_patient)
+   * Verify patient flags (onsite, text_opt, email_opt)
    */
-  async verifyPatientFlags({ email_address, expectedInOfficePatient }: any) {
+  async verifyPatientFlags({ email, phone, expectedOnsite, expectedTextOpt, expectedEmailOpt }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("in_office_patient, new_patient, email_address")
-        .eq("email_address", email_address)
-        .single();
-
-      if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+      let query = supabase.from("allpatients").select("onsite, text_opt, email_opt, email, phone");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
       }
 
-      if (
-        expectedInOfficePatient !== undefined &&
-        data.in_office_patient !== expectedInOfficePatient
-      ) {
+      const { data, error } = await query.single();
+
+      if (error || !data) {
+        throw new Error(`Patient not found: ${error?.message}`);
+      }
+
+      if (expectedOnsite !== undefined && data.onsite !== expectedOnsite) {
         throw new Error(
-          `in_office_patient mismatch: expected ${expectedInOfficePatient}, got ${data.in_office_patient}`,
+          `onsite mismatch: expected ${expectedOnsite}, got ${data.onsite}`,
+        );
+      }
+
+      if (expectedTextOpt !== undefined && data.text_opt !== expectedTextOpt) {
+        throw new Error(
+          `text_opt mismatch: expected ${expectedTextOpt}, got ${data.text_opt}`,
+        );
+      }
+
+      if (expectedEmailOpt !== undefined && data.email_opt !== expectedEmailOpt) {
+        throw new Error(
+          `email_opt mismatch: expected ${expectedEmailOpt}, got ${data.email_opt}`,
         );
       }
 
@@ -126,23 +155,29 @@ export const supabaseTasks = {
   /**
    * Verify location_id is stored
    */
-  async verifyLocationId({ email_address }: any) {
+  async verifyLocationId({ email, phone }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("location_id, email_address")
-        .eq("email_address", email_address)
-        .single();
-
-      if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+      let query = supabase.from("allpatients").select("locationid, email, phone");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
       }
 
-      if (!data.location_id) {
-        console.warn("⚠️ location_id is null");
+      const { data, error } = await query.single();
+
+      if (error || !data) {
+        throw new Error(`Patient not found: ${error?.message}`);
+      }
+
+      if (!data.locationid) {
+        console.warn("⚠️ locationid is null");
       }
 
       return { success: true, data };
@@ -153,125 +188,32 @@ export const supabaseTasks = {
   },
 
   /**
-   * Verify medical form data in intake_form table
-   */
-  async verifyMedicalData({
-    email_address,
-    expectedChiefComplaint,
-    expectedSymptoms,
-  }: any) {
-    const supabase = getSupabaseClient();
-    if (!supabase) return { success: false, error: "Supabase not configured" };
-
-    try {
-      const { data: appointment, error: apptError } = await supabase
-        .from("Appoinments")
-        .select("id")
-        .eq("email_address", email_address)
-        .single();
-
-      if (apptError || !appointment) {
-        throw new Error(`Appointment not found: ${apptError?.message}`);
-      }
-
-      const { data, error } = await supabase
-        .from("intake_form")
-        .select("*")
-        .eq("appointment_id", appointment.id)
-        .single();
-
-      if (error || !data) {
-        throw new Error(`Medical data not found: ${error?.message}`);
-      }
-
-      if (
-        expectedChiefComplaint &&
-        !data.chief_complaint?.includes(expectedChiefComplaint)
-      ) {
-        throw new Error(
-          `Chief complaint mismatch: expected to include "${expectedChiefComplaint}"`,
-        );
-      }
-      if (
-        expectedSymptoms &&
-        !data.symptoms_description?.includes(expectedSymptoms)
-      ) {
-        throw new Error(
-          `Symptoms mismatch: expected to include "${expectedSymptoms}"`,
-        );
-      }
-
-      return { success: true, data };
-    } catch (err: any) {
-      console.error("❌ verifyMedicalData error:", err);
-      throw err;
-    }
-  },
-
-  /**
-   * Verify intake form is linked to appointment via foreign key
-   */
-  async verifyIntakeFormLinking({ email_address }: any) {
-    const supabase = getSupabaseClient();
-    if (!supabase) return { success: false, error: "Supabase not configured" };
-
-    try {
-      const { data: appointment, error: apptError } = await supabase
-        .from("Appoinments")
-        .select("id")
-        .eq("email_address", email_address)
-        .single();
-
-      if (apptError || !appointment) {
-        throw new Error(`Appointment not found: ${apptError?.message}`);
-      }
-
-      const { data, error } = await supabase
-        .from("intake_form")
-        .select("appointment_id")
-        .eq("appointment_id", appointment.id)
-        .single();
-
-      if (error || !data) {
-        throw new Error(
-          `Intake form not found for appointment: ${error?.message}`,
-        );
-      }
-
-      if (data.appointment_id !== appointment.id) {
-        throw new Error(
-          `Intake form linking mismatch: expected ${appointment.id}, got ${data.appointment_id}`,
-        );
-      }
-
-      return { success: true, data };
-    } catch (err: any) {
-      console.error("❌ verifyIntakeFormLinking error:", err);
-      throw err;
-    }
-  },
-
-  /**
    * Verify service is stored correctly
    */
-  async verifyServiceStorage({ email_address, expectedService }: any) {
+  async verifyServiceStorage({ email, phone, expectedService }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("service")
-        .eq("email_address", email_address)
-        .single();
-
-      if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+      let query = supabase.from("allpatients").select("treatmenttype, email, phone");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
       }
 
-      if (expectedService && data.service !== expectedService) {
+      const { data, error } = await query.single();
+
+      if (error || !data) {
+        throw new Error(`Patient not found: ${error?.message}`);
+      }
+
+      if (expectedService && data.treatmenttype !== expectedService) {
         throw new Error(
-          `Service mismatch: expected "${expectedService}", got "${data.service}"`,
+          `Service mismatch: expected "${expectedService}", got "${data.treatmenttype}"`,
         );
       }
 
@@ -283,34 +225,39 @@ export const supabaseTasks = {
   },
 
   /**
-   * Verify each appointment has unique ID
+   * Verify each patient has unique ID
    */
-  async verifyUniqueAppointmentIds({ emails }: any) {
+  async verifyUniquePatientIds({ emails, phones }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("id, email_address")
-        .in("email_address", emails);
+      let query = supabase.from("allpatients").select("id, email, phone");
+      
+      if (emails && emails.length > 0) {
+        query = query.in("email", emails);
+      } else if (phones && phones.length > 0) {
+        query = query.in("phone", phones);
+      } else {
+        throw new Error("Either emails or phones array must be provided");
+      }
 
-      if (error || !data || data.length !== emails.length) {
-        throw new Error(
-          `Not all appointments found. Expected ${emails.length}, got ${data?.length || 0}`,
-        );
+      const { data, error } = await query;
+
+      if (error || !data) {
+        throw new Error(`Patients not found: ${error?.message}`);
       }
 
       const ids = data.map((d: any) => d.id);
       const uniqueIds = new Set(ids);
 
       if (uniqueIds.size !== ids.length) {
-        throw new Error("Appointment IDs are not unique!");
+        throw new Error("Patient IDs are not unique!");
       }
 
       return { success: true, count: ids.length, data };
     } catch (err: any) {
-      console.error("❌ verifyUniqueAppointmentIds error:", err);
+      console.error("❌ verifyUniquePatientIds error:", err);
       throw err;
     }
   },
@@ -318,19 +265,25 @@ export const supabaseTasks = {
   /**
    * Verify data type of a field
    */
-  async verifyDataType({ email_address, field, expectedType }: any) {
+  async verifyDataType({ email, phone, field, expectedType }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select(field)
-        .eq("email_address", email_address)
-        .single();
+      let query = supabase.from("allpatients").select(field);
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
+      }
+
+      const { data, error } = await query.single();
 
       if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+        throw new Error(`Patient not found: ${error?.message}`);
       }
 
       const actualType = typeof data[field];
@@ -348,49 +301,30 @@ export const supabaseTasks = {
   },
 
   /**
-   * Verify intake form appointment linkage
+   * Verify data with special characters is stored
    */
-  async verifyIntakeLinkage({ email_address }: any) {
+  async verifySpecialCharacters({ email, phone }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("id")
-        .eq("email_address", email_address)
-        .single();
-
-      if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+      let query = supabase.from("allpatients").select("firstname, lastname, email, phone");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
       }
 
-      return { success: true, appointmentId: data.id };
-    } catch (err: any) {
-      console.error("❌ verifyIntakeLinkage error:", err);
-      throw err;
-    }
-  },
-
-  /**
-   * Verify data is stored (basic check)
-   */
-  async verifySpecialCharacters({ email_address }: any) {
-    const supabase = getSupabaseClient();
-    if (!supabase) return { success: false, error: "Supabase not configured" };
-
-    try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("first_name, last_name, email_address")
-        .eq("email_address", email_address)
-        .single();
+      const { data, error } = await query.single();
 
       if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+        throw new Error(`Patient not found: ${error?.message}`);
       }
 
-      if (!data.first_name || data.first_name.trim() === "") {
+      if (!data.firstname || data.firstname.trim() === "") {
         throw new Error("First name is empty");
       }
 
@@ -402,25 +336,31 @@ export const supabaseTasks = {
   },
 
   /**
-   * Cleanup test data - delete test appointments
+   * Cleanup test data - delete test patients
    */
-  async cleanupTestData({ emailPattern }: any) {
+  async cleanupTestData({ emailPattern, phonePattern }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, deleted: 0 };
 
     try {
-      const { data: toDelete } = await supabase
-        .from("Appoinments")
-        .select("id")
-        .like("email_address", emailPattern);
+      let query = supabase.from("allpatients").select("id");
+      
+      if (emailPattern) {
+        query = query.like("email", emailPattern);
+      } else if (phonePattern) {
+        query = query.like("phone", phonePattern);
+      } else {
+        return { success: true, deleted: 0 };
+      }
+
+      const { data: toDelete } = await query;
 
       if (!toDelete || toDelete.length === 0) {
         return { success: true, deleted: 0 };
       }
 
       const ids = toDelete.map((t: any) => t.id);
-      await supabase.from("intake_form").delete().in("appointment_id", ids);
-      await supabase.from("Appoinments").delete().in("id", ids);
+      await supabase.from("allpatients").delete().in("id", ids);
 
       return { success: true, deleted: ids.length };
     } catch (err: any) {
@@ -430,80 +370,78 @@ export const supabaseTasks = {
   },
 
   /**
-   * Get appointment data
+   * Get patient data
    */
-  async getAppointmentData({ email_address }: any) {
+  async getPatientData({ email, phone }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("*")
-        .eq("email_address", email_address)
-        .single();
+      let query = supabase.from("allpatients").select("*");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
+      }
+
+      const { data, error } = await query.single();
 
       if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+        throw new Error(`Patient not found: ${error?.message}`);
       }
 
       return { success: true, data };
     } catch (err: any) {
-      console.error("❌ getAppointmentData error:", err);
+      console.error("❌ getPatientData error:", err);
       throw err;
     }
   },
 
   /**
-   * Verify complete appointment flow
+   * Verify complete patient flow
    */
-  async verifyCompleteAppointmentFlow({ email_address }: any) {
+  async verifyCompletePatientFlow({ email, phone }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data: appointment, error: apptError } = await supabase
-        .from("Appoinments")
-        .select("*")
-        .eq("email_address", email_address)
-        .single();
+      let query = supabase.from("allpatients").select("*");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
+      }
 
-      if (apptError || !appointment) {
-        throw new Error(`Appointment not found: ${apptError?.message}`);
+      const { data: patient, error } = await query.single();
+
+      if (error || !patient) {
+        throw new Error(`Patient not found: ${error?.message}`);
       }
 
       // Verify required fields
       const requiredFields = [
-        "first_name",
-        "last_name",
-        "email_address",
-        "location_id",
+        "firstname",
+        "lastname",
+        "locationid",
       ];
-      const missingFields = requiredFields.filter((f) => !appointment[f]);
+      const missingFields = requiredFields.filter((f) => !patient[f]);
 
       if (missingFields.length > 0) {
         throw new Error(`Missing required fields: ${missingFields.join(", ")}`);
       }
 
-      let intakeData = null;
-      if (appointment.id) {
-        const { data: intake } = await supabase
-          .from("intake_form")
-          .select("*")
-          .eq("appointment_id", appointment.id)
-          .single();
-
-        if (intake) intakeData = intake;
-      }
-
       return {
         success: true,
-        appointment,
-        hasIntakeForm: !!intakeData,
-        intakeData,
+        patient,
       };
     } catch (err: any) {
-      console.error("❌ verifyCompleteAppointmentFlow error:", err);
+      console.error("❌ verifyCompletePatientFlow error:", err);
       throw err;
     }
   },
@@ -512,7 +450,8 @@ export const supabaseTasks = {
    * Verify consent flags (email_opt and text_opt)
    */
   async verifyConsentFlags({
-    email_address,
+    email,
+    phone,
     expectedEmailConsent,
     expectedTextConsent,
   }: any) {
@@ -520,14 +459,20 @@ export const supabaseTasks = {
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("email_opt, text_opt, email_address")
-        .eq("email_address", email_address)
-        .single();
+      let query = supabase.from("allpatients").select("email_opt, text_opt, email, phone");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
+      }
+
+      const { data, error } = await query.single();
 
       if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+        throw new Error(`Patient not found: ${error?.message}`);
       }
 
       if (
@@ -557,19 +502,25 @@ export const supabaseTasks = {
   /**
    * Verify address is stored correctly
    */
-  async verifyAddressStorage({ email_address, expectedAddress }: any) {
+  async verifyAddressStorage({ email, phone, expectedAddress }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("address, email_address")
-        .eq("email_address", email_address)
-        .single();
+      let query = supabase.from("allpatients").select("address, email, phone");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
+      }
+
+      const { data, error } = await query.single();
 
       if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+        throw new Error(`Patient not found: ${error?.message}`);
       }
 
       if (expectedAddress && !data.address?.includes(expectedAddress)) {
@@ -588,100 +539,78 @@ export const supabaseTasks = {
   },
 
   /**
-   * Verify date_and_time field format
+   * Verify phone number format (+1 prefix)
    */
-  async verifyDateFormat({ email_address }: any) {
+  async verifyPhoneFormat({ email, phone, expectedFormat = "+1" }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("date_and_time, email_address")
-        .eq("email_address", email_address)
-        .single();
+      let query = supabase.from("allpatients").select("phone, email");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
+      }
+
+      const { data, error } = await query.single();
 
       if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+        throw new Error(`Patient not found: ${error?.message}`);
       }
 
-      if (data.date_and_time && data.date_and_time !== "NULL") {
-        // Expected format: "locationID|DD-MM-YYYY - HH:MM AM/PM"
-        const formatRegex = /\d+\|\d{2}-\d{2}-\d{4}/;
-        if (!formatRegex.test(data.date_and_time)) {
-          throw new Error(
-            `date_and_time format invalid: "${data.date_and_time}"`,
-          );
-        }
-      }
-
-      return { success: true, data };
-    } catch (err: any) {
-      console.error("❌ verifyDateFormat error:", err);
-      throw err;
-    }
-  },
-
-  /**
-   * Verify state extraction and storage
-   */
-  async verifyStateExtraction({ email_address, expectedState }: any) {
-    const supabase = getSupabaseClient();
-    if (!supabase) return { success: false, error: "Supabase not configured" };
-
-    try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("states, email_address")
-        .eq("email_address", email_address)
-        .single();
-
-      if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
-      }
-
-      if (expectedState && data.states !== expectedState) {
+      if (!data.phone?.startsWith(expectedFormat)) {
         throw new Error(
-          `State mismatch: expected "${expectedState}", got "${data.states}"`,
+          `Phone format invalid: expected to start with "${expectedFormat}", got "${data.phone}"`,
         );
       }
 
       return { success: true, data };
     } catch (err: any) {
-      console.error("❌ verifyStateExtraction error:", err);
+      console.error("❌ verifyPhoneFormat error:", err);
       throw err;
     }
   },
 
   /**
-   * Verify zipcode is stored
+   * Verify date of birth is stored correctly
    */
-  async verifyZipcodeStorage({ email_address, expectedZipcode }: any) {
+  async verifyDateOfBirth({ email, phone, expectedDob }: any) {
     const supabase = getSupabaseClient();
     if (!supabase) return { success: false, error: "Supabase not configured" };
 
     try {
-      const { data, error } = await supabase
-        .from("Appoinments")
-        .select("address, email_address")
-        .eq("email_address", email_address)
-        .single();
-
-      if (error || !data) {
-        throw new Error(`Appointment not found: ${error?.message}`);
+      let query = supabase.from("allpatients").select("dob, email, phone");
+      
+      if (email) {
+        query = query.eq("email", email);
+      } else if (phone) {
+        query = query.eq("phone", phone);
+      } else {
+        throw new Error("Either email or phone must be provided");
       }
 
-      if (expectedZipcode && data.address) {
-        if (!data.address.includes(expectedZipcode)) {
+      const { data, error } = await query.single();
+
+      if (error || !data) {
+        throw new Error(`Patient not found: ${error?.message}`);
+      }
+
+      if (expectedDob) {
+        const storedDob = data.dob ? new Date(data.dob).toISOString().split('T')[0] : null;
+        if (storedDob !== expectedDob) {
           throw new Error(
-            `Zipcode "${expectedZipcode}" not found in address "${data.address}"`,
+            `DOB mismatch: expected "${expectedDob}", got "${storedDob}"`,
           );
         }
       }
 
       return { success: true, data };
     } catch (err: any) {
-      console.error("❌ verifyZipcodeStorage error:", err);
+      console.error("❌ verifyDateOfBirth error:", err);
       throw err;
     }
   },

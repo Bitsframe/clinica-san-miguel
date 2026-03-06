@@ -29,7 +29,7 @@ jobs:
       - name: Create results directory
         run: mkdir -p cypress/results
 
-      # 4️⃣ Run Cypress with Cloud recording and JSON reporter
+      # 4️⃣ Run Cypress with Cloud recording (mochawesome configured in cypress.config.ts)
       - name: Cypress Cloud Run
         id: cypress
         uses: cypress-io/github-action@v6
@@ -38,7 +38,7 @@ jobs:
           start: yarn dev
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
-          command: npx cypress run --spec cypress/e2e/supabase-contact-form.cy.ts --record --reporter json --reporter-options output=cypress/results/results.json
+          command: npx cypress run --spec cypress/e2e/appointment-form.cy --record
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -54,6 +54,20 @@ jobs:
           echo "runId=${RUN_ID}" >> $GITHUB_OUTPUT
           echo "🎯 Cypress Run ID: ${RUN_ID}"
 
+      # 5.5️⃣ Merge mochawesome reports and debug
+      - name: Merge mochawesome reports
+        if: always()
+        run: |
+          echo "📁 Results directory contents:"
+          ls -la cypress/results/ || echo "No results directory"
+          if ls cypress/results/mochawesome*.json 1> /dev/null 2>&1; then
+            echo "🔗 Merging mochawesome reports..."
+            npx mochawesome-merge cypress/results/mochawesome*.json > cypress/results/merged-report.json
+            echo "✅ Merged report created"
+          else
+            echo "⚠️ No mochawesome JSON files found to merge"
+          fi
+
       # 6️⃣ Create ClickUp tasks for each failed test
       - name: Create ClickUp tasks for failed tests
         if: failure() || steps.cypress.outcome == 'failure'
@@ -68,6 +82,4 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_ACTOR: ${{ github.actor }}
-          # Pass the test results directly from Cypress output
-          TEST_RESULTS: ${{ steps.cypress.outputs.results }}
         run: node scripts/create-clickup-tasks-cloud.js

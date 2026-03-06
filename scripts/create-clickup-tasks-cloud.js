@@ -56,42 +56,83 @@ function getFailedTests() {
     }
   }
 
-  // Option 2: Read from Cypress JSON report files
-  const reportPaths = [
-    "cypress/results/results.json",
-    "cypress/results/output.json",
+  // Option 2: Scan for mochawesome JSON files in cypress/results
+  const resultsDir = path.resolve(process.cwd(), "cypress/results");
+  const reportPaths = [];
+
+  // First priority: merged report
+  reportPaths.push("cypress/results/merged-report.json");
+
+  // Then look for any mochawesome JSON files in results directory
+  if (fs.existsSync(resultsDir)) {
+    const files = fs.readdirSync(resultsDir);
+    console.log(`📁 Files in cypress/results: ${files.join(", ")}`);
+    files.forEach((file) => {
+      if (file.endsWith(".json") && file.startsWith("mochawesome")) {
+        reportPaths.push(path.join("cypress/results", file));
+      }
+    });
+    // Also check for generic json files
+    files.forEach((file) => {
+      if (
+        file.endsWith(".json") &&
+        !file.startsWith("mochawesome") &&
+        file !== "merged-report.json"
+      ) {
+        reportPaths.push(path.join("cypress/results", file));
+      }
+    });
+  } else {
+    console.log("⚠️ cypress/results directory does not exist");
+  }
+
+  // Add fallback paths
+  reportPaths.push(
     "mochawesome-report/mochawesome.json",
     "cypress/reports/mochawesome.json",
-  ];
+  );
+
+  console.log(`🔍 Will check these report paths: ${reportPaths.join(", ")}`);
 
   for (const reportPath of reportPaths) {
     const fullPath = path.resolve(process.cwd(), reportPath);
     if (fs.existsSync(fullPath)) {
+      console.log(`📄 Parsing report: ${reportPath}`);
       try {
         const report = JSON.parse(fs.readFileSync(fullPath, "utf8"));
+
+        // Helper to recursively extract failed tests from nested suites
+        function extractFromSuite(suite, specFile) {
+          // Process tests in this suite
+          if (suite.tests) {
+            suite.tests.forEach((test) => {
+              if (test.fail || test.state === "failed") {
+                failedTests.push({
+                  title: test.title || test.fullTitle || "Unknown test",
+                  suite: suite.title || specFile || "Unknown suite",
+                  error:
+                    test.err?.message || test.err?.estack || "No error message",
+                  duration: test.duration || 0,
+                  specFile: specFile || "Unknown",
+                });
+              }
+            });
+          }
+          // Recursively process nested suites
+          if (suite.suites) {
+            suite.suites.forEach((childSuite) =>
+              extractFromSuite(childSuite, specFile),
+            );
+          }
+        }
 
         // Handle mochawesome format
         if (report.results) {
           report.results.forEach((result) => {
             if (result.suites) {
-              result.suites.forEach((suite) => {
-                if (suite.tests) {
-                  suite.tests.forEach((test) => {
-                    if (test.fail || test.state === "failed") {
-                      failedTests.push({
-                        title: test.title || test.fullTitle || "Unknown test",
-                        suite: suite.title || result.file || "Unknown suite",
-                        error:
-                          test.err?.message ||
-                          test.err?.estack ||
-                          "No error message",
-                        duration: test.duration || 0,
-                        specFile: result.file || "Unknown",
-                      });
-                    }
-                  });
-                }
-              });
+              result.suites.forEach((suite) =>
+                extractFromSuite(suite, result.file),
+              );
             }
           });
         }

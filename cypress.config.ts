@@ -36,8 +36,11 @@ export default defineConfig({
       openMode: 0,
     },
 
-    // Cypress Cloud built-in reporting (faster)
-    reporter: "spec",
+    // Multi-reporter: spec for console, mochawesome for JSON results
+    reporter: "cypress-multi-reporters",
+    reporterOptions: {
+      configFile: "cypress/reporter-config.json",
+    },
 
     setupNodeEvents(on, config) {
       // Register Supabase tasks

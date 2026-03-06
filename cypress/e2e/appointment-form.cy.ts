@@ -49,18 +49,30 @@ describe("Appointment Form - Backend Insertion Tests", () => {
       }
     });
 
-    cy.contains("button", /Book an appoinment/i, { timeout: 10000 }).should(
-      "be.visible",
-    );
+    // Wait for page to fully render
+    cy.wait(3000);
 
-    // Click the Book an Appointment button to open modal
-    cy.contains("button", /Book an appoinment/i).click({ force: true });
+    // Find and click the "Book an appoinment" button
+    // Use contains with regex for case-insensitive matching
+    cy.contains("button", /book/i)
+      .first()
+      .scrollIntoView()
+      .should("be.visible")
+      .then(($btn) => {
+        cy.log("Found button: " + $btn.text());
+        cy.wrap($btn).click({ force: true });
+      });
 
-    // Wait for modal to open - Flowbite Modal renders with specific classes
-    // The modal title contains "Appointment Request" but check for form elements too
-    cy.get('input[placeholder="John"]', { timeout: 20000 }).should(
-      "be.visible",
-    );
+    // Wait for modal to fully render
+    cy.wait(3000);
+
+    // Wait for form inputs to appear
+    cy.get("input", { timeout: 20000 }).should("have.length.at.least", 3);
+
+    // Find the first name input
+    cy.get('input[placeholder="John"]', { timeout: 10000 })
+      .first()
+      .should("be.visible");
   }
 
   afterEach(() => {

@@ -55,10 +55,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     // Click the Book an Appointment button to open modal
     cy.contains("button", /book an appoinment/i).click();
 
-    // Wait for modal to open
-    cy.get('[role="dialog"], .modal-content, .fixed.inset-0', {
-      timeout: 10000,
-    }).should("be.visible");
+    // Wait for modal to open - look for the modal title "Appointment Request"
+    cy.contains("Appointment Request", { timeout: 15000 }).should("be.visible");
+
+    // Wait for modal form elements to be ready
+    cy.get('input[placeholder="John"]', { timeout: 5000 }).should("be.visible");
   });
 
   afterEach(() => {

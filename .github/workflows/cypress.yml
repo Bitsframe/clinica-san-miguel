@@ -33,7 +33,6 @@ jobs:
       - name: Cypress Cloud Run
         id: cypress
         uses: cypress-io/github-action@v6
-        continue-on-error: true
         with:
           start: yarn dev
           wait-on: "http://localhost:3000"

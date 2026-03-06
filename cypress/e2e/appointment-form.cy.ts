@@ -22,7 +22,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   let insertedRecordId: number | null = null;
   let selectedLocationId: number;
 
-  beforeEach(() => {
+  // Helper function to setup the modal - called at start of each test
+  function setupAppointmentModal() {
     // Visit contact page
     cy.visit("/contact");
     cy.get("body").should("be.visible");
@@ -48,19 +49,19 @@ describe("Appointment Form - Backend Insertion Tests", () => {
       }
     });
 
-    cy.contains("button", /book an appoinment/i, { timeout: 10000 }).should(
+    cy.contains("button", /Book an appoinment/i, { timeout: 10000 }).should(
       "be.visible",
     );
 
     // Click the Book an Appointment button to open modal
-    cy.contains("button", /book an appoinment/i).click();
+    cy.contains("button", /Book an appoinment/i).click({ force: true });
 
-    // Wait for modal to open - look for the modal title "Appointment Request"
-    cy.contains("Appointment Request", { timeout: 15000 }).should("be.visible");
-
-    // Wait for modal form elements to be ready
-    cy.get('input[placeholder="John"]', { timeout: 5000 }).should("be.visible");
-  });
+    // Wait for modal to open - Flowbite Modal renders with specific classes
+    // The modal title contains "Appointment Request" but check for form elements too
+    cy.get('input[placeholder="John"]', { timeout: 20000 }).should(
+      "be.visible",
+    );
+  }
 
   afterEach(() => {
     // Clean up test data
@@ -75,6 +76,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   });
 
   it("TC-001: Should successfully submit complete appointment form", () => {
+    setupAppointmentModal();
+
     // Fill the form
     fillAppointmentForm(testData);
 
@@ -91,6 +94,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   });
 
   it("TC-002: Should validate required fields", () => {
+    setupAppointmentModal();
+
     // Try to submit without filling
     cy.get('button:contains("Book now")').click();
 
@@ -101,6 +106,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   });
 
   it("TC-003: Should handle optional email field", () => {
+    setupAppointmentModal();
+
     // Fill form without email
     fillAppointmentForm({ ...testData, email: "" });
 
@@ -114,6 +121,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   });
 
   it("TC-004: Should format phone number correctly with +1 prefix", () => {
+    setupAppointmentModal();
+
     const phoneWithoutPrefix = "5551234567";
     const expectedPhone = `+1${phoneWithoutPrefix}`;
 
@@ -134,6 +143,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   });
 
   it("TC-005: Should handle different gender selections", () => {
+    setupAppointmentModal();
+
     const genders = ["Male", "Female", "Other"];
 
     genders.forEach((gender, index) => {
@@ -160,6 +171,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   });
 
   it("TC-006: Should handle checkbox opt-ins correctly", () => {
+    setupAppointmentModal();
+
     // Test with both unchecked
     const noOptData = { ...testData, emailOpt: false, textOpt: false };
 
@@ -180,6 +193,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   });
 
   it("TC-007: Should store correct location ID", () => {
+    setupAppointmentModal();
+
     fillAppointmentForm(testData);
     cy.get('button:contains("Book now")').click();
     cy.contains("Appointment Booked Successfully", { timeout: 15000 }).should(

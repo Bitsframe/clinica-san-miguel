@@ -216,7 +216,7 @@ async function testClickUpToken() {
 // Create ClickUp task for a failed test - DYNAMIC, NO HARDCODED VALUES
 async function createTestFailureTask(test, index, totalFailed) {
   try {
-    const taskName = `❌ Test Failed: ${test.title.substring(0, 100)}`;
+    const taskName = `${test.title.substring(0, 100)}`;
 
     // Extract spec file name for tags
     const specFileName = test.specFile

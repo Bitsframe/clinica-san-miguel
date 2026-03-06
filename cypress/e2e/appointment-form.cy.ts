@@ -50,29 +50,18 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     });
 
     // Wait for page to fully render
-    cy.wait(3000);
+    cy.wait(2000);
 
-    // Find and click the "Book an appoinment" button
-    // Use contains with regex for case-insensitive matching
-    cy.contains("button", /book/i)
-      .first()
-      .scrollIntoView()
+    // Find and click the "Book an appoinment" button on the location detail page
+    cy.contains("button", /book an appoinment/i, { timeout: 15000 })
       .should("be.visible")
-      .then(($btn) => {
-        cy.log("Found button: " + $btn.text());
-        cy.wrap($btn).click({ force: true });
-      });
+      .click({ force: true });
 
-    // Wait for modal to fully render
-    cy.wait(3000);
+    // Wait for modal to appear by checking for the modal header text
+    cy.contains("Appointment Request", { timeout: 20000 }).should("be.visible");
 
-    // Wait for form inputs to appear
-    cy.get("input", { timeout: 20000 }).should("have.length.at.least", 3);
-
-    // Find the first name input
-    cy.get('input[placeholder="John"]', { timeout: 10000 })
-      .first()
-      .should("be.visible");
+    // Wait for form to be interactive
+    cy.wait(1000);
   }
 
   afterEach(() => {
@@ -225,8 +214,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
 
   // Helper Functions
   function fillAppointmentForm(data: typeof testData) {
-    // Personal Information - First Name
-    cy.get('input[placeholder="John"]').clear().type(data.firstName);
+    // First Name
+    cy.get('input[placeholder="John"]', { timeout: 10000 })
+      .should("be.visible")
+      .clear()
+      .type(data.firstName);
 
     // Last Name
     cy.get('input[placeholder="Doe"]').clear().type(data.lastName);
@@ -236,65 +228,73 @@ describe("Appointment Form - Backend Insertion Tests", () => {
       cy.get('input[placeholder="email@example.com"]').clear().type(data.email);
     }
 
-    // Phone - react-phone-input-2 component
+    // Phone number
     cy.get('input[placeholder="(555) 000-0000"]').clear().type(data.phone);
 
     // Date of Birth
-    cy.get('input[placeholder="YYYY-MM-DD"]').first().clear().type(data.dob);
+    cy.get('input[placeholder="YYYY-MM-DD"]').clear().type(data.dob);
 
-    // Gender selection - click the radio button label
-    cy.contains("label", data.gender).click();
+    // Gender - click the radio input directly
+    cy.contains(data.gender).click();
 
     // Street Address
     cy.get('input[placeholder="123 Clinic St"]')
       .clear()
       .type(data.streetAddress);
+    cy.wait(300);
 
-    // Wait a bit for any address suggestions, then dismiss if present
-    cy.wait(500);
-    cy.get("body").click(0, 0); // Click outside to dismiss suggestions
-
-    // Schedule Date - click to open calendar, then select today or next available day
+    // Schedule Date
     cy.get('input[placeholder="Select Schedule date"]').click();
-    // Wait for calendar popup
-    cy.get(".react-datepicker", { timeout: 5000 }).should("be.visible");
-    // Select today or first available day (not disabled)
-    cy.get(".react-datepicker__day:not(.react-datepicker__day--disabled)")
+    cy.get(".react-datepicker__day:not(.react-datepicker__day--disabled)", {
+      timeout: 5000,
+    })
       .first()
       .click();
 
-    // Time selection - wait for options to load, then select first available
-    cy.wait(1000); // Wait for time slots to load
+    // Schedule Time - select from dropdown
+    cy.wait(500);
+
+    // Find the time select (second select element)
     cy.get("select")
-      .contains("Select Schedule Time")
-      .parents("div")
-      .find("select")
-      .then(($select) => {
-        // Try to select the first non-empty option
-        cy.wrap($select)
+      .eq(1)
+      .then(($timeSelect) => {
+        cy.wrap($timeSelect)
           .find("option")
-          .not(':contains("Select Slot")')
-          .not(':contains("Closed")')
-          .not(':contains("No available")')
-          .first()
-          .then(($option) => {
-            if ($option.length > 0) {
-              cy.wrap($select).select($option.val() as string);
+          .then(($options) => {
+            const validOption = $options
+              .filter((i, el) => {
+                const val = el.getAttribute("value");
+                const text = el.textContent || "";
+                return Boolean(
+                  val &&
+                  val !== "" &&
+                  !text.includes("Select") &&
+                  !text.includes("Closed"),
+                );
+              })
+              .first();
+            if (validOption.length > 0) {
+              cy.wrap($timeSelect).select(validOption.val() as string);
             }
           });
       });
 
-    // Service selection - select first available service from dropdown
+    // Service selection - first select element
     cy.get("select")
-      .first()
-      .then(($select) => {
-        cy.wrap($select)
+      .eq(0)
+      .then(($serviceSelect) => {
+        cy.wrap($serviceSelect)
           .find("option")
-          .not(':contains("Select")')
-          .first()
-          .then(($option) => {
-            if ($option.length > 0 && $option.val()) {
-              cy.wrap($select).select($option.val() as string);
+          .then(($options) => {
+            const validOption = $options
+              .filter((i, el) => {
+                const val = el.getAttribute("value");
+                const text = el.textContent || "";
+                return Boolean(val && val !== "" && !text.includes("Select"));
+              })
+              .first();
+            if (validOption.length > 0) {
+              cy.wrap($serviceSelect).select(validOption.val() as string);
             }
           });
       });

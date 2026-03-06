@@ -1,5 +1,5 @@
 import { defineConfig } from "cypress";
-import { supabaseTasks } from "./cypress/support/e2e";
+import { supabaseTasks } from "./cypress/support/tasks";
 
 /**
  * Cypress Configuration for Supabase Contact Form Tests

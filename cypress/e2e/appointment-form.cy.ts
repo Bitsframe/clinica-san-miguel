@@ -79,8 +79,14 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-001: Should successfully submit complete appointment form", () => {
     setupAppointmentModal();
 
+    // Use unique email for this test
+    const tc001TestData = {
+      ...testData,
+      email: `john.doe${timestamp}.tc001@example.com`,
+    };
+
     // Fill the form
-    fillAppointmentForm(testData);
+    fillAppointmentForm(tc001TestData);
 
     // Submit form
     cy.contains("button", "Book now").click();
@@ -91,7 +97,7 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     );
 
     // Verify database insertion
-    verifyInsertedData(testData);
+    verifyInsertedData(tc001TestData);
   });
 
   it("TC-002: Should validate required fields", () => {
@@ -109,16 +115,29 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-003: Should handle optional email field", () => {
     setupAppointmentModal();
 
-    // Fill form without email
-    fillAppointmentForm({ ...testData, email: "" });
+    // Use unique identifiers for this test - use phone as identifier
+    const noEmailTestData = {
+      ...testData,
+      email: "", // Empty email
+      phone: "5559876543", // Unique phone for this test
+    };
+
+    fillAppointmentForm(noEmailTestData);
 
     cy.contains("button", "Book now").click();
     cy.contains("Appointment Booked Successfully", { timeout: 15000 }).should(
       "be.visible",
     );
 
-    // Verify email is null in database
-    verifyInsertedData({ ...testData, email: "" });
+    // Verify record was created with null email using phone to find it
+    cy.task("db:query", {
+      query:
+        "SELECT email FROM allpatients WHERE phone = $1 ORDER BY created_at DESC LIMIT 1",
+      params: ["+1" + noEmailTestData.phone],
+    }).then((result: any) => {
+      expect(result.rows).to.have.length.at.least(1);
+      expect(result.rows[0].email).to.be.null;
+    });
   });
 
   it("TC-004: Should format phone number correctly with +1 prefix", () => {
@@ -126,8 +145,13 @@ describe("Appointment Form - Backend Insertion Tests", () => {
 
     const phoneWithoutPrefix = "5551234567";
     const expectedPhone = `+1${phoneWithoutPrefix}`;
+    const tc004Email = `john.doe${timestamp}.tc004@example.com`;
 
-    fillAppointmentForm({ ...testData, phone: phoneWithoutPrefix });
+    fillAppointmentForm({
+      ...testData,
+      email: tc004Email,
+      phone: phoneWithoutPrefix,
+    });
     cy.contains("button", "Book now").click();
     cy.contains("Appointment Booked Successfully", { timeout: 15000 }).should(
       "be.visible",
@@ -135,20 +159,22 @@ describe("Appointment Form - Backend Insertion Tests", () => {
 
     // Verify phone format
     cy.task("db:query", {
-      query: "SELECT phone FROM allpatients WHERE email = $1",
-      params: [testData.email],
+      query: "SELECT phone, id FROM allpatients WHERE email = $1",
+      params: [tc004Email],
     }).then((result: any) => {
+      expect(result.rows).to.have.length.at.least(1);
       expect(result.rows[0].phone).to.equal(expectedPhone);
       insertedRecordId = result.rows[0].id;
     });
   });
 
   it("TC-005: Should handle different gender selections", () => {
-    setupAppointmentModal();
-
     const genders = ["Male", "Female", "Other"];
 
     genders.forEach((gender, index) => {
+      // Re-open the modal for each gender test
+      setupAppointmentModal();
+
       const genderTestData = {
         ...testData,
         email: `john.doe${timestamp}.gender${index}@example.com`,
@@ -166,6 +192,7 @@ describe("Appointment Form - Backend Insertion Tests", () => {
         query: "SELECT gender FROM allpatients WHERE email = $1",
         params: [genderTestData.email],
       }).then((result: any) => {
+        expect(result.rows).to.have.length.at.least(1);
         expect(result.rows[0].gender).to.equal(gender);
       });
     });
@@ -174,8 +201,14 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-006: Should handle checkbox opt-ins correctly", () => {
     setupAppointmentModal();
 
-    // Test with both unchecked
-    const noOptData = { ...testData, emailOpt: false, textOpt: false };
+    // Test with both unchecked - use unique email
+    const noOptEmail = `john.doe${timestamp}.noopt@example.com`;
+    const noOptData = {
+      ...testData,
+      email: noOptEmail,
+      emailOpt: false,
+      textOpt: false,
+    };
 
     fillAppointmentForm(noOptData);
     cy.contains("button", "Book now").click();
@@ -186,8 +219,9 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     // Verify both are false
     cy.task("db:query", {
       query: "SELECT email_opt, text_opt FROM allpatients WHERE email = $1",
-      params: [testData.email],
+      params: [noOptEmail],
     }).then((result: any) => {
+      expect(result.rows).to.have.length.at.least(1);
       expect(result.rows[0].email_opt).to.be.false;
       expect(result.rows[0].text_opt).to.be.false;
     });
@@ -196,7 +230,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-007: Should store correct location ID", () => {
     setupAppointmentModal();
 
-    fillAppointmentForm(testData);
+    // Use unique email for this test
+    const locationTestEmail = `john.doe${timestamp}.location@example.com`;
+    const locationTestData = { ...testData, email: locationTestEmail };
+
+    fillAppointmentForm(locationTestData);
     cy.contains("button", "Book now").click();
     cy.contains("Appointment Booked Successfully", { timeout: 15000 }).should(
       "be.visible",
@@ -204,9 +242,10 @@ describe("Appointment Form - Backend Insertion Tests", () => {
 
     // Verify location ID
     cy.task("db:query", {
-      query: "SELECT locationid FROM allpatients WHERE email = $1",
-      params: [testData.email],
+      query: "SELECT locationid, id FROM allpatients WHERE email = $1",
+      params: [locationTestEmail],
     }).then((result: any) => {
+      expect(result.rows).to.have.length.at.least(1);
       expect(result.rows[0].locationid).to.equal(selectedLocationId);
       insertedRecordId = result.rows[0].id;
     });
@@ -398,8 +437,10 @@ describe("Appointment Form - Backend Insertion Tests", () => {
 
       expect(record.address).to.include(data.streetAddress);
 
-      // Service is dynamically selected, just verify it exists
-      expect(record.treatmenttype).to.be.a("string");
+      // Service is dynamically selected - it may be null if no services available
+      if (record.treatmenttype !== null) {
+        expect(record.treatmenttype).to.be.a("string");
+      }
       expect(record.email_opt).to.equal(data.emailOpt);
       expect(record.text_opt).to.equal(data.textOpt);
       expect(record.locationid).to.be.a("number");

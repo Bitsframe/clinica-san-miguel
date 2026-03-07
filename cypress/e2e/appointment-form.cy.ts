@@ -221,34 +221,44 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   function selectDate(dateString: string) {
     const [year, month, day] = dateString.split("-").map(Number);
     const monthNames = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
 
     // Open date picker
     cy.get('input[placeholder="YYYY-MM-DD"]').first().click();
 
-    // Wait for dropdown to appear and alias it for reuse
-    cy.get(".bg-white.border.border-gray-300.rounded-lg.shadow-lg", { timeout: 5000 })
+    // Wait for dropdown to appear - use z-50 which is unique to this dropdown
+    cy.get(".shadow-lg.z-50.overflow-hidden", { timeout: 5000 })
       .should("be.visible")
       .as("datePicker");
 
-    // Switch to years view
+    // Switch to years view - click the year button in the header
     cy.get("@datePicker").within(() => {
-      cy.contains("button", /^\d{4}$/).first().click();
+      cy.contains("button", /^\d{4}$/).click();
     });
 
-    // Select year
+    // Select year from the scrollable list
     cy.get("@datePicker").within(() => {
       cy.contains("button", year.toString()).scrollIntoView().click();
     });
 
-    // Select month
+    // Now in months view - select the month (uses short names: Jan, Feb, etc.)
     cy.get("@datePicker").within(() => {
       cy.contains("button", monthNames[month - 1]).click();
     });
 
-    // Select day
+    // Now in calendar view - select the day
     cy.get("@datePicker").within(() => {
       cy.contains("button", new RegExp(`^${day}$`))
         .not(".text-gray-300")
@@ -378,14 +388,14 @@ describe("Appointment Form - Backend Insertion Tests", () => {
       expect(record.firstname).to.equal(data.firstName);
       expect(record.lastname).to.equal(data.lastName);
       expect(record.gender).to.equal(data.gender);
-      
+
       // DOB might be stored in different format
       if (data.dob && record.dob) {
         expect(record.dob).to.include(data.dob.split("-")[0]); // At least year matches
       }
-      
+
       expect(record.address).to.include(data.streetAddress);
-      
+
       // Service is dynamically selected, just verify it exists
       expect(record.treatmenttype).to.be.a("string");
       expect(record.email_opt).to.equal(data.emailOpt);

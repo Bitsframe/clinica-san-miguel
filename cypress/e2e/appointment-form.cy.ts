@@ -221,8 +221,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   function selectDate(dateString: string) {
     const [year, month, day] = dateString.split("-").map(Number);
     const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ];
 
     // Open date picker

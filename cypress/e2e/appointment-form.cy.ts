@@ -53,7 +53,7 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     cy.wait(2000);
 
     // Find and click the "Book an appoinment" button on the location detail page
-    cy.contains("button", /book an appoinment/i, { timeout: 15000 })
+    cy.contains("button", /Book an appoinment/i, { timeout: 15000 })
       .should("be.visible")
       .click({ force: true });
 
@@ -231,8 +231,44 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     // Phone number
     cy.get('input[placeholder="(555) 000-0000"]').clear().type(data.phone);
 
-    // Date of Birth
-    cy.get('input[placeholder="YYYY-MM-DD"]').clear().type(data.dob);
+    // Date of Birth - CustomDatePicker is readonly, must use the picker UI
+    // Parse the dob string (format: YYYY-MM-DD)
+    const [year, month, day] = data.dob.split("-").map(Number);
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    // Click to open the date picker
+    cy.get('input[placeholder="YYYY-MM-DD"]').click();
+
+    // Click year button to open years view
+    cy.get(".bg-\\[\\#C1001F\\]").within(() => {
+      // Click the year number to switch to years view
+      cy.contains("button", /^\d{4}$/).click();
+    });
+
+    // Select the year from the scrollable list
+    cy.contains("button", year.toString()).click();
+
+    // Now in months view - select the month
+    cy.contains("button", monthNames[month - 1]).click();
+
+    // Now in calendar view - select the day
+    cy.get(".grid-cols-7")
+      .contains("button", new RegExp(`^${day}$`))
+      .not(".text-gray-300")
+      .click();
 
     // Gender - click the radio input directly
     cy.contains(data.gender).click();

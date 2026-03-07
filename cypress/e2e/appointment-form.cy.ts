@@ -252,23 +252,32 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     // Click to open the date picker
     cy.get('input[placeholder="YYYY-MM-DD"]').click();
 
-    // Click year button to open years view
-    cy.get(".bg-\\[\\#C1001F\\]").within(() => {
-      // Click the year number to switch to years view
-      cy.contains("button", /^\d{4}$/).click();
+    // The date picker popup should be visible - find the picker's header within the dropdown
+    // Click the year button (4 digits) in the date picker header to open years view
+    cy.get(".shadow-lg.z-50")
+      .should("be.visible")
+      .within(() => {
+        // Click the year number to switch to years view
+        cy.contains("button", /^\d{4}$/).click();
+      });
+
+    // Select the year from the scrollable list (within the dropdown)
+    cy.get(".shadow-lg.z-50").within(() => {
+      cy.contains("button", year.toString()).click();
     });
 
-    // Select the year from the scrollable list
-    cy.contains("button", year.toString()).click();
+    // Now in months view - select the month (within the dropdown)
+    cy.get(".shadow-lg.z-50").within(() => {
+      cy.contains("button", monthNames[month - 1]).click();
+    });
 
-    // Now in months view - select the month
-    cy.contains("button", monthNames[month - 1]).click();
-
-    // Now in calendar view - select the day
-    cy.get(".grid-cols-7")
-      .contains("button", new RegExp(`^${day}$`))
-      .not(".text-gray-300")
-      .click();
+    // Now in calendar view - select the day (within the dropdown)
+    cy.get(".shadow-lg.z-50").within(() => {
+      cy.get(".grid-cols-7")
+        .contains("button", new RegExp(`^${day}$`))
+        .not(".text-gray-300")
+        .click();
+    });
 
     // Gender - click the radio input directly
     cy.contains(data.gender).click();

@@ -291,8 +291,10 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     // Date of Birth - using the reusable helper
     selectDate(data.dob);
 
-    // Gender - click the radio input directly
-    cy.contains(data.gender).click();
+    // Gender - click the radio input element directly
+    cy.get(`input[type="radio"][name="gender"][value="${data.gender}"]`).click({
+      force: true,
+    });
 
     // Street Address
     cy.get('input[placeholder="123 Clinic St"]')

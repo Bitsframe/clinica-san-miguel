@@ -212,7 +212,54 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     });
   });
 
-  // Helper Functions
+  // ============= REUSABLE HELPER FUNCTIONS =============
+
+  /**
+   * Select a date using the CustomDatePicker component
+   * @param dateString - Date in YYYY-MM-DD format (e.g., "1985-06-15")
+   */
+  function selectDate(dateString: string) {
+    const [year, month, day] = dateString.split("-").map(Number);
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    // Open date picker
+    cy.get('input[placeholder="YYYY-MM-DD"]').first().click();
+
+    // Wait for dropdown to appear and alias it for reuse
+    cy.get(".bg-white.border.border-gray-300.rounded-lg.shadow-lg", { timeout: 5000 })
+      .should("be.visible")
+      .as("datePicker");
+
+    // Switch to years view
+    cy.get("@datePicker").within(() => {
+      cy.contains("button", /^\d{4}$/).first().click();
+    });
+
+    // Select year
+    cy.get("@datePicker").within(() => {
+      cy.contains("button", year.toString()).scrollIntoView().click();
+    });
+
+    // Select month
+    cy.get("@datePicker").within(() => {
+      cy.contains("button", monthNames[month - 1]).click();
+    });
+
+    // Select day
+    cy.get("@datePicker").within(() => {
+      cy.contains("button", new RegExp(`^${day}$`))
+        .not(".text-gray-300")
+        .click();
+    });
+  }
+
+  /**
+   * Fill the entire appointment form with test data
+   * @param data - Test data object
+   */
   function fillAppointmentForm(data: typeof testData) {
     // First Name
     cy.get('input[placeholder="John"]', { timeout: 10000 })
@@ -231,53 +278,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     // Phone number
     cy.get('input[placeholder="(555) 000-0000"]').clear().type(data.phone);
 
-    // Date of Birth - CustomDatePicker is readonly, must use the picker UI
-    // Parse the dob string (format: YYYY-MM-DD)
-    const [year, month, day] = data.dob.split("-").map(Number);
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-
-    // Click to open the date picker
-    cy.get('input[placeholder="YYYY-MM-DD"]').click();
-
-    // The date picker popup should be visible - find the picker's header within the dropdown
-    // Click the year button (4 digits) in the date picker header to open years view
-    cy.get(".shadow-lg.z-50")
-      .should("be.visible")
-      .within(() => {
-        // Click the year number to switch to years view
-        cy.contains("button", /^\d{4}$/).click();
-      });
-
-    // Select the year from the scrollable list (within the dropdown)
-    cy.get(".shadow-lg.z-50").within(() => {
-      cy.contains("button", year.toString()).click();
-    });
-
-    // Now in months view - select the month (within the dropdown)
-    cy.get(".shadow-lg.z-50").within(() => {
-      cy.contains("button", monthNames[month - 1]).click();
-    });
-
-    // Now in calendar view - select the day (within the dropdown)
-    cy.get(".shadow-lg.z-50").within(() => {
-      cy.get(".grid-cols-7")
-        .contains("button", new RegExp(`^${day}$`))
-        .not(".text-gray-300")
-        .click();
-    });
+    // Date of Birth - using the reusable helper
+    selectDate(data.dob);
 
     // Gender - click the radio input directly
     cy.contains(data.gender).click();
@@ -353,6 +355,10 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     }
   }
 
+  /**
+   * Verify that the data was inserted correctly in the database
+   * @param data - Test data object
+   */
   function verifyInsertedData(data: typeof testData) {
     cy.task("db:query", {
       query: `
@@ -372,11 +378,14 @@ describe("Appointment Form - Backend Insertion Tests", () => {
       expect(record.firstname).to.equal(data.firstName);
       expect(record.lastname).to.equal(data.lastName);
       expect(record.gender).to.equal(data.gender);
+      
       // DOB might be stored in different format
       if (data.dob && record.dob) {
         expect(record.dob).to.include(data.dob.split("-")[0]); // At least year matches
       }
+      
       expect(record.address).to.include(data.streetAddress);
+      
       // Service is dynamically selected, just verify it exists
       expect(record.treatmenttype).to.be.a("string");
       expect(record.email_opt).to.equal(data.emailOpt);

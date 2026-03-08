@@ -672,13 +672,22 @@ export const supabaseTasks = {
         ) {
           supabaseQuery = supabaseQuery.eq("phone", params[0]);
         }
-        // Handle WHERE clause with id
+        // Handle WHERE clause with id (but not patient_id)
         else if (
           queryLower.includes("where") &&
           queryLower.includes("id") &&
+          !queryLower.includes("patient_id") &&
           params[0]
         ) {
           supabaseQuery = supabaseQuery.eq("id", params[0]);
+        }
+        // Handle WHERE clause with patient_id (for Appoinments table)
+        else if (
+          queryLower.includes("where") &&
+          queryLower.includes("patient_id") &&
+          params[0]
+        ) {
+          supabaseQuery = supabaseQuery.eq("patient_id", params[0]);
         }
 
         // Handle ORDER BY and LIMIT

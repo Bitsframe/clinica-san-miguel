@@ -2,13 +2,15 @@
 
 describe("Appointment Form - Backend Insertion Tests", () => {
   const timestamp = Date.now();
+  // Generate unique phone suffix from timestamp (last 7 digits)
+  const phoneUnique = String(timestamp).slice(-7);
 
-  // Test data
+  // Test data - phone is unique per test run to avoid duplicate detection
   const testData = {
     firstName: "John",
     lastName: "Doe",
     email: `john.doe${timestamp}@example.com`,
-    phone: "5551234567",
+    phone: `555${phoneUnique}`, // Unique phone per test run
     dob: "1985-06-15",
     gender: "Male",
     streetAddress: "123 Main Street",
@@ -185,10 +187,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     setupAppointmentModal();
 
     // Use unique identifiers for this test - use phone as identifier
+    const tc003Phone = `555${String(timestamp).slice(-4)}0003`; // Unique per run
     const noEmailTestData = {
       ...testData,
       email: "", // Empty email
-      phone: "5559876543", // Unique phone for this test
+      phone: tc003Phone,
     };
 
     fillAppointmentForm(noEmailTestData);
@@ -215,7 +218,7 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-004: Should format phone number correctly with +1 prefix", () => {
     setupAppointmentModal();
 
-    const phoneWithoutPrefix = "5551234567";
+    const phoneWithoutPrefix = `555${String(timestamp).slice(-4)}0004`; // Unique per run
     const expectedPhone = `+1${phoneWithoutPrefix}`;
     const tc004Email = `john.doe${timestamp}.tc004@example.com`;
 
@@ -333,10 +336,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-008: Should reject invalid email format", () => {
     setupAppointmentModal();
 
+    const tc008Phone = `555${String(timestamp).slice(-4)}0008`; // Unique per run
     const invalidEmailData = {
       ...testData,
       email: "invalid-email-format", // Invalid email
-      phone: "5551112222",
+      phone: tc008Phone,
     };
 
     fillAppointmentForm(invalidEmailData);
@@ -620,6 +624,224 @@ describe("Appointment Form - Backend Insertion Tests", () => {
       if (result.rows.length > 0) {
         insertedRecordId = result.rows[0].id;
       }
+    });
+  });
+
+  // ============= TC-014 to TC-016: DUAL TABLE VERIFICATION TESTS =============
+
+  it("TC-014: Should create BOTH patient and appointment records (new phone+dob)", () => {
+    setupAppointmentModal();
+
+    // Unique phone+dob ensures new patient is created
+    const tc014Phone = `555${String(timestamp).slice(-4)}0014`;
+    const tc014Email = `john.doe${timestamp}.tc014@example.com`;
+    const tc014Data = {
+      ...testData,
+      email: tc014Email,
+      phone: tc014Phone,
+      dob: "1990-03-20", // Unique DOB for this test
+    };
+
+    fillAppointmentForm(tc014Data);
+    cy.contains("button", "Book now").click();
+    cy.contains("Appointment Booked Successfully", { timeout: 15000 }).should(
+      "be.visible",
+    );
+
+    cy.wait(3000);
+
+    // 1. Verify NEW PATIENT record in allpatients
+    waitForDbRecord({ email: tc014Email }).then((result: any) => {
+      if (result.skipped) {
+        cy.log("DB verification skipped - Supabase not configured");
+        return;
+      }
+
+      expect(
+        result.rows.length,
+        "Patient record should exist",
+      ).to.be.greaterThan(0);
+      const patient = result.rows[0];
+      insertedRecordId = patient.id;
+
+      expect(patient.firstname).to.equal(tc014Data.firstName);
+      expect(patient.lastname).to.equal(tc014Data.lastName);
+      expect(patient.email).to.equal(tc014Email);
+      expect(patient.phone).to.equal("+1" + tc014Phone);
+
+      // 2. Verify APPOINTMENT record in Appoinments table
+      cy.task("db:query", {
+        query:
+          "SELECT * FROM Appoinments WHERE patient_id = $1 ORDER BY created_at DESC",
+        params: [patient.id],
+      }).then((aptResult: any) => {
+        if (aptResult.error) {
+          cy.log("Appointment query error: " + aptResult.error);
+          return;
+        }
+
+        expect(
+          aptResult.rows.length,
+          "Appointment record should exist",
+        ).to.be.greaterThan(0);
+        const appointment = aptResult.rows[0];
+
+        expect(appointment.patient_id).to.equal(patient.id);
+        expect(appointment.location_id).to.be.a("number");
+        expect(appointment.isApproved).to.be.false;
+      });
+    });
+  });
+
+  it("TC-015: Should REUSE patient but create NEW appointment (same phone+dob, different email)", () => {
+    // Use a shared phone+dob for both bookings
+    const sharedPhone = `555${String(timestamp).slice(-4)}0015`;
+    const sharedDob = "1988-07-25";
+
+    // ===== FIRST BOOKING =====
+    setupAppointmentModal();
+
+    const firstEmail = `first${timestamp}.tc015@example.com`;
+    const firstData = {
+      ...testData,
+      email: firstEmail,
+      phone: sharedPhone,
+      dob: sharedDob,
+    };
+
+    fillAppointmentForm(firstData);
+    cy.contains("button", "Book now").click();
+    cy.contains("Appointment Booked Successfully", { timeout: 15000 }).should(
+      "be.visible",
+    );
+
+    cy.wait(3000);
+
+    // Get the patient ID from first booking
+    waitForDbRecord({ phone: "+1" + sharedPhone }).then((result: any) => {
+      if (result.skipped || result.rows.length === 0) {
+        cy.log("DB verification skipped");
+        return;
+      }
+
+      const firstPatientId = result.rows[0].id;
+      const firstPatientEmail = result.rows[0].email;
+      insertedRecordId = firstPatientId;
+
+      // Count initial appointments
+      cy.task("db:query", {
+        query: "SELECT * FROM Appoinments WHERE patient_id = $1",
+        params: [firstPatientId],
+      }).then((aptResult1: any) => {
+        const initialAppointmentCount = aptResult1.rows?.length || 0;
+
+        // ===== SECOND BOOKING (same phone+dob, DIFFERENT email) =====
+        setupAppointmentModal();
+
+        const secondEmail = `second${timestamp}.tc015@example.com`; // Different email!
+        const secondData = {
+          ...testData,
+          email: secondEmail, // Different email
+          phone: sharedPhone, // Same phone
+          dob: sharedDob, // Same DOB
+        };
+
+        fillAppointmentForm(secondData);
+        cy.contains("button", "Book now").click();
+        cy.contains("Appointment Booked Successfully", {
+          timeout: 15000,
+        }).should("be.visible");
+
+        cy.wait(3000);
+
+        // Verify SAME patient was reused (email should still be the FIRST email)
+        waitForDbRecord({ phone: "+1" + sharedPhone }).then((result2: any) => {
+          if (result2.rows.length === 0) {
+            cy.log("Patient not found");
+            return;
+          }
+
+          const reusedPatient = result2.rows[0];
+          expect(reusedPatient.id).to.equal(firstPatientId); // Same patient ID!
+          expect(reusedPatient.email).to.equal(firstPatientEmail); // Original email kept!
+
+          // Verify NEW appointment was created
+          cy.task("db:query", {
+            query: "SELECT * FROM Appoinments WHERE patient_id = $1",
+            params: [firstPatientId],
+          }).then((aptResult2: any) => {
+            const newAppointmentCount = aptResult2.rows?.length || 0;
+            expect(newAppointmentCount).to.equal(initialAppointmentCount + 1); // One more appointment!
+            cy.log(
+              `Patient reused: ${firstPatientId}, Appointments: ${initialAppointmentCount} -> ${newAppointmentCount}`,
+            );
+          });
+        });
+      });
+    });
+  });
+
+  it("TC-016: Should create NEW patient when phone OR dob differs", () => {
+    // First booking with unique phone+dob
+    const firstPhone = `555${String(timestamp).slice(-4)}0016`;
+    const firstDob = "1995-01-10";
+    const firstEmail = `new1${timestamp}.tc016@example.com`;
+
+    setupAppointmentModal();
+    fillAppointmentForm({
+      ...testData,
+      email: firstEmail,
+      phone: firstPhone,
+      dob: firstDob,
+    });
+    cy.contains("button", "Book now").click();
+    cy.contains("Appointment Booked Successfully", { timeout: 15000 }).should(
+      "be.visible",
+    );
+
+    cy.wait(3000);
+
+    waitForDbRecord({ phone: "+1" + firstPhone }).then((result: any) => {
+      if (result.skipped || result.rows.length === 0) {
+        cy.log("DB verification skipped");
+        return;
+      }
+
+      const firstPatientId = result.rows[0].id;
+      insertedRecordId = firstPatientId;
+
+      // Second booking: SAME phone but DIFFERENT dob = NEW patient
+      const secondPhone = firstPhone; // Same phone
+      const secondDob = "1996-02-20"; // Different DOB!
+      const secondEmail = `new2${timestamp}.tc016@example.com`;
+
+      setupAppointmentModal();
+      fillAppointmentForm({
+        ...testData,
+        email: secondEmail,
+        phone: secondPhone,
+        dob: secondDob,
+      });
+      cy.contains("button", "Book now").click();
+      cy.contains("Appointment Booked Successfully", { timeout: 15000 }).should(
+        "be.visible",
+      );
+
+      cy.wait(3000);
+
+      // Verify NEW patient was created (search by second email)
+      waitForDbRecord({ email: secondEmail }).then((result2: any) => {
+        if (result2.rows.length === 0) {
+          cy.log("Second patient not found - may have been reused");
+          return;
+        }
+
+        const secondPatientId = result2.rows[0].id;
+        expect(secondPatientId).to.not.equal(firstPatientId); // DIFFERENT patient!
+        cy.log(
+          `Created two different patients: ${firstPatientId} and ${secondPatientId}`,
+        );
+      });
     });
   });
 

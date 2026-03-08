@@ -1,22 +1,18 @@
 // cypress/e2e/appointment-form.cy.ts
 
 describe("Appointment Form - Backend Insertion Tests", () => {
-  const timestamp = Date.now();
-  // Generate unique phone suffix from timestamp (last 7 digits)
-  const phoneUnique = String(timestamp).slice(-7);
-
-  // Test data - phone is unique per test run to avoid duplicate detection
+  // Simple test data - easy to find in database
   const testData = {
     firstName: "John",
     lastName: "Doe",
-    email: `john.doe${timestamp}@example.com`,
-    phone: `555${phoneUnique}`, // Unique phone per test run
+    email: "aaa@test.com",
+    phone: "5551111111",
     dob: "1985-06-15",
     gender: "Male",
     streetAddress: "123 Main Street",
     state: "NY",
     zipCode: "10001",
-    service: "", // Will be dynamically selected from available services
+    service: "",
     emailOpt: true,
     textOpt: true,
   };
@@ -126,10 +122,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-001: Should successfully submit complete appointment form", () => {
     setupAppointmentModal();
 
-    // Use unique email for this test
+    // Simple test data - easy to find in DB
     const tc001TestData = {
       ...testData,
-      email: `john.doe${timestamp}.tc001@example.com`,
+      email: "aaa@test.com",
+      phone: "5551111111",
     };
 
     // Fill the form
@@ -186,12 +183,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-003: Should handle optional email field", () => {
     setupAppointmentModal();
 
-    // Use unique identifiers for this test - use phone as identifier
-    const tc003Phone = `555${String(timestamp).slice(-4)}0003`; // Unique per run
+    // Simple phone - no email for this test
     const noEmailTestData = {
       ...testData,
       email: "", // Empty email
-      phone: tc003Phone,
+      phone: "5553333333",
     };
 
     fillAppointmentForm(noEmailTestData);
@@ -218,9 +214,9 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-004: Should format phone number correctly with +1 prefix", () => {
     setupAppointmentModal();
 
-    const phoneWithoutPrefix = `555${String(timestamp).slice(-4)}0004`; // Unique per run
+    const phoneWithoutPrefix = "5554444444";
     const expectedPhone = `+1${phoneWithoutPrefix}`;
-    const tc004Email = `john.doe${timestamp}.tc004@example.com`;
+    const tc004Email = "ddd@test.com";
 
     fillAppointmentForm({
       ...testData,
@@ -253,7 +249,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
 
       const genderTestData = {
         ...testData,
-        email: `john.doe${timestamp}.gender${index}@example.com`,
+        email: `gender${index}@test.com`, // gender0, gender1, gender2
+        phone: `555555000${index}`, // 5555550000, 5555550001, 5555550002
         gender,
       };
 
@@ -278,11 +275,12 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-006: Should handle checkbox opt-ins correctly", () => {
     setupAppointmentModal();
 
-    // Test with both unchecked - use unique email
-    const noOptEmail = `john.doe${timestamp}.noopt@example.com`;
+    // Test with both unchecked
+    const noOptEmail = "fff@test.com";
     const noOptData = {
       ...testData,
       email: noOptEmail,
+      phone: "5556666666",
       emailOpt: false,
       textOpt: false,
     };
@@ -309,9 +307,12 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-007: Should store correct location ID", () => {
     setupAppointmentModal();
 
-    // Use unique email for this test
-    const locationTestEmail = `john.doe${timestamp}.location@example.com`;
-    const locationTestData = { ...testData, email: locationTestEmail };
+    const locationTestEmail = "ggg@test.com";
+    const locationTestData = {
+      ...testData,
+      email: locationTestEmail,
+      phone: "5557777777",
+    };
 
     fillAppointmentForm(locationTestData);
     cy.contains("button", "Book now").click();
@@ -336,11 +337,10 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-008: Should reject invalid email format", () => {
     setupAppointmentModal();
 
-    const tc008Phone = `555${String(timestamp).slice(-4)}0008`; // Unique per run
     const invalidEmailData = {
       ...testData,
-      email: "invalid-email-format", // Invalid email
-      phone: tc008Phone,
+      email: "bad-email", // Invalid email
+      phone: "5558888888",
     };
 
     fillAppointmentForm(invalidEmailData);
@@ -369,7 +369,7 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-009: Should reject invalid phone number format", () => {
     setupAppointmentModal();
 
-    const invalidPhoneEmail = `john.doe${timestamp}.invalidphone@example.com`;
+    const invalidPhoneEmail = "iii@test.com";
 
     // Fill form with valid data first
     cy.get('input[placeholder="John"]', { timeout: 10000 })
@@ -410,10 +410,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
   it("TC-010: Should reject invalid zipcode format", () => {
     setupAppointmentModal();
 
-    const invalidZipEmail = `john.doe${timestamp}.invalidzip@example.com`;
+    const invalidZipEmail = "jjj@test.com";
     const invalidZipData = {
       ...testData,
       email: invalidZipEmail,
+      phone: "5550000010",
       zipCode: "123", // Invalid - should be 5 or 9 digits
     };
 
@@ -466,10 +467,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     // First booking
     setupAppointmentModal();
 
-    const firstBookingEmail = `john.doe${timestamp}.first@example.com`;
+    const firstBookingEmail = "kkk@test.com";
     const firstBookingData = {
       ...testData,
       email: firstBookingEmail,
+      phone: "5550000011",
     };
 
     fillAppointmentForm(firstBookingData);
@@ -500,10 +502,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     // Second booking attempt with same time slot
     setupAppointmentModal();
 
-    const secondBookingEmail = `john.doe${timestamp}.second@example.com`;
+    const secondBookingEmail = "lll@test.com";
     const secondBookingData = {
       ...testData,
       email: secondBookingEmail,
+      phone: "5550000012", // Different phone to create new patient
     };
 
     fillAppointmentForm(secondBookingData);
@@ -534,10 +537,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
       "**/functions/v1/appointment-insert-with-dob-check",
     ).as("appointmentInsert");
 
-    const dobTestEmail = `john.doe${timestamp}.dob@example.com`;
+    const dobTestEmail = "mmm@test.com";
     const dobTestData = {
       ...testData,
       email: dobTestEmail,
+      phone: "5550000013",
       dob: "1990-01-15", // Test DOB
     };
 
@@ -586,10 +590,11 @@ describe("Appointment Form - Backend Insertion Tests", () => {
       "**/functions/v1/appointment-insert-with-dob-check",
     ).as("appointmentInsert");
 
-    const serviceTestEmail = `john.doe${timestamp}.service@example.com`;
+    const serviceTestEmail = "nnn@test.com";
     const serviceTestData = {
       ...testData,
       email: serviceTestEmail,
+      phone: "5550000014",
     };
 
     fillAppointmentForm(serviceTestData);
@@ -633,8 +638,8 @@ describe("Appointment Form - Backend Insertion Tests", () => {
     setupAppointmentModal();
 
     // Unique phone+dob ensures new patient is created
-    const tc014Phone = `555${String(timestamp).slice(-4)}0014`;
-    const tc014Email = `john.doe${timestamp}.tc014@example.com`;
+    const tc014Phone = "5550000015";
+    const tc014Email = "ooo@test.com";
     const tc014Data = {
       ...testData,
       email: tc014Email,
@@ -695,13 +700,13 @@ describe("Appointment Form - Backend Insertion Tests", () => {
 
   it("TC-015: Should REUSE patient but create NEW appointment (same phone+dob, different email)", () => {
     // Use a shared phone+dob for both bookings
-    const sharedPhone = `555${String(timestamp).slice(-4)}0015`;
+    const sharedPhone = "5550000016";
     const sharedDob = "1988-07-25";
 
     // ===== FIRST BOOKING =====
     setupAppointmentModal();
 
-    const firstEmail = `first${timestamp}.tc015@example.com`;
+    const firstEmail = "ppp@test.com";
     const firstData = {
       ...testData,
       email: firstEmail,
@@ -738,7 +743,7 @@ describe("Appointment Form - Backend Insertion Tests", () => {
         // ===== SECOND BOOKING (same phone+dob, DIFFERENT email) =====
         setupAppointmentModal();
 
-        const secondEmail = `second${timestamp}.tc015@example.com`; // Different email!
+        const secondEmail = "qqq@test.com"; // Different email!
         const secondData = {
           ...testData,
           email: secondEmail, // Different email
@@ -783,9 +788,9 @@ describe("Appointment Form - Backend Insertion Tests", () => {
 
   it("TC-016: Should create NEW patient when phone OR dob differs", () => {
     // First booking with unique phone+dob
-    const firstPhone = `555${String(timestamp).slice(-4)}0016`;
+    const firstPhone = "5550000017";
     const firstDob = "1995-01-10";
-    const firstEmail = `new1${timestamp}.tc016@example.com`;
+    const firstEmail = "rrr@test.com";
 
     setupAppointmentModal();
     fillAppointmentForm({
@@ -813,7 +818,7 @@ describe("Appointment Form - Backend Insertion Tests", () => {
       // Second booking: SAME phone but DIFFERENT dob = NEW patient
       const secondPhone = firstPhone; // Same phone
       const secondDob = "1996-02-20"; // Different DOB!
-      const secondEmail = `new2${timestamp}.tc016@example.com`;
+      const secondEmail = "sss@test.com";
 
       setupAppointmentModal();
       fillAppointmentForm({

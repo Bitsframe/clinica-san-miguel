@@ -1,5 +1,6 @@
 import { defineConfig } from "cypress";
 import { supabaseTasks } from "./cypress/support/tasks";
+import * as dotenv from "dotenv";
 
 /**
  * Cypress Configuration for Supabase Contact Form Tests
@@ -19,6 +20,8 @@ import { supabaseTasks } from "./cypress/support/tasks";
  * 3. Open Cypress UI with custom email:
  *    CYPRESS_TEST_EMAIL=testuser@example.com npx cypress open
  */
+dotenv.config({ path: ".env.local" });
+
 
 export default defineConfig({
   projectId: "cfoa1c",
@@ -32,7 +35,7 @@ export default defineConfig({
     defaultCommandTimeout: 20000,
     pageLoadTimeout: 60000,
     retries: {
-      runMode: 1,
+      runMode: 0,
       openMode: 0,
     },
 

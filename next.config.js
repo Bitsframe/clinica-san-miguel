@@ -1,8 +1,20 @@
 /** @type {import('next').NextConfig} */
 
 const withNextIntl = require("next-intl/plugin")();
+const { codeInspectorPlugin } = require('code-inspector-plugin');
 
 const nextConfig = {
+  webpack: (config, { dev, isServer }) => {
+    // Only enable in development mode
+    if (dev) {
+      config.plugins.push(
+        codeInspectorPlugin({
+          bundler: 'webpack',  // Next.js uses webpack
+        })
+      );
+    }
+    return config;
+  },
   images: {
     // remotePatterns: [
     //   {

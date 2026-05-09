@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import moment from "moment";
 import { toast } from "react-toastify";
-import { supabase } from "@/supabaseClient";
+import { getSupabasePublishableKey, supabase } from "@/supabaseClient";
 import { validateFormData } from "@/utils/validationCheck";
 import { EmailBodyTempEnum } from "@/utils/emailService/templateDetails";
 import { sendEmail } from "@/utils/emailService";
@@ -432,14 +432,23 @@ export function useRequestAppointmentLogic({
         formattedDateTime = `${locationID}|${day}-${month}-${year} - ${scheduleSlot}`;
       }
 
-      // Call the edge function
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
+      const publishableKey = getSupabasePublishableKey();
+      if (!supabaseUrl || !publishableKey) {
+        toast.error("Booking is temporarily unavailable. Please try again later.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Call the edge function (apikey + matching Bearer — required for non-JWT publishable keys)
       const edgeResponse = await fetch(
-        'https://vsvueqtgulraaczqnnvh.supabase.co/functions/v1/appointment-insert-with-dob-check',
+        `${supabaseUrl}/functions/v1/appointment-insert-with-dob-check`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+            apikey: publishableKey,
+            Authorization: `Bearer ${publishableKey}`,
           },
           body: JSON.stringify({
             firstname: firstName,

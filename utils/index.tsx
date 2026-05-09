@@ -8,6 +8,10 @@ import {
   lookupZipcode, 
   isZipcode, 
   findNearestLocations,
+  findNearestLocationsForZipSearch,
+  zipSearchDebounceMs,
+  isPartialNumericZipInput,
+  parseDistanceMiles,
   extractZipcodeFromAddress,
   calculateDistance
 } from "./zipcodeService";
@@ -24,6 +28,10 @@ export {
   lookupZipcode,
   isZipcode,
   findNearestLocations,
+  findNearestLocationsForZipSearch,
+  zipSearchDebounceMs,
+  isPartialNumericZipInput,
+  parseDistanceMiles,
   extractZipcodeFromAddress,
   calculateDistance,
 };

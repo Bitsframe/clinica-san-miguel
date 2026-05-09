@@ -11,12 +11,14 @@ export const Location = ({
   number,
   route,
   location,
+  distanceMiles,
 }: {
   id: number | null;
   locationName: string | null;
   number: string | null;
   route: string | null;
   location: string | null;
+  distanceMiles?: number;
 }) => {
   const router = useRouter();
 
@@ -39,10 +41,17 @@ export const Location = ({
             />
           </div>
         </div>
-        <article className="bg-[#FFFFFF] flex p-4 justify-between h-[80px] rounded-b-[5px]">
-          <h4 className="text-[16px] text-[#626262] font-poppins text-left">
-            {locationName}
-          </h4>
+        <article className="bg-[#FFFFFF] flex p-4 justify-between min-h-[80px] rounded-b-[5px]">
+          <div className="flex flex-col gap-0.5 text-left max-w-[55%]">
+            <h4 className="text-[16px] text-[#626262] font-poppins">
+              {locationName}
+            </h4>
+            {distanceMiles != null && (
+              <span className="text-[12px] font-poppins text-[#C1001F]">
+                ~{distanceMiles} mi
+              </span>
+            )}
+          </div>
           <article className="flex flex-col items-center  bg-white justify-center gap-2 ">
             <button
               className={`rounded-[10px] font-poppins flex justify-center items-center text-[14px] md:text-[17px] text-opacity-8`}

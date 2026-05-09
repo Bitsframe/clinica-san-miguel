@@ -89,12 +89,20 @@ import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { Location } from "@/components";
 import LoadingLocationCard from "@/components/loading/LoadingLocationCard";
-import { lookupZipcode, isZipcode, findNearestLocations } from "@/utils/zipcodeService";
+import {
+  normalizeZip5,
+  findNearestLocationsForZipSearch,
+  zipSearchDebounceMs,
+  isPartialNumericZipInput,
+  parseDistanceMiles,
+} from "@/utils/zipcodeService";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export const LocationsData = () => {
   const { fetchLocalizedTable } = useSupabase();
   const locale = useLocale();
+  const th = useTranslations("home");
   const searchParams = useSearchParams();
   const cityParam = searchParams.get('city');
 
@@ -104,7 +112,7 @@ export const LocationsData = () => {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true); // 👈 Add loading state
-  const [isSearching, setIsSearching] = useState(false); // 👈 Add searching state
+  const [zipRanking, setZipRanking] = useState(false);
 
   const tabs = [
     { id: 2, name: "Dallas", value: "A" },
@@ -128,11 +136,12 @@ export const LocationsData = () => {
     }
   }, [cityParam]);
 
-  /* ───────────── debounce search query ───────────── */
+  /* ───────────── debounce search query (fast for ZIP digits) ───────────── */
   useEffect(() => {
+    const ms = zipSearchDebounceMs(query);
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
-    }, 300); // 300ms delay
+    }, ms);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -155,65 +164,70 @@ export const LocationsData = () => {
   }, [fetchLocalizedTable, locale]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const filterLocations = async () => {
-      setIsSearching(true); // 👈 Start searching
-      try {
-        let filtered = [...allLocations];
+      let filtered = [...allLocations];
 
-        // Filter by group
-        if (selectedLocationGroup !== "") {
-          filtered = filtered.filter(
-            (loc) => loc.Group === selectedLocationGroup
-          );
-        }
-
-        // Filter by search query (using debounced query)
-        if (debouncedQuery.trim() !== "") {
-          const searchQuery = debouncedQuery.trim();
-          
-          // Check if user entered a zipcode
-          if (isZipcode(searchQuery)) {
-            // Find nearest 9 locations to this zipcode
-            const nearestLocations = await findNearestLocations(
-              searchQuery,
-              filtered.length > 0 ? filtered : allLocations,
-              9 // Show 9 nearest locations
-            );
-            
-            if (nearestLocations.length > 0) {
-              filtered = nearestLocations;
-              console.log(`✅ Found ${nearestLocations.length} nearest locations for zipcode ${searchQuery}:`, 
-                nearestLocations.map(l => ({
-                  name: l.title,
-                  distance: `${l.distance} miles`
-                }))
-              );
-            } else {
-              // No results found for this zipcode
-              console.log(`ℹ️ No locations found for zipcode ${searchQuery}`);
-              filtered = [];
-            }
-          } else {
-            // Regular search by location name or address
-            filtered = filtered.filter((loc) =>
-              loc.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              loc.address?.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-          }
-        }
-
-        setLocationData(filtered);
-      } finally {
-        setIsSearching(false); // 👈 Done searching
+      if (selectedLocationGroup !== "") {
+        filtered = filtered.filter(
+          (loc) => loc.Group === selectedLocationGroup
+        );
       }
+
+      const q = debouncedQuery.trim();
+      if (q === "") {
+        if (!cancelled) setLocationData(filtered);
+        return;
+      }
+
+      if (isPartialNumericZipInput(q)) {
+        if (!cancelled) setLocationData(filtered);
+        return;
+      }
+
+      const zip5 = normalizeZip5(q);
+      if (zip5) {
+        if (isLoading || allLocations.length === 0) {
+          if (!cancelled) setLocationData(filtered);
+          return;
+        }
+
+        if (!cancelled) setZipRanking(true);
+        try {
+          const pool = filtered.length > 0 ? filtered : allLocations;
+          const nearestLocations = await findNearestLocationsForZipSearch(
+            zip5,
+            pool,
+            9
+          );
+          if (cancelled) return;
+          filtered = nearestLocations.length > 0 ? nearestLocations : [];
+        } finally {
+          if (!cancelled) setZipRanking(false);
+        }
+      } else {
+        filtered = filtered.filter(
+          (loc) =>
+            loc.title?.toLowerCase().includes(q.toLowerCase()) ||
+            loc.address?.toLowerCase().includes(q.toLowerCase())
+        );
+      }
+
+      if (!cancelled) setLocationData(filtered);
     };
 
-    filterLocations();
-  }, [selectedLocationGroup, debouncedQuery, allLocations]);
+    void filterLocations();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedLocationGroup, debouncedQuery, allLocations, isLoading]);
 
   return (
     <div className="flex flex-col w-full gap-4">
-      <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4 px-4 sm:pr-32">
+      <div className="flex flex-col w-full gap-2 px-4 sm:pr-32">
+        <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4">
+        <div className="flex flex-col w-full sm:w-[400px] gap-2">
         <input
           type="text"
           value={query}
@@ -230,8 +244,24 @@ export const LocationsData = () => {
             }
           }}
           placeholder="Search by location name or zipcode..."
-          className="w-full sm:w-[400px] bg-white text-[#6C7582] placeholder-[#6C7582] font-poppins text-[16px] px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#C1001F] focus:outline-none"
+          className="w-full bg-white text-[#6C7582] placeholder-[#6C7582] font-poppins text-[16px] px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#C1001F] focus:outline-none"
         />
+        {isPartialNumericZipInput(query.trim()) && (
+          <p className="font-poppins text-[12px] text-[#6B7280] px-1">
+            {th("section2_zip_need_five_digits")}
+          </p>
+        )}
+        {normalizeZip5(query.trim()) &&
+          !isPartialNumericZipInput(query.trim()) && (
+          <p className="font-poppins text-[12px] text-[#6B7280] px-1">
+            {zipRanking
+              ? th("section2_zip_updating_distances")
+              : th("section2_zip_distances_for", {
+                  zip: normalizeZip5(query.trim())!,
+                })}
+          </p>
+        )}
+        </div>
         <select
           value={selectedLocationGroup}
           onChange={(e) => setSelectedLocationGroup(e.target.value)}
@@ -244,10 +274,11 @@ export const LocationsData = () => {
             </option>
           ))}
         </select>
+        </div>
       </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-        {isLoading || isSearching
+        {isLoading
           ? [...Array(9)].map((_, i) => <LoadingLocationCard key={i} />)
           : locationData.map((location) => {
               const addr = (location.address || "").trim();
@@ -261,8 +292,8 @@ export const LocationsData = () => {
                   locationName={location.title}
                   number={location.phone}
                   route=""
-                  // Prefer clean address; if missing/blank, fallback to pb or title
                   location={mapValue}
+                  distanceMiles={parseDistanceMiles(location.distance)}
                 />
               );
             })}

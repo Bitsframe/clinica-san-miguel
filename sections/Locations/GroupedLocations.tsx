@@ -10,7 +10,13 @@ import { useSupabase } from "@/context/supabaseContext";
 import { useTranslations, useLocale } from "next-intl";
 import dynamic from "next/dynamic";
 import { LocationCardSkeleton } from "@/components/loading/LocationCardSkeleton";
-import { lookupZipcode, isZipcode, findNearestLocations } from "@/utils/zipcodeService";
+import {
+  normalizeZip5,
+  findNearestLocationsForZipSearch,
+  zipSearchDebounceMs,
+  isPartialNumericZipInput,
+  parseDistanceMiles,
+} from "@/utils/zipcodeService";
 
 const MapModal = dynamic(() => import("@/components/MapModal"), { ssr: false });
 
@@ -27,6 +33,7 @@ export const GroupedLocations = () => {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [zipSearchLoading, setZipSearchLoading] = useState(false);
   const targetHeadingRef = useRef<HTMLHeadingElement | null>(null);
 
   const { fetchTableRows } = useSupabase();
@@ -44,11 +51,12 @@ export const GroupedLocations = () => {
     setSelectedGroup(group);
   };
 
-  /* ───────────── debounce search query ───────────── */
+  /* ───────────── debounce search query (fast for ZIP digits) ───────────── */
   useEffect(() => {
+    const ms = zipSearchDebounceMs(query);
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
-    }, 300); // 300ms delay
+    }, ms);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -73,54 +81,63 @@ export const GroupedLocations = () => {
 
   /* ───────────── filter data based on query and selectedTab ───────────── */
   useEffect(() => {
+    let cancelled = false;
+
     const filterLocations = async () => {
       let filtered = [...allLocationData];
 
-      // Filter by city group (A/B/C) like contact page
       if (selectedGroup !== "") {
         filtered = filtered.filter((row) => row.Group === selectedGroup);
       }
 
-      // Filter by search query (using debounced query)
-      if (debouncedQuery.trim() !== "") {
-        const searchQuery = debouncedQuery.trim();
-        
-        // Check if user entered a zipcode
-        if (isZipcode(searchQuery)) {
-          // Find nearest 9 locations to this zipcode
-          const nearestLocations = await findNearestLocations(
-            searchQuery,
-            filtered.length > 0 ? filtered : allLocationData,
-            9 // Show 9 nearest locations
-          );
-          
-          if (nearestLocations.length > 0) {
-            filtered = nearestLocations;
-            console.log(`✅ Found ${nearestLocations.length} nearest locations for zipcode ${searchQuery}:`, 
-              nearestLocations.map(l => ({
-                name: l.title,
-                distance: `${l.distance} miles`
-              }))
-            );
-          } else {
-            // No results found for this zipcode
-            console.log(`ℹ️ No locations found for zipcode ${searchQuery}`);
-            filtered = [];
-          }
-        } else {
-          // Regular search by location name or address
-          filtered = filtered.filter((loc) =>
-            loc.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            loc.address?.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        }
+      const q = debouncedQuery.trim();
+      if (q === "") {
+        if (!cancelled) setLocationData(filtered);
+        return;
       }
 
-      setLocationData(filtered);
+      // Avoid matching "5234" etc. against names/addresses — no distance until 5 digits
+      if (isPartialNumericZipInput(q)) {
+        if (!cancelled) setLocationData(filtered);
+        return;
+      }
+
+      const zip5 = normalizeZip5(q);
+      if (zip5) {
+        if (loading || allLocationData.length === 0) {
+          if (!cancelled) setLocationData(filtered);
+          return;
+        }
+
+        setZipSearchLoading(true);
+        try {
+          const pool = filtered.length > 0 ? filtered : allLocationData;
+          const nearestLocations = await findNearestLocationsForZipSearch(
+            zip5,
+            pool,
+            9
+          );
+          if (cancelled) return;
+          filtered = nearestLocations.length > 0 ? nearestLocations : [];
+        } finally {
+          if (!cancelled) setZipSearchLoading(false);
+        }
+      } else {
+        filtered = filtered.filter(
+          (loc) =>
+            loc.title?.toLowerCase().includes(q.toLowerCase()) ||
+            loc.address?.toLowerCase().includes(q.toLowerCase())
+        );
+      }
+
+      if (!cancelled) setLocationData(filtered);
     };
 
-    filterLocations();
-  }, [debouncedQuery, selectedTab, allLocationData]);
+    void filterLocations();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQuery, selectedGroup, allLocationData, loading]);
 
   /* ───────────── modal handlers ───────────── */
   const handleOpenMap  = (location: string) => { setModalLocation(location); setShowModal(true); };
@@ -150,6 +167,20 @@ export const GroupedLocations = () => {
                 placeholder={t("section2_search_placeholder")}
                 className="w-full bg-white text-[#6C7582] placeholder-[#6C7582] font-poppins text-[16px] px-4 py-3 rounded-xl border border-white shadow-sm focus:ring-0 focus:outline-none"
               />
+              {isPartialNumericZipInput(query.trim()) && (
+                <p className="mt-2 font-poppins text-[12px] text-[#6B7280]">
+                  {t("section2_zip_need_five_digits")}
+                </p>
+              )}
+              {normalizeZip5(query.trim()) && !isPartialNumericZipInput(query.trim()) && (
+                <p className="mt-2 font-poppins text-[12px] text-[#6B7280]">
+                  {zipSearchLoading
+                    ? t("section2_zip_updating_distances")
+                    : t("section2_zip_distances_for", {
+                        zip: normalizeZip5(query.trim())!,
+                      })}
+                </p>
+              )}
             </div>
 
             {/* tabs */}
@@ -172,7 +203,7 @@ export const GroupedLocations = () => {
 
             {/* list or skeletons */}
             <div className="flex flex-col gap-4 overflow-auto w-full max-h-[400px] pr-1">
-              {loading ? (
+              {loading || (zipSearchLoading && locationData.length === 0) ? (
                 <>
                   {[...Array(3)].map((_, i) => (
                     <LocationCardSkeleton key={i} />
@@ -186,6 +217,7 @@ export const GroupedLocations = () => {
                     address={loc.address}
                     name={loc.title}
                     phone={loc.phone}
+                    distanceMiles={parseDistanceMiles(loc.distance)}
                     onMapClick={() => handleOpenMap(loc.direction)}
                   />
                 ))

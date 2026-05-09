@@ -56,13 +56,50 @@ export async function lookupZipcode(zipcode: string): Promise<ZipcodeData | null
 }
 
 /**
- * Checks if a string looks like a US zipcode
- * @param input - String to check
- * @returns true if input looks like a zipcode
+ * First 5 digits for lookup. Supports ZIP+4; skips 10-digit strings (typical US phone).
+ */
+export function normalizeZip5(input: string): string | null {
+  const d = input.replace(/\D/g, "");
+  if (d.length < 5) return null;
+  if (d.length === 10) return null;
+  if (d.length > 10) return null;
+  return d.slice(0, 5);
+}
+
+/**
+ * True when input should run “nearest by ZIP” (5–9 digits after stripping non-digits, not a 10-digit phone).
  */
 export function isZipcode(input: string): boolean {
-  const cleanInput = input.replace(/\D/g, '');
-  return cleanInput.length === 5 && /^\d{5}$/.test(cleanInput);
+  return normalizeZip5(input) !== null;
+}
+
+/**
+ * Shorter debounce while typing digits (ZIP) so distances feel realtime; longer for name/address search.
+ */
+export function zipSearchDebounceMs(rawQuery: string): number {
+  const t = rawQuery.trim();
+  if (t.length === 0) return 300;
+  if (/^\d+$/.test(t) && t.length <= 9) return 80;
+  return 300;
+}
+
+/** True when the user is typing a numeric ZIP but has not entered 5 digits yet. */
+export function isPartialNumericZipInput(q: string): boolean {
+  const t = q.trim();
+  return /^\d+$/.test(t) && t.length > 0 && t.length < 5;
+}
+
+/** Normalize distance from API / DB (number or numeric string). */
+export function parseDistanceMiles(value: unknown): number | undefined {
+  let n: number | undefined;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    n = value;
+  } else if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) n = parsed;
+  }
+  if (n === undefined) return undefined;
+  return Math.round(n * 10) / 10;
 }
 
 /**
@@ -126,8 +163,13 @@ export async function findNearestLocations(
   limit: number = 3
 ): Promise<Array<any & { distance: number }>> {
   try {
+    const zip5 = normalizeZip5(userZipcode);
+    if (!zip5) {
+      return [];
+    }
+
     // Get user's zipcode coordinates
-    const userLocation = await lookupZipcode(userZipcode);
+    const userLocation = await lookupZipcode(zip5);
     
     if (!userLocation || !userLocation.latitude || !userLocation.longitude) {
       // User zipcode invalid - return empty
@@ -179,5 +221,42 @@ export async function findNearestLocations(
     // Silently fail
     return [];
   }
+}
+
+/**
+ * Uses POST /api/locations/nearest-by-zip (OpenAI geocoding + haversine on the server).
+ * Falls back to {@link findNearestLocations} if the request fails or returns no rows.
+ */
+export async function findNearestLocationsForZipSearch(
+  userZipcode: string,
+  locations: any[],
+  limit: number = 9
+): Promise<Array<any & { distance: number }>> {
+  const zip = normalizeZip5(userZipcode);
+  if (!zip) {
+    return [];
+  }
+
+  const apiBase =
+    typeof window !== "undefined" ? window.location.origin : "";
+
+  try {
+    const res = await fetch(`${apiBase}/api/locations/nearest-by-zip`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ zip, limit, locations }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.results) && data.results.length > 0) {
+        return data.results;
+      }
+    }
+  } catch {
+    // use fallback below
+  }
+
+  return findNearestLocations(userZipcode, locations, limit);
 }
 

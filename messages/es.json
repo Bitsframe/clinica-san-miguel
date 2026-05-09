@@ -48,6 +48,9 @@
   "section2_p1": "Con 17 ubicaciones en Texas, la atención de calidad está siempre cerca. Usa nuestro",
   "section2_p2": " mapa o filtra por ciudad para encontrar la clínica adecuada para ti.",
   "section2_search_placeholder": "Busca clínicas cercanas a ti...",
+  "section2_zip_updating_distances": "Actualizando distancias…",
+  "section2_zip_distances_for": "Millas aproximadas desde {zip}",
+  "section2_zip_need_five_digits": "Ingrese los 5 dígitos del código postal para ver la distancia de cada clínica.",
 
 
 

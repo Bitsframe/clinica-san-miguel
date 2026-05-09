@@ -12,6 +12,8 @@ type LocationCardProps = {
   name?: string | null;
   address?: string | null;
   phone?: string | null;
+  /** Approximate straight-line miles (e.g. from ZIP search) */
+  distanceMiles?: number;
   onMapClick?: () => void;
   loading?: boolean;
 };
@@ -21,6 +23,7 @@ export const LocationDetailedCard = ({
   name,
   address,
   phone,
+  distanceMiles,
   onMapClick,
   loading,
 }: LocationCardProps) => {
@@ -57,6 +60,11 @@ export const LocationDetailedCard = ({
                 {address || "787 E Park Row Dr, Arlington, TX 76010"}
               </p>
             </div>
+            {distanceMiles != null && (
+              <p className="font-poppins text-[12px] text-[#6B7280] pl-7">
+                ~{distanceMiles} mi (approx.)
+              </p>
+            )}
           </article>
         </div>
 

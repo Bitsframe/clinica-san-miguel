@@ -7,10 +7,11 @@ export async function POST(req: NextRequest) {
     console.log('[upload-consent] incoming', { appointmentId: String(appointmentId || ''), formType, hasPdf: !!pdfBase64, pdfLength: pdfBase64?.length });
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseSecretKey =
+      process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('[upload-consent] missing env', { supabaseUrlDefined: !!supabaseUrl, serviceKeyDefined: !!supabaseServiceKey });
+    if (!supabaseUrl || !supabaseSecretKey) {
+      console.error('[upload-consent] missing env', { supabaseUrlDefined: !!supabaseUrl, secretKeyDefined: !!supabaseSecretKey });
       return NextResponse.json({ error: 'Supabase environment variables are missing' }, { status: 500 });
     }
 
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'appointmentId and pdfBase64 are required' }, { status: 400 });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(supabaseUrl, supabaseSecretKey);
 
     const buffer = Buffer.from(pdfBase64, 'base64');
     const tableName = 'signed_form';

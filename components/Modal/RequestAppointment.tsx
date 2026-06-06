@@ -12,7 +12,7 @@ import { useRequestAppointmentLogic, medicalFields, perPage } from "./logic";
 import { useState } from "react";
 import { extractStateZip } from "@/utils/addressExtractor";
 import CustomDatePicker from "../CustomDatePicker";
-import { CalendarDays, Loader2 } from "lucide-react";
+import { CalendarDays, Loader2, MapPin } from "lucide-react";
 
 const FormSection = ({
   title,
@@ -171,6 +171,7 @@ export const RequestAppointment = ({
 
   const visitType = [t("form_f1a"), t("form_f1b")];
   const genderOptions = [t("form_f8a"), t("form_f8b"), t("form_f8c")];
+  const selectedLocation = detailedData?.[0];
 
   const {
     firstName, lastName, email, dob, sex, state, zipcode, street_address,
@@ -358,6 +359,27 @@ export const RequestAppointment = ({
           <div className="py-4 sm:py-6 px-4 sm:px-6 flex flex-col">
             {page === 1 && (
               <div className="flex flex-col gap-5">
+                {selectedLocation?.title && (
+                  <div className="rounded-xl border border-[#C1001F]/20 bg-[#C1001F]/5 px-4 py-3.5 flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
+                      <MapPin className="h-5 w-5 text-[#C1001F]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#C1001F] font-poppins">
+                        {t("location_label")}
+                      </p>
+                      <p className="text-base font-semibold text-[#19192C] font-poppins leading-snug">
+                        {selectedLocation.title}
+                      </p>
+                      {selectedLocation.address && (
+                        <p className="text-sm text-[#3D3D3C] font-inter mt-0.5 leading-snug">
+                          {selectedLocation.address}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <FormSection title={t("form_f1")}>
                   <RadioButtons
                     name="visit type"

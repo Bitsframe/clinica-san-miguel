@@ -12,19 +12,20 @@ import EndNote from "@/components/services/EndNote";
 import ServiceSkeleton from "@/components/services/ServiceSkeleton";
 
 type ServiceDetail = {
-  title?: string;
+  title?: string | null;
   description?: string | null;
+  about_content?: string | null;
   image?: string | null;
   subheading?: string | null;
   sub_content?: { type: "paragraph" | "bullet"; content: string }[] | null;
   question_answers?: {
     question: string;
     answer: string | { type: "paragraph" | "bullet"; content: string }[];
-  }[];
+  }[] | null;
   faqs?: {
     question: string;
     answer: string | string[] | { type: "paragraph" | "bullet"; content: string }[];
-  }[];
+  }[] | null;
   end_tagline?: string | null;
   note?: string | null;
 };
@@ -52,7 +53,7 @@ export default function ServicePage() {
       setCombined({
         ...(baseData || {}),
         ...(detailData || {}),
-      });
+      } as ServiceDetail);
       setLoading(false);
     };
 

@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 type StoryItem = {
   id: number;
-  image: string;
+  image: string | StaticImageData;
   heading: string;
   description: string;
 };
@@ -46,7 +46,7 @@ export default function AboutStorySection({ items, heading }: AboutStorySectionP
                   alt=""
                   fill
                   className="object-contain p-4 sm:p-6"
-                  loader={customLoader}
+                  {...(typeof item.image === "string" ? { loader: customLoader } : {})}
                 />
               </div>
 

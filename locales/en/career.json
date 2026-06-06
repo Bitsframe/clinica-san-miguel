@@ -1,1 +1,18 @@
-{"career_title":"Career","career_sub_title":"Join Our Team!","career_description":"Thanks for your interest in job opportunities at Clinica San Miguel","opportunities_title":"Current Opportunities:"}
+{
+  "career_title": "Career",
+  "career_sub_title": "Join Our Team!",
+  "career_description": "Thanks for your interest in job opportunities at Clinica San Miguel",
+  "opportunities_title": "Current Opportunities",
+  "opportunities_subtitle": "Explore open roles and find where you fit on our team.",
+  "hero_badge": "Now hiring across Texas",
+  "pillar_1_title": "Patient-Centered Care",
+  "pillar_1_desc": "Join a team dedicated to compassionate, accessible healthcare for every community we serve.",
+  "pillar_2_title": "Supportive Team",
+  "pillar_2_desc": "Work alongside experienced professionals in a collaborative, respectful environment.",
+  "pillar_3_title": "Room to Grow",
+  "pillar_3_desc": "Build your career with opportunities to learn, advance, and make a lasting impact.",
+  "no_opportunities": "No open positions at this time. Please check back soon.",
+  "cta_title": "Interested in joining us?",
+  "cta_description": "Reach out to learn more about future opportunities at Clinica San Miguel.",
+  "cta_button": "Contact Us"
+}

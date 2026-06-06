@@ -1,54 +1,55 @@
 "use client";
 
 import Image from "next/image";
-import { Link } from "@/navigation";
-import { ArrowLeft } from "lucide-react";
 
-type AboutServiceProps = {
-  title: string;
-  about_content: string | null;
-  image_url: string | null;
-  backLabel: string;
+type AboutHeroProps = {
+  eyebrow: string;
+  headline: string;
+  intro: string;
+  imageUrl: string | null;
 };
 
-export default function AboutService({
-  title,
-  about_content,
-  image_url,
-  backLabel,
-}: AboutServiceProps) {
+const customLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
+  const urlWithoutQuery = src.split("?")[0];
+  const qualityParam = quality ? `&q=${quality}` : "";
+  return `${urlWithoutQuery}?w=${width}${qualityParam}`;
+};
+
+export default function AboutHero({
+  eyebrow,
+  headline,
+  intro,
+  imageUrl,
+}: AboutHeroProps) {
   return (
     <section className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-sm">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 p-6 sm:p-8 lg:p-12">
-        <div className="flex flex-col justify-center gap-6 order-2 lg:order-1">
-          <Link
-            href="/services"
-            className="inline-flex items-center gap-2 text-sm font-medium text-[#3D3D3C] hover:text-[#C1001F] transition-colors w-fit"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {backLabel}
-          </Link>
-
+        <div className="flex flex-col justify-center gap-5 order-2 lg:order-1">
+          {eyebrow && (
+            <p className="text-sm sm:text-base font-medium uppercase tracking-wider text-[#C1001F]">
+              {eyebrow}
+            </p>
+          )}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-poppins text-[#19192C] leading-tight">
-            {title}
+            {headline}
           </h1>
-
-          {about_content && (
+          {intro && (
             <p className="text-base sm:text-lg text-[#3D3D3C] font-inter leading-relaxed max-w-xl">
-              {about_content}
+              {intro}
             </p>
           )}
         </div>
 
-        {image_url && (
+        {imageUrl && (
           <div className="relative order-1 lg:order-2 h-64 sm:h-80 lg:h-[420px] rounded-xl overflow-hidden border border-gray-100 shadow-md bg-[#F8F5F0]">
             <Image
-              src={image_url}
-              alt={title}
+              src={imageUrl}
+              alt={headline}
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"
               priority
+              loader={customLoader}
             />
           </div>
         )}

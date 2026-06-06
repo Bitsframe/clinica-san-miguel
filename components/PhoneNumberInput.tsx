@@ -42,50 +42,21 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   };
 
   return (
-    <div className={`flex ${breakpoint ? 'sm:flex-row' : 'flex-col'} items-start w-full`}>
+    <div className={`flex flex-col items-start w-full ${breakpoint ? "md:w-1/2" : ""}`}>
       {label && (
-        <label className="text-[16px] text-customGray font-poppins font-bold mb-1 mr-2">
-          {label}:
+        <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
+          {label}
         </label>
       )}
 
-      <div style={{ position: 'relative', width: '100%' }}>
-        {/* Flag */}
+      <div className="relative w-full">
         <div
-          style={{
-            position: 'absolute',
-            left: 1,
-            top: 1,
-            bottom: 1,
-            width: 45,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#f8f9fa',
-            borderRadius: '10px 0 0 10px',
-            borderRight: '1px solid #e0e0e0',
-            zIndex: 10,
-            pointerEvents: 'none'
-          }}
+          className="absolute left-0 top-0 bottom-0 w-11 flex items-center justify-center bg-[#FAFAFA] border-r border-gray-200 rounded-l-xl z-10 pointer-events-none"
         >
-          <img src="https://flagcdn.com/w40/us.png" alt="US" style={{ width: 24 }} />
+          <img src="https://flagcdn.com/w40/us.png" alt="US" className="w-5 h-auto" />
         </div>
 
-        {/* Fixed (+1) */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 55,
-            top: 0,
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: 16,
-            color: '#000',
-            zIndex: 10,
-            pointerEvents: 'none'
-          }}
-        >
+        <div className="absolute left-12 top-0 bottom-0 flex items-center text-sm text-[#19192C] z-10 pointer-events-none">
           (+1)
         </div>
 
@@ -103,11 +74,12 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
           masks={{ us: '(...) ...-....' }}
           inputStyle={{
             width: '100%',
-            height: 46,
-            fontSize: 16,
-            paddingLeft: 100,
-            borderRadius: 10,
-            border: '1px solid #ccc'
+            height: 44,
+            fontSize: 14,
+            paddingLeft: 88,
+            borderRadius: 12,
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
           }}
           buttonStyle={{ display: 'none' }}
           containerStyle={{ width: '100%' }}

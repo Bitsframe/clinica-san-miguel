@@ -120,6 +120,7 @@ export const Locations = () => {
               number={location.phone}
               route={""}
               location={location.direction}
+              address={location.address}
               id={null}
             />
           ))}

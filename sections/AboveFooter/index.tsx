@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { AiFillStar } from "react-icons/ai";
 import {
-  mission,
   elderly_left,
   elderly_right,
   family,
@@ -13,83 +12,67 @@ import {
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
+const collageImages = [
+  { src: elderly_left, alt: "Doctor with patient", className: "col-span-1 row-span-1" },
+  { src: family, alt: "Family outdoors", className: "col-span-2 row-span-2" },
+  { src: elderly_right, alt: "Care conversation", className: "col-span-1 row-span-2" },
+  { src: HomeBackground, alt: "Parent and child", className: "col-span-2 row-span-1" },
+  { src: doctor, alt: "Medical team", className: "col-span-1 row-span-1" },
+];
+
 export function AboveFooter() {
   const t = useTranslations("above_footer");
   const router = useRouter();
 
   return (
-    <section className="relative w-full bg-white py-12 px-4 flex justify-center items-center overflow-visible mt-20">
-      <div className="relative w-full max-w-[95vw] sm:max-w-[90vw] lg:max-w-[85vw] bg-[#0F172A] text-white rounded-2xl px-4 sm:px-6 md:px-10 lg:px-20 py-10 md:py-14 lg:py-16 lg:h-[30rem] overflow-visible">
+    <section className="relative w-full bg-white py-12 px-4 sm:px-6 flex justify-center items-center">
+      <div className="w-full max-w-6xl bg-[#0F172A] text-white rounded-2xl overflow-hidden shadow-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center p-6 sm:p-8 md:p-10 lg:p-12">
+          <div className="z-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-poppins leading-tight mb-4">
+              {t("title")}
+            </h2>
+            <p className="text-sm sm:text-base text-gray-300 font-inter leading-relaxed mb-6">
+              {t("description")}
+            </p>
 
-        {/* ✅ Text Content */}
-        <div className="max-w-xl z-10 relative px-2 sm:px-4 md:px-6 lg:px-0">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight md:leading-snug mb-4">
-            {t("title")}
-          </h2>
-          <p className="text-sm sm:text-base md:text-lg text-gray-300 mb-6 md:leading-relaxed">
-            {t("description")}
-          </p>
-
-          {/* ✅ Buttons */}
-          <div className="flex gap-4 mb-6 flex-wrap">
-            <button
-              type="button"
-              onClick={() => router.push("/contact")}
-              className="bg-[#C1001F] hover:bg-red-800 text-white px-8 sm:px-10 md:px-12 py-3 sm:py-4 rounded-full text-sm font-medium"
-            >
-              {t("cta_book")}
-            </button>
-            {/* <button className="border border-white text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-white hover:text-[#0F172A] transition">
-              {t("cta_find")}
-            </button> */}
-          </div>
-
-          {/* ✅ Rating */}
-          <div className="flex items-center gap-2 text-sm text-white">
-            <div className="flex gap-1 text-yellow-400">
-              {Array.from({ length: 5 }).map((_, idx) => (
-                <AiFillStar key={idx} size={16} />
-              ))}
+            <div className="flex flex-wrap gap-4 mb-6">
+              <button
+                type="button"
+                onClick={() => router.push("/contact")}
+                className="bg-[#C1001F] hover:bg-[#a30019] text-white px-8 py-3 rounded-full text-sm font-semibold font-poppins transition-colors"
+              >
+                {t("cta_book")}
+              </button>
             </div>
-            <span className="text-white">{t("reviews")}</span>
+
+            <div className="flex items-center gap-2 text-sm">
+              <div className="flex gap-0.5 text-yellow-400">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <AiFillStar key={idx} size={16} />
+                ))}
+              </div>
+              <span className="text-gray-200 font-poppins">{t("reviews")}</span>
+            </div>
+          </div>
+
+          <div className="hidden sm:grid grid-cols-4 grid-rows-3 gap-2.5 h-[240px] md:h-[280px] lg:h-[300px] w-full max-w-lg lg:max-w-none lg:ml-auto">
+            {collageImages.map(({ src, alt, className }) => (
+              <div
+                key={alt}
+                className={`relative rounded-xl overflow-hidden border border-white/10 ${className}`}
+              >
+                <Image
+                  src={src}
+                  alt={alt}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 40vw, 200px"
+                />
+              </div>
+            ))}
           </div>
         </div>
-
-        {/* Floating Images - Hidden on phones (sm) and visible on larger screens (lg) */}
-         <div className="hidden lg:block">
-          <Image
-            src={elderly_left}
-            alt="img1"
-            className="absolute -top-4 right-[20%] w-24 h-24 object-cover rounded-xl"
-          />
-          <Image
-            src={family}
-            alt="img2"
-            className="absolute -top-8 right-[5%] w-36 h-40 object-cover rounded-xl"
-          />
-          <Image
-            src={mission}
-            alt="img3"
-            className="absolute top-[48%] right-[17%] w-24 h-24 object-cover rounded-xl"
-          />
-          <Image
-            src={elderly_right}
-            alt="img4"
-            className="absolute top-[52%] right-[5%] w-28 h-28 object-cover rounded-xl"
-          />
-          <Image
-            src={HomeBackground}
-            alt="img5"
-            className="absolute -bottom-6 right-[23%] w-32 h-32 object-cover rounded-xl"
-          />
-          <Image
-            src={doctor}
-            alt="img6"
-            className="absolute -bottom-6 right-[15%] w-16 h-16 object-cover rounded-xl"
-          />
-        </div>
-
-        
       </div>
     </section>
   );

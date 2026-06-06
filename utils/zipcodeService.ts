@@ -102,6 +102,10 @@ export function parseDistanceMiles(value: unknown): number | undefined {
   return Math.round(n * 10) / 10;
 }
 
+export function formatDistanceMiles(miles: number): string {
+  return miles < 10 ? miles.toFixed(1) : Math.round(miles).toString();
+}
+
 /**
  * Extract zipcode from address string
  * @param address - Full address string

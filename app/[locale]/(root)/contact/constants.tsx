@@ -1,92 +1,8 @@
-
-
-
-// "use client";
-
-// import { useSupabase } from "@/context/supabaseContext";
-// import { useEffect, useState } from "react";
-// import { useLocale } from "next-intl";
-// import { Location } from "@/components";
-
-// export const LocationsData = () => {
-//   const { fetchLocalizedTable } = useSupabase();
-//   const locale = useLocale();
-
-//   const [allLocations, setAllLocations] = useState<any[]>([]);
-//   const [locationData, setLocationData] = useState<any[]>([]);
-//   const [selectedLocationGroup, setSelectedLocationGroup] = useState("");
-
-//   const tabs = [
-//     { id: 2, name: "Dallas", value: "A" },
-//     { id: 3, name: "Houston", value: "B" },
-//     { id: 4, name: "San Antonio", value: "C" },
-//   ];
-
-  
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const data = await fetchLocalizedTable("Locations", locale);
-//         setAllLocations(data);
-//         setLocationData(data); 
-//       } catch (err) {
-//         console.error("❌ Error fetching location data:", err);
-//       }
-//     };
-
-//     fetchData();
-//   }, [fetchLocalizedTable, locale]);
-
-//   useEffect(() => {
-//     if (selectedLocationGroup === "") {
-//       setLocationData(allLocations);
-//     } else {
-//       const filtered = allLocations.filter(
-//         (loc) => loc.Group === selectedLocationGroup 
-//       );
-//       setLocationData(filtered);
-//     }
-//   }, [selectedLocationGroup, allLocations]);
-
-//   return (
-//     <div className="flex flex-col w-full gap-4">
-//       <div className="flex justify-end items-start w-full pr-32">
-//         <select
-//           value={selectedLocationGroup}
-//           onChange={(e) => setSelectedLocationGroup(e.target.value)}
-//           className="w-[120px] bg-[#EAEAEA] h-[45px] rounded-[12px] border-none outline-none"
-//         >
-//           <option value="">All</option>
-//           {tabs.map((tab) => (
-//             <option key={tab.id} value={tab.value}>
-//               {tab.name}
-//             </option>
-//           ))}
-//         </select>
-//       </div>
-
-//       <div className="flex flex-wrap justify-center w-full">
-//         {locationData.map((location) => (
-//           <Location
-//             key={location.id}
-//             id={location.id}
-//             locationName={location.title}
-//             number={location.phone}
-//             route=""
-//             location={location.direction}
-//           />
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-
 "use client";
 
 import { useSupabase } from "@/context/supabaseContext";
 import { useEffect, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Location } from "@/components";
 import LoadingLocationCard from "@/components/loading/LoadingLocationCard";
 import {
@@ -95,39 +11,48 @@ import {
   zipSearchDebounceMs,
   isPartialNumericZipInput,
   parseDistanceMiles,
+  formatDistanceMiles,
 } from "@/utils/zipcodeService";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { Loader2, MapPin, Search } from "lucide-react";
 
 export const LocationsData = () => {
   const { fetchLocalizedTable } = useSupabase();
   const locale = useLocale();
   const th = useTranslations("home");
+  const tc = useTranslations("contact_page");
   const searchParams = useSearchParams();
-  const cityParam = searchParams.get('city');
+  const cityParam = searchParams.get("city");
 
   const [allLocations, setAllLocations] = useState<any[]>([]);
   const [locationData, setLocationData] = useState<any[]>([]);
   const [selectedLocationGroup, setSelectedLocationGroup] = useState("");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // 👈 Add loading state
+  const [isLoading, setIsLoading] = useState(true);
   const [zipRanking, setZipRanking] = useState(false);
 
   const tabs = [
-    { id: 2, name: "Dallas", value: "A" },
-    { id: 3, name: "Houston", value: "B" },
-    { id: 4, name: "San Antonio", value: "C" },
+    { id: 1, name: th("all"), value: "" },
+    { id: 2, name: th("dallas"), value: "A" },
+    { id: 3, name: th("houston"), value: "B" },
+    { id: 4, name: th("sanAntonio"), value: "C" },
   ];
 
-  /* ───────────── Set initial filter from URL params ───────────── */
+  const activeZip = normalizeZip5(debouncedQuery.trim());
+  const isZipSearch = Boolean(activeZip && !isPartialNumericZipInput(debouncedQuery.trim()));
+  const nearestMiles =
+    isZipSearch && locationData.length > 0
+      ? parseDistanceMiles(locationData[0].distance)
+      : undefined;
+
   useEffect(() => {
     if (cityParam) {
-      const cityMap: { [key: string]: string } = {
-        'all': '',
-        'dallas': 'A',
-        'houston': 'B',
-        'sanantonio': 'C'
+      const cityMap: Record<string, string> = {
+        all: "",
+        dallas: "A",
+        houston: "B",
+        sanantonio: "C",
       };
       const groupValue = cityMap[cityParam.toLowerCase()];
       if (groupValue !== undefined) {
@@ -136,27 +61,23 @@ export const LocationsData = () => {
     }
   }, [cityParam]);
 
-  /* ───────────── debounce search query (fast for ZIP digits) ───────────── */
   useEffect(() => {
     const ms = zipSearchDebounceMs(query);
-    const timer = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, ms);
-
+    const timer = setTimeout(() => setDebouncedQuery(query), ms);
     return () => clearTimeout(timer);
   }, [query]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true); // 👈 Start loading
+        setIsLoading(true);
         const data = await fetchLocalizedTable("Locations", locale);
         setAllLocations(data);
         setLocationData(data);
       } catch (err) {
-        console.error("❌ Error fetching location data:", err);
+        console.error("Error fetching location data:", err);
       } finally {
-        setIsLoading(false); // 👈 Done loading
+        setIsLoading(false);
       }
     };
 
@@ -170,9 +91,7 @@ export const LocationsData = () => {
       let filtered = [...allLocations];
 
       if (selectedLocationGroup !== "") {
-        filtered = filtered.filter(
-          (loc) => loc.Group === selectedLocationGroup
-        );
+        filtered = filtered.filter((loc) => loc.Group === selectedLocationGroup);
       }
 
       const q = debouncedQuery.trim();
@@ -224,80 +143,109 @@ export const LocationsData = () => {
   }, [selectedLocationGroup, debouncedQuery, allLocations, isLoading]);
 
   return (
-    <div className="flex flex-col w-full gap-4">
-      <div className="flex flex-col w-full gap-2 px-4 sm:pr-32">
-        <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4">
-        <div className="flex flex-col w-full sm:w-[400px] gap-2">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => {
-            const value = e.target.value;
-            // If input is all numbers, limit to 5 digits
-            if (/^\d+$/.test(value)) {
-              if (value.length <= 5) {
+    <div className="w-full max-w-6xl mx-auto flex flex-col gap-8 px-4 sm:px-0">
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 sm:p-6 shadow-sm space-y-5">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6C7582]" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d+$/.test(value)) {
+                if (value.length <= 5) setQuery(value);
+              } else {
                 setQuery(value);
               }
-            } else {
-              // Allow any text for location name search
-              setQuery(value);
-            }
-          }}
-          placeholder="Search by location name or zipcode..."
-          className="w-full bg-white text-[#6C7582] placeholder-[#6C7582] font-poppins text-[16px] px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-[#C1001F] focus:outline-none"
-        />
+            }}
+            placeholder={tc("search_placeholder")}
+            className="w-full rounded-full border border-gray-200 bg-white pl-12 pr-4 py-3.5 text-base text-[#19192C] placeholder:text-[#6C7582] font-poppins shadow-sm focus:border-[#C1001F] focus:outline-none focus:ring-2 focus:ring-[#C1001F]/20"
+          />
+        </div>
+
         {isPartialNumericZipInput(query.trim()) && (
-          <p className="font-poppins text-[12px] text-[#6B7280] px-1">
+          <p className="text-sm text-[#6C7582] font-poppins px-1">
             {th("section2_zip_need_five_digits")}
           </p>
         )}
-        {normalizeZip5(query.trim()) &&
-          !isPartialNumericZipInput(query.trim()) && (
-          <p className="font-poppins text-[12px] text-[#6B7280] px-1">
-            {zipRanking
-              ? th("section2_zip_updating_distances")
-              : th("section2_zip_distances_for", {
-                  zip: normalizeZip5(query.trim())!,
-                })}
-          </p>
+
+        {isZipSearch && (
+          <div className="flex items-center gap-3 rounded-xl border border-[#C1001F]/15 bg-[#C1001F]/5 px-4 py-3">
+            {zipRanking ? (
+              <Loader2 className="h-5 w-5 shrink-0 animate-spin text-[#C1001F]" />
+            ) : (
+              <MapPin className="h-5 w-5 shrink-0 text-[#C1001F]" />
+            )}
+            <p className="text-sm font-medium text-[#19192C] font-poppins">
+              {zipRanking
+                ? th("section2_zip_updating_distances")
+                : nearestMiles != null
+                  ? th("section2_nearest_is", {
+                      distance: formatDistanceMiles(nearestMiles),
+                    })
+                  : tc("no_results")}
+            </p>
+          </div>
         )}
-        </div>
-        <select
-          value={selectedLocationGroup}
-          onChange={(e) => setSelectedLocationGroup(e.target.value)}
-          className="w-[180px] bg-[#EAEAEA] h-[45px] rounded-[12px] border-none outline-none"
-        >
-          <option value="">All</option>
-          {tabs.map((tab) => (
-            <option key={tab.id} value={tab.value}>
-              {tab.name}
-            </option>
-          ))}
-        </select>
+
+        <div className="flex flex-wrap gap-2">
+          {tabs.map((tab) => {
+            const isActive = selectedLocationGroup === tab.value;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setSelectedLocationGroup(tab.value)}
+                className={`rounded-full px-4 py-2 text-sm font-medium font-poppins transition-colors ${
+                  isActive
+                    ? "bg-[#C1001F] text-white shadow-sm"
+                    : "bg-white text-[#6C7582] border border-gray-200 hover:border-[#C1001F]/30 hover:text-[#19192C]"
+                }`}
+              >
+                {tab.name}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-        {isLoading
-          ? [...Array(9)].map((_, i) => <LoadingLocationCard key={i} />)
-          : locationData.map((location) => {
-              const addr = (location.address || "").trim();
-              const mapValue = addr.length >= 3
-                ? addr
-                : (location.direction || location.title);
-              return (
-                <Location
-                  key={location.id}
-                  id={location.id}
-                  locationName={location.title}
-                  number={location.phone}
-                  route=""
-                  location={mapValue}
-                  distanceMiles={parseDistanceMiles(location.distance)}
-                />
-              );
-            })}
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(9)].map((_, i) => (
+            <LoadingLocationCard key={i} />
+          ))}
+        </div>
+      ) : locationData.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-gray-200 bg-[#F8F5F0] px-6 py-16 text-center">
+          <MapPin className="mx-auto h-10 w-10 text-[#C1001F]/40 mb-3" />
+          <p className="text-base font-medium text-[#19192C] font-poppins">
+            {tc("no_results")}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {locationData.map((location, index) => {
+            const addr = (location.address || "").trim();
+            const mapValue =
+              addr.length >= 3 ? addr : location.direction || location.title;
+
+            return (
+              <Location
+                key={location.id}
+                id={location.id}
+                locationName={location.title}
+                number={location.phone}
+                route=""
+                location={mapValue}
+                address={addr || null}
+                distanceMiles={parseDistanceMiles(location.distance)}
+                rank={isZipSearch ? index + 1 : undefined}
+                className="max-w-none mx-auto w-full"
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

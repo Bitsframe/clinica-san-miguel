@@ -60,7 +60,11 @@ export default async function RootLayout(props: {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID || '';
 
   return (
-    <html lang={locale} className={`${inter.variable} ${poppins.variable} ${dancingScript.variable}`}>
+    <html
+      lang={locale}
+      className={`${inter.variable} ${poppins.variable} ${dancingScript.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <link rel="icon" href="/favicon.png" />
         {/* Google Tag Manager */}
@@ -91,7 +95,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
       </head>
       <NextIntlClientProvider locale={locale} messages={messages}>
-      <body className="font-inter bg-[#F4F5F6] sm:bg-[#F8F5F0] relative overflow-x-hidden w-[100vw]">
+      <body className="font-inter bg-[#F4F5F6] sm:bg-[#F8F5F0] relative overflow-x-hidden w-[100vw]" suppressHydrationWarning>
         {/* Google Tag Manager (noscript) */}
         {gtmId && (
           <noscript>

@@ -56,14 +56,13 @@ export const GroupedMap = ({
   return (
     <iframe
       src={`https://www.google.com/maps/d/embed?mid=${location}`}
-      // src={location}
       width={width}
       height={height}
-      className="w-[100%] rounded-t-[5px]"
-      style={{ borderRadius: "5px 0 5px 0" }}
+      className="w-full h-full border-0"
       allowFullScreen
       loading="lazy"
       referrerPolicy="no-referrer-when-downgrade"
+      title="Clinica San Miguel locations map"
     />
   );
 };

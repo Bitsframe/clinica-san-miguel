@@ -1,1 +1,18 @@
-{"career_title":"Carrera","career_sub_title":"¡Unete a nuestro equipo!","career_description":"Gracias por su interés en las oportunidades laborales en Clínica San Miguel","opportunities_title":"Oportunidades corrientes:"}
+{
+  "career_title": "Carrera",
+  "career_sub_title": "¡Únete a nuestro equipo!",
+  "career_description": "Gracias por su interés en las oportunidades laborales en Clínica San Miguel",
+  "opportunities_title": "Oportunidades actuales",
+  "opportunities_subtitle": "Explore puestos abiertos y encuentre su lugar en nuestro equipo.",
+  "hero_badge": "Contratando en Texas",
+  "pillar_1_title": "Atención centrada en el paciente",
+  "pillar_1_desc": "Únase a un equipo dedicado a brindar atención médica compasiva y accesible a cada comunidad que servimos.",
+  "pillar_2_title": "Equipo de apoyo",
+  "pillar_2_desc": "Trabaje junto a profesionales experimentados en un entorno colaborativo y respetuoso.",
+  "pillar_3_title": "Espacio para crecer",
+  "pillar_3_desc": "Desarrolle su carrera con oportunidades para aprender, avanzar y generar un impacto duradero.",
+  "no_opportunities": "No hay vacantes abiertas en este momento. Vuelva a consultar pronto.",
+  "cta_title": "¿Le interesa unirse a nosotros?",
+  "cta_description": "Contáctenos para conocer más sobre futuras oportunidades en Clínica San Miguel.",
+  "cta_button": "Contáctenos"
+}

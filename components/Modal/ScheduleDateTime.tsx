@@ -27,12 +27,18 @@ interface ScheduleDateTimeProps extends Props {
 }
 
 const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotHandle, initialDate, initialSlot, locationID }) => {
-        const [date, setDate] = useState<Date>(initialDate || new Date());
+        const [date, setDate] = useState<Date | null>(null);
         const [availableTimes, setAvailableTimes] = useState<string[]>([]);
         const [isClosed, setIsClosed] = useState<boolean>(false);
         const [selectedSlot, setSelectedSlot] = useState(initialSlot || '');
         const [bookedSlots, setBookedSlots] = useState<string[]>([]);
         const isFirstRender = useRef(true);
+        const minDateRef = useRef<Date | null>(null);
+
+        useEffect(() => {
+            minDateRef.current = new Date();
+            setDate(initialDate || new Date());
+        }, [initialDate]);
 
     const getTimingKey = (date: Date): keyof DayTimings => {
         const days = ['sunday_timing', 'mon_timing', 'tuesday_timing', 'wednesday_timing', 'thursday_timing', 'friday_timing', 'saturday_timing'] as const;
@@ -143,35 +149,46 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
 
     const selectSlotHandle = (val:string) => {
         setSelectedSlot(val);
-        selectDateTimeSlotHandle(date, val);
+        if (date) {
+            selectDateTimeSlotHandle(date, val);
+        }
+    }
+
+    if (!date) {
+        return (
+            <div className="flex flex-col sm:flex-row w-full gap-4 items-stretch">
+                <div className="h-11 w-full sm:w-1/2 rounded-xl bg-gray-100 animate-pulse" />
+                <div className="h-11 w-full sm:w-1/2 rounded-xl bg-gray-100 animate-pulse" />
+            </div>
+        );
     }
 
     return (
-        <div className="flex flex-col sm:flex-row justify-center w-full gap-3 sm:gap-5 items-stretch">
-            <div className="flex flex-col items-start w-full sm:w-1/2 justify-center">
-                <label className="text-xs sm:text-sm md:text-[16px] text-customGray font-poppins font-bold mb-1">
-                    Select Schedule Date:
+        <div className="flex flex-col sm:flex-row w-full gap-4 items-stretch">
+            <div className="flex flex-col items-start w-full sm:w-1/2">
+                <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
+                    Select Schedule Date
                 </label>
                 {/* @ts-ignore */}
                 <ReactDatePicker
-                    minDate={new Date()}
+                    minDate={minDateRef.current ?? undefined}
                     selected={date}
                     onChange={dateTimeChangeHandle}
-                    placeholderText={"Select Schedule date"}
+                    placeholderText="Select date"
                     dateFormat="dd-MM-yyyy"
                     popperPlacement="bottom-start"
-                    className="w-full h-[44px] sm:h-[46px] border-[1px] border-[#d1d5db] text-sm sm:text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-3 sm:px-5 bg-transparent outline-none rounded-[10px]"
+                    className="w-full h-11 border border-gray-200 text-sm text-[#19192C] placeholder:text-[#9CA3AF] px-4 bg-white outline-none rounded-xl focus:ring-2 focus:ring-[#C1001F]/20 focus:border-[#C1001F] shadow-sm"
                 />
             </div>
 
-            <div className="flex flex-col items-start w-full sm:w-1/2 justify-center">
-                <label className="text-xs sm:text-sm md:text-[16px] text-customGray font-poppins font-bold mb-1">
-                    Select Schedule Time:
+            <div className="flex flex-col items-start w-full sm:w-1/2">
+                <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
+                    Select Schedule Time
                 </label>
                 <select
                 value={selectedSlot}
                 onChange={(e)=>selectSlotHandle(e.target.value)}
-                    className='w-full h-[44px] sm:h-[46px] border-[1px] border-[#d1d5db] text-sm sm:text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-3 sm:px-5 bg-transparent outline-none rounded-[10px]'
+                    className="w-full h-11 border border-gray-200 text-sm text-[#19192C] px-4 bg-white outline-none rounded-xl focus:ring-2 focus:ring-[#C1001F]/20 focus:border-[#C1001F] shadow-sm disabled:bg-gray-50 disabled:text-gray-400"
                     disabled={isClosed}
                 >
                     {isClosed ? (

@@ -15,6 +15,11 @@ import {
   extractZipcodeFromAddress,
   calculateDistance
 } from "./zipcodeService";
+export {
+  CLINICA_TENANT_ID,
+  filterClinicaTenantLocations,
+  isClinicaTenantLocation,
+} from "./clinicaLocations";
 import type { ZipcodeData } from "./zipcodeService";
 
 export {

@@ -115,6 +115,10 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
     fetchDataCallback();
   }, [fetchDataCallback]);
 
+  const hasLoadedLocation = Object.prototype.hasOwnProperty.call(
+    detailData,
+    "Locations"
+  );
   const detailedData = detailData["Locations"] || [];
   const location = detailedData[0];
 
@@ -140,8 +144,26 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
     setLocationGallery(data);
   }, [id, locationImages]);
 
-  if (!location) {
+  if (!hasLoadedLocation) {
     return <LocationDetailSkeleton />;
+  }
+
+  if (!location) {
+    return (
+      <main className="w-full max-w-6xl mx-auto px-4 py-16 text-center space-y-4">
+        <h1 className="text-2xl font-bold font-poppins text-[#19192C]">
+          {tc("location_not_found_title")}
+        </h1>
+        <p className="text-[#3D3D3C] font-inter">{tc("location_not_found_body")}</p>
+        <Link
+          href="/contact"
+          className="inline-flex items-center gap-2 text-sm font-medium text-[#C1001F] hover:underline"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {tc("back_to_locations")}
+        </Link>
+      </main>
+    );
   }
 
   const timings = [

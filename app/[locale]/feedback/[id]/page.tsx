@@ -190,6 +190,7 @@ const PatientFeedback = () => {
           .from('Locations')
           .select('*')
           .eq('id', patientDetails.locationid)
+          .eq('tenant_id', 1)
           .single();
 
         let locationDetails = {

@@ -10,6 +10,12 @@ import React, {
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/@types/database.types";
 import { supabase } from "@/supabaseClient";
+import {
+  CLINICA_TENANT_ID,
+  fetchClinicaLocations,
+  isAllowedClinicaLocationId,
+  isClinicaTenantLocation,
+} from "@/utils/clinicaLocations";
 
 interface SupabaseContextType {
   supabase: SupabaseClient;
@@ -177,10 +183,20 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
   // for any unique record
   const fetchDetailedData = async (table: string, id: number) => {
     try {
-      const { data, error } = await supabase
-        .from(table)
-        .select("*")
-        .eq("id", id);
+      if (table === "Locations") {
+        const allowed = await isAllowedClinicaLocationId(supabase, id);
+        if (!allowed) {
+          setDetailData({ [table]: [] });
+          return;
+        }
+      }
+
+      let query = supabase.from(table).select("*").eq("id", id);
+      if (table === "Locations") {
+        query = query.eq("tenant_id", CLINICA_TENANT_ID);
+      }
+
+      const { data, error } = await query;
       console.log(data, `${table} Data`);
       if (data) {
         setDetailData({ [table]: data });
@@ -216,6 +232,10 @@ const fetchLocalizedTable = useCallback(
     baseTable: T,
     locale: string
   ): Promise<TableRows<T>> => {
+    if (baseTable === "Locations") {
+      return (await fetchClinicaLocations(supabase, locale)) as TableRows<T>;
+    }
+
     if (locale === "es") {
       const localizedTableName = `${String(baseTable)}_es` as TableName;
 
@@ -253,12 +273,19 @@ const fetchLocalizedRowById = useCallback(
     locale: string,
     id: number
   ): Promise<Database["public"]["Tables"][T]["Row"] | null> => {
+    if (baseTable === "Locations") {
+      const allowed = await isAllowedClinicaLocationId(supabase, id);
+      if (!allowed) return null;
+    }
+
     const tableName = (locale === "es" ? `${baseTable}_es` : baseTable) as T;
 
-    const { data, error } = await supabase
-      .from(tableName)
-      .select("*")
-      .eq("id", id);
+    let query = supabase.from(tableName).select("*").eq("id", id);
+    if (baseTable === "Locations" && locale !== "es") {
+      query = query.eq("tenant_id", CLINICA_TENANT_ID);
+    }
+
+    const { data, error } = await query;
 
     console.log(`🟢 Supabase response from ${tableName} for id=${id}:`, {
       data,
@@ -275,7 +302,16 @@ const fetchLocalizedRowById = useCallback(
       return null;
     }
 
-    return data[0];
+    const row = data[0];
+    if (
+      baseTable === "Locations" &&
+      locale !== "es" &&
+      !isClinicaTenantLocation(row as { id: number; tenant_id?: number | null })
+    ) {
+      return null;
+    }
+
+    return row;
   },
   []
 );

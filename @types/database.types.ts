@@ -173,6 +173,9 @@ export interface Database {
           sunday_timing: string | null;
           direction: string | null;
           address: string | null;
+          Group: string | null;
+          tenant_id: number | null;
+          is_active: boolean | null;
         };
       };
       Images: {

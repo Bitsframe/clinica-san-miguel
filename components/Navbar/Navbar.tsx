@@ -61,7 +61,7 @@ export const Navbar = () => {
   const linkClass = (route: string) => {
     const active = isActiveRoute(route);
     return [
-      "relative rounded-full px-3.5 py-2 text-[15px] font-medium font-poppins transition-all duration-200",
+      "relative whitespace-nowrap rounded-full px-2.5 py-2 text-[13px] font-medium font-poppins transition-all duration-200 lg:px-3 lg:text-[14px] xl:px-3.5 xl:text-[15px]",
       active
         ? "text-[#C1001F] bg-[#C1001F]/10"
         : "text-[#19192C]/80 hover:text-[#19192C] hover:bg-gray-100/80",
@@ -73,7 +73,7 @@ export const Navbar = () => {
       <header
         className={`sticky top-0 z-40 w-full transition-all duration-300 ${headerClass}`}
       >
-        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:gap-4 lg:px-8">
           {/* Logo */}
           <Link href="/" className="shrink-0">
             <Image
@@ -84,14 +84,14 @@ export const Navbar = () => {
             />
           </Link>
 
-          {/* Desktop Nav */}
+          {/* Desktop Nav — lg+ only; Spanish labels need more horizontal space than tablet width */}
           <nav
             aria-label="Main navigation"
-            className="hidden tablet:flex flex-1 justify-center"
+            className="hidden lg:flex min-w-0 flex-1 justify-center"
           >
             <ul className="flex items-center gap-0.5 rounded-full bg-[#F4F5F6]/80 p-1 ring-1 ring-gray-200/60">
               {navLinks.map((link) => (
-                <li key={link.id}>
+                <li key={link.id} className="shrink-0">
                   <Link href={link.route} className={linkClass(link.route)}>
                     {link.heading}
                   </Link>
@@ -101,13 +101,13 @@ export const Navbar = () => {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden tablet:flex items-center gap-2 lg:gap-3 shrink-0">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
             <a
               href="tel:+14698868060"
-              className="hidden lg:inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-[#19192C] shadow-sm transition hover:border-[#C1001F]/30 hover:text-[#C1001F]"
+              className="hidden xl:inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-[#19192C] shadow-sm transition hover:border-[#C1001F]/30 hover:text-[#C1001F]"
             >
               <Phone className="h-4 w-4 text-[#C1001F]" />
-              <span className="font-poppins">469-886-8060</span>
+              <span className="font-poppins whitespace-nowrap">469-886-8060</span>
             </a>
 
             <LanguageChanger locale={locale} />
@@ -115,15 +115,18 @@ export const Navbar = () => {
             <button
               type="button"
               onClick={() => router.push("/contact")}
-              className="inline-flex items-center gap-2 rounded-full bg-[#C1001F] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#C1001F]/25 transition hover:bg-[#a8001a] hover:shadow-lg hover:shadow-[#C1001F]/30 font-poppins"
+              aria-label={t("book_your_visit")}
+              className="inline-flex items-center gap-2 rounded-full bg-[#C1001F] px-3 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#C1001F]/25 transition hover:bg-[#a8001a] hover:shadow-lg hover:shadow-[#C1001F]/30 font-poppins xl:px-5"
             >
-              <CalendarDays className="h-4 w-4" />
-              {t("book_your_visit")}
+              <CalendarDays className="h-4 w-4 shrink-0" />
+              <span className="hidden xl:inline whitespace-nowrap">
+                {t("book_your_visit")}
+              </span>
             </button>
           </div>
 
           {/* Mobile toggle */}
-          <div className="flex tablet:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2 shrink-0">
             <LanguageChanger locale={locale} />
             <button
               type="button"
@@ -146,7 +149,7 @@ export const Navbar = () => {
 
       {/* Mobile drawer */}
       <div
-        className={`fixed inset-0 z-50 tablet:hidden transition-opacity duration-300 ${
+        className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-300 ${
           isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
       >

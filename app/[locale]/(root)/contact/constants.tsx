@@ -15,6 +15,7 @@ import {
 } from "@/utils/zipcodeService";
 import { useSearchParams } from "next/navigation";
 import { Loader2, MapPin, Search } from "lucide-react";
+import { formatSupabaseError } from "@/utils/clinicaLocations";
 
 export const LocationsData = () => {
   const { fetchLocalizedTable } = useSupabase();
@@ -75,7 +76,11 @@ export const LocationsData = () => {
         setAllLocations(data);
         setLocationData(data);
       } catch (err) {
-        console.error("Error fetching location data:", err);
+        console.error(
+          "Error fetching location data:",
+          formatSupabaseError(err),
+          err
+        );
       } finally {
         setIsLoading(false);
       }

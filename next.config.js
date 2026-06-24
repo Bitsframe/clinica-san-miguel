@@ -4,15 +4,6 @@ const withNextIntl = require("next-intl/plugin")();
 
 const nextConfig = {
   images: {
-    // remotePatterns: [
-    //   {
-    //     protocol: "https",
-    //     hostname: "vsvueqtgulraaczqnnvh.supabase.co",
-    //     port: "",
-    //     pathname: "/storage/v1/object/public/**",
-    //   },
-    // ],
-    domains: ["*"],
     remotePatterns: [
       {
         protocol: "https",
@@ -21,6 +12,11 @@ const nextConfig = {
         pathname: "**",
       },
     ],
+  },
+  async rewrites() {
+    return [
+      { source: "/favicon.ico", destination: "/favicon.png" },
+    ];
   },
 };
 

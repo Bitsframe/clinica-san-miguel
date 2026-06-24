@@ -49,14 +49,10 @@ export default async function RootLayout(props: {
 }) {
   const { children, params } = props;
 
-  const resolvedParams = await params; // ✅ await it!
+  const resolvedParams = await params;
   const { locale } = resolvedParams;
 
-  // 🐛 Optional Debug
-  console.log("[layout.tsx] Awaited locale:", locale);
-
   if (!locales.includes(locale)) {
-    console.warn(`[layout.tsx] Invalid locale: ${locale}`);
     notFound();
   }
 

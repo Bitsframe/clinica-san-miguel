@@ -13,8 +13,8 @@ import { supabase } from "@/supabaseClient";
 import {
   CLINICA_TENANT_ID,
   fetchClinicaLocations,
+  fetchClinicaLocationById,
   isAllowedClinicaLocationId,
-  isClinicaTenantLocation,
 } from "@/utils/clinicaLocations";
 
 interface SupabaseContextType {
@@ -274,18 +274,14 @@ const fetchLocalizedRowById = useCallback(
     id: number
   ): Promise<Database["public"]["Tables"][T]["Row"] | null> => {
     if (baseTable === "Locations") {
-      const allowed = await isAllowedClinicaLocationId(supabase, id);
-      if (!allowed) return null;
+      return (await fetchClinicaLocationById(supabase, locale, id)) as
+        | Database["public"]["Tables"][T]["Row"]
+        | null;
     }
 
     const tableName = (locale === "es" ? `${baseTable}_es` : baseTable) as T;
 
-    let query = supabase.from(tableName).select("*").eq("id", id);
-    if (baseTable === "Locations" && locale !== "es") {
-      query = query.eq("tenant_id", CLINICA_TENANT_ID);
-    }
-
-    const { data, error } = await query;
+    const { data, error } = await supabase.from(tableName).select("*").eq("id", id);
 
     console.log(`🟢 Supabase response from ${tableName} for id=${id}:`, {
       data,
@@ -302,16 +298,7 @@ const fetchLocalizedRowById = useCallback(
       return null;
     }
 
-    const row = data[0];
-    if (
-      baseTable === "Locations" &&
-      locale !== "es" &&
-      !isClinicaTenantLocation(row as { id: number; tenant_id?: number | null })
-    ) {
-      return null;
-    }
-
-    return row;
+    return data[0];
   },
   []
 );

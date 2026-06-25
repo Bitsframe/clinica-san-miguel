@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Label, Modal, Select } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
 import "react-datepicker/dist/react-datepicker.css";
@@ -169,8 +169,14 @@ export const RequestAppointment = ({
   const t = useTranslations("appoinment_form");
   const locale = useLocale();
 
-  const visitType = [t("form_f1a"), t("form_f1b")];
-  const genderOptions = [t("form_f8a"), t("form_f8b"), t("form_f8c")];
+  const visitType = useMemo(
+    () => [t("form_f1a"), t("form_f1b")],
+    [t]
+  );
+  const genderOptions = useMemo(
+    () => [t("form_f8a"), t("form_f8b"), t("form_f8c")],
+    [t]
+  );
   const selectedLocation = detailedData?.[0];
 
   const {
@@ -198,8 +204,9 @@ export const RequestAppointment = ({
   const [isSmartyIntegrated, setIsSmartyIntegrated] = useState<boolean | null>(null);
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
   const [isAddressSuggestionsLoading, setIsAddressSuggestionsLoading] = useState(false);
-  const [isAddressSelected, setIsAddressSelected] = useState(false); // Track if user selected from dropdown
+  const isAddressSelectedRef = useRef(false); // Track if user selected from dropdown (ref = no re-render)
   const addressFetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const addressContainerRef = useRef<HTMLDivElement>(null);
 
   // Computed values for address suggestions
   const visibleAddressSuggestions = addressSuggestions.filter(Boolean);
@@ -210,30 +217,37 @@ export const RequestAppointment = ({
     const checkSmartyIntegration = async () => {
       try {
         const response = await fetch("/api/address/status");
-        console.log("[SmartyStreets] Status response:", response.ok, response.status);
         if (!response.ok) {
           setIsSmartyIntegrated(false);
           return;
         }
         const data = await response.json();
-        console.log("[SmartyStreets] Status data:", data);
         setIsSmartyIntegrated(data.integrated);
-      } catch (error) {
-        console.error("Error checking SmartyStreets integration:", error);
+      } catch {
         setIsSmartyIntegrated(false);
       }
     };
     checkSmartyIntegration();
   }, []);
 
+  // Close address suggestions when clicking outside the address field
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        addressContainerRef.current &&
+        !addressContainerRef.current.contains(event.target as Node)
+      ) {
+        setAddressSuggestions([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Fetch address suggestions with debouncing
   useEffect(() => {
-    console.log("[SmartyStreets] useEffect triggered - street_address:", street_address);
-    
-    // Don't fetch if user just selected an address from dropdown
-    if (isAddressSelected) {
-      console.log("[SmartyStreets] Skipping fetch - address was just selected from dropdown");
-      setIsAddressSelected(false); // Reset the flag
+    if (isAddressSelectedRef.current) {
+      isAddressSelectedRef.current = false;
       return;
     }
     
@@ -243,14 +257,7 @@ export const RequestAppointment = ({
     }
 
     const query = street_address.trim();
-    console.log("[SmartyStreets] Address changed:", { 
-      query, 
-      length: query.length, 
-      isSmartyIntegrated,
-      willFetch: query.length >= 4
-    });
 
-    // Don't fetch if query is too short or Smarty is not configured
     if (!query || query.length < 4 || !isSmartyIntegrated) {
       setAddressSuggestions([]);
       setIsAddressSuggestionsLoading(false);
@@ -271,8 +278,7 @@ export const RequestAppointment = ({
         const data = await response.json();
         const suggestions = Array.isArray(data?.suggestions) ? data.suggestions : [];
         setAddressSuggestions(suggestions);
-      } catch (error) {
-        console.error("[SmartyStreets] Error fetching address recommendations:", error);
+      } catch {
         setAddressSuggestions([]);
       } finally {
         setIsAddressSuggestionsLoading(false);
@@ -289,8 +295,8 @@ export const RequestAppointment = ({
 
   // Handle address suggestion click
   const handleAddressSuggestionClick = (suggestion: string) => {
-    // Set flag to prevent refetching
-    setIsAddressSelected(true);
+    // Set flag to prevent refetching (ref avoids triggering re-render → effect loop)
+    isAddressSelectedRef.current = true;
     
     // Store the full address in the street_address field (no extraction for UI)
     setStreet_address(suggestion);
@@ -414,7 +420,7 @@ export const RequestAppointment = ({
                 </FormSection>
 
                 <FormSection>
-                  <div className="relative">
+                  <div className="relative" ref={addressContainerRef}>
                     {isAddressSuggestionsLoading && (
                       <div className="absolute right-3 top-[42px] pointer-events-none z-10 flex h-11 items-center">
                         <Loader2 className="h-4 w-4 animate-spin text-[#C1001F]" aria-hidden />

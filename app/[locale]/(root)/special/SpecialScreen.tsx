@@ -21,9 +21,15 @@ type SpecialItem = {
 
 function SpecialSkeleton() {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 sm:p-8 shadow-sm animate-pulse space-y-5">
-      <div className="h-8 w-2/3 mx-auto bg-gray-200 rounded" />
-      <div className="aspect-[4/5] sm:aspect-[3/4] max-w-xl mx-auto bg-gray-100 rounded-xl" />
+    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden animate-pulse">
+      <div className="border-b border-gray-100 px-5 py-4">
+        <div className="h-6 w-2/3 rounded-lg bg-gray-200" />
+      </div>
+      <div className="bg-[#F8F5F0] p-4 sm:p-5">
+        <div className="rounded-2xl border border-gray-200 bg-white p-4">
+          <div className="h-80 w-full max-w-[340px] mx-auto rounded-xl bg-gray-100 md:max-w-[500px]" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -65,7 +71,6 @@ export default function SpecialScreen({
           .order("created_at", { ascending: false });
 
         if (error) {
-          console.error("Failed to load specials:", error.message);
           return;
         }
 
@@ -98,7 +103,7 @@ export default function SpecialScreen({
   return (
     <>
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 sm:mb-14">
-        <div className="text-center space-y-3 max-w-3xl mx-auto">
+        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-8 sm:px-10 sm:py-10 shadow-sm text-center space-y-3 max-w-3xl mx-auto">
           <p className="text-sm font-medium uppercase tracking-wider text-[#C1001F]">
             {eyebrow}
           </p>
@@ -126,17 +131,19 @@ export default function SpecialScreen({
           </div>
         ) : (
           <div
-            className={`grid gap-6 sm:gap-8 ${
-              specials.length === 1 ? "grid-cols-1 max-w-2xl mx-auto" : "grid-cols-1 lg:grid-cols-2"
+            className={`grid gap-5 sm:gap-6 ${
+              specials.length === 1
+                ? "grid-cols-1 max-w-xl mx-auto"
+                : "grid-cols-1 md:grid-cols-2"
             }`}
           >
             {specials.map((poster, index) => (
               <article
                 key={poster.id}
-                className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden transition-shadow hover:shadow-md"
+                className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all hover:border-[#C1001F]/20 hover:shadow-md"
               >
-                <div className="flex items-center gap-2 border-b border-gray-100 bg-[#FAFAFA] px-5 py-4">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C1001F]/10">
+                <div className="flex items-center gap-3 border-b border-gray-100 px-5 py-4">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#C1001F]/10">
                     <Sparkles className="h-4 w-4 text-[#C1001F]" />
                   </div>
                   <h2 className="text-lg sm:text-xl font-semibold font-poppins text-[#19192C] leading-snug">
@@ -148,12 +155,12 @@ export default function SpecialScreen({
                     </span>
                   )}
                 </div>
-                <div className="p-4 sm:p-5">
-                  <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] rounded-xl overflow-hidden border border-gray-100 bg-[#F8F5F0]">
+                <div className="bg-[#F8F5F0] p-4 sm:p-5">
+                  <div className="rounded-2xl border border-gray-200 bg-white p-3 sm:p-4 shadow-sm">
                     <LazyImageWithLoader
                       src={poster.imageUrl}
                       alt={poster.title}
-                      sizes="(max-width: 1024px) 100vw, 560px"
+                      layout="poster"
                       priority={index === 0}
                     />
                   </div>
@@ -165,8 +172,8 @@ export default function SpecialScreen({
       </section>
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
-        <div className="rounded-2xl border border-gray-100 bg-[#F8F5F0] px-6 sm:px-10 py-10 sm:py-12 text-center space-y-5">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#C1001F]/10">
+        <div className="rounded-2xl border border-gray-200 bg-[#F8F5F0] px-6 sm:px-10 py-10 sm:py-12 text-center space-y-5 shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-gray-200">
             <CalendarDays className="h-6 w-6 text-[#C1001F]" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold font-poppins text-[#19192C]">

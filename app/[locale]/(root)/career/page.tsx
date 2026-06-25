@@ -1,6 +1,20 @@
+import { Metadata } from "next";
 import { career_cover } from "@/assets/images";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+
+export const metadata: Metadata = {
+  title: "Careers",
+  description:
+    "Join the Clinica San Miguel team. We're hiring compassionate healthcare professionals across Texas. Explore open positions and apply today.",
+  alternates: {
+    canonical: "/career",
+    languages: {
+      en: "/career",
+      es: "/es/career",
+    },
+  },
+};
 import { Link } from "@/navigation";
 import { Opportunities } from "@/sections/Career/Opportunities";
 import { Briefcase, HeartHandshake, TrendingUp, Users } from "lucide-react";

@@ -1,6 +1,7 @@
 "use client";
 
 import Image, { type StaticImageData } from "next/image";
+import { getSupabaseImageUrl } from "@/utils/supabaseImage";
 
 type StoryItem = {
   id: number;
@@ -15,9 +16,7 @@ type AboutStorySectionProps = {
 };
 
 const customLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
-  const urlWithoutQuery = src.split("?")[0];
-  const qualityParam = quality ? `&q=${quality}` : "";
-  return `${urlWithoutQuery}?w=${width}${qualityParam}`;
+  return getSupabaseImageUrl(src, { width, quality: quality ?? 75 });
 };
 
 export default function AboutStorySection({ items, heading }: AboutStorySectionProps) {

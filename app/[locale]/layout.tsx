@@ -1,18 +1,14 @@
-import "regenerator-runtime/runtime";
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Poppins, Dancing_Script } from "next/font/google";
 import "./globals.css";
 
 import { Providers } from "../providers";
-import AiBotMain from "@/components/AiChatBot/AiBotMain";
-import { Analytics } from "@vercel/analytics/react";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { locales } from "@/navigation";
 import ToastProvider from "@/utils/ToastProvider";
-import 'react-datetime-picker/dist/DateTimePicker.css';
-import 'react-calendar/dist/Calendar.css';
-import 'react-clock/dist/Clock.css';
+import { getRootMetadata } from "@/utils/seo";
 
 
 const inter = Inter({
@@ -34,14 +30,14 @@ const dancingScript = Dancing_Script({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Clinica San Miguel",
-  description: "Family medicine clinic serving Texas communities.",
-  icons: {
-    icon: [{ url: "/favicon.png", type: "image/png" }],
-    apple: [{ url: "/apple-icon.png", type: "image/png" }],
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return getRootMetadata(locale);
+}
 
 export default async function RootLayout(props: {
   children: React.ReactNode;
@@ -65,36 +61,29 @@ export default async function RootLayout(props: {
       className={`${inter.variable} ${poppins.variable} ${dancingScript.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        {/* Google Tag Manager */}
-        {gtmId && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      <NextIntlClientProvider locale={locale} messages={messages}>
+      <body className="font-inter bg-[#F4F5F6] sm:bg-[#F8F5F0] relative overflow-x-hidden w-[100vw]" suppressHydrationWarning>
+        {gtmId ? (
+          <Script id="gtm-init" strategy="afterInteractive">
+            {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${gtmId}');`,
-            }}
-          />
-        )}
-        {/* End Google Tag Manager */}
-        
-        {/* Google tag (gtag.js) for Google Ads Conversion Tracking */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-368434703"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'AW-368434703');
-            `,
-          }}
+})(window,document,'script','dataLayer','${gtmId}');`}
+          </Script>
+        ) : null}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-368434703"
+          strategy="afterInteractive"
         />
-      </head>
-      <NextIntlClientProvider locale={locale} messages={messages}>
-      <body className="font-inter bg-[#F4F5F6] sm:bg-[#F8F5F0] relative overflow-x-hidden w-[100vw]" suppressHydrationWarning>
+        <Script id="google-ads-config" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-368434703');
+          `}
+        </Script>
         {/* Google Tag Manager (noscript) */}
         {gtmId && (
           <noscript>
@@ -111,11 +100,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <Providers>
             <ToastProvider>
               {children}
-              <div className="sticky z-[999999] bottom-10 right-10">
-                {/* <AiBotMain /> */}
-                <Analytics mode="production" />
-           
-              </div>
             </ToastProvider>
           </Providers>
         </body>

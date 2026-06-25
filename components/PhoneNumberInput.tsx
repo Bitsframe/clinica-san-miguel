@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import Image from 'next/image';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
@@ -43,7 +44,14 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
         <div
           className="absolute left-0 top-0 bottom-0 w-11 flex items-center justify-center bg-[#FAFAFA] border-r border-gray-200 rounded-l-xl z-10 pointer-events-none"
         >
-          <img src="https://flagcdn.com/w40/us.png" alt="US" className="w-5 h-auto" />
+          <Image
+            src="https://flagcdn.com/w40/us.png"
+            alt="US"
+            width={20}
+            height={15}
+            className="w-5 h-auto"
+            unoptimized
+          />
         </div>
 
         <div className="absolute left-12 top-0 bottom-0 flex items-center text-sm text-[#19192C] z-10 pointer-events-none">

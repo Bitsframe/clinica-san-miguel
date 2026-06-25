@@ -18,9 +18,8 @@ export const ServicesComponent = () => {
       .then((rows) => {
         setData(rows);
         setHasFetched(true);
-        console.log("✅ Services data fetched");
       })
-      .catch((err) => console.error("❌ Services fetch error:", err));
+      .catch(() => {});
   }, [locale, fetchLocalizedTable]); 
 
   const sortedData = useMemo(() => {

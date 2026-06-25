@@ -130,10 +130,8 @@ export default function CommunityMission() {
           setData(rows);
           setHasFetched(true);
           setLoading(false);
-          console.log("✅ CommunityMission data fetched");
         })
-        .catch((err) => {
-          console.error("CommunityMission fetch error:", err);
+        .catch(() => {
           setLoading(false);
         });
     }

@@ -44,7 +44,7 @@ const AboutScreen = () => {
   useEffect(() => {
     fetchLocalizedTable("about", locale)
       .then((rows) => setData(rows[0] ?? null))
-      .catch((err) => console.error("Error fetching about data:", err));
+      .catch(() => {});
   }, [locale, fetchLocalizedTable]);
 
   const { eyebrow, headline } = useMemo(

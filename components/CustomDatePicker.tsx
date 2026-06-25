@@ -123,6 +123,24 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     return dateToCheck > maxDate;
   };
 
+  const isNextMonthDisabled = () => {
+    if (!maxDate) return false;
+    return (
+      currentDate.getFullYear() > maxDate.getFullYear() ||
+      (currentDate.getFullYear() === maxDate.getFullYear() &&
+        currentDate.getMonth() >= maxDate.getMonth())
+    );
+  };
+
+  const isMonthDisabled = (monthIndex: number) => {
+    if (!maxDate) return false;
+    return (
+      currentDate.getFullYear() > maxDate.getFullYear() ||
+      (currentDate.getFullYear() === maxDate.getFullYear() &&
+        monthIndex > maxDate.getMonth())
+    );
+  };
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -185,8 +203,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 <button
                   type="button"
                   onClick={() => navigateMonth('next')}
-                  className="text-white hover:bg-white/10 rounded p-1 transition-colors"
-                  disabled={viewMode !== 'calendar'}
+                  className="text-white hover:bg-white/10 rounded p-1 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  disabled={viewMode !== 'calendar' || isNextMonthDisabled()}
                 >
                   <span className="text-xl font-bold">{">"}</span>
                 </button>
@@ -238,10 +256,13 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                   <button
                     key={month}
                     type="button"
-                    onClick={() => handleMonthSelect(index)}
+                    onClick={() => !isMonthDisabled(index) && handleMonthSelect(index)}
+                    disabled={isMonthDisabled(index)}
                     className={`p-3 rounded text-sm font-medium transition-colors ${
                       index === currentDate.getMonth()
                         ? 'bg-[#C1001F] text-white'
+                        : isMonthDisabled(index)
+                        ? 'text-gray-300 cursor-not-allowed'
                         : 'hover:bg-[#ffe6eb] text-gray-700'
                     }`}
                   >

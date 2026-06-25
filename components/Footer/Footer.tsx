@@ -128,7 +128,7 @@ export const Footer = () => {
   </p>
 
   <p className="md:ml-auto text-center md:text-right">
-    All Rights Reserved.
+    {t("footer_rights_reserved")}
   </p>
 </div>
   {/* Uncomment if needed

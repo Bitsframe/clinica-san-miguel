@@ -166,7 +166,7 @@ export const Navbar = () => {
           }`}
         >
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-            <span className="text-sm font-semibold uppercase tracking-wide text-[#6C7582] font-poppins">
+            <span className="text-sm font-semibold uppercase tracking-wide text-[#4B5563] font-poppins">
               Menu
             </span>
             <button

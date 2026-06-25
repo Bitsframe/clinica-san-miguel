@@ -10,7 +10,6 @@ interface DataInterface {
 
 export const validateFormData = (data: DataInterface, address = false) => {
     const { email, phone, state, zipcode, street_address } = data
-    console.log('------------------>', zipcode)
 
     if (email) {
         const isValidEmail = String(email)
@@ -27,7 +26,6 @@ export const validateFormData = (data: DataInterface, address = false) => {
     // Phone: no format validation — UI mask limits to 10 digits
     if (address) {
         if (zipcode) {
-            console.log('456789', zipcode)
             const isValidZipCode = String(zipcode)
                 .match(/^[0-9]{5}(?:-[0-9]{4})?$/);
             if (!isValidZipCode) {

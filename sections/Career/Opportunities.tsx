@@ -39,7 +39,7 @@ export const Opportunities = () => {
           setOpportunities(rows);
           setHasFetched(true);
         })
-        .catch((err) => console.error("Opportunities fetch error:", err));
+        .catch(() => {});
     }
   }, [isVisible, hasFetched, fetchLocalizedTable, locale]);
 

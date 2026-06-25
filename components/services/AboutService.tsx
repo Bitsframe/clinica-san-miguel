@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { Link } from "@/navigation";
 import { ArrowLeft } from "lucide-react";
-
 type AboutServiceProps = {
   title: string;
   about_content: string | null;
@@ -41,7 +40,7 @@ export default function AboutService({
         </div>
 
         {image_url && (
-          <div className="relative order-1 lg:order-2 h-64 sm:h-80 lg:h-[420px] rounded-xl overflow-hidden border border-gray-100 shadow-md bg-[#F8F5F0]">
+          <div className="relative order-1 lg:order-2 w-full aspect-[4/3] rounded-xl overflow-hidden border border-gray-100 shadow-md">
             <Image
               src={image_url}
               alt={title}

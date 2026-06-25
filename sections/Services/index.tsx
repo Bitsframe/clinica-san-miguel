@@ -23,12 +23,9 @@ export const Services = () => {
       fetchLocalizedTable("services", locale)  // Fetch the correct services based on locale
         .then((rows) => {
           setData(rows);
-          setHasFetched(true);  // Set the state once data is fetched
-          console.log("✅ Services data fetched");
+          setHasFetched(true);
         })
-        .catch((err) => {
-          console.error("❌ Services fetch error:", err);
-        });
+        .catch(() => {});
     }
   }, [locale, hasFetched, fetchLocalizedTable]);
 

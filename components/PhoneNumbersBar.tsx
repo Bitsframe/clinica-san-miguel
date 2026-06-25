@@ -36,7 +36,7 @@ export default function PhoneNumbersBar() {
                 <Phone className="h-3.5 w-3.5" strokeWidth={2.25} />
               </span>
               <span className="flex flex-col sm:flex-row sm:items-center sm:gap-2 text-left leading-tight">
-                <span className="text-xs font-semibold uppercase tracking-wide text-[#6C7582] font-poppins sm:text-[11px]">
+                <span className="text-xs font-semibold uppercase tracking-wide text-[#4B5563] font-poppins sm:text-[11px]">
                   {location.city}
                 </span>
                 <span className="hidden sm:inline h-3 w-px bg-gray-200" aria-hidden />

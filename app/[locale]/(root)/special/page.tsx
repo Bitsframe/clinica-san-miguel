@@ -1,8 +1,31 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { buildPageMetadata } from "@/utils/seo";
 import SpecialScreen from "./SpecialScreen";
 
-export default async function SpecialPage() {
-  const t = await getTranslations("specials");
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "specials" });
+
+  return buildPageMetadata({
+    locale,
+    title: t("specials_title"),
+    description: t("description"),
+    path: "/special",
+  });
+}
+
+export default async function SpecialPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "specials" });
 
   return (
     <main className="w-full py-8 sm:py-12">

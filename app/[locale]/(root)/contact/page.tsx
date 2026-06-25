@@ -1,5 +1,19 @@
+import { Metadata } from "next";
 import { LocationsData } from "./constants";
 import { getTranslations } from "next-intl/server";
+
+export const metadata: Metadata = {
+  title: "Find a Clinic Near You",
+  description:
+    "Find your nearest Clinica San Miguel location in Texas. Walk-ins welcome. Clinics serving Houston, San Antonio, and surrounding communities.",
+  alternates: {
+    canonical: "/contact",
+    languages: {
+      en: "/contact",
+      es: "/es/contact",
+    },
+  },
+};
 
 const Contact = async ({
   params,

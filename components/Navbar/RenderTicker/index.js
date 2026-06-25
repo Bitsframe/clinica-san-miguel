@@ -15,21 +15,15 @@ const RenderTicker = () => {
 
 
   useEffect(() => {
-    ; (async () => {
-      console.log('iscalled')
+    (async () => {
+      const tableName = locale === "es" ? "Tickers_es" : "Tickers";
+      const { data } = await supabase.from(tableName).select("*");
 
-
-      let { data, error } = await supabase
-        .from(`Tickers${locale !== 'en' ? '_es' : ''} `)
-        .select('*')
-
-        if (data) {
-        const ticker_text = data.map((item) => item.text);
-        setTickers(ticker_text);
+      if (data) {
+        setTickers(data.map((item) => item.text));
       }
-    })()
-
-  }, [,locale]);
+    })();
+  }, [locale]);
 
 
 

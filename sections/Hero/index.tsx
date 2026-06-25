@@ -261,6 +261,9 @@ export const HeroTopSection = () => {
             src={HomeBackground}
             alt="Hero Mobile"
             fill
+            priority
+            fetchPriority="high"
+            sizes="100vw"
             className="object-cover object-[60%_10%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent" />
@@ -296,6 +299,7 @@ export const HeroTopSection = () => {
             alt="Hero"
             fill
             priority
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover"
           />

@@ -90,7 +90,6 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
                         .eq('location_id', locationID);
 
                     if (error) {
-                        console.error('Error fetching booked slots:', error);
                         setBookedSlots([]);
                     } else if (appointmentData) {
                         // Extract time slots for the selected date
@@ -103,8 +102,7 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
                             .filter((time: string) => time !== '');
                         setBookedSlots(booked);
                     }
-                } catch (err) {
-                    console.error('Error in fetchBookedSlots:', err);
+                } catch {
                     setBookedSlots([]);
                 }
             };
@@ -138,7 +136,7 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
             }
         }
     // Only run when date, data or bookedSlots change
-    }, [date, data, bookedSlots]);
+    }, [date, data, bookedSlots, selectDateTimeSlotHandle]);
 
 
     const dateTimeChangeHandle = (date: Date | null) => {

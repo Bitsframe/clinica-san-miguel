@@ -227,8 +227,7 @@ const PatientFeedback = () => {
       toast.success(`Thank you for your feedback! A ${discountPercentage}% discount code has been sent to your email.`);
       route.push(`/${locale}`);
       clearFormHandle(); // Reset the form
-    } catch (err: any) {
-      console.error('Error:', err);
+    } catch {
       setError('An error occurred while submitting feedback. Please try again.');
     } finally {
       setLoading(false);

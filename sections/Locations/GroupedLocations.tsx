@@ -17,7 +17,6 @@ import {
 } from "@/utils/zipcodeService";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { useLazyLoad } from "@/hooks/useLazyLoad";
-import { formatSupabaseError } from "@/utils/clinicaLocations";
 
 const MapModal = dynamic(() => import("@/components/MapModal"), { ssr: false });
 
@@ -95,8 +94,8 @@ export const GroupedLocations = () => {
         const rows = await fetchLocalizedTable("Locations", locale);
         setAllLocationData(rows);
         setLocationData(rows);
-      } catch (err) {
-        console.error("Locations fetch error:", formatSupabaseError(err), err);
+      } catch {
+        // Keep existing location state on fetch failure.
       } finally {
         setLoading(false);
       }

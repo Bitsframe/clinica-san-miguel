@@ -50,8 +50,12 @@ export const Location = ({
     <article
       className={`group w-full max-w-[380px] rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden transition-shadow hover:shadow-md ${className}`}
     >
-      <div className="relative h-[150px] w-full">
-        <Map height={150} location={location} />
+      <div className="relative h-[150px] w-full overflow-hidden">
+        <Map
+          height={150}
+          location={location}
+          title={locationName ?? "Clinic location map"}
+        />
 
         {distanceMiles != null && (
           <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-[#19192C] shadow-md border border-gray-100">

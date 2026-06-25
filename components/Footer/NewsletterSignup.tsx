@@ -64,6 +64,7 @@ const NewsletterSignup: FC = () => {
       <button
         disabled={loading}
         type="submit"
+        aria-label="Subscribe to newsletter"
         className="
           rounded-full aspect-square
           bg-[#C1001F] text-white text-[18px]

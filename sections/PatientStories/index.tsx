@@ -29,9 +29,8 @@ export function PatientStories() {
         .then((rows) => {
           setTestimonials(rows);
           setHasFetched(true);
-          console.log("👀 Testimonials fetched");
         })
-        .catch((err) => console.error("Error fetching testimonials:", err));
+        .catch(() => {});
     }
   }, [isVisible, hasFetched]);
 
@@ -67,12 +66,14 @@ export function PatientStories() {
         <div className="flex gap-2">
           <button
             onClick={() => sliderRef.current?.slickPrev()}
+            aria-label="Previous testimonial"
             className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
           >
             <ArrowLeft className="w-4 h-4 text-gray-600" />
           </button>
           <button
             onClick={() => sliderRef.current?.slickNext()}
+            aria-label="Next testimonial"
             className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
           >
             <ArrowRight className="w-4 h-4 text-gray-600" />

@@ -165,13 +165,12 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
   // for all records
   const fetchData = async (table: string, setter: Function) => {
     try {
-      const { data, error } = await supabase.from(table).select("*");
-      console.log(data, `${table} Data`);
+      const { data } = await supabase.from(table).select("*");
       if (data) {
         setter(data);
       }
-    } catch (error) {
-      console.error(`Error fetching ${table} data:`, error);
+    } catch {
+      // Ignore fetch errors; UI handles empty state.
     }
   };
 
@@ -196,13 +195,12 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
         query = query.eq("tenant_id", CLINICA_TENANT_ID);
       }
 
-      const { data, error } = await query;
-      console.log(data, `${table} Data`);
+      const { data } = await query;
       if (data) {
         setDetailData({ [table]: data });
       }
-    } catch (error) {
-      console.error(`Error fetching ${table} data:`, error);
+    } catch {
+      // Ignore fetch errors; UI handles empty state.
     }
   };
 
@@ -213,16 +211,15 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
     id: number
   ) => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from(table)
         .select("*")
         .eq(column_name, id);
-      console.log(data, `${table} Data`);
       if (data) {
         setFilteredData(data);
       }
-    } catch (error) {
-      console.error(`Error fetching ${table} data:`, error);
+    } catch {
+      // Ignore fetch errors; UI handles empty state.
     }
   };
 
@@ -233,7 +230,7 @@ const fetchLocalizedTable = useCallback(
     locale: string
   ): Promise<TableRows<T>> => {
     if (baseTable === "Locations") {
-      return (await fetchClinicaLocations(supabase, locale)) as TableRows<T>;
+      return (await fetchClinicaLocations(supabase)) as TableRows<T>;
     }
 
     if (locale === "es") {
@@ -245,19 +242,8 @@ const fetchLocalizedTable = useCallback(
         if (localizedRows && localizedRows.length > 0) {
           return localizedRows;
         }
-
-        console.warn(
-          `[Supabase] No records found in ${localizedTableName}. Falling back to ${String(
-            baseTable
-          )}.`
-        );
-      } catch (error) {
-        console.warn(
-          `[Supabase] Failed to fetch ${localizedTableName}. Falling back to ${String(
-            baseTable
-          )}.`,
-          error
-        );
+      } catch {
+        // Fall back to the base table below.
       }
     }
 
@@ -274,7 +260,7 @@ const fetchLocalizedRowById = useCallback(
     id: number
   ): Promise<Database["public"]["Tables"][T]["Row"] | null> => {
     if (baseTable === "Locations") {
-      return (await fetchClinicaLocationById(supabase, locale, id)) as
+      return (await fetchClinicaLocationById(supabase, id)) as
         | Database["public"]["Tables"][T]["Row"]
         | null;
     }
@@ -283,18 +269,7 @@ const fetchLocalizedRowById = useCallback(
 
     const { data, error } = await supabase.from(tableName).select("*").eq("id", id);
 
-    console.log(`🟢 Supabase response from ${tableName} for id=${id}:`, {
-      data,
-      error,
-    });
-
-    if (error) {
-      console.error(`❌ Error fetching from ${tableName}:`, error);
-      return null;
-    }
-
-    if (!data || data.length === 0) {
-      console.warn(`⚠️ No records found in ${tableName} for id=${id}`);
+    if (error || !data || data.length === 0) {
       return null;
     }
 
@@ -321,8 +296,8 @@ const fetchLocalizedRowById = useCallback(
       if (data) {
         setSearchedData(data);
       }
-    } catch (error) {
-      console.log(`Error searching ${table}: `, error);
+    } catch {
+      // Ignore search errors; UI handles empty state.
     }
   };
 

@@ -1,8 +1,7 @@
 "use client";
 
 import { LocationDetailedCard } from "@/components";
-import React, { useEffect, useState } from "react";
-import { GroupedMap } from "@/components/Map";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSupabase } from "@/context/supabaseContext";
 import { useTranslations, useLocale } from "next-intl";
 import dynamic from "next/dynamic";
@@ -14,11 +13,17 @@ import {
   isPartialNumericZipInput,
   parseDistanceMiles,
   formatDistanceMiles,
+  parseLatLngFromDirection,
 } from "@/utils/zipcodeService";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { useLazyLoad } from "@/hooks/useLazyLoad";
+import type { ClinicPin } from "@/components/ClinicMap";
 
 const MapModal = dynamic(() => import("@/components/MapModal"), { ssr: false });
+// Leaflet needs `window`, so the map is client-only.
+const ClinicMap = dynamic(() => import("@/components/ClinicMap"), {
+  ssr: false,
+});
 
 export const GroupedLocations = () => {
   const t = useTranslations("home");
@@ -40,42 +45,36 @@ export const GroupedLocations = () => {
   const { fetchLocalizedTable } = useSupabase();
 
   const tabs = [
-    {
-      id: 1,
-      name: t("all"),
-      value: "",
-      group: "",
-      location: "14oe73P17wHPAV_L6R1DmmLVw3JDw60k&ehbc=2E312F",
-    },
-    {
-      id: 2,
-      name: t("dallas"),
-      value: "dallas",
-      group: "A",
-      location: "1vaZ0nzB6WqN9P4gHZedwyx0tGmVDSjE&ehbc=2E312F",
-    },
-    {
-      id: 3,
-      name: t("houston"),
-      value: "houston",
-      group: "B",
-      location: "1vrLm72whzL6KBgr7n_C2RfoeO1fH1u8&ehbc=2E312F",
-    },
-    {
-      id: 4,
-      name: t("sanAntonio"),
-      value: "sanantonio",
-      group: "C",
-      location: "1cwsxmz-1Sm0zYTFaNizGELErRpCQf_I&ehbc=2E312F",
-    },
+    { id: 1, name: t("all"), value: "", group: "" },
+    { id: 2, name: t("dallas"), value: "dallas", group: "A" },
+    { id: 3, name: t("houston"), value: "houston", group: "B" },
+    { id: 4, name: t("sanAntonio"), value: "sanantonio", group: "C" },
   ];
 
   const activeZip = normalizeZip5(debouncedQuery.trim());
   const isZipSearch = Boolean(
     activeZip && !isPartialNumericZipInput(debouncedQuery.trim())
   );
-  const activeMapId =
-    tabs.find((tab) => tab.value === selectedTab)?.location || tabs[0].location;
+
+  // Map pins are derived from the same list shown on the left, so the map always
+  // matches the active city tab / ZIP search. Coordinates are parsed from each
+  // clinic's `direction` (a Google "pb" embed string).
+  const mapPins = useMemo<ClinicPin[]>(() => {
+    return locationData.flatMap((loc) => {
+      const coords = parseLatLngFromDirection(loc.direction);
+      if (!coords) return [];
+      return [
+        {
+          id: loc.id,
+          name: loc.title ?? "Clinica San Miguel",
+          address: loc.address,
+          lat: coords.lat,
+          lng: coords.lng,
+        },
+      ];
+    });
+  }, [locationData]);
+
   const nearestMiles =
     isZipSearch && locationData.length > 0
       ? parseDistanceMiles(locationData[0].distance)
@@ -291,7 +290,7 @@ export const GroupedLocations = () => {
 
             <div className="lg:col-span-3">
               <div className="rounded-xl border border-gray-100 bg-[#FAFAFA] overflow-hidden h-[320px] sm:h-[400px] lg:h-[580px]">
-                <GroupedMap height={580} width={800} location={activeMapId} />
+                <ClinicMap pins={mapPins} height={580} />
               </div>
             </div>
           </div>

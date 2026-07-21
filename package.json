@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.39.7",
+    "@supabase/supabase-js": "^2.110.7",
     "axios": "^1.6.2",
     "flowbite-react": "^0.7.8",
     "framer-motion": "^12.19.1",

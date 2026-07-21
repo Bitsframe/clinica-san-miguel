@@ -1,9 +1,9 @@
 "use client";
 
 import { Logo } from "@/assets/images";
-// import { topSectionCover } from "@/assets/images/cover";
-import { HomeBackground } from '@/assets/images/cover';
+import { HomeBackground, family, doctor, elderly_right } from '@/assets/images/cover';
 import Spinner from "@/components/Spinner";
+import { StaticImageData } from "next/image";
 
 
 import { HeroBox } from "@/components";
@@ -13,7 +13,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { FaPhoneFlip } from "react-icons/fa6";
-import { useRef, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GroupedLocations } from "@/sections/Locations/GroupedLocations";  
 
 export const Hero = () => {
@@ -226,11 +226,58 @@ export const Hero = () => {
 // };
 
 
+type Slide = { src: StaticImageData | string; alt: string };
+
+const FALLBACK_SLIDES: Slide[] = [
+  { src: HomeBackground, alt: "Clinica San Miguel – Family Healthcare" },
+  { src: family,         alt: "Family Care at Clinica San Miguel" },
+  { src: doctor,         alt: "Medical Professionals – Clinica San Miguel" },
+  { src: elderly_right,  alt: "Senior Care – Clinica San Miguel" },
+];
+
+const StarRow = () => (
+  <div className="mb-4 flex items-center gap-2">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <svg key={i} viewBox="0 0 20 20" className="h-4 w-4 sm:h-5 sm:w-5 text-[#ffbd66]" fill="currentColor">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.39 2.463a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.39-2.462a1 1 0 00-1.176 0l-3.39 2.462c-.785.57-1.84-.197-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.17 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
+      </svg>
+    ))}
+  </div>
+);
+
 export const HeroTopSection = () => {
   const t = useTranslations("home");
   const router = useRouter();
   const [shouldScroll, setShouldScroll] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const total = slides.length;
+
+  const goNext = useCallback(() => setCurrent(c => (c + 1) % total), [total]);
+  const goPrev = () => setCurrent(c => (c - 1 + total) % total);
+
+  useEffect(() => {
+    const timer = setInterval(goNext, 5000);
+    return () => clearInterval(timer);
+  }, [goNext]);
+
+  useEffect(() => {
+    fetch("/api/hero-images")
+      .then(r => r.json())
+      .then(({ urls }: { urls: { url: string; alt: string }[] }) => {
+        if (urls && urls.length > 0) {
+          setSlides(urls.map(({ url, alt }) => ({ src: url, alt })));
+          setCurrent(0);
+        } else {
+          setSlides(FALLBACK_SLIDES);
+        }
+      })
+      .catch(() => setSlides(FALLBACK_SLIDES))
+      .finally(() => setLoading(false));
+  }, []);
 
   const redirectToContact = () => {
     setIsNavigating(true);
@@ -246,6 +293,33 @@ export const HeroTopSection = () => {
     return () => clearTimeout(id);
   }, [shouldScroll]);
 
+  const DotNav = () => (
+    <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 gap-2">
+      {slides.map((_, i) => (
+        <button
+          key={i}
+          aria-label={`Go to slide ${i + 1}`}
+          onClick={() => setCurrent(i)}
+          className={`h-2.5 rounded-full transition-all duration-300 ${
+            i === current ? "w-6 bg-[#C1001F]" : "w-2.5 bg-gray-400 hover:bg-gray-600"
+          }`}
+        />
+      ))}
+    </div>
+  );
+
+  const ArrowButtons = ({ size = "md" }: { size?: "sm" | "md" }) => {
+    const base = size === "sm"
+      ? "absolute top-1/2 z-30 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/80 hover:bg-white shadow text-gray-700 transition text-2xl w-9 h-9"
+      : "absolute top-1/2 z-30 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/80 hover:bg-white shadow text-gray-700 transition text-4xl w-12 h-12";
+    return (
+      <>
+        <button aria-label="Previous slide" onClick={goPrev} className={`${base} left-3`}>‹</button>
+        <button aria-label="Next slide"     onClick={goNext} className={`${base} right-3`}>›</button>
+      </>
+    );
+  };
+
   return (
     <section className="relative w-full">
       {isNavigating && (
@@ -254,99 +328,62 @@ export const HeroTopSection = () => {
         </div>
       )}
 
-      <div className="mx-4 md:mx-12 lg:mx-24 my-10">
-        {/* Mobile Only */}
-        <div className="relative block sm:hidden h-[80vh] rounded-3xl overflow-hidden shadow-xl">
-          <Image
-            src={HomeBackground}
-            alt="Hero Mobile"
-            fill
-            priority
-            fetchPriority="high"
-            sizes="100vw"
-            className="object-cover object-[60%_10%]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent" />
+      <div className="my-4 mx-3 md:mx-6">
 
-          <div className="absolute inset-0 z-10 flex flex-col justify-start items-start px-6 pt-72 text-left text-white space-y-4">
-            <h1 className="text-xl font-bold leading-tight">
-              <span className="whitespace-nowrap">{t("section1_h1_part1")} <span className="text-[#C1001F]">{t("section_h1_h19")}</span></span>
-              <span className="block">{t("section1_h1_part2")}</span>
-            </h1>
-            <p className="text-sm text-white/90">{t("section1_p")}</p>
+        {/* ── Skeleton loader ── */}
+        {loading && (
+          <>
+            <div className="block sm:hidden rounded-2xl overflow-hidden h-[320px] bg-gray-200 animate-pulse" />
+            <div className="hidden sm:block rounded-2xl overflow-hidden h-[440px] md:h-[540px] lg:h-[620px] xl:h-[680px] bg-gray-200 animate-pulse" />
+          </>
+        )}
 
-            <div className="flex flex-col items-center space-y-3 w-full max-w-xs">
-              <button
-                onClick={redirectToContact}
-                className="bg-[#C1001F] text-white font-medium text-sm py-3 px-6 rounded-full w-full"
+        {/* ── Mobile ── */}
+        {!loading && (
+          <div className="relative block sm:hidden rounded-2xl overflow-hidden shadow-md bg-white h-[320px]">
+            {slides.map(({ src, alt }, i) => (
+              <div
+                key={i}
+                className={`absolute inset-0 transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               >
-                {t("section1_button1")}
-              </button>
-              <button
-                onClick={() => setShouldScroll(true)}
-                className="rounded-full border border-white text-white font-medium text-sm py-3 px-6 w-full"
-              >
-                {t("section1_button2")}
-              </button>
-            </div>
+                <Image src={src} alt={alt} fill priority={i === 0} sizes="100vw" className="object-cover object-left" />
+              </div>
+            ))}
+            {/* Book Now */}
+            <button
+              onClick={redirectToContact}
+              className="absolute bottom-20 left-4 z-30 bg-[#C1001F] hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg transition"
+            >
+              Book Now
+            </button>
+            <ArrowButtons size="sm" />
+            <DotNav />
           </div>
-        </div>
+        )}
 
-        {/* Desktop & Tablet */}
-        <div className="relative hidden sm:block rounded-3xl overflow-hidden sm:h-[80vh] md:h-[90vh] lg:h-[120vh] xl:h-[100vh] 2xl:h-[110vh] shadow-xl">
-          <Image
-            src={HomeBackground}
-            alt="Hero"
-            fill
-            priority
-            fetchPriority="high"
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent" />
-
-          <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-4 py-16 sm:px-6 lg:px-8 pt-20 sm:pt-32 md:pt-80 lg:pt-48">
-            <div className="mb-4 flex items-center gap-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <svg
-                  key={i}
-                  viewBox="0 0 20 20"
-                  className="h-4 w-4 sm:h-5 sm:w-5 text-[#ffbd66]"
-                  fill="currentColor"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.39 2.463a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.39-2.462a1 1 0 00-1.176 0l-3.39 2.462c-.785.57-1.84-.197-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.17 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
-                </svg>
-              ))}
-              <span className="text-xs font-light sm:text-sm md:text-base text-white">
-                {t("section1_span")}
-              </span>
-            </div>
-
-            <h1 className="max-w-xl text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight text-white">
-              <span className="whitespace-nowrap">{t("section1_h1_part1")} <span className="text-[#C1001F]">{t("section_h1_h19")}</span></span>
-              <span className="block">{t("section1_h1_part2")}</span>
-            </h1>
-
-            <p className="mt-4 max-w-lg text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed tracking-wide text-white/90">
-              {t("section1_p")}
-            </p>
-
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <button
-                onClick={redirectToContact}
-                className="rounded-full bg-[#C1001F] px-6 py-3 text-sm sm:text-base font-medium text-white transition hover:bg-red-700"
+        {/* ── Desktop & Tablet ── */}
+        {!loading && (
+          <div className="relative hidden sm:block rounded-2xl overflow-hidden shadow-md bg-white h-[440px] md:h-[540px] lg:h-[620px] xl:h-[680px]">
+            {slides.map(({ src, alt }, i) => (
+              <div
+                key={i}
+                className={`absolute inset-0 transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               >
-                {t("section1_button1")}
-              </button>
-              <button
-                onClick={() => setShouldScroll(true)}
-                className="rounded-full border border-white px-6 py-3 text-sm sm:text-base font-medium text-white transition hover:bg-white hover:text-black"
-              >
-                {t("section1_button2")}
-              </button>
-            </div>
+                <Image src={src} alt={alt} fill priority={i === 0} sizes="100vw" className="object-cover" />
+              </div>
+            ))}
+            {/* Book Now */}
+            <button
+              onClick={redirectToContact}
+              className="absolute bottom-10 left-8 z-30 bg-[#C1001F] hover:bg-red-700 text-white text-sm font-semibold px-6 py-3 rounded-full shadow-lg transition"
+            >
+              Book Now
+            </button>
+            <ArrowButtons />
+            <DotNav />
           </div>
-        </div>
+        )}
+
       </div>
     </section>
   );

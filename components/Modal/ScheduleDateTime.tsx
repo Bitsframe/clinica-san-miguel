@@ -45,32 +45,35 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
         return days[date.getDay()];
     };
 
-    const parseTime = (timeStr: string) => {
-        const [time, modifier] = timeStr.split(' ');
-        let [hours, minutes] = time.split(':').map(Number);
-        if (modifier === 'PM' && hours < 12) hours += 12;
-        if (modifier === 'AM' && hours === 12) hours = 0;
-        return { hours, minutes };
+    const SLOT_INTERVAL_MINUTES = 15;
+
+    const parseTimingPart = (timeStr: string): number => {
+        const match = timeStr.trim().toLowerCase().match(/(\d{1,2}):(\d{2})\s*(am|pm)/);
+        if (!match) return 0;
+        let hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        const modifier = match[3];
+        if (modifier === 'pm' && hours !== 12) hours += 12;
+        if (modifier === 'am' && hours === 12) hours = 0;
+        return hours * 60 + minutes;
+    };
+
+    const formatTimeSlot = (totalMinutes: number): string => {
+        const hours24 = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const period = hours24 < 12 ? 'AM' : 'PM';
+        const hour12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+        return `${hour12}:${minutes.toString().padStart(2, '0')} ${period}`;
     };
 
     const generateTimeSlots = (timing: string) => {
         const [start, end] = timing.split('-').map(str => str.trim());
-        let timeSlots = [];
-        let startHour = parseInt(start.split(':')[0]);
-        let endHour = parseInt(end.split(':')[0]);
+        const startMinutes = parseTimingPart(start);
+        const endMinutes = parseTimingPart(end);
+        const timeSlots: string[] = [];
 
-        // Convert 12-hour time format to 24-hour format for comparison
-        if (start.includes("pm") && startHour !== 12) startHour += 12;
-        if (end.includes("pm") && endHour !== 12) endHour += 12;
-        if (start.includes("am") && startHour === 12) startHour = 0;
-        if (end.includes("am") && endHour === 12) endHour = 0;
-
-        // Generate slots from start to one hour before end (endHour - 1)
-        for (let hour = startHour; hour < endHour; hour++) {
-            let period = hour < 12 || hour === 24 ? 'AM' : 'PM';
-            let formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-            let timeSlot = `${formattedHour}:00 ${period}`;
-            timeSlots.push(timeSlot);
+        for (let minutes = startMinutes; minutes < endMinutes; minutes += SLOT_INTERVAL_MINUTES) {
+            timeSlots.push(formatTimeSlot(minutes));
         }
 
         return timeSlots;

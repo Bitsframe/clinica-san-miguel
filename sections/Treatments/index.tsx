@@ -14,6 +14,15 @@ import { useRouter } from "next/navigation";
 
 type TreatmentRow = TableRow<"services">;
 
+function isValidImageSrc(src: string | null | undefined): src is string {
+  if (!src?.trim()) return false;
+  return (
+    src.startsWith("/") ||
+    src.startsWith("http://") ||
+    src.startsWith("https://")
+  );
+}
+
 export const Treatments = () => {
   const t = useTranslations("home");
   const locale = useLocale();
@@ -113,7 +122,7 @@ export const Treatments = () => {
                         overflow-hidden rounded-xl border bg-white shadow-sm hover:shadow-md transition"
                     >
                       <div className="w-full h-48 pt-3 px-3 overflow-hidden rounded-md">
-                        {treatment.image && (
+                        {isValidImageSrc(treatment.image) ? (
                           <Image
                             src={treatment.image}
                             alt={treatment.title || ""}
@@ -121,6 +130,8 @@ export const Treatments = () => {
                             height={200}
                             className="w-full h-full object-cover rounded-md"
                           />
+                        ) : (
+                          <div className="w-full h-full rounded-md bg-gray-100" aria-hidden />
                         )}
                       </div>
 

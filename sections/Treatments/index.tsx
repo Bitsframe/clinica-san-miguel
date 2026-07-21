@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
 import Slider from "react-slick";
-import Image from "next/image";
 import Link from "next/link";
+import { getSupabaseImageUrl } from "@/utils/supabaseImage";
 import { TreatmentSliderSkeleton } from "@/components/loading/TreatmentSliderSkeleton";
 import { useSupabase } from "@/context/supabaseContext";
 import { TableRow } from "@/@types/database.types";
@@ -23,6 +23,15 @@ function isValidImageSrc(src: string | null | undefined): src is string {
   );
 }
 
+function isCompleteTreatment(treatment: TreatmentRow): boolean {
+  return (
+    isValidImageSrc(treatment.image) &&
+    Boolean(treatment.title?.trim()) &&
+    Boolean(treatment.description?.trim()) &&
+    treatment.description!.trim().toLowerCase() !== "desc"
+  );
+}
+
 export const Treatments = () => {
   const t = useTranslations("home");
   const locale = useLocale();
@@ -32,6 +41,22 @@ export const Treatments = () => {
   const [data, setData] = useState<TreatmentRow[]>([]);
   const [hasFetched, setHasFetched] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [brokenImageIds, setBrokenImageIds] = useState<Set<number>>(new Set());
+
+  const markBrokenImage = useCallback((id: number) => {
+    setBrokenImageIds((prev) => new Set(prev).add(id));
+  }, []);
+
+  const treatments = useMemo(
+    () =>
+      data
+        .filter((elem) => elem.id !== 25)
+        .filter(isCompleteTreatment)
+        .filter((treatment) => !brokenImageIds.has(treatment.id))
+        .sort((a, b) => a.id - b.id)
+        .slice(0, 6),
+    [data, brokenImageIds]
+  );
 
   const { ref, isVisible } = useLazyLoad({ triggerOnce: true });
 
@@ -110,11 +135,7 @@ export const Treatments = () => {
           ) : (
             /* @ts-ignore */
             <Slider {...settings}>
-              {data
-                .filter((elem) => elem.id !== 25)
-                .sort((a, b) => a.id - b.id)
-                .slice(0, 6)
-                .map((treatment) => (
+              {treatments.map((treatment) => (
                   <div key={treatment.id} className="px-4 py-4 mb-4">
                     <div
                       className="flex flex-col w-full max-w-sm mx-auto 
@@ -122,17 +143,14 @@ export const Treatments = () => {
                         overflow-hidden rounded-xl border bg-white shadow-sm hover:shadow-md transition"
                     >
                       <div className="w-full h-48 pt-3 px-3 overflow-hidden rounded-md">
-                        {isValidImageSrc(treatment.image) ? (
-                          <Image
-                            src={treatment.image}
-                            alt={treatment.title || ""}
-                            width={300}
-                            height={200}
-                            className="w-full h-full object-cover rounded-md"
-                          />
-                        ) : (
-                          <div className="w-full h-full rounded-md bg-gray-100" aria-hidden />
-                        )}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={getSupabaseImageUrl(treatment.image, { width: 384, quality: 75 })}
+                          alt={treatment.title || ""}
+                          loading="lazy"
+                          className="w-full h-full object-cover rounded-md"
+                          onError={() => markBrokenImage(treatment.id)}
+                        />
                       </div>
 
                       <div className="flex flex-col flex-1 py-3 px-3 bg-white rounded-lg shadow-md">

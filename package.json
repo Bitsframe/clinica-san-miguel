@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",
-    "axios": "^1.6.2",
+    "axios": "^1.18.1",
     "flowbite-react": "^0.7.8",
-    "framer-motion": "^12.19.1",
+    "framer-motion": "^12",
     "jspdf": "^3.0.4",
     "leaflet": "1.9.4",
     "lucide-react": "^0.518.0",
@@ -27,24 +27,24 @@
     "react-phone-input-2": "^2.15.1",
     "react-slick": "^0.29.0",
     "react-star-ratings": "^2.3.0",
-    "react-toastify": "^10.0.5",
-    "resend": "^6.7.0",
-    "sharp": "^0.33.5",
+    "react-toastify": "^10",
+    "resend": "^6.17.2",
+    "sharp": "^0.33",
     "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.21",
-    "@types/node": "^22.1.2",
-    "@types/react": "^18.2.38",
+    "@types/node": "^22",
+    "@types/react": "^18",
     "@types/react-datepicker": "^4.19.3",
     "@types/react-dom": "^18.2.17",
     "@types/react-slick": "^0.23.12",
-    "autoprefixer": "^10.4.17",
+    "autoprefixer": "^10.5.4",
     "eslint": "^8.57.0",
     "eslint-config-next": "^13.5.6",
-    "postcss": "^8.4.38",
+    "postcss": "^8.5.21",
     "tailwindcss": "^3.4.3",
-    "typescript": "^5.3.3"
+    "typescript": "^5"
   },
   "packageManager": "yarn@1.22.19+sha512.ff4579ab459bb25aa7c0ff75b62acebe576f6084b36aa842971cf250a5d8c6cd3bc9420b22ce63c7f93a0857bc6ef29291db39c3e7a23aab5adfd5a4dd6c5d71"
 }

@@ -20,7 +20,7 @@ const NewsletterSignup: FC = () => {
       try {
         const { data, error } = await supabase
           .from('Newsletter')
-          .insert([{ email }])
+          .insert([{ email }] as any)
           .select();
 
         if (data) {

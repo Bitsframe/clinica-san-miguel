@@ -267,7 +267,7 @@ const fetchLocalizedRowById = useCallback(
 
     const tableName = (locale === "es" ? `${baseTable}_es` : baseTable) as T;
 
-    const { data, error } = await supabase.from(tableName).select("*").eq("id", id);
+    const { data, error } = await (supabase as any).from(tableName).select("*").eq("id", id);
 
     if (error || !data || data.length === 0) {
       return null;

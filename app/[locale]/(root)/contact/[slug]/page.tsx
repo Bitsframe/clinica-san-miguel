@@ -20,13 +20,14 @@ export async function generateMetadata({
     });
   }
 
-  const { data } = await supabase
+  const { data: _data } = await supabase
     .from("Locations")
     .select("title, address")
     .eq("id", locationId)
     .eq("tenant_id", CLINICA_TENANT_ID)
     .maybeSingle();
 
+  const data = _data as { title: string; address: string } | null;
   const title = data?.title || "Clinic Location";
   const address = data?.address ? ` Located at ${data.address}.` : "";
   const description =

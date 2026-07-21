@@ -1,7 +1,10 @@
 "use client";
 
 import { Logo } from "@/assets/images";
-import { HomeBackground, family, doctor, elderly_right } from '@/assets/images/cover';
+import medicalConsultantImg from '../Hero_files/medical consultant.png';
+import immigrationImg from '../Hero_files/immigration.png';
+import dotImg from '../Hero_files/Dot.png';
+import schoolPhysicalImg from '../Hero_files/School Physcial.png';
 import Spinner from "@/components/Spinner";
 import { StaticImageData } from "next/image";
 
@@ -226,34 +229,233 @@ export const Hero = () => {
 // };
 
 
-type Slide = { src: StaticImageData | string; alt: string };
+// ─── Slide data ───────────────────────────────────────────────────────────────
 
-const FALLBACK_SLIDES: Slide[] = [
-  { src: HomeBackground, alt: "Clinica San Miguel – Family Healthcare" },
-  { src: family,         alt: "Family Care at Clinica San Miguel" },
-  { src: doctor,         alt: "Medical Professionals – Clinica San Miguel" },
-  { src: elderly_right,  alt: "Senior Care – Clinica San Miguel" },
+
+type HeroSlide = {
+  label: string;
+  headlineLine1: string;
+  pricePrefix: string;
+  price: string;
+  subtext: string;
+  checklist: string[];
+  checklistGrid?: boolean;
+  btnText: string;
+  photo: StaticImageData | string;
+  photoAlt: string;
+};
+
+const SLIDES_EN: HeroSlide[] = [
+  {
+    label: "Limited Time Offer",
+    headlineLine1: "Medical Consultation",
+    pricePrefix: "Only",
+    price: "$19",
+    subtext: "Quality Care • Same-Day Appointments • Walk-ins Welcome",
+    checklist: ["Family Medicine", "Primary Care Services", "Experienced Medical Providers", "Fast & Convenient Visits"],
+    btnText: "Book Now →",
+    photo: medicalConsultantImg,
+    photoAlt: "Doctor consulting with patient",
+  },
+  {
+    label: "USCIS Authorized Services",
+    headlineLine1: "Immigration Medical Exam",
+    pricePrefix: "Only",
+    price: "$220",
+    subtext: "Fast • USCIS Civil Surgeon • Same-Day Appointments",
+    checklist: ["USCIS Immigration Medical Exam", "Authorized Civil Surgeon", "Vaccination Review", "Fast & Professional Service"],
+    btnText: "Book Now →",
+    photo: immigrationImg,
+    photoAlt: "Civil surgeon with patient",
+  },
+  {
+    label: "Certified DOT Services",
+    headlineLine1: "DOT+ Urine Test",
+    pricePrefix: "Only",
+    price: "$80",
+    subtext: "Fast • Certified • Same-Day Results Available",
+    checklist: ["DOT Compliant Testing", "Certified Medical Staff", "Certified Medical Staff", "Walk-ins Welcome"],
+    checklistGrid: true,
+    btnText: "Book Now →",
+    photo: dotImg,
+    photoAlt: "Driver reviewing paperwork with medical staff",
+  },
+  {
+    label: "Limited Time Offer",
+    headlineLine1: "School Physical Exam",
+    pricePrefix: "Only",
+    price: "$25",
+    subtext: "Fast • Affordable • Same-Day Appointments",
+    checklist: ["School Physicals", "Walk-ins Welcome", "Sports Physicals", "Licensed Medical Providers"],
+    checklistGrid: true,
+    btnText: "Book Now →",
+    photo: schoolPhysicalImg,
+    photoAlt: "Doctor examining a child",
+  },
 ];
 
-const StarRow = () => (
-  <div className="mb-4 flex items-center gap-2">
-    {Array.from({ length: 5 }).map((_, i) => (
-      <svg key={i} viewBox="0 0 20 20" className="h-4 w-4 sm:h-5 sm:w-5 text-[#ffbd66]" fill="currentColor">
-        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.39 2.463a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.39-2.462a1 1 0 00-1.176 0l-3.39 2.462c-.785.57-1.84-.197-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.17 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
-      </svg>
-    ))}
-  </div>
-);
+const SLIDES_ES: HeroSlide[] = [
+  {
+    label: "Oferta por Tiempo Limitado",
+    headlineLine1: "Consulta Médica",
+    pricePrefix: "Solo",
+    price: "$19",
+    subtext: "Atención de Calidad • Citas el Mismo Día • Aceptamos Sin Cita",
+    checklist: ["Medicina Familiar", "Servicios de Atención Primaria", "Proveedores Médicos con Experiencia", "Visitas Rápidas y Convenientes"],
+    btnText: "Reservar Ahora →",
+    photo: medicalConsultantImg,
+    photoAlt: "Médico conversando con paciente",
+  },
+  {
+    label: "Servicios Autorizados por USCIS",
+    headlineLine1: "Examen Médico de Inmigración",
+    pricePrefix: "Solo",
+    price: "$220",
+    subtext: "Rápido • Cirujano Civil de USCIS • Citas el Mismo Día",
+    checklist: ["Examen Médico de Inmigración USCIS", "Cirujano Civil Autorizado", "Revisión de Vacunas", "Servicio Rápido y Profesional"],
+    btnText: "Reservar Ahora →",
+    photo: immigrationImg,
+    photoAlt: "Cirujano civil con paciente",
+  },
+  {
+    label: "Servicios DOT Certificados",
+    headlineLine1: "Prueba de Orina DOT+",
+    pricePrefix: "Solo",
+    price: "$80",
+    subtext: "Rápido • Certificado • Resultados Disponibles el Mismo Día",
+    checklist: ["Pruebas Conforme a DOT", "Personal Médico Certificado", "Personal Médico Certificado", "Aceptamos Sin Cita"],
+    checklistGrid: true,
+    btnText: "Reservar Ahora →",
+    photo: dotImg,
+    photoAlt: "Conductor revisando papeleo para examen DOT",
+  },
+  {
+    label: "Oferta por Tiempo Limitado",
+    headlineLine1: "Examen Físico Escolar",
+    pricePrefix: "Solo",
+    price: "$25",
+    subtext: "Rápido • Económico • Citas el Mismo Día",
+    checklist: ["Exámenes Físicos Escolares", "Aceptamos Sin Cita", "Exámenes Físicos Deportivos", "Proveedores Médicos con Licencia"],
+    checklistGrid: true,
+    btnText: "Reservar Ahora →",
+    photo: schoolPhysicalImg,
+    photoAlt: "Médico examinando a una niña",
+  },
+];
+
+// ─── BannerSlide ──────────────────────────────────────────────────────────────
+
+function BannerSlide({ slide, onBookNow }: { slide: HeroSlide; onBookNow: () => void }) {
+  return (
+    <div
+      className="absolute inset-0 flex items-stretch overflow-hidden"
+      style={{
+        background:
+          "repeating-linear-gradient(115deg, rgba(255,255,255,.5) 0 2px, transparent 2px 90px), linear-gradient(120deg,#eef1f4 0%,#e4e8ec 55%,#dfe3e8 100%)",
+        padding: "clamp(14px, 2.8vw, 44px) clamp(14px, 3.8vw, 60px)",
+      }}
+    >
+      {/* ── Left ── */}
+      <div className="flex-1 flex flex-col justify-between min-w-0 pr-3 sm:pr-6 lg:pr-[30px]">
+        <div>
+          {/* Logo */}
+          <div className="text-[15px] sm:text-[16px] md:text-[18px] lg:text-[22px] font-extrabold tracking-wide text-[#182238] leading-tight">
+            CLÍNICA SAN MIGUEL
+          </div>
+          <div className="text-[11px] sm:text-[11px] lg:text-[13px] font-bold text-[#182238] opacity-80 mt-0.5 tracking-[1.5px]">
+            MEDICINA FAMILIAR
+          </div>
+
+          {/* Label */}
+          <div className="text-[11px] sm:text-[11px] lg:text-[14px] font-bold text-[#b3271e] uppercase mt-2 sm:mt-4 tracking-[1.5px]">
+            {slide.label}
+          </div>
+
+          {/* Headline */}
+          <div className="text-[26px] sm:text-[28px] md:text-[34px] lg:text-[42px] xl:text-[48px] font-extrabold text-[#182238] mt-1 leading-[1.08]">
+            {slide.headlineLine1}
+            <br />
+            {slide.pricePrefix}{" "}
+            <span className="text-[#c0392b]">{slide.price}</span>
+          </div>
+
+          {/* Subtext — shown on all sizes */}
+          <div className="text-[11px] sm:text-[12px] lg:text-[16px] text-[#5a6472] font-medium mt-2 sm:mt-3.5">
+            {slide.subtext}
+          </div>
+
+          {/* Checklist — shown on all sizes */}
+          {slide.checklistGrid ? (
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-2 sm:mt-4">
+              {slide.checklist.map((item, i) => (
+                <li key={i} className="text-[11px] sm:text-[12px] lg:text-[15.5px] flex items-center gap-1.5 font-medium text-[#1e2536]">
+                  <span className="text-[#b3271e] font-extrabold flex-shrink-0">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ul className="flex flex-col gap-1.5 mt-2 sm:mt-4">
+              {slide.checklist.map((item, i) => (
+                <li key={i} className="text-[11px] sm:text-[12px] lg:text-[15.5px] flex items-center gap-1.5 font-medium text-[#1e2536]">
+                  <span className="text-[#b3271e] font-extrabold flex-shrink-0">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Contact */}
+        <div className="mt-2 sm:mt-5">
+          <button
+            onClick={onBookNow}
+            className="bg-[#c0392b] text-white font-bold tracking-wide shadow-[0_6px_14px_rgba(192,57,43,.35)] hover:bg-red-700 transition block rounded-lg mb-2 sm:mb-3.5 text-[12px] sm:text-[13px] lg:text-[15px] px-4 sm:px-5 lg:px-[30px] py-2 sm:py-2.5 lg:py-3"
+          >
+            {slide.btnText}
+          </button>
+          <div className="text-[17px] sm:text-[18px] lg:text-[22px] font-extrabold text-[#182238]">
+            (832) 832-4426
+          </div>
+          <div className="hidden sm:block text-[11px] lg:text-[15px] text-[#3a4356] font-medium mt-0.5">
+            www.clinicsanmiguel.com
+          </div>
+        </div>
+      </div>
+
+      {/* ── Right – photo (hidden on mobile) ── */}
+      <div
+        className="hidden sm:block relative flex-shrink-0"
+        style={{ width: "42%" }}
+      >
+        <div className="absolute inset-0 bg-[#c0392b] rounded-[14px] sm:rounded-[20px] p-[4px] sm:p-[6px]">
+          <div className="w-full h-full rounded-[11px] sm:rounded-[15px] overflow-hidden relative bg-gradient-to-br from-[#ffe4df] via-[#fbeceb] to-[#f3f5f8]">
+            <Image
+              src={slide.photo}
+              alt={slide.photoAlt}
+              fill
+              className="object-cover"
+              sizes="42vw"
+            />
+            <span className="absolute bottom-2 sm:bottom-3.5 right-2 sm:right-3.5 text-white text-base sm:text-xl opacity-90 z-10 select-none">
+              ✦
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── HeroTopSection ───────────────────────────────────────────────────────────
 
 export const HeroTopSection = () => {
-  const t = useTranslations("home");
   const router = useRouter();
-  const [shouldScroll, setShouldScroll] = useState(false);
-  const [isNavigating, setIsNavigating] = useState(false);
+  const locale = useLocale();
   const [current, setCurrent] = useState(0);
-  const [slides, setSlides] = useState<Slide[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isNavigating, setIsNavigating] = useState(false);
 
+  const slides = locale === "es" ? SLIDES_ES : SLIDES_EN;
   const total = slides.length;
 
   const goNext = useCallback(() => setCurrent(c => (c + 1) % total), [total]);
@@ -264,34 +466,10 @@ export const HeroTopSection = () => {
     return () => clearInterval(timer);
   }, [goNext]);
 
-  useEffect(() => {
-    fetch("/api/hero-images")
-      .then(r => r.json())
-      .then(({ urls }: { urls: { url: string; alt: string }[] }) => {
-        if (urls && urls.length > 0) {
-          setSlides(urls.map(({ url, alt }) => ({ src: url, alt })));
-          setCurrent(0);
-        } else {
-          setSlides(FALLBACK_SLIDES);
-        }
-      })
-      .catch(() => setSlides(FALLBACK_SLIDES))
-      .finally(() => setLoading(false));
-  }, []);
-
   const redirectToContact = () => {
     setIsNavigating(true);
     router.push("/contact");
   };
-
-  useEffect(() => {
-    if (!shouldScroll) return;
-    const id = setTimeout(() => {
-      document.getElementById("grouped-locations")?.scrollIntoView({ behavior: "smooth" });
-      setShouldScroll(false);
-    }, 100);
-    return () => clearTimeout(id);
-  }, [shouldScroll]);
 
   const DotNav = () => (
     <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 gap-2">
@@ -309,9 +487,10 @@ export const HeroTopSection = () => {
   );
 
   const ArrowButtons = ({ size = "md" }: { size?: "sm" | "md" }) => {
-    const base = size === "sm"
-      ? "absolute top-1/2 z-30 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/80 hover:bg-white shadow text-gray-700 transition text-2xl w-9 h-9"
-      : "absolute top-1/2 z-30 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/80 hover:bg-white shadow text-gray-700 transition text-4xl w-12 h-12";
+    const base =
+      size === "sm"
+        ? "absolute top-1/2 z-30 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/80 hover:bg-white shadow text-gray-700 transition text-2xl w-9 h-9"
+        : "absolute top-1/2 z-30 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/80 hover:bg-white shadow text-gray-700 transition text-4xl w-12 h-12";
     return (
       <>
         <button aria-label="Previous slide" onClick={goPrev} className={`${base} left-3`}>‹</button>
@@ -329,61 +508,50 @@ export const HeroTopSection = () => {
       )}
 
       <div className="my-4 mx-3 md:mx-6">
-
-        {/* ── Skeleton loader ── */}
-        {loading && (
-          <>
-            <div className="block sm:hidden rounded-2xl overflow-hidden h-[320px] bg-gray-200 animate-pulse" />
-            <div className="hidden sm:block rounded-2xl overflow-hidden h-[440px] md:h-[540px] lg:h-[620px] xl:h-[680px] bg-gray-200 animate-pulse" />
-          </>
-        )}
-
-        {/* ── Mobile ── */}
-        {!loading && (
-          <div className="relative block sm:hidden rounded-2xl overflow-hidden shadow-md bg-white h-[320px]">
-            {slides.map(({ src, alt }, i) => (
+        {/* Mobile — no arrows, dots sit below the slide */}
+        <div className="block sm:hidden">
+          <div className="relative rounded-2xl overflow-hidden shadow-md h-[320px]">
+            {slides.map((slide, i) => (
               <div
                 key={i}
-                className={`absolute inset-0 transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                className={`absolute inset-0 transition-opacity duration-700 ${
+                  i === current ? "opacity-100" : "opacity-0 pointer-events-none"
+                }`}
               >
-                <Image src={src} alt={alt} fill priority={i === 0} sizes="100vw" className="object-cover object-left" />
+                <BannerSlide slide={slide} onBookNow={redirectToContact} />
               </div>
             ))}
-            {/* Book Now */}
-            <button
-              onClick={redirectToContact}
-              className="absolute bottom-20 left-4 z-30 bg-[#C1001F] hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg transition"
-            >
-              Book Now
-            </button>
-            <ArrowButtons size="sm" />
-            <DotNav />
           </div>
-        )}
-
-        {/* ── Desktop & Tablet ── */}
-        {!loading && (
-          <div className="relative hidden sm:block rounded-2xl overflow-hidden shadow-md bg-white h-[440px] md:h-[540px] lg:h-[620px] xl:h-[680px]">
-            {slides.map(({ src, alt }, i) => (
-              <div
+          {/* Dots below slide on mobile */}
+          <div className="flex justify-center gap-2 mt-2">
+            {slides.map((_, i) => (
+              <button
                 key={i}
-                className={`absolute inset-0 transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-              >
-                <Image src={src} alt={alt} fill priority={i === 0} sizes="100vw" className="object-cover" />
-              </div>
+                aria-label={`Go to slide ${i + 1}`}
+                onClick={() => setCurrent(i)}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  i === current ? "w-6 bg-[#C1001F]" : "w-2.5 bg-gray-400 hover:bg-gray-600"
+                }`}
+              />
             ))}
-            {/* Book Now */}
-            <button
-              onClick={redirectToContact}
-              className="absolute bottom-10 left-8 z-30 bg-[#C1001F] hover:bg-red-700 text-white text-sm font-semibold px-6 py-3 rounded-full shadow-lg transition"
-            >
-              Book Now
-            </button>
-            <ArrowButtons />
-            <DotNav />
           </div>
-        )}
+        </div>
 
+        {/* Desktop / Tablet */}
+        <div className="relative hidden sm:block rounded-2xl overflow-hidden shadow-md h-[440px] md:h-[540px] lg:h-[620px] xl:h-[680px]">
+          {slides.map((slide, i) => (
+            <div
+              key={i}
+              className={`absolute inset-0 transition-opacity duration-700 ${
+                i === current ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
+            >
+              <BannerSlide slide={slide} onBookNow={redirectToContact} />
+            </div>
+          ))}
+          <ArrowButtons />
+          <DotNav />
+        </div>
       </div>
     </section>
   );

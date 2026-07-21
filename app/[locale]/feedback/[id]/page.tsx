@@ -147,36 +147,36 @@ const PatientFeedback = () => {
         .from('promotype')
         .select('id, percentage')
         .eq('typename', 'Feedback')
-        .single();
+        .single() as any;
 
       if (promoTypeError) {
         throw promoTypeError;
       }
 
       // Store the percentage for email and redirect
-      const discountPercentage = promoTypeData.percentage || 10; // Default to 10% if not set
+      const discountPercentage = promoTypeData?.percentage || 10; // Default to 10% if not set
 
       // 3. Generate and insert promocode (with guaranteed uniqueness)
       const promoCode = await generatePromoCode();
       const promoData = {
         code: promoCode,
-        type: promoTypeData.id,
+        type: promoTypeData?.id,
         assign: orderDetails.patient_id
       };
 
       const { data: promocodeData, error: promocodeError } = await supabase
         .from('promocodes')
-        .insert([promoData])
-        .select();
+        .insert([promoData] as any)
+        .select() as any;
 
       if (promocodeError) {
         throw promocodeError;
       }
 
       // 4. Update order with promocode_id
-      const { error: orderUpdateError } = await supabase
+      const { error: orderUpdateError } = await (supabase as any)
         .from('orders')
-        .update({ promo_code_id: promocodeData[0].id })
+        .update({ promo_code_id: (promocodeData as any)[0].id })
         .eq('order_id', id);
 
       if (orderUpdateError) {
@@ -191,7 +191,7 @@ const PatientFeedback = () => {
           .select('*')
           .eq('id', patientDetails.locationid)
           .eq('tenant_id', 1)
-          .single();
+          .single() as any;
 
         let locationDetails = {
           title: 'Clinica San Miguel',

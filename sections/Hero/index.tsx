@@ -415,7 +415,7 @@ function BannerSlide({ slide, onBookNow }: { slide: HeroSlide; onBookNow: () => 
             {slide.btnText}
           </button>
           <div className="text-[17px] sm:text-[18px] lg:text-[22px] font-extrabold text-[#182238]">
-            (832) 832-4426
+            (832) 834-4426
           </div>
           <div className="hidden sm:block text-[11px] lg:text-[15px] text-[#3a4356] font-medium mt-0.5">
             www.clinicsanmiguel.com

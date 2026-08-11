@@ -52,10 +52,22 @@ const nextConfig = {
     ],
   },
   async headers() {
+    const isStaging = process.env.RAILWAY_ENVIRONMENT_NAME && process.env.RAILWAY_ENVIRONMENT_NAME !== "production" 
+      || process.env.NEXT_PUBLIC_SITE_URL?.includes("railway.app") 
+      || process.env.VERCEL_ENV === "preview";
+
+    const dynamicHeaders = [...securityHeaders];
+    if (isStaging) {
+      dynamicHeaders.push({
+        key: "X-Robots-Tag",
+        value: "noindex, nofollow",
+      });
+    }
+
     return [
       {
         source: "/(.*)",
-        headers: securityHeaders,
+        headers: dynamicHeaders,
       },
     ];
   },

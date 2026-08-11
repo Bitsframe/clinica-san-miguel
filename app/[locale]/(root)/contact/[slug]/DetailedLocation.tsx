@@ -165,8 +165,10 @@ export const DetailedLocation = ({
           </h1>
         </div>
 
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start">
-          <ImageCarousel imagesData={locationGallery} />
+        <section className={`grid grid-cols-1 ${locationGallery && locationGallery.length > 0 ? "lg:grid-cols-2" : ""} gap-8 lg:gap-10 items-start`}>
+          {locationGallery && locationGallery.length > 0 && (
+            <ImageCarousel imagesData={locationGallery} />
+          )}
 
           <div className="flex flex-col gap-5">
             <button
@@ -240,24 +242,31 @@ export const DetailedLocation = ({
 
 
 
-        <section className="space-y-6">
-          <h2 className="text-2xl sm:text-3xl font-bold font-poppins text-[#19192C]">
-            {t("str5")}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {services_data
-              .filter((item) => item.title?.toLowerCase() !== "others")
-              .slice(0, 9)
-              .map((item) => (
-                <ServiceTab
-                  key={item.id}
-                  id={item.id}
-                  name={item.title}
-                  icon={item.icon}
-                />
-              ))}
-          </div>
-        </section>
+        {(() => {
+          const validServices = services_data
+            .filter((item) => item.title?.toLowerCase() !== "others")
+            .slice(0, 9);
+            
+          if (validServices.length === 0) return null;
+          
+          return (
+            <section className="space-y-6">
+              <h2 className="text-2xl sm:text-3xl font-bold font-poppins text-[#19192C]">
+                {t("str5")}
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {validServices.map((item) => (
+                    <ServiceTab
+                      key={item.id}
+                      id={item.id}
+                      name={item.title}
+                      icon={item.icon}
+                    />
+                  ))}
+              </div>
+            </section>
+          );
+        })()}
 
         <section className="space-y-6">
           <h2 className="text-2xl sm:text-3xl font-bold font-poppins text-[#19192C]">

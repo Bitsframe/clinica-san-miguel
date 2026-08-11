@@ -39,6 +39,7 @@ export async function generateMetadata({
   const rootMetadata = getRootMetadata(locale);
   
   if (
+    process.env.RAILWAY_ENVIRONMENT_NAME && process.env.RAILWAY_ENVIRONMENT_NAME !== "production" ||
     process.env.RAILWAY_ENVIRONMENT ||
     process.env.NEXT_PUBLIC_SITE_URL?.includes("railway.app") ||
     process.env.VERCEL_ENV === "preview"

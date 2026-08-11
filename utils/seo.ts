@@ -32,22 +32,27 @@ export function buildPageMetadata({
   const enUrl = `${siteUrl}${path}`;
   const esUrl = `${siteUrl}/es${path}`;
 
+  const isHome = path === "/";
+  const formattedTitle = title 
+    ? (isHome ? title : `${title} | ${siteName}`) 
+    : siteName;
+
   return {
     metadataBase: new URL(siteUrl),
-    title: title ? { absolute: `${title} | ${siteName}` } : siteName,
+    title: title ? { absolute: formattedTitle } : siteName,
     description: desc,
     openGraph: {
       type: "website",
       locale: lang === "es" ? "es_US" : "en_US",
       url: canonical,
       siteName,
-      title: title ? `${title} | ${siteName}` : siteName,
+      title: formattedTitle,
       description: desc,
       images: ["/apple-icon.png"],
     },
     twitter: {
       card: "summary_large_image",
-      title: title ? `${title} | ${siteName}` : siteName,
+      title: formattedTitle,
       description: desc,
       images: ["/apple-icon.png"],
     },

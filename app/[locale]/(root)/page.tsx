@@ -4,6 +4,8 @@ import { getTranslations, getLocale } from "next-intl/server";
 
 import { buildPageMetadata } from "@/utils/seo";
 
+export const revalidate = 0;
+
 export async function generateMetadata({
   params,
 }: {

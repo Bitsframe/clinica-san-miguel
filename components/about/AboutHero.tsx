@@ -9,11 +9,7 @@ type AboutHeroProps = {
   imageUrl: string | null;
 };
 
-const customLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
-  const urlWithoutQuery = src.split("?")[0];
-  const qualityParam = quality ? `&q=${quality}` : "";
-  return `${urlWithoutQuery}?w=${width}${qualityParam}`;
-};
+
 
 export default function AboutHero({
   eyebrow,
@@ -49,7 +45,7 @@ export default function AboutHero({
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"
               priority
-              loader={customLoader}
+              unoptimized
             />
           </div>
         )}

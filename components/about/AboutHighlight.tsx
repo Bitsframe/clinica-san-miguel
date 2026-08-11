@@ -11,11 +11,7 @@ type AboutHighlightProps = {
   badgeLabel: string;
 };
 
-const customLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
-  const urlWithoutQuery = src.split("?")[0];
-  const qualityParam = quality ? `&q=${quality}` : "";
-  return `${urlWithoutQuery}?w=${width}${qualityParam}`;
-};
+
 
 export default function AboutHighlight({
   title,
@@ -35,7 +31,7 @@ export default function AboutHighlight({
             alt=""
             fill
             className="object-contain p-8 sm:p-10 opacity-90"
-            loader={customLoader}
+            unoptimized
           />
         </div>
 

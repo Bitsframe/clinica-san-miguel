@@ -10,6 +10,12 @@ import React, {
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/@types/database.types";
 import { supabase } from "@/supabaseClient";
+import {
+  CLINICA_TENANT_ID,
+  fetchClinicaLocations,
+  fetchClinicaLocationById,
+  isAllowedClinicaLocationId,
+} from "@/utils/clinicaLocations";
 
 interface SupabaseContextType {
   supabase: SupabaseClient;
@@ -159,13 +165,12 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
   // for all records
   const fetchData = async (table: string, setter: Function) => {
     try {
-      const { data, error } = await supabase.from(table).select("*");
-      console.log(data, `${table} Data`);
+      const { data } = await supabase.from(table).select("*");
       if (data) {
         setter(data);
       }
-    } catch (error) {
-      console.error(`Error fetching ${table} data:`, error);
+    } catch {
+      // Ignore fetch errors; UI handles empty state.
     }
   };
 
@@ -177,16 +182,25 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
   // for any unique record
   const fetchDetailedData = async (table: string, id: number) => {
     try {
-      const { data, error } = await supabase
-        .from(table)
-        .select("*")
-        .eq("id", id);
-      console.log(data, `${table} Data`);
+      if (table === "Locations") {
+        const allowed = await isAllowedClinicaLocationId(supabase, id);
+        if (!allowed) {
+          setDetailData({ [table]: [] });
+          return;
+        }
+      }
+
+      let query = supabase.from(table).select("*").eq("id", id);
+      if (table === "Locations") {
+        query = query.eq("tenant_id", CLINICA_TENANT_ID);
+      }
+
+      const { data } = await query;
       if (data) {
         setDetailData({ [table]: data });
       }
-    } catch (error) {
-      console.error(`Error fetching ${table} data:`, error);
+    } catch {
+      // Ignore fetch errors; UI handles empty state.
     }
   };
 
@@ -197,16 +211,15 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({
     id: number
   ) => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from(table)
         .select("*")
         .eq(column_name, id);
-      console.log(data, `${table} Data`);
       if (data) {
         setFilteredData(data);
       }
-    } catch (error) {
-      console.error(`Error fetching ${table} data:`, error);
+    } catch {
+      // Ignore fetch errors; UI handles empty state.
     }
   };
 
@@ -216,6 +229,10 @@ const fetchLocalizedTable = useCallback(
     baseTable: T,
     locale: string
   ): Promise<TableRows<T>> => {
+    if (baseTable === "Locations") {
+      return (await fetchClinicaLocations(supabase)) as TableRows<T>;
+    }
+
     if (locale === "es") {
       const localizedTableName = `${String(baseTable)}_es` as TableName;
 
@@ -225,19 +242,8 @@ const fetchLocalizedTable = useCallback(
         if (localizedRows && localizedRows.length > 0) {
           return localizedRows;
         }
-
-        console.warn(
-          `[Supabase] No records found in ${localizedTableName}. Falling back to ${String(
-            baseTable
-          )}.`
-        );
-      } catch (error) {
-        console.warn(
-          `[Supabase] Failed to fetch ${localizedTableName}. Falling back to ${String(
-            baseTable
-          )}.`,
-          error
-        );
+      } catch {
+        // Fall back to the base table below.
       }
     }
 
@@ -253,25 +259,17 @@ const fetchLocalizedRowById = useCallback(
     locale: string,
     id: number
   ): Promise<Database["public"]["Tables"][T]["Row"] | null> => {
-    const tableName = (locale === "es" ? `${baseTable}_es` : baseTable) as T;
-
-    const { data, error } = await supabase
-      .from(tableName)
-      .select("*")
-      .eq("id", id);
-
-    console.log(`🟢 Supabase response from ${tableName} for id=${id}:`, {
-      data,
-      error,
-    });
-
-    if (error) {
-      console.error(`❌ Error fetching from ${tableName}:`, error);
-      return null;
+    if (baseTable === "Locations") {
+      return (await fetchClinicaLocationById(supabase, id)) as
+        | Database["public"]["Tables"][T]["Row"]
+        | null;
     }
 
-    if (!data || data.length === 0) {
-      console.warn(`⚠️ No records found in ${tableName} for id=${id}`);
+    const tableName = (locale === "es" ? `${baseTable}_es` : baseTable) as T;
+
+    const { data, error } = await (supabase as any).from(tableName).select("*").eq("id", id);
+
+    if (error || !data || data.length === 0) {
       return null;
     }
 
@@ -298,8 +296,8 @@ const fetchLocalizedRowById = useCallback(
       if (data) {
         setSearchedData(data);
       }
-    } catch (error) {
-      console.log(`Error searching ${table}: `, error);
+    } catch {
+      // Ignore search errors; UI handles empty state.
     }
   };
 

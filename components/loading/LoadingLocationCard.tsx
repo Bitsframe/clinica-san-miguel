@@ -1,34 +1,19 @@
 "use client";
 
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-
-const LoadingLocationCard = () => {
+export default function LoadingLocationCard() {
   return (
-    <article className="w-full max-w-[380px] h-[240px] my-6 mx-4 rounded-[8px] shadow-sm border border-gray-200">
-      {/* Map Skeleton */}
-      <div className="relative w-full h-[140px] rounded-t-[8px] overflow-hidden">
-        <Skeleton height={140} className="w-full h-full" />
-        <div className="absolute bottom-3 right-3 z-10">
-          <Skeleton circle width={36} height={36} />
+    <article className="w-full rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden animate-pulse">
+      <div className="h-[150px] bg-gray-200" />
+      <div className="p-5 space-y-4">
+        <div className="space-y-2">
+          <div className="h-5 w-3/4 bg-gray-200 rounded" />
+          <div className="h-4 w-1/2 bg-gray-100 rounded" />
         </div>
-      </div>
-
-      {/* Bottom Panel */}
-      <div className="bg-white p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center h-[100px] gap-3 rounded-b-[8px]">
-        {/* Location Name Skeleton */}
-        <div className="w-full sm:w-1/2">
-          <Skeleton height={20} width="85%" />
-        </div>
-
-        {/* Buttons Skeleton */}
-        <div className="flex flex-col gap-3 w-full sm:w-[140px]">
-          <Skeleton height={36} />
-          <Skeleton height={36} />
+        <div className="flex gap-2">
+          <div className="h-10 flex-1 bg-gray-200 rounded-full" />
+          <div className="h-10 flex-1 bg-gray-100 rounded-full" />
         </div>
       </div>
     </article>
   );
-};
-
-export default LoadingLocationCard;
+}

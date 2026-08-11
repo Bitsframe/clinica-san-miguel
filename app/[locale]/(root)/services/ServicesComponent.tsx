@@ -6,22 +6,10 @@ import { useLocale } from "next-intl";
 import { useState, useEffect, useMemo } from "react";
 import { CompactServiceSkeleton } from "@/components/loading/CompactServiceSkeleton";
 
-export const ServicesComponent = () => {
+export const ServicesComponent = ({ initialServices = [] }: { initialServices?: any[] }) => {
   const locale = useLocale();
-  const { fetchLocalizedTable } = useSupabase();  
-  const [data, setData] = useState<any[]>([]);  
-  const [hasFetched, setHasFetched] = useState(false);  
-
-  useEffect(() => {
-  
-    fetchLocalizedTable("services", locale)
-      .then((rows) => {
-        setData(rows);
-        setHasFetched(true);
-        console.log("✅ Services data fetched");
-      })
-      .catch((err) => console.error("❌ Services fetch error:", err));
-  }, [locale, fetchLocalizedTable]); 
+  const data = initialServices;
+  const hasFetched = true;
 
   const sortedData = useMemo(() => {
     // Filter out "Others" service and sort by id

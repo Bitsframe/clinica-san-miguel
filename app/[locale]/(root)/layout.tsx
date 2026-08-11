@@ -9,8 +9,9 @@ export default function RootLayout({
  
   return (
     <main>
-      <article className="h-[43px] w-full bg-[#19192C] flex justify-center items-center text-[12px] sm:text-[16px] text-center text-[#F8F5F0]">
-        {/* {t("common:language_selection_description")} */}
+      <article className="relative h-10 w-full overflow-hidden bg-[#19192C] text-[#F8F5F0] sm:h-11">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-[#19192C] to-transparent sm:w-16" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-[#19192C] to-transparent sm:w-16" />
         <RenderTicker />
       </article>
       <Navbar />

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Clínica San Miguel - Consulta Médica $19</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#f4f4f4;padding:20px;font-family:'Poppins',Arial,sans-serif;}
+  .banner{
+    position:relative;
+    width:100%;
+    max-width:1560px;
+    aspect-ratio:1560/650;
+    margin:0 auto;
+    overflow:hidden;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,.5) 0 2px, transparent 2px 90px),
+      linear-gradient(120deg,#eef1f4 0%,#e4e8ec 55%,#dfe3e8 100%);
+    display:flex;
+    align-items:stretch;
+    padding:44px 60px;
+  }
+  .left{flex:1;display:flex;flex-direction:column;justify-content:space-between;padding-right:30px;min-width:0;}
+  .logo-line1{font-size:22px;font-weight:800;letter-spacing:.5px;color:#182238;}
+  .logo-line2{font-size:13px;font-weight:700;letter-spacing:1.5px;color:#182238;opacity:.8;margin-top:2px;}
+  .label{font-size:14px;font-weight:700;letter-spacing:1.5px;color:#b3271e;text-transform:uppercase;margin-top:18px;}
+  .headline{font-size:48px;line-height:1.08;font-weight:800;color:#182238;margin-top:6px;}
+  .headline .price{color:#c0392b;}
+  .subtext{font-size:16px;color:#5a6472;margin-top:14px;font-weight:500;}
+  .checklist{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:8px;}
+  .checklist li{font-size:15.5px;color:#1e2536;font-weight:500;display:flex;align-items:center;gap:8px;}
+  .checklist li:before{content:"✓";color:#b3271e;font-weight:800;font-size:16px;}
+  .contact{margin-top:20px;}
+  .book-btn{display:inline-block;background:#c0392b;color:#fff;font-weight:700;font-size:15px;letter-spacing:.3px;padding:12px 30px;border-radius:8px;text-decoration:none;margin-bottom:14px;box-shadow:0 6px 14px rgba(192,57,43,.35);}
+  .phone{font-size:22px;font-weight:800;color:#182238;}
+  .website{font-size:15px;color:#3a4356;margin-top:2px;font-weight:500;}
+  .right{width:42%;position:relative;flex-shrink:0;}
+  .photo-frame{
+    position:absolute;inset:0;
+    background:#c0392b;
+    border-radius:20px;
+    padding:6px;
+  }
+  .photo-inner{
+    width:100%;height:100%;border-radius:15px;overflow:hidden;position:relative;
+    background:linear-gradient(135deg,#ffe4df 0%,#fbeceb 50%,#f3f5f8 100%);
+  }
+  .photo-inner img{width:100%;height:100%;object-fit:cover;display:block;}
+  .sparkle{position:absolute;bottom:14px;right:14px;color:#fff;font-size:20px;opacity:.9;}
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="left">
+    <div>
+      <div class="logo-line1">CLÍNICA SAN MIGUEL</div>
+      <div class="logo-line2">MEDICINA FAMILIAR</div>
+
+      <div class="label">Oferta por Tiempo Limitado</div>
+      <div class="headline">Consulta Médica<br>Solo <span class="price">$19</span></div>
+      <div class="subtext">Atención de Calidad • Citas el Mismo Día • Aceptamos Sin Cita</div>
+
+      <ul class="checklist">
+        <li>Medicina Familiar</li>
+        <li>Servicios de Atención Primaria</li>
+        <li>Proveedores Médicos con Experiencia</li>
+        <li>Visitas Rápidas y Convenientes</li>
+      </ul>
+    </div>
+
+    <div class="contact">
+      <a href="tel:+18328344426" class="book-btn">Reservar Ahora →</a>
+      <div class="phone">(832) 834-4426</div>
+      <div class="website">www.clinicsanmiguel.com</div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="photo-frame">
+      <div class="photo-inner">
+        <img src="file:///C:/Users/rahee/Desktop/Images/medical%20consultant.png" alt="Médico conversando con paciente">
+        <div class="sparkle">✦</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

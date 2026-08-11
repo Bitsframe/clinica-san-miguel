@@ -28,9 +28,8 @@ export function TrustedPartner() {
         .then((rows) => {
           setData(rows);
           setHasFetched(true);
-          console.log("✅ TrustedPartner data fetched");
         })
-        .catch((err) => console.error("❌ TrustedPartner fetch error:", err));
+        .catch(() => {});
     }
   }, [isVisible, hasFetched, fetchLocalizedTable, locale]);
 
@@ -83,9 +82,9 @@ export function TrustedPartner() {
                         />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-sm md:text-base text-gray-900">
+                        <h3 className="font-semibold text-sm md:text-base text-gray-900">
                           {f.title}
-                        </h4>
+                        </h3>
                         <p className="text-xs text-gray-600">
                           {f.description}
                         </p>
@@ -105,8 +104,9 @@ export function TrustedPartner() {
               <Image
                 src={family}
                 alt="Family running"
-                width={300}
-                height={200}
+                width={600}
+                height={400}
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="w-full h-full object-cover rounded-lg shadow"
               />
             </div>
@@ -117,8 +117,9 @@ export function TrustedPartner() {
               <Image
                 src={mission}
                 alt="Mission"
-                width={300}
-                height={200}
+                width={400}
+                height={400}
+                sizes="(max-width: 768px) 50vw, 25vw"
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
@@ -129,8 +130,9 @@ export function TrustedPartner() {
               <Image
                 src={elderly_right}
                 alt="Elderly"
-                width={300}
+                width={400}
                 height={200}
+                sizes="(max-width: 768px) 50vw, 25vw"
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>

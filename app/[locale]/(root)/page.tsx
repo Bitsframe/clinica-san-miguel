@@ -1,6 +1,24 @@
 
+import type { Metadata } from "next";
 import { getTranslations, getLocale } from "next-intl/server";
-import "regenerator-runtime/runtime";
+
+import { buildPageMetadata } from "@/utils/seo";
+
+export const revalidate = 0;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
+    locale,
+    title: "Clinica San Miguel – Affordable Family Medicine in Texas",
+    description: "Clinica San Miguel provides affordable, compassionate family healthcare across Texas. Walk-ins welcome. Serving Houston, San Antonio, and surrounding communities.",
+    path: "/",
+  });
+}
 import {
   AboutProfessionals,
   AboutSection,
@@ -13,58 +31,74 @@ import {
   Testimonials,
   Treatments,
   WeCare,
-  PatientStories,
+
   TrustedPartner,
   AboveFooter,
   StickyMobileButton,
 } from "@/sections";
-import { FaPhone } from "react-icons/fa6";
+import PhoneNumbersBar from "@/components/PhoneNumbersBar";
 import Script from "next/script";
+import { supabase } from "@/supabaseClient";
 
-export default async function Home() {
-  const locale = await getLocale(); 
+const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": "MedicalClinic",
+  name: "Clinica San Miguel",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.clinicsanmiguel.com",
+  logo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.clinicsanmiguel.com"}/favicon.png`,
+  description:
+    "Clinica San Miguel provides affordable, compassionate family healthcare across Texas. Walk-ins welcome.",
+  telephone: "+18328490946",
+  areaServed: {
+    "@type": "State",
+    name: "Texas",
+  },
+  address: {
+    "@type": "PostalAddress",
+    addressRegion: "TX",
+    addressCountry: "US",
+  },
+  medicalSpecialty: [
+    "FamilyMedicine",
+    "Pediatrics",
+    "GeneralPractice",
+  ],
+  priceRange: "$",
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
+  },
+  sameAs: [],
+};
+
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
+
+  const [{ data: faqs }, { data: servicesData }] = await Promise.all([
+    supabase.from(`FAQs${locale === "es" ? "_es" : ""}`).select("*"),
+    supabase.from(`services${locale === "es" ? "_es" : ""}`).select("*")
+  ]);
 
   return (
     <main className="flex flex-col justify-center items-center overflow-x-hidden gap-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
       {/* Phone Numbers Bar */}
      
       
-      <div id="hero-section" className="w-full bg-[#FFFFFF] ">
-      <div className="w-full bg-white border-b border-gray-200 py-3 px-4 overflow-x-auto">
-        <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 flex-wrap sm:flex-nowrap text-xs sm:text-sm md:text-base whitespace-nowrap">
-          <a 
-            href="tel:+14698868060" 
-            className="flex items-center gap-2 text-[#19192C] hover:text-[#C1001F] transition-colors cursor-pointer"
-          >
-            <span className="font-medium">Dallas</span>
-            <FaPhone className="text-[#C1001F]" size={14} />
-            <span>+1 469-886-8060</span>
-          </a>
-          
-          <span className="hidden sm:inline text-gray-300">|</span>
-          
-          <a 
-            href="tel:+18328490946" 
-            className="flex items-center gap-2 text-[#19192C] hover:text-[#C1001F] transition-colors cursor-pointer"
-          >
-            <span className="font-medium">Houston</span>
-            <FaPhone className="text-[#C1001F]" size={14} />
-            <span>+1 832-849-0946</span>
-          </a>
-          
-          <span className="hidden sm:inline text-gray-300">|</span>
-          
-          <a 
-            href="tel:+12102512809" 
-            className="flex items-center gap-2 text-[#19192C] hover:text-[#C1001F] transition-colors cursor-pointer"
-          >
-            <span className="font-medium">San Antonio</span>
-            <FaPhone className="text-[#C1001F]" size={14} />
-            <span>+1 210-251-2809</span>
-          </a>
-        </div>
-      </div>
+      <div id="hero-section" className="w-full bg-[#FFFFFF]">
+        <PhoneNumbersBar />
         <HeroTopSection />
       </div>
       
@@ -95,12 +129,12 @@ export default async function Home() {
       />
       
       <GroupedLocations />
-      <Treatments />
+      <Treatments initialTreatments={servicesData || []} />
       <CommunityMission />
       <WeCare />
-      <PatientStories />
+
       <TrustedPartner />
-      <FAQs />
+      <FAQs initialFaqsData={faqs || undefined} />
       <AboveFooter />
       <StickyMobileButton />
     </main>

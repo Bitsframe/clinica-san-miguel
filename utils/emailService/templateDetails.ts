@@ -94,20 +94,22 @@ export const emailBodyContent: EmailBodyContent = {
     [EmailBodyTempEnum.CONFIRMATION_OF_FORM_SUBMISSION]: {
       subject: "Appointment Confirmation - Clinica San Miguel",
       body: (data: EmailBodyInterface): string => {
-        const { name, location, service } = data;
+        const { name, location, service, date, time } = data;
         return `
             <tbody>
           <tr>
             <td style="padding: 20px;">
               <p>Dear <strong>${name}</strong>,</p>
-              <p>Thank you for choosing Clinica San Miguel. Your appointment request has been successfully received. Below are the details of your appointment:</p>
+              <p>Thank you for submitting your form to Clinica San Miguel. We are pleased to inform you that your registration has been received and successfully processed in our POS system.</p>
               <ul style="list-style: none; padding: 0;">
-                <li>Location: <strong>${location.title}, ${location.address}</strong></li>
                 <li>Service: <strong>${service}</strong></li>
+                <li>Location: <strong>${location.title} - ${location.address}</strong></li>
+                <li>Date: <strong>${date}</strong></li>
+                <li>Time: <strong>${time}</strong></li>
               </ul>
               <p>Our team looks forward to welcoming you and ensuring you receive the best care possible. If you have any questions or need to make changes to your appointment, please don't hesitate to contact us at <a href="mailto:contact@clinicsanmiguel.com">contact@clinicsanmiguel.com</a> or at ${location.phone}.</p>
-              <p>Thank you for trusting us with your care.</p>
-              <p>Best regards,<br><strong>Clinica San Miguel Team</strong></p>
+              <p>Thank you for choosing us for your healthcare needs.</p>
+              <p>Sincerely,<br><strong>The San Miguel Clinic Team</strong></p>
             </td>
           </tr>
         </tbody>`;
@@ -218,7 +220,7 @@ export const emailBodyContent: EmailBodyContent = {
     [EmailBodyTempEnum.CONFIRMATION_OF_FORM_SUBMISSION]: {
       subject: "Confirmación de Cita - Clinica San Miguel",
       body: (data: EmailBodyInterface): string => {
-        const { name, location, service } = data;
+        const { name, location, service, date, time } = data;
         return `
            <tbody>
           <tr>
@@ -227,10 +229,12 @@ export const emailBodyContent: EmailBodyContent = {
               <p>
                 Gracias por enviar su formulario en Clinica San Miguel. Nos complace informarle que su registro ha sido recibido y procesado correctamente en nuestro sistema POS.
               </p>
-              <p>
-                Servicio:<strong>${service}</strong> <br>
-                Ubicación:<strong>${location.title} - ${location.address}</strong> 
-              </p>
+              <ul style="list-style: none; padding: 0;">
+                <li>Servicio: <strong>${service}</strong></li>
+                <li>Ubicación: <strong>${location.title} - ${location.address}</strong></li>
+                <li>Fecha: <strong>${date}</strong></li>
+                <li>Hora: <strong>${time}</strong></li>
+              </ul>
               <p>
                 Si tiene alguna pregunta o necesita más asistencia, no dude en comunicarse con nosotros a 
                 <a href="mailto:contact@clinicsanmiguel.com">contact@clinicsanmiguel.com</a> o al teléfono ${location.phone}.

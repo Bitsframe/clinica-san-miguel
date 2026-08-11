@@ -173,6 +173,9 @@ export interface Database {
           sunday_timing: string | null;
           direction: string | null;
           address: string | null;
+          Group: string | null;
+          tenant_id: number | null;
+          is_active: boolean | null;
         };
       };
       Images: {
@@ -251,6 +254,8 @@ export interface Database {
           email: string | null;
           phone: string | null;
           onsite: boolean | null;
+          locationid: number | null;
+          treatmenttype: string | null;
         };
       };
 
@@ -369,10 +374,56 @@ allservices_es: {
           created_at: string;
           order_id: string | null;
           patient_id: number | null;
+          promo_code_id: number | null;
+        };
+        Update: {
+          id?: number;
+          created_at?: string;
+          order_id?: string | null;
+          patient_id?: number | null;
+          promo_code_id?: number | null;
         };
       };
 
-        
+      Newsletter: {
+        Row: {
+          id: number;
+          created_at: string;
+          email: string | null;
+        };
+        Insert: {
+          id?: number;
+          created_at?: string;
+          email?: string | null;
+        };
+      };
+
+      promotype: {
+        Row: {
+          id: number;
+          created_at: string;
+          typename: string | null;
+          percentage: number | null;
+        };
+      };
+
+      promocodes: {
+        Row: {
+          id: number;
+          created_at: string;
+          code: string | null;
+          type: number | null;
+          assign: number | null;
+        };
+        Insert: {
+          id?: number;
+          created_at?: string;
+          code?: string | null;
+          type?: number | string | null;
+          assign?: number | null;
+        };
+      };
+
     };
   };
 }

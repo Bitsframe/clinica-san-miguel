@@ -1,22 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { BsTelephone } from "react-icons/bs";
-import { HiOutlineMap } from "react-icons/hi";
-import { useRouter } from "next/navigation";
+import { Loader2, MapPin, Navigation, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/navigation";
 import { LocationCardSkeleton } from "@/components/loading/LocationCardSkeleton";
 
 type LocationCardProps = {
-  id: number | null;
+  id: number | string | null;
   name?: string | null;
   address?: string | null;
   phone?: string | null;
-  /** Approximate straight-line miles (e.g. from ZIP search) */
   distanceMiles?: number;
+  rank?: number;
   onMapClick?: () => void;
   loading?: boolean;
 };
+
+function formatDistance(miles: number) {
+  return miles < 10 ? miles.toFixed(1) : Math.round(miles).toString();
+}
 
 export const LocationDetailedCard = ({
   id,
@@ -24,89 +27,84 @@ export const LocationDetailedCard = ({
   address,
   phone,
   distanceMiles,
+  rank,
   onMapClick,
   loading,
 }: LocationCardProps) => {
-  const router = useRouter();
-  const [showMap, setShowMap] = useState(false);
   const t = useTranslations("location_buttons");
-
-  const handleLocation = () => {
-    router.push(`/contact/${id}`);
-  };
+  const tc = useTranslations("contact_page");
 
   if (loading) {
     return <LocationCardSkeleton />;
   }
 
   return (
-    <>
-      <main className="bg-[#FFFEFC] rounded-[13px] min-w-[320px] w-full max-w-2xl min-h-56 sm:min-h-44 py-4 sm:py-3 flex flex-col gap-0 justify-start relative pl-4 sm:pl-6 lg:pl-8">
-        <h4 className="font-poppins font-normal text-[16px] leading-[100%] tracking-[0] text-[#1B2432] mb-0 pb-0">
-          {name || "Clinica San Miguel Dallas, TX Office"}
+    <article className="rounded-xl border border-gray-100 bg-white p-4 sm:p-5 shadow-sm transition-all hover:border-[#C1001F]/20 hover:shadow-md">
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <h4 className="text-base font-semibold font-poppins text-[#19192C] leading-snug min-w-0">
+          {name}
         </h4>
-
-        <div className="flex w-full items-start justify-between pt-0 mt-6">
-          <article className="flex flex-col justify-start gap-2">
-            <div className="flex justify-start items-center gap-2">
-              <BsTelephone className="text-[#C1001F] w-[18px] h-[18px]" />
-              <p className="font-poppins font-normal text-[13px] leading-[100%] tracking-[0] text-[#1B2432]">
-                {phone || "682-327-1695"}
-              </p>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          {distanceMiles != null && (
+            <div className="flex items-center gap-1 rounded-full bg-[#F8F5F0] px-2.5 py-1 text-xs font-semibold text-[#19192C]">
+              <Navigation className="h-3 w-3 text-[#C1001F]" />
+              {tc("miles_away", { distance: formatDistance(distanceMiles) })}
             </div>
-            <div className="flex justify-start items-center gap-2">
-              <HiOutlineMap className="text-[#C1001F] w-[18px] h-[18px]" />
-              <p className="font-poppins font-normal text-[13px] leading-[100%] tracking-[0] text-[#1B2432]">
-                {address || "787 E Park Row Dr, Arlington, TX 76010"}
-              </p>
+          )}
+          {rank != null && rank <= 3 && (
+            <div className="rounded-full bg-[#C1001F] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              #{rank} {tc("nearest")}
             </div>
-            {distanceMiles != null && (
-              <p className="font-poppins text-[12px] text-[#6B7280] pl-7">
-                ~{distanceMiles} mi (approx.)
-              </p>
-            )}
-          </article>
+          )}
         </div>
+      </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full pb-32 sm:pb-0">
-          <button
-            onClick={handleLocation}
-            className="w-full sm:w-auto min-w-[140px] flex justify-center items-center py-2 px-2 sm:px-2 bg-[#C1001F] text-white text-sm font-normal font-poppins rounded-full hover:bg-[#a6001a] transition"
-          >
-            {t("viewDetails")} <span className="text-base">→</span>
-          </button>
-
-          <button
-            onClick={() => setShowMap(true)}
-            className="w-full sm:w-auto min-w-[140px] flex justify-center items-center py-2 sm:px-2 px-2 border border-[#6C7582] text-[#6C7582] text-[13px] font-poppins rounded-full hover:bg-[#f4f5f6] transition"
-          >
-            {t("getDirections")} <span className="text-base">→</span>
-          </button>
-        </div>
-      </main>
-
-      {showMap && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex justify-center items-center">
-          <div className="bg-white p-4 rounded-lg w-[90vw] max-w-2xl relative">
-            <button
-              onClick={() => setShowMap(false)}
-              className="absolute top-2 right-3 text-black text-2xl font-bold"
+      {(address || phone) && (
+        <div className="rounded-lg border border-gray-100 bg-[#FAFAFA] px-3 py-2.5 space-y-2 mb-4">
+          {phone && (
+            <a
+              href={`tel:+1${phone.replace(/\D/g, "")}`}
+              className="inline-flex items-center gap-2 text-sm text-[#3D3D3C] hover:text-[#C1001F] transition-colors"
             >
-              ✕
-            </button>
-            <iframe
-              src={`https://www.google.com/maps?q=${encodeURIComponent(
-                address || ""
-              )}&output=embed`}
-              height="400"
-              className="w-full rounded-md"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
+              <Phone className="h-4 w-4 text-[#C1001F] shrink-0" />
+              {phone}
+            </a>
+          )}
+          {address && (
+            <p className="flex items-start gap-2 text-sm text-[#3D3D3C] leading-snug">
+              <MapPin className="h-4 w-4 text-[#C1001F] shrink-0 mt-0.5" />
+              <span className="line-clamp-2">{address}</span>
+            </p>
+          )}
         </div>
       )}
-    </>
+
+      <div className="flex flex-col sm:flex-row gap-2">
+        {id != null ? (
+          <Link
+            href={`/contact/${id}`}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#C1001F] px-4 py-2.5 text-sm font-medium font-poppins text-white hover:bg-[#a30019] transition-colors"
+          >
+            {t("viewDetails")} →
+          </Link>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#C1001F] px-4 py-2.5 text-sm font-medium font-poppins text-white opacity-80 cursor-not-allowed"
+          >
+            {t("viewDetails")} →
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={onMapClick}
+          className="flex-1 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium font-poppins text-[#19192C] hover:bg-gray-50 transition-colors"
+        >
+          {t("getDirections")} →
+        </button>
+      </div>
+    </article>
   );
 };

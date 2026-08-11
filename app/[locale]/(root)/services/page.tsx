@@ -1,15 +1,42 @@
+import { Metadata } from "next";
 import { styles } from "@/app/[locale]/styles";
 import { ServicesComponent } from "./ServicesComponent";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-const Services = ({
+import { buildPageMetadata } from "@/utils/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
+    locale,
+    title: "Medical Services",
+    description: "Explore the full range of medical services offered at Clinica San Miguel — primary care, pediatrics, women's health, lab work, and more across Texas.",
+    path: "/services",
+  });
+}
+
+import { supabase } from "@/supabaseClient";
+
+const Services = async ({
   params,
 }: {
   params: Promise<{ locale: string }>; 
 }) => {
-  // Destructure inside the body to "await" it manually
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const t = useTranslations("common");
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "common" });
+
+  const tableName = locale === "es" ? "services_es" : "services";
+  const { data: rawServices } = await supabase.from(tableName).select("*");
+  let servicesData = rawServices || [];
+  
+  if (locale === "es" && servicesData.length === 0) {
+    const { data: fallbackData } = await supabase.from("services").select("*");
+    servicesData = fallbackData || [];
+  }
 
   return (
     <main className="flex flex-col gap-5">
@@ -23,7 +50,7 @@ const Services = ({
           </h1>
         </div>
 
-        <ServicesComponent />
+        <ServicesComponent initialServices={servicesData} />
       </section>
     </main>
   );

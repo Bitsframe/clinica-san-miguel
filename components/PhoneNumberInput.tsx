@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
+import Image from 'next/image';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-import { US_AREA_CODES } from './usAreaCodes';
 
 interface PhoneNumberInputProps {
   label?: React.ReactNode;
@@ -18,19 +18,10 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   placeholder,
   breakpoint
 }) => {
-  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = (phone: string) => {
     const digits = phone.replace(/\D/g, '').slice(0, 10);
-
-    const areaCode = digits.substring(0, 3);
-    if (digits.length >= 3 && !US_AREA_CODES.includes(areaCode)) {
-      setError('Only US phone numbers are allowed.');
-    } else {
-      setError(null);
-    }
-
     onChange(digits);
   };
 
@@ -42,50 +33,28 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   };
 
   return (
-    <div className={`flex ${breakpoint ? 'sm:flex-row' : 'flex-col'} items-start w-full`}>
+    <div className={`flex flex-col items-start w-full ${breakpoint ? "md:w-1/2" : ""}`}>
       {label && (
-        <label className="text-[16px] text-customGray font-poppins font-bold mb-1 mr-2">
-          {label}:
+        <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
+          {label}
         </label>
       )}
 
-      <div style={{ position: 'relative', width: '100%' }}>
-        {/* Flag */}
+      <div className="relative w-full">
         <div
-          style={{
-            position: 'absolute',
-            left: 1,
-            top: 1,
-            bottom: 1,
-            width: 45,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#f8f9fa',
-            borderRadius: '10px 0 0 10px',
-            borderRight: '1px solid #e0e0e0',
-            zIndex: 10,
-            pointerEvents: 'none'
-          }}
+          className="absolute left-0 top-0 bottom-0 w-11 flex items-center justify-center bg-[#FAFAFA] border-r border-gray-200 rounded-l-xl z-10 pointer-events-none"
         >
-          <img src="https://flagcdn.com/w40/us.png" alt="US" style={{ width: 24 }} />
+          <Image
+            src="https://flagcdn.com/w40/us.png"
+            alt="US"
+            width={20}
+            height={15}
+            className="w-5 h-auto"
+            unoptimized
+          />
         </div>
 
-        {/* Fixed (+1) */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 55,
-            top: 0,
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: 16,
-            color: '#000',
-            zIndex: 10,
-            pointerEvents: 'none'
-          }}
-        >
+        <div className="absolute left-12 top-0 bottom-0 flex items-center text-sm text-[#19192C] z-10 pointer-events-none">
           (+1)
         </div>
 
@@ -103,11 +72,12 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
           masks={{ us: '(...) ...-....' }}
           inputStyle={{
             width: '100%',
-            height: 46,
-            fontSize: 16,
-            paddingLeft: 100,
-            borderRadius: 10,
-            border: '1px solid #ccc'
+            height: 44,
+            fontSize: 14,
+            paddingLeft: 88,
+            borderRadius: 12,
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
           }}
           buttonStyle={{ display: 'none' }}
           containerStyle={{ width: '100%' }}
@@ -118,24 +88,6 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
           }}
         />
       </div>
-
-      {error && (
-        <div className="flex items-center gap-1 mt-1 ml-2">
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 24 24" 
-            fill="#FFA500" 
-            className="w-4 h-4 flex-shrink-0"
-          >
-            <path 
-              fillRule="evenodd" 
-              d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" 
-              clipRule="evenodd" 
-            />
-          </svg>
-          <span className="text-red-600 text-xs">{error}</span>
-        </div>
-      )}
     </div>
   );
 };

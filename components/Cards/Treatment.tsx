@@ -6,7 +6,7 @@ import Image from "next/image";
 import { heart_monitor } from "@/assets/images";
 
 import { FaArrowRightLong } from "react-icons/fa6";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/navigation";
 
 export const Treatment = ({
   heading,

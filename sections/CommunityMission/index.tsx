@@ -130,10 +130,8 @@ export default function CommunityMission() {
           setData(rows);
           setHasFetched(true);
           setLoading(false);
-          console.log("✅ CommunityMission data fetched");
         })
-        .catch((err) => {
-          console.error("CommunityMission fetch error:", err);
+        .catch(() => {
           setLoading(false);
         });
     }
@@ -198,9 +196,10 @@ export default function CommunityMission() {
                             <Image
                               src={item.Icon}
                               alt={item.Title ?? ""}
-                              width={24}
-                              height={24}
+                              width={48}
+                              height={48}
                               className="object-contain filter brightness-0 invert"
+                              unoptimized
                             />
                           </div>
                           <div className="flex flex-col">

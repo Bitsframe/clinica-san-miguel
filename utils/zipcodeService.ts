@@ -102,6 +102,30 @@ export function parseDistanceMiles(value: unknown): number | undefined {
   return Math.round(n * 10) / 10;
 }
 
+export function formatDistanceMiles(miles: number): string {
+  return miles < 10 ? miles.toFixed(1) : Math.round(miles).toString();
+}
+
+/**
+ * Parse latitude/longitude from a Google Maps "pb" embed string (the value stored
+ * in Locations.direction). These encode the marker as `!2d<lng>!3d<lat>`.
+ * @returns { lat, lng } or null when the string has no parseable coordinates
+ *          (e.g. a goo.gl short link).
+ */
+export function parseLatLngFromDirection(
+  direction: string | null | undefined
+): { lat: number; lng: number } | null {
+  if (!direction) return null;
+  const match = direction.match(/!2d(-?\d+(?:\.\d+)?)!3d(-?\d+(?:\.\d+)?)/);
+  if (!match) return null;
+  const lng = parseFloat(match[1]);
+  const lat = parseFloat(match[2]);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  // Sanity-bound to valid Earth coordinates.
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+  return { lat, lng };
+}
+
 /**
  * Extract zipcode from address string
  * @param address - Full address string

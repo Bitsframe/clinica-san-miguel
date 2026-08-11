@@ -1,44 +1,42 @@
-// components/services/ServiceSkeleton.tsx
 "use client";
 
 export default function ServiceSkeleton() {
   return (
-    <div className="w-full px-4 py-10 md:px-6 lg:px-8 max-w-screen-xl mx-auto space-y-8 animate-pulse">
-      {/* Title */}
-      <div className="h-10 md:h-14 bg-red-200 rounded w-3/4 mx-auto" />
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10 animate-pulse">
+      {/* Hero */}
+      <div className="rounded-2xl bg-gray-200 h-[480px] sm:h-[420px]" />
 
-      {/* Image and About box */}
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Image */}
-        <div className="w-full md:w-1/3 h-64 md:h-[400px] bg-gray-300 rounded-lg" />
+      {/* Subheading banner */}
+      <div className="rounded-xl bg-gray-100 h-20" />
 
-        {/* About box */}
-        <div className="w-full md:w-2/3 flex flex-col gap-4 bg-gray-200 rounded-lg p-6">
-          <div className="h-6 w-1/3 bg-gray-400 rounded" />
-          <div className="h-4 w-full bg-gray-300 rounded" />
-          <div className="h-4 w-5/6 bg-gray-300 rounded" />
-          <div className="h-4 w-2/3 bg-gray-300 rounded" />
+      {/* Q&A grid */}
+      <div className="space-y-6">
+        <div className="h-8 w-48 bg-gray-200 rounded" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-xl border border-gray-100 bg-white p-6 space-y-3">
+              <div className="h-5 w-3/4 bg-gray-200 rounded" />
+              <div className="h-4 w-full bg-gray-100 rounded" />
+              <div className="h-4 w-5/6 bg-gray-100 rounded" />
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* SubContent block */}
+      {/* FAQ accordion */}
       <div className="space-y-4">
-        <div className="h-6 w-1/4 bg-gray-300 rounded" />
-        <div className="h-4 w-full bg-gray-200 rounded" />
-        <div className="h-4 w-5/6 bg-gray-200 rounded" />
-        <div className="h-4 w-3/4 bg-gray-200 rounded" />
+        <div className="h-8 w-56 bg-gray-200 rounded" />
+        <div className="rounded-xl border border-gray-100 divide-y">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="px-6 py-5">
+              <div className="h-5 w-2/3 bg-gray-200 rounded" />
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* FAQ / QA blocks */}
-      <div className="space-y-6">
-        {[...Array(2)].map((_, i) => (
-          <div key={i} className="space-y-2">
-            <div className="h-5 w-1/3 bg-gray-400 rounded" />
-            <div className="h-4 w-full bg-gray-300 rounded" />
-            <div className="h-4 w-2/3 bg-gray-300 rounded" />
-          </div>
-        ))}
-      </div>
+      {/* CTA */}
+      <div className="rounded-2xl bg-red-100 h-36" />
     </div>
   );
 }

@@ -6,31 +6,21 @@ import { styles } from "@/app/[locale]/styles";
 import Image from "next/image";
 import { viewAllArrow } from "@/assets/images";
 import { Link } from "@/navigation";
-import { useSupabase } from "@/context/supabaseContext";
+
 import { useLocale, useTranslations } from "next-intl";
 
-export const Services = () => {
+type ServicesProps = {
+  initialServices?: any[];
+};
+
+export const Services = ({ initialServices = [] }: ServicesProps) => {
+  const [data, setData] = useState<any[]>(initialServices);
+  const [hasFetched, setHasFetched] = useState(true);
+
   const t = useTranslations("common");
   const locale = useLocale();
 
-  const { fetchLocalizedTable } = useSupabase();  // Use the function to fetch data
-  const [data, setData] = useState<any[]>([]);  // State to store fetched data
-  const [hasFetched, setHasFetched] = useState(false);  // Track if data has been fetched
-
-  // Fetch data based on the current locale
-  useEffect(() => {
-    if (!hasFetched) {
-      fetchLocalizedTable("services", locale)  // Fetch the correct services based on locale
-        .then((rows) => {
-          setData(rows);
-          setHasFetched(true);  // Set the state once data is fetched
-          console.log("✅ Services data fetched");
-        })
-        .catch((err) => {
-          console.error("❌ Services fetch error:", err);
-        });
-    }
-  }, [locale, hasFetched, fetchLocalizedTable]);
+  // Data is passed from server component, so no useEffect fetching is needed.
 
   return (
     <section className="flex flex-col relative gap-6 my-10 p-3 w-[100vw] md:w-[90vw] lg:w-[85vw] xl:w-[75vw]">

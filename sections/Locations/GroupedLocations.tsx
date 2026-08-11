@@ -1,11 +1,7 @@
-
 "use client";
 
-import { styles } from "@/app/[locale]/styles";
-import { locationCover } from "@/assets/images/cover";
 import { LocationDetailedCard } from "@/components";
-import React, { useRef, useEffect, useState } from "react";
-import { GroupedMap } from "@/components/Map";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSupabase } from "@/context/supabaseContext";
 import { useTranslations, useLocale } from "next-intl";
 import dynamic from "next/dynamic";
@@ -16,13 +12,24 @@ import {
   zipSearchDebounceMs,
   isPartialNumericZipInput,
   parseDistanceMiles,
+  formatDistanceMiles,
+  parseLatLngFromDirection,
 } from "@/utils/zipcodeService";
+import { Loader2, MapPin, Search } from "lucide-react";
+import { useLazyLoad } from "@/hooks/useLazyLoad";
+import type { ClinicPin } from "@/components/ClinicMap";
 
 const MapModal = dynamic(() => import("@/components/MapModal"), { ssr: false });
+// Leaflet needs `window`, so the map is client-only.
+const ClinicMap = dynamic(() => import("@/components/ClinicMap"), {
+  ssr: false,
+});
 
 export const GroupedLocations = () => {
   const t = useTranslations("home");
+  const tc = useTranslations("contact_page");
   const locale = useLocale();
+  const { ref, isVisible } = useLazyLoad({ triggerOnce: true });
 
   const [selectedTab, setSelectedTab] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("");
@@ -34,52 +41,68 @@ export const GroupedLocations = () => {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [zipSearchLoading, setZipSearchLoading] = useState(false);
-  const targetHeadingRef = useRef<HTMLHeadingElement | null>(null);
 
-  const { fetchTableRows } = useSupabase();
+  const { fetchLocalizedTable } = useSupabase();
 
-  /* ───────────── tabs ───────────── */
   const tabs = [
-    { id: 1, name: t("all"),        value: "",           group: "",  location: "14oe73P17wHPAV_L6R1DmmLVw3JDw60k&ehbc=2E312F" },
-    { id: 2, name: t("dallas"),     value: "dallas",     group: "A", location: "1vaZ0nzB6WqN9P4gHZedwyx0tGmVDSjE&ehbc=2E312F" },
-    { id: 3, name: t("houston"),    value: "houston",    group: "B", location: "1vrLm72whzL6KBgr7n_C2RfoeO1fH1u8&ehbc=2E312F" },
-    { id: 4, name: t("sanAntonio"), value: "sanantonio", group: "C", location: "1cwsxmz-1Sm0zYTFaNizGELErRpCQf_I&ehbc=2E312F" },
+    { id: 1, name: t("all"), value: "", group: "" },
+    { id: 2, name: t("dallas"), value: "dallas", group: "A" },
+    { id: 3, name: t("houston"), value: "houston", group: "B" },
+    { id: 4, name: t("sanAntonio"), value: "sanantonio", group: "C" },
   ];
 
-  const handleTabChange = (value: string, group: string) => {
-    setSelectedTab(value);
-    setSelectedGroup(group);
-  };
+  const activeZip = normalizeZip5(debouncedQuery.trim());
+  const isZipSearch = Boolean(
+    activeZip && !isPartialNumericZipInput(debouncedQuery.trim())
+  );
 
-  /* ───────────── debounce search query (fast for ZIP digits) ───────────── */
+  // Map pins are derived from the same list shown on the left, so the map always
+  // matches the active city tab / ZIP search. Coordinates are parsed from each
+  // clinic's `direction` (a Google "pb" embed string).
+  const mapPins = useMemo<ClinicPin[]>(() => {
+    return locationData.flatMap((loc) => {
+      const coords = parseLatLngFromDirection(loc.direction);
+      if (!coords) return [];
+      return [
+        {
+          id: loc.id,
+          name: loc.title ?? "Clinica San Miguel",
+          address: loc.address,
+          lat: coords.lat,
+          lng: coords.lng,
+        },
+      ];
+    });
+  }, [locationData]);
+
+  const nearestMiles =
+    isZipSearch && locationData.length > 0
+      ? parseDistanceMiles(locationData[0].distance)
+      : undefined;
+
   useEffect(() => {
     const ms = zipSearchDebounceMs(query);
-    const timer = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, ms);
-
+    const timer = setTimeout(() => setDebouncedQuery(query), ms);
     return () => clearTimeout(timer);
   }, [query]);
 
-  /* ───────────── fetch data ───────────── */
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const rows = await fetchTableRows("Locations");
+        const rows = await fetchLocalizedTable("Locations", locale);
         setAllLocationData(rows);
         setLocationData(rows);
-      } catch (err) {
-        console.error("❌ Locations fetch error:", err);
+      } catch {
+        // Keep existing location state on fetch failure.
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [fetchTableRows, locale]);
+  }, [fetchLocalizedTable, locale]);
 
-  /* ───────────── filter data based on query and selectedTab ───────────── */
   useEffect(() => {
     let cancelled = false;
 
@@ -96,7 +119,6 @@ export const GroupedLocations = () => {
         return;
       }
 
-      // Avoid matching "5234" etc. against names/addresses — no distance until 5 digits
       if (isPartialNumericZipInput(q)) {
         if (!cancelled) setLocationData(filtered);
         return;
@@ -139,107 +161,145 @@ export const GroupedLocations = () => {
     };
   }, [debouncedQuery, selectedGroup, allLocationData, loading]);
 
-  /* ───────────── modal handlers ───────────── */
-  const handleOpenMap  = (location: string) => { setModalLocation(location); setShowModal(true); };
-  const handleCloseMap = () => { setShowModal(false); setModalLocation(null); };
+  const handleOpenMap = (location: string) => {
+    setModalLocation(location);
+    setShowModal(true);
+  };
 
-  /* ───────────── render ───────────── */
+  const handleCloseMap = () => {
+    setShowModal(false);
+    setModalLocation(null);
+  };
+
   return (
-    <main id="grouped-locations" className="container mx-auto flex flex-col relative gap-4 -mt-4 sm:mt-0 p-1">
-      <h1 ref={targetHeadingRef} className="font-inter font-semibold text-[40px] leading-[100%] text-[#1B2432]">
-        {t("section2_title2")}
-      </h1>
+    <section
+      ref={ref}
+      id="grouped-locations"
+      className="w-full px-4 sm:px-6 md:px-10 py-4 sm:py-8"
+    >
+      <div className="max-w-7xl mx-auto rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+        <div className="border-b border-gray-100 bg-[#FAFAFA] px-6 sm:px-8 lg:px-10 py-8 sm:py-10 text-center">
+          <p className="text-sm font-medium uppercase tracking-wider text-[#C1001F] mb-3">
+            {t("section2_title")}
+          </p>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-poppins text-[#19192C] leading-tight max-w-3xl mx-auto">
+            {t("section2_title2")}
+          </h2>
+          <p className="mt-3 text-base sm:text-lg text-[#3D3D3C] font-inter leading-relaxed max-w-2xl mx-auto">
+            {t("section2_p1")} {t("section2_p2")}
+          </p>
+        </div>
 
-      <p className="font-poppins text-[16px] leading-[130%] text-[#6B7280]">
-        {t("section2_p1")}<br />{t("section2_p2")}
-      </p>
-
-      <section className="flex w-full flex-col lg:flex-row gap-3 lg:gap-0 bg-[#F4F5F6] justify-center">
-        {/* ─── left list ─── */}
-        <article className="w-full lg:w-[40%] lg:mr-4 h-auto lg:h-[600px] flex flex-col items-center lg:items-start lg:pr-4 sm:pr-6 pr-4 pl-4 lg:pl-0">
-          <div className="w-full max-w-[700px] flex flex-col gap-6 h-full">
-            {/* search */}
-            <div className="w-full py-4">
+        <div className="p-4 sm:p-6 lg:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8 items-start">
+            <div className="lg:col-span-2 flex flex-col gap-4 min-h-0">
+              <div className="rounded-xl border border-gray-100 bg-[#FAFAFA] p-4 sm:p-5 space-y-4 shrink-0">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6C7582]" />
               <input
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("section2_search_placeholder")}
-                className="w-full bg-white text-[#6C7582] placeholder-[#6C7582] font-poppins text-[16px] px-4 py-3 rounded-xl border border-white shadow-sm focus:ring-0 focus:outline-none"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d+$/.test(value)) {
+                    if (value.length <= 5) setQuery(value);
+                  } else {
+                    setQuery(value);
+                  }
+                }}
+                placeholder={tc("search_placeholder")}
+                className="w-full rounded-full border border-gray-200 bg-white pl-12 pr-4 py-3 text-sm sm:text-base text-[#19192C] placeholder:text-[#6C7582] font-poppins shadow-sm focus:border-[#C1001F] focus:outline-none focus:ring-2 focus:ring-[#C1001F]/20"
               />
-              {isPartialNumericZipInput(query.trim()) && (
-                <p className="mt-2 font-poppins text-[12px] text-[#6B7280]">
-                  {t("section2_zip_need_five_digits")}
-                </p>
-              )}
-              {normalizeZip5(query.trim()) && !isPartialNumericZipInput(query.trim()) && (
-                <p className="mt-2 font-poppins text-[12px] text-[#6B7280]">
+            </div>
+
+            {isPartialNumericZipInput(query.trim()) && (
+              <p className="text-sm text-[#6C7582] font-poppins px-1">
+                {t("section2_zip_need_five_digits")}
+              </p>
+            )}
+
+            {isZipSearch && (
+              <div className="flex items-center gap-3 rounded-xl border border-[#C1001F]/15 bg-[#C1001F]/5 px-4 py-3">
+                {zipSearchLoading ? (
+                  <Loader2 className="h-5 w-5 shrink-0 animate-spin text-[#C1001F]" />
+                ) : (
+                  <MapPin className="h-5 w-5 shrink-0 text-[#C1001F]" />
+                )}
+                <p className="text-sm font-medium text-[#19192C] font-poppins">
                   {zipSearchLoading
                     ? t("section2_zip_updating_distances")
-                    : t("section2_zip_distances_for", {
-                        zip: normalizeZip5(query.trim())!,
-                      })}
+                    : nearestMiles != null
+                      ? t("section2_nearest_is", {
+                          distance: formatDistanceMiles(nearestMiles),
+                        })
+                      : tc("no_results")}
                 </p>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* tabs */}
             <div className="flex flex-wrap gap-2">
-              {tabs.map((tab) => (
-                <div
-                  key={tab.id}
-                  onClick={() => handleTabChange(tab.value, tab.group)}
-                  className="rounded-full px-4 py-2 text-sm font-poppins cursor-pointer transition"
-                  style={{
-                    background: selectedTab === tab.value ? "#C1001F" : "#FFFFFF",
-                    color:      selectedTab === tab.value ? "#F8F5F0" : "#6C7582",
-                    border: "1px solid #E5E7EB",
-                  }}
-                >
-                  {tab.name}
-                </div>
-              ))}
-            </div>
-
-            {/* list or skeletons */}
-            <div className="flex flex-col gap-4 overflow-auto w-full max-h-[400px] pr-1">
-              {loading || (zipSearchLoading && locationData.length === 0) ? (
-                <>
-                  {[...Array(3)].map((_, i) => (
-                    <LocationCardSkeleton key={i} />
-                  ))}
-                </>
-              ) : (
-                locationData?.map((loc) => (
-                  <LocationDetailedCard
-                    key={loc.id}
-                    id={loc.id}
-                    address={loc.address}
-                    name={loc.title}
-                    phone={loc.phone}
-                    distanceMiles={parseDistanceMiles(loc.distance)}
-                    onMapClick={() => handleOpenMap(loc.direction)}
-                  />
-                ))
-              )}
+              {tabs.map((tab) => {
+                const isActive = selectedTab === tab.value;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedTab(tab.value);
+                      setSelectedGroup(tab.group);
+                    }}
+                    className={`rounded-full px-4 py-2 text-sm font-medium font-poppins transition-colors ${
+                      isActive
+                        ? "bg-[#C1001F] text-white shadow-sm"
+                        : "bg-white text-[#6C7582] border border-gray-200 hover:border-[#C1001F]/30 hover:text-[#19192C]"
+                    }`}
+                  >
+                    {tab.name}
+                  </button>
+                );
+              })}
             </div>
           </div>
-        </article>
 
-        {/* ─── right map ─── */}
-        <article className="hidden lg:flex justify-center items-start w-full lg:w-1/2 h-[600px]">
-          <GroupedMap
-            height={600}
-            width={400}
-            location={tabs.find((tab) => tab.value === selectedTab)?.location || ""}
-          />
-        </article>
-      </section>
+              <div className="flex flex-col gap-3 overflow-y-auto max-h-[380px] lg:max-h-[500px] pr-1">
+                {!isVisible || loading || (zipSearchLoading && locationData.length === 0) ? (
+                  [...Array(3)].map((_, i) => <LocationCardSkeleton key={i} />)
+                ) : locationData.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-gray-200 bg-[#F8F5F0] px-6 py-12 text-center">
+                    <MapPin className="mx-auto h-10 w-10 text-[#C1001F]/40 mb-3" />
+                    <p className="text-base font-medium text-[#19192C] font-poppins">
+                      {tc("no_results")}
+                    </p>
+                  </div>
+                ) : (
+                  locationData.map((loc, index) => (
+                    <LocationDetailedCard
+                      key={loc.id}
+                      id={(loc.slug as string) || loc.id}
+                      address={loc.address}
+                      name={loc.title}
+                      phone={loc.phone}
+                      distanceMiles={parseDistanceMiles(loc.distance)}
+                      rank={isZipSearch ? index + 1 : undefined}
+                      onMapClick={() => handleOpenMap(loc.direction)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="lg:col-span-3">
+              <div className="rounded-xl border border-gray-100 bg-[#FAFAFA] overflow-hidden h-[320px] sm:h-[400px] lg:h-[580px]">
+                <ClinicMap pins={mapPins} height={580} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {showModal && modalLocation && (
         <MapModal location={modalLocation} onClose={handleCloseMap} />
       )}
-    </main>
+    </section>
   );
 };
-

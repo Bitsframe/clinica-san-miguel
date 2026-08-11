@@ -18,7 +18,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   className = ""
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentDate, setCurrentDate] = useState(value || new Date());
+  const [currentDate, setCurrentDate] = useState<Date>(() => value ?? new Date(2000, 0, 1));
   const [viewMode, setViewMode] = useState<'calendar' | 'months' | 'years'>('calendar');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -123,6 +123,24 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     return dateToCheck > maxDate;
   };
 
+  const isNextMonthDisabled = () => {
+    if (!maxDate) return false;
+    return (
+      currentDate.getFullYear() > maxDate.getFullYear() ||
+      (currentDate.getFullYear() === maxDate.getFullYear() &&
+        currentDate.getMonth() >= maxDate.getMonth())
+    );
+  };
+
+  const isMonthDisabled = (monthIndex: number) => {
+    if (!maxDate) return false;
+    return (
+      currentDate.getFullYear() > maxDate.getFullYear() ||
+      (currentDate.getFullYear() === maxDate.getFullYear() &&
+        monthIndex > maxDate.getMonth())
+    );
+  };
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -138,8 +156,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
 
   return (
     <div className={`flex flex-col items-start w-full ${className}`}>
-      <label className="text-xs sm:text-sm md:text-base text-customGray font-poppins font-bold mb-1">
-        {label}:
+      <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
+        {label}
       </label>
       <div className="relative w-full" ref={dropdownRef}>
         <input
@@ -148,11 +166,11 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
           placeholder={placeholder}
           readOnly
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full h-10 sm:h-11 border border-gray-300 text-sm sm:text-base text-black placeholder:text-gray-400 px-3 sm:px-4 bg-white outline-none rounded-lg focus:ring-1 focus:ring-[#C1001F] focus:border-[#C1001F] cursor-pointer"
+          className="w-full h-11 border border-gray-200 text-sm text-[#19192C] placeholder:text-[#9CA3AF] px-4 bg-white outline-none rounded-xl focus:ring-2 focus:ring-[#C1001F]/20 focus:border-[#C1001F] shadow-sm cursor-pointer"
         />
         
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 overflow-hidden">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
             {/* Header */}
             <div className="bg-[#C1001F] text-white p-4">
               <div className="flex items-center justify-between">
@@ -185,8 +203,8 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                 <button
                   type="button"
                   onClick={() => navigateMonth('next')}
-                  className="text-white hover:bg-white/10 rounded p-1 transition-colors"
-                  disabled={viewMode !== 'calendar'}
+                  className="text-white hover:bg-white/10 rounded p-1 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  disabled={viewMode !== 'calendar' || isNextMonthDisabled()}
                 >
                   <span className="text-xl font-bold">{">"}</span>
                 </button>
@@ -238,10 +256,13 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
                   <button
                     key={month}
                     type="button"
-                    onClick={() => handleMonthSelect(index)}
+                    onClick={() => !isMonthDisabled(index) && handleMonthSelect(index)}
+                    disabled={isMonthDisabled(index)}
                     className={`p-3 rounded text-sm font-medium transition-colors ${
                       index === currentDate.getMonth()
                         ? 'bg-[#C1001F] text-white'
+                        : isMonthDisabled(index)
+                        ? 'text-gray-300 cursor-not-allowed'
                         : 'hover:bg-[#ffe6eb] text-gray-700'
                     }`}
                   >

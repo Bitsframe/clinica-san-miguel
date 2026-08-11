@@ -13,28 +13,15 @@ import "slick-carousel/slick/slick-theme.css";
 
 type Testimonial = TableRow<"Testinomial">;
 
-export function PatientStories() {
+export function PatientStories({ initialTestimonials = [] }: { initialTestimonials?: Testimonial[] }) {
   const t = useTranslations("testimonies");
   const sliderRef = useRef<any>(null);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [hasFetched, setHasFetched] = useState(false);
+  const testimonials = initialTestimonials;
+  const hasFetched = true;
 
   // Lazy loading hook
   const { ref, isVisible } = useLazyLoad({ triggerOnce: true });
-
-  useEffect(() => {
-    if (isVisible && !hasFetched) {
-      // Fetch testimonials when the section is visible
-      fetchTableRows("Testinomial")
-        .then((rows) => {
-          setTestimonials(rows);
-          setHasFetched(true);
-          console.log("👀 Testimonials fetched");
-        })
-        .catch((err) => console.error("Error fetching testimonials:", err));
-    }
-  }, [isVisible, hasFetched]);
-
+  // Removed client-side fetching as data comes from server
   const settings = {
     dots: false,
     infinite: true,
@@ -67,12 +54,14 @@ export function PatientStories() {
         <div className="flex gap-2">
           <button
             onClick={() => sliderRef.current?.slickPrev()}
+            aria-label="Previous testimonial"
             className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
           >
             <ArrowLeft className="w-4 h-4 text-gray-600" />
           </button>
           <button
             onClick={() => sliderRef.current?.slickNext()}
+            aria-label="Next testimonial"
             className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
           >
             <ArrowRight className="w-4 h-4 text-gray-600" />

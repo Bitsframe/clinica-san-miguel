@@ -27,44 +27,53 @@ interface ScheduleDateTimeProps extends Props {
 }
 
 const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotHandle, initialDate, initialSlot, locationID }) => {
-        const [date, setDate] = useState<Date>(initialDate || new Date());
+        const [date, setDate] = useState<Date | null>(null);
         const [availableTimes, setAvailableTimes] = useState<string[]>([]);
         const [isClosed, setIsClosed] = useState<boolean>(false);
         const [selectedSlot, setSelectedSlot] = useState(initialSlot || '');
         const [bookedSlots, setBookedSlots] = useState<string[]>([]);
         const isFirstRender = useRef(true);
+        const minDateRef = useRef<Date | null>(null);
+
+        useEffect(() => {
+            minDateRef.current = new Date();
+            setDate(initialDate || new Date());
+        }, [initialDate]);
 
     const getTimingKey = (date: Date): keyof DayTimings => {
         const days = ['sunday_timing', 'mon_timing', 'tuesday_timing', 'wednesday_timing', 'thursday_timing', 'friday_timing', 'saturday_timing'] as const;
         return days[date.getDay()];
     };
 
-    const parseTime = (timeStr: string) => {
-        const [time, modifier] = timeStr.split(' ');
-        let [hours, minutes] = time.split(':').map(Number);
-        if (modifier === 'PM' && hours < 12) hours += 12;
-        if (modifier === 'AM' && hours === 12) hours = 0;
-        return { hours, minutes };
+    const SLOT_INTERVAL_MINUTES = 15;
+
+    const parseTimingPart = (timeStr: string): number => {
+        const match = timeStr.trim().toLowerCase().match(/(\d{1,2}):(\d{2})\s*(am|pm)/);
+        if (!match) return 0;
+        let hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        const modifier = match[3];
+        if (modifier === 'pm' && hours !== 12) hours += 12;
+        if (modifier === 'am' && hours === 12) hours = 0;
+        return hours * 60 + minutes;
+    };
+
+    const formatTimeSlot = (totalMinutes: number): string => {
+        const hours24 = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const period = hours24 < 12 ? 'AM' : 'PM';
+        const hour12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+        return `${hour12}:${minutes.toString().padStart(2, '0')} ${period}`;
     };
 
     const generateTimeSlots = (timing: string) => {
         const [start, end] = timing.split('-').map(str => str.trim());
-        let timeSlots = [];
-        let startHour = parseInt(start.split(':')[0]);
-        let endHour = parseInt(end.split(':')[0]);
+        const startMinutes = parseTimingPart(start);
+        const endMinutes = parseTimingPart(end);
+        const timeSlots: string[] = [];
 
-        // Convert 12-hour time format to 24-hour format for comparison
-        if (start.includes("pm") && startHour !== 12) startHour += 12;
-        if (end.includes("pm") && endHour !== 12) endHour += 12;
-        if (start.includes("am") && startHour === 12) startHour = 0;
-        if (end.includes("am") && endHour === 12) endHour = 0;
-
-        // Generate slots from start to one hour before end (endHour - 1)
-        for (let hour = startHour; hour < endHour; hour++) {
-            let period = hour < 12 || hour === 24 ? 'AM' : 'PM';
-            let formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-            let timeSlot = `${formattedHour}:00 ${period}`;
-            timeSlots.push(timeSlot);
+        for (let minutes = startMinutes; minutes < endMinutes; minutes += SLOT_INTERVAL_MINUTES) {
+            timeSlots.push(formatTimeSlot(minutes));
         }
 
         return timeSlots;
@@ -84,7 +93,6 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
                         .eq('location_id', locationID);
 
                     if (error) {
-                        console.error('Error fetching booked slots:', error);
                         setBookedSlots([]);
                     } else if (appointmentData) {
                         // Extract time slots for the selected date
@@ -97,8 +105,7 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
                             .filter((time: string) => time !== '');
                         setBookedSlots(booked);
                     }
-                } catch (err) {
-                    console.error('Error in fetchBookedSlots:', err);
+                } catch {
                     setBookedSlots([]);
                 }
             };
@@ -132,7 +139,7 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
             }
         }
     // Only run when date, data or bookedSlots change
-    }, [date, data, bookedSlots]);
+    }, [date, data, bookedSlots, selectDateTimeSlotHandle]);
 
 
     const dateTimeChangeHandle = (date: Date | null) => {
@@ -143,35 +150,46 @@ const ScheduleDateTime: FC<ScheduleDateTimeProps> = ({ data, selectDateTimeSlotH
 
     const selectSlotHandle = (val:string) => {
         setSelectedSlot(val);
-        selectDateTimeSlotHandle(date, val);
+        if (date) {
+            selectDateTimeSlotHandle(date, val);
+        }
+    }
+
+    if (!date) {
+        return (
+            <div className="flex flex-col sm:flex-row w-full gap-4 items-stretch">
+                <div className="h-11 w-full sm:w-1/2 rounded-xl bg-gray-100 animate-pulse" />
+                <div className="h-11 w-full sm:w-1/2 rounded-xl bg-gray-100 animate-pulse" />
+            </div>
+        );
     }
 
     return (
-        <div className="flex flex-col sm:flex-row justify-center w-full gap-3 sm:gap-5 items-stretch">
-            <div className="flex flex-col items-start w-full sm:w-1/2 justify-center">
-                <label className="text-xs sm:text-sm md:text-[16px] text-customGray font-poppins font-bold mb-1">
-                    Select Schedule Date:
+        <div className="flex flex-col sm:flex-row w-full gap-4 items-stretch">
+            <div className="flex flex-col items-start w-full sm:w-1/2">
+                <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
+                    Select Schedule Date
                 </label>
                 {/* @ts-ignore */}
                 <ReactDatePicker
-                    minDate={new Date()}
+                    minDate={minDateRef.current ?? undefined}
                     selected={date}
                     onChange={dateTimeChangeHandle}
-                    placeholderText={"Select Schedule date"}
+                    placeholderText="Select date"
                     dateFormat="dd-MM-yyyy"
                     popperPlacement="bottom-start"
-                    className="w-full h-[44px] sm:h-[46px] border-[1px] border-[#d1d5db] text-sm sm:text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-3 sm:px-5 bg-transparent outline-none rounded-[10px]"
+                    className="w-full h-11 border border-gray-200 text-sm text-[#19192C] placeholder:text-[#9CA3AF] px-4 bg-white outline-none rounded-xl focus:ring-2 focus:ring-[#C1001F]/20 focus:border-[#C1001F] shadow-sm"
                 />
             </div>
 
-            <div className="flex flex-col items-start w-full sm:w-1/2 justify-center">
-                <label className="text-xs sm:text-sm md:text-[16px] text-customGray font-poppins font-bold mb-1">
-                    Select Schedule Time:
+            <div className="flex flex-col items-start w-full sm:w-1/2">
+                <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
+                    Select Schedule Time
                 </label>
                 <select
                 value={selectedSlot}
                 onChange={(e)=>selectSlotHandle(e.target.value)}
-                    className='w-full h-[44px] sm:h-[46px] border-[1px] border-[#d1d5db] text-sm sm:text-[16px] text-[#000000] placeholder:text-customGray placeholder:text-opacity-50 px-3 sm:px-5 bg-transparent outline-none rounded-[10px]'
+                    className="w-full h-11 border border-gray-200 text-sm text-[#19192C] px-4 bg-white outline-none rounded-xl focus:ring-2 focus:ring-[#C1001F]/20 focus:border-[#C1001F] shadow-sm disabled:bg-gray-50 disabled:text-gray-400"
                     disabled={isClosed}
                 >
                     {isClosed ? (

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSupabase } from "@/context/supabaseContext";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import AboutService from "@/components/services/AboutService";
 import SubContentSection from "@/components/services/SubContentSection";
@@ -11,30 +11,49 @@ import FAQs from "@/components/services/FAQs";
 import EndNote from "@/components/services/EndNote";
 import ServiceSkeleton from "@/components/services/ServiceSkeleton";
 
+type ServiceDetail = {
+  title?: string | null;
+  description?: string | null;
+  about_content?: string | null;
+  image?: string | null;
+  subheading?: string | null;
+  sub_content?: { type: "paragraph" | "bullet"; content: string }[] | null;
+  question_answers?: {
+    question: string;
+    answer: string | { type: "paragraph" | "bullet"; content: string }[];
+  }[] | null;
+  faqs?: {
+    question: string;
+    answer: string | string[] | { type: "paragraph" | "bullet"; content: string }[];
+  }[] | null;
+  end_tagline?: string | null;
+  note?: string | null;
+};
+
 export default function ServicePage() {
   const { fetchLocalizedRowById } = useSupabase();
   const locale = useLocale();
   const params = useParams();
   const id = params?.id as string;
+  const t = useTranslations("service_detail");
 
-  const [combined, setCombined] = useState<any | null>(null);
+  const [combined, setCombined] = useState<ServiceDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
+      setLoading(true);
       const [baseData, detailData] = await Promise.all([
         fetchLocalizedRowById("services", locale, Number(id)),
         fetchLocalizedRowById("allservices", locale, Number(id)),
       ]);
 
-      const combinedData = {
+      setCombined({
         ...(baseData || {}),
         ...(detailData || {}),
-      };
-
-      setCombined(combinedData);
+      } as ServiceDetail);
       setLoading(false);
     };
 
@@ -43,65 +62,63 @@ export default function ServicePage() {
 
   if (loading) return <ServiceSkeleton />;
 
-  if (!combined)
+  if (!combined?.title) {
     return (
-      <div className="p-10 flex justify-center items-center min-h-screen text-lg text-red-600">
-        Service not found.
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
+        <p className="text-lg font-medium text-[#C1001F]">{t("not_found")}</p>
       </div>
     );
+  }
 
   return (
-    <main className="w-full px-4 py-10 md:px-6 lg:px-8 max-w-screen-xl mx-auto space-y-10">
-      {/* Page Header matching your screenshot */}
-      <div className="text-center space-y-1 mb-12">
-        <p className="text-[20px] md:text-[24px] text-gray-700 font-medium">What we Offer</p>
-        <h1 className="text-5xl md:text-6xl font-bold text-[#C8102E]">
-          Services
-        </h1>
-      </div>
-
-      {/* FORCED GRID FOR TABLETS:
-          grid: activates grid layout
-          grid-cols-1: 1 card on mobile
-          md:grid-cols-2: 2 cards on iPad/Tablets (Forced)
-          lg:grid-cols-3: 3 cards on Desktop
-      */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
-        {/* If AboutService is a single card, you might need to map your data here */}
-        <AboutService
-          title={combined.title}
-          about_content={combined.description}
-          image_url={combined.image}
+    <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
+      {combined?.title && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Service",
+              "serviceType": combined.title,
+              "provider": {
+                "@type": "MedicalClinic",
+                "name": "Clinica San Miguel",
+                "url": "https://www.clinicsanmiguel.com"
+              },
+              "description": combined.description || undefined
+            }),
+          }}
         />
-        
-        {/* Placeholder: If you have more cards to show in this specific section, 
-            they will now automatically snap into 2 columns on tablets. */}
-      </section>
+      )}
+      <AboutService
+        title={combined.title}
+        about_content={combined.description ?? null}
+        image_url={combined.image ?? null}
+        backLabel={t("back_to_services")}
+      />
 
-      <div className="bg-white rounded-xl p-8 mt-12 shadow-md border border-gray-100">
-        <section>
-          <SubContentSection
-            subheading={combined.subheading}
-            sub_content={combined.sub_content}
-          />
-        </section>
-      </div>
+      <SubContentSection
+        subheading={combined.subheading ?? null}
+        sub_content={combined.sub_content ?? null}
+      />
 
-      {combined.question_answers && (
-        <section className="pt-10">
-          <QuestionAnswers items={combined.question_answers} />
-        </section>
+      {combined.question_answers && combined.question_answers.length > 0 && (
+        <QuestionAnswers
+          items={combined.question_answers}
+          heading={t("learn_more")}
+        />
       )}
 
-      {combined.faqs && (
-        <section className="pt-10">
-          <FAQs faqs={combined.faqs} locale={locale} />
-        </section>
+      {combined.faqs && combined.faqs.length > 0 && (
+        <FAQs faqs={combined.faqs} heading={t("faqs_heading")} />
       )}
 
-      <section className="pt-10 pb-20">
-        <EndNote end_tagline={combined.end_tagline} note={combined.note} />
-      </section>
+      {(combined.end_tagline || combined.note) && (
+        <EndNote
+          end_tagline={combined.end_tagline ?? null}
+          note={combined.note ?? null}
+        />
+      )}
     </main>
   );
 }

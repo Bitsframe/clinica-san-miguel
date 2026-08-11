@@ -16,7 +16,7 @@ export const Footer = () => {
     { id: 3, name: t("link_services"), route: "/services" },
     { id: 4, name: t("link_contact"), route: "/contact" },
     { id: 5, name: t("link_career"), route: "/career" },
-    { id: 6, name: t("link_specials"), route: "/specials" },
+    { id: 6, name: t("link_specials"), route: "/special" },
   ];
 
   const socialLinks = [
@@ -88,7 +88,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link href="/contact?city=all" className="hover:text-[#C1001F] transition">
-                  See all 17 clinics
+                  See all 18 clinics
                 </Link>
               </li>
             </ul>
@@ -128,7 +128,7 @@ export const Footer = () => {
   </p>
 
   <p className="md:ml-auto text-center md:text-right">
-    All Rights Reserved.
+    {t("footer_rights_reserved")}
   </p>
 </div>
   {/* Uncomment if needed

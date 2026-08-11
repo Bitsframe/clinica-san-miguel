@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /feedback/
+Disallow: /en/feedback/
+Disallow: /es/feedback/
+
+Sitemap: https://www.clinicsanmiguel.com/sitemap.xml

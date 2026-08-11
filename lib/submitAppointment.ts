@@ -150,14 +150,7 @@ export async function submitAppointmentFlow(params: {
       .single();
 
     if (intakeError) {
-      // Log only; don’t fail main flow
-      console.error('Error saving intake form:', {
-        message: (intakeError as any)?.message,
-        code: (intakeError as any)?.code,
-        details: (intakeError as any)?.details,
-        hint: (intakeError as any)?.hint,
-        full: intakeError
-      });
+      // Non-blocking: main appointment flow continues even if intake save fails.
     } else {
       intakeData = intakeInsert;
     }
@@ -169,10 +162,10 @@ export async function submitAppointmentFlow(params: {
         body: intakeData,
       });
       if (edgeFunctionError) {
-        console.error('Error calling edge function:', edgeFunctionError);
+        // Non-blocking edge function failure.
       }
-    } catch (err) {
-      console.error('Exception calling edge function:', err);
+    } catch {
+      // Non-blocking edge function failure.
     }
   }
 
@@ -183,8 +176,8 @@ export async function submitAppointmentFlow(params: {
         emailType: options.email.emailType,
         data: options.email.emailData,
       });
-    } catch (emailErr) {
-      console.error('Error sending email:', emailErr);
+    } catch {
+      // Non-blocking email failure.
     }
   }
 

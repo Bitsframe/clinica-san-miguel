@@ -2,8 +2,9 @@
 
 import { Link } from "@/navigation";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from "@/navigation";
+import { useMemo, useState } from "react";
+import { getSupabaseImageUrl } from "@/utils/supabaseImage";
 
 export const CompactService = ({
   id,
@@ -32,6 +33,10 @@ export const CompactService = ({
 
   const [theme, setTheme] = useState(mode === "dark" ? dark : light);
   const router = useRouter();
+  const iconSrc = useMemo(
+    () => (icon ? getSupabaseImageUrl(icon, { width: 80, quality: 75 }) : null),
+    [icon]
+  );
 
   const handleService = () => {
     router.push(`/services/${id}`);
@@ -48,9 +53,9 @@ export const CompactService = ({
         // onClick={handleService}
       >
         <div className="flex items-center gap-3">
-          {icon && (
+          {iconSrc && (
             <Image
-              src={icon}
+              src={iconSrc}
               alt={"service icon"}
               className="object-contain w-10 h-10 rounded-[50%] aspect-auto"
               width={40}

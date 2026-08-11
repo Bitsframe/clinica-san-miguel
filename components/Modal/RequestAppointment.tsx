@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Label, Modal, Select } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
 import "react-datepicker/dist/react-datepicker.css";
@@ -8,15 +8,37 @@ import { toast } from "react-toastify";
 import ScheduleDateTime from "./ScheduleDateTime";
 import { usStates } from "@/utils/us-states";
 import PhoneNumberInput from "../PhoneNumberInput";
-import { styles } from "../../app/[locale]/styles";
-import { Button } from "../../utils/Button";
 import { useRequestAppointmentLogic, medicalFields, perPage } from "./logic";
 import { useState } from "react";
 import { extractStateZip } from "@/utils/addressExtractor";
 import CustomDatePicker from "../CustomDatePicker";
+import { CalendarDays, Loader2, MapPin } from "lucide-react";
+
+const FormSection = ({
+  title,
+  children,
+}: {
+  title?: string;
+  children: React.ReactNode;
+}) => (
+  <div className="rounded-xl border border-gray-100 bg-[#FAFAFA] p-4 sm:p-5 space-y-4">
+    {title && (
+      <h3 className="text-sm font-semibold text-[#19192C] font-poppins border-b border-gray-100 pb-2">
+        {title}
+      </h3>
+    )}
+    {children}
+  </div>
+);
 
 const RadioButton = ({ value, name, label, checked, onChange, disabled }: any) => (
-  <div className={`flex items-center justify-start gap-2 ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} group`}>
+  <label
+    className={`inline-flex items-center gap-2.5 rounded-full border px-4 py-2 text-sm font-medium font-poppins transition-colors ${
+      checked
+        ? "border-[#C1001F] bg-[#C1001F]/10 text-[#C1001F]"
+        : "border-gray-200 bg-white text-[#3D3D3C] hover:border-gray-300"
+    } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+  >
     <input
       type="radio"
       value={value}
@@ -24,10 +46,10 @@ const RadioButton = ({ value, name, label, checked, onChange, disabled }: any) =
       checked={checked}
       onChange={onChange}
       disabled={disabled}
-      className={`w-5 h-5 text-[#C1001F] border-gray-300 focus:ring-[#C1001F] ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+      className="sr-only"
     />
-    <label className={`text-sm sm:text-base text-customGray font-poppins ${disabled ? 'cursor-not-allowed' : 'cursor-pointer group-hover:text-black'} transition-colors`}>{label}</label>
-  </div>
+    {label}
+  </label>
 );
 
 const RadioButtons = ({
@@ -45,11 +67,11 @@ const RadioButtons = ({
   onChange: (value: string) => void;
   disabledOptions?: string[];
 }) => (
-  <div className="flex flex-col gap-2 w-full">
-    <label className="text-xs sm:text-sm md:text-base text-customGray font-poppins font-bold">
-      {label}:
-    </label>
-    <div className="flex flex-wrap gap-3 sm:gap-4">
+  <div className="flex flex-col gap-2.5 w-full">
+    {label ? (
+      <label className="text-sm font-semibold text-[#19192C] font-poppins">{label}</label>
+    ) : null}
+    <div className="flex flex-wrap gap-2">
       {options.map((value, index) => (
         <RadioButton
           key={index}
@@ -71,7 +93,9 @@ const Input = ({
   breakpoint,
   value,
   onChange,
-  max = undefined
+  max = undefined,
+  inputClassName = "",
+  ariaBusy = false,
 }: {
   label: string | React.ReactNode;
   placeholder: string;
@@ -79,9 +103,11 @@ const Input = ({
   value: string;
   onChange: (value: string) => void;
   max?: number | undefined;
+  inputClassName?: string;
+  ariaBusy?: boolean;
 }) => (
   <div className={`flex flex-col items-start w-full ${breakpoint ? "md:w-1/2" : ""}`}>
-    <label className="text-xs sm:text-sm md:text-base text-customGray font-poppins font-bold mb-1">
+    <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
       {label}
     </label>
     <input
@@ -89,9 +115,10 @@ const Input = ({
       autoCorrect="on"
       spellCheck={true}
       placeholder={placeholder}
-      className="w-full h-10 sm:h-11 border border-gray-300 text-sm sm:text-base text-black placeholder:text-gray-400 px-3 sm:px-4 bg-white outline-none rounded-lg focus:ring-1 focus:ring-[#C1001F] focus:border-[#C1001F] transition-all"
+      className={`w-full h-11 border border-gray-200 text-sm text-[#19192C] placeholder:text-[#9CA3AF] px-4 bg-white outline-none rounded-xl focus:ring-2 focus:ring-[#C1001F]/20 focus:border-[#C1001F] transition-all shadow-sm ${inputClassName}`}
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      aria-busy={ariaBusy || undefined}
     />
   </div>
 );
@@ -110,11 +137,11 @@ const Dropdown = ({
   onChange: (value: string) => void;
 }) => (
   <div className={`flex flex-col items-start w-full ${breakpoint ? "md:w-1/2" : ""}`}>
-    <label className="text-xs sm:text-sm md:text-base text-customGray font-poppins font-bold mb-1">
-      {label}:
+    <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
+      {label}
     </label>
     <select
-      className="w-full h-10 sm:h-11 border border-gray-300 text-sm sm:text-base text-black px-3 sm:px-4 bg-white outline-none rounded-lg focus:ring-1 focus:ring-[#C1001F] focus:border-[#C1001F]"
+      className="w-full h-11 border border-gray-200 text-sm text-[#19192C] px-4 bg-white outline-none rounded-xl focus:ring-2 focus:ring-[#C1001F]/20 focus:border-[#C1001F] shadow-sm"
       value={value}
       onChange={(e) => onChange(e.target.value)}
     >
@@ -142,8 +169,15 @@ export const RequestAppointment = ({
   const t = useTranslations("appoinment_form");
   const locale = useLocale();
 
-  const visitType = [t("form_f1a"), t("form_f1b")];
-  const genderOptions = [t("form_f8a"), t("form_f8b"), t("form_f8c")];
+  const visitType = useMemo(
+    () => [t("form_f1a"), t("form_f1b")],
+    [t]
+  );
+  const genderOptions = useMemo(
+    () => [t("form_f8a"), t("form_f8b"), t("form_f8c")],
+    [t]
+  );
+  const selectedLocation = detailedData?.[0];
 
   const {
     firstName, lastName, email, dob, sex, state, zipcode, street_address,
@@ -169,8 +203,10 @@ export const RequestAppointment = ({
   // SmartyStreets Integration State
   const [isSmartyIntegrated, setIsSmartyIntegrated] = useState<boolean | null>(null);
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
-  const [isAddressSelected, setIsAddressSelected] = useState(false); // Track if user selected from dropdown
+  const [isAddressSuggestionsLoading, setIsAddressSuggestionsLoading] = useState(false);
+  const isAddressSelectedRef = useRef(false); // Track if user selected from dropdown (ref = no re-render)
   const addressFetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const addressContainerRef = useRef<HTMLDivElement>(null);
 
   // Computed values for address suggestions
   const visibleAddressSuggestions = addressSuggestions.filter(Boolean);
@@ -181,30 +217,37 @@ export const RequestAppointment = ({
     const checkSmartyIntegration = async () => {
       try {
         const response = await fetch("/api/address/status");
-        console.log("[SmartyStreets] Status response:", response.ok, response.status);
         if (!response.ok) {
           setIsSmartyIntegrated(false);
           return;
         }
         const data = await response.json();
-        console.log("[SmartyStreets] Status data:", data);
         setIsSmartyIntegrated(data.integrated);
-      } catch (error) {
-        console.error("Error checking SmartyStreets integration:", error);
+      } catch {
         setIsSmartyIntegrated(false);
       }
     };
     checkSmartyIntegration();
   }, []);
 
+  // Close address suggestions when clicking outside the address field
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        addressContainerRef.current &&
+        !addressContainerRef.current.contains(event.target as Node)
+      ) {
+        setAddressSuggestions([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Fetch address suggestions with debouncing
   useEffect(() => {
-    console.log("[SmartyStreets] useEffect triggered - street_address:", street_address);
-    
-    // Don't fetch if user just selected an address from dropdown
-    if (isAddressSelected) {
-      console.log("[SmartyStreets] Skipping fetch - address was just selected from dropdown");
-      setIsAddressSelected(false); // Reset the flag
+    if (isAddressSelectedRef.current) {
+      isAddressSelectedRef.current = false;
       return;
     }
     
@@ -214,28 +257,17 @@ export const RequestAppointment = ({
     }
 
     const query = street_address.trim();
-    console.log("[SmartyStreets] Address changed:", { 
-      query, 
-      length: query.length, 
-      isSmartyIntegrated,
-      willFetch: query.length >= 4
-    });
 
-    // Don't fetch if query is too short
-    if (!query || query.length < 4) {
+    if (!query || query.length < 4 || !isSmartyIntegrated) {
       setAddressSuggestions([]);
-      console.log("[SmartyStreets] Skipping fetch:", { 
-        noQuery: !query, 
-        tooShort: query.length < 4
-      });
+      setIsAddressSuggestionsLoading(false);
       return;
     }
 
-    console.log("[SmartyStreets] Setting timeout for address fetch in 300ms...");
+    setIsAddressSuggestionsLoading(true);
 
     // Debounce: Wait 300ms after user stops typing
     addressFetchTimeoutRef.current = setTimeout(async () => {
-      console.log("[SmartyStreets] Timeout fired! Fetching suggestions for:", query);
       try {
         const response = await fetch("/api/address", {
           method: "POST",
@@ -243,22 +275,17 @@ export const RequestAppointment = ({
           body: JSON.stringify({ address: query })
         });
 
-        console
         const data = await response.json();
-        console.log("[SmartyStreets] Suggestions received:", data);
-        console.log("[SmartyStreets] Suggestions array:", data?.suggestions);
-        console.log("[SmartyStreets] Is array?:", Array.isArray(data?.suggestions));
-        
         const suggestions = Array.isArray(data?.suggestions) ? data.suggestions : [];
-        console.log("[SmartyStreets] Setting suggestions state:", suggestions);
         setAddressSuggestions(suggestions);
-      } catch (error) {
-        console.error("[SmartyStreets] Error fetching address recommendations:", error);
+      } catch {
         setAddressSuggestions([]);
+      } finally {
+        setIsAddressSuggestionsLoading(false);
       }
     }, 300);
 
-    // Cleanup on unmount
+    // Cleanup on unmount or re-run
     return () => {
       if (addressFetchTimeoutRef.current) {
         clearTimeout(addressFetchTimeoutRef.current);
@@ -268,8 +295,8 @@ export const RequestAppointment = ({
 
   // Handle address suggestion click
   const handleAddressSuggestionClick = (suggestion: string) => {
-    // Set flag to prevent refetching
-    setIsAddressSelected(true);
+    // Set flag to prevent refetching (ref avoids triggering re-render → effect loop)
+    isAddressSelectedRef.current = true;
     
     // Store the full address in the street_address field (no extraction for UI)
     setStreet_address(suggestion);
@@ -283,7 +310,7 @@ export const RequestAppointment = ({
 
     setAddressSuggestions([]); // Clear suggestions
 
-    // Clear timeout to prevent refetch
+    setIsAddressSuggestionsLoading(false);
     if (addressFetchTimeoutRef.current) {
       clearTimeout(addressFetchTimeoutRef.current);
       addressFetchTimeoutRef.current = null;
@@ -312,101 +339,156 @@ export const RequestAppointment = ({
   };
 
   return (
-    <Modal show={openModal} onClose={() => {
-      resetForm();
-      handleClose();
-    }} popup size="2xl" className="bg-black/60 p-2 sm:p-4">
-      <div className="bg-[#F8F5F0] rounded-xl overflow-hidden flex flex-col shadow-2xl max-h-[90vh] sm:max-h-[85vh]">
-        <Modal.Header className="border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 sticky top-0 bg-[#F8F5F0] z-10">
-          <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#C1001F] font-poppins tracking-tight">
-            {t("form_title")}
-          </span>
+    <Modal
+      show={openModal}
+      onClose={() => {
+        resetForm();
+        handleClose();
+      }}
+      popup
+      size="2xl"
+      className="bg-black/50 backdrop-blur-sm p-2 sm:p-4"
+    >
+      <div className="bg-white rounded-2xl overflow-hidden flex flex-col shadow-2xl max-h-[92vh] sm:max-h-[88vh] border border-gray-100">
+        <Modal.Header className="border-b border-gray-100 px-5 sm:px-6 py-4 sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C1001F]/10">
+              <CalendarDays className="h-5 w-5 text-[#C1001F]" />
+            </div>
+            <span className="text-lg sm:text-xl font-bold text-[#19192C] font-poppins">
+              {t("form_title")}
+            </span>
+          </div>
         </Modal.Header>
 
-        <Modal.Body className="overflow-y-auto scrollbar-hide flex-1">
-          <div className="py-3 sm:py-4 md:py-6 px-2 sm:px-0 flex flex-col">
+        <Modal.Body className="overflow-y-auto flex-1 bg-white">
+          <div className="py-4 sm:py-6 px-4 sm:px-6 flex flex-col">
             {page === 1 && (
-              <div className="flex flex-col gap-4 sm:gap-6">
-                <RadioButtons name="visit type" options={visitType} label={t("form_f1")} onChange={setInOfficePatient} selectedValue={inOfficePatient} disabledOptions={[t("form_f1b")]} />
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <Input label={t("form_f3")} placeholder="John" breakpoint={false} onChange={setFirstName} value={firstName} />
-                  <Input label={t("form_f4")} placeholder="Doe" breakpoint={false} onChange={setLastName} value={lastName} />
-                </div>
-
-                <Input label={t("form_f5")} placeholder="email@example.com" breakpoint={false} onChange={setEmail} value={email} />
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <PhoneNumberInput label={t("form_f6")} placeholder="(555) 000-0000" breakpoint={false} onChange={setPhone} value={phone} />
-                  <CustomDatePicker 
-                    label={t("form_f7")} 
-                    placeholder="YYYY-MM-DD" 
-                    value={dob} 
-                    onChange={setDob} 
-                    maxDate={new Date()} 
-                  />
-                </div>
-
-                <RadioButtons name="gender" options={genderOptions} label={t("form_f8")} onChange={setSex} selectedValue={sex} />
-
-                <div className="relative">
-                  {/* Dropdown Icon */}
-                  {showAddressSuggestions && (
-                    <div className="absolute right-4 top-[46px] pointer-events-none z-10">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M6 9l6 6 6-6" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+              <div className="flex flex-col gap-5">
+                {selectedLocation?.title && (
+                  <div className="rounded-xl border border-[#C1001F]/20 bg-[#C1001F]/5 px-4 py-3.5 flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
+                      <MapPin className="h-5 w-5 text-[#C1001F]" />
                     </div>
-                  )}
-                  
-                  {/* Street Address Input with Status */}
-                  <Input 
-                    breakpoint={false} 
-                    label={
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span>Street Address</span>
-                        {isSmartyIntegrated !== null && !isSmartyIntegrated && (
-                          <span className="text-xs font-semibold text-red-600">
-                            (Manual entry)
-                          </span>
-                        )}
-                      </span>
-                    } 
-                    value={street_address} 
-                    onChange={setStreet_address} 
-                    placeholder='123 Clinic St' 
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#C1001F] font-poppins">
+                        {t("location_label")}
+                      </p>
+                      <p className="text-base font-semibold text-[#19192C] font-poppins leading-snug">
+                        {selectedLocation.title}
+                      </p>
+                      {selectedLocation.address && (
+                        <p className="text-sm text-[#3D3D3C] font-inter mt-0.5 leading-snug">
+                          {selectedLocation.address}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <FormSection title={t("form_f1")}>
+                  <RadioButtons
+                    name="visit type"
+                    options={visitType}
+                    label=""
+                    onChange={setInOfficePatient}
+                    selectedValue={inOfficePatient}
+                    disabledOptions={[t("form_f1b")]}
                   />
+                </FormSection>
 
-                  {/* Address Suggestions Dropdown */}
-                  {showAddressSuggestions && (
-                    <ul className="absolute left-0 right-0 top-full mt-1 w-full border border-gray-300 rounded-lg bg-white max-h-48 overflow-auto z-50 shadow-lg">
-                      {visibleAddressSuggestions.map((suggestion, index) => (
-                        <li
-                          key={`${suggestion}-${index}`}
-                          className="w-full px-3 sm:px-4 py-2 sm:py-3 cursor-pointer hover:bg-gray-100 transition-colors text-sm"
-                          onClick={() => handleAddressSuggestionClick(suggestion)}
-                        >
-                          <span className="text-gray-800">{suggestion}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+                <FormSection title={`${t("form_f3")} & ${t("form_f4")}`}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Input label={t("form_f3")} placeholder="John" breakpoint={false} onChange={setFirstName} value={firstName} />
+                    <Input label={t("form_f4")} placeholder="Doe" breakpoint={false} onChange={setLastName} value={lastName} />
+                  </div>
 
-                <div className="w-full bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
-                   <ScheduleDateTime data={detailedData[0]} selectDateTimeSlotHandle={selectDateTimeSlotHandle} initialDate={scheduleDate} initialSlot={scheduleSlot} locationID={locationID} />
-                </div>
+                  <Input label={t("form_f5")} placeholder="email@example.com" breakpoint={false} onChange={setEmail} value={email} />
 
-                <Dropdown label={t("form_f10")} options={servicesState} breakpoint={false} onChange={setService} value={service} />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <PhoneNumberInput label={t("form_f6")} placeholder="(555) 000-0000" breakpoint={false} onChange={setPhone} value={phone} />
+                    <CustomDatePicker
+                      label={t("form_f7")}
+                      placeholder="YYYY-MM-DD"
+                      value={dob}
+                      onChange={setDob}
+                      maxDate={new Date()}
+                    />
+                  </div>
 
-                <div className="space-y-2 sm:space-y-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <label className="flex items-start gap-2 sm:gap-3 cursor-pointer group">
-                    <input className="mt-0.5 sm:mt-1 rounded text-[#C1001F] focus:ring-[#C1001F] flex-shrink-0" checked={email_opt} onChange={(e) => setEmail_opt(e.target.checked)} type="checkbox" />
-                    <span className="text-xs sm:text-sm text-gray-600 leading-tight">I agree to receive email updates from Clinica San Miguel.</span>
+                  <RadioButtons name="gender" options={genderOptions} label={t("form_f8")} onChange={setSex} selectedValue={sex} />
+                </FormSection>
+
+                <FormSection>
+                  <div className="relative" ref={addressContainerRef}>
+                    {isAddressSuggestionsLoading && (
+                      <div className="absolute right-3 top-[42px] pointer-events-none z-10 flex h-11 items-center">
+                        <Loader2 className="h-4 w-4 animate-spin text-[#C1001F]" aria-hidden />
+                      </div>
+                    )}
+
+                    <Input
+                      breakpoint={false}
+                      label={
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span>{t("form_f9")}</span>
+                          {isSmartyIntegrated !== null && !isSmartyIntegrated && (
+                            <span className="text-xs font-medium text-[#6C7582]">(Manual entry)</span>
+                          )}
+                        </span>
+                      }
+                      value={street_address}
+                      onChange={setStreet_address}
+                      placeholder="123 Clinic St"
+                      inputClassName={isAddressSuggestionsLoading ? "pr-10" : ""}
+                      ariaBusy={isAddressSuggestionsLoading}
+                    />
+
+                    {showAddressSuggestions && (
+                      <ul className="absolute left-0 right-0 top-full mt-1 w-full border border-gray-200 rounded-xl bg-white max-h-48 overflow-auto z-50 shadow-lg">
+                        {visibleAddressSuggestions.map((suggestion, index) => (
+                          <li
+                            key={`${suggestion}-${index}`}
+                            className="w-full px-4 py-3 cursor-pointer hover:bg-[#F8F5F0] transition-colors text-sm text-[#19192C]"
+                            onClick={() => handleAddressSuggestionClick(suggestion)}
+                          >
+                            {suggestion}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </FormSection>
+
+                <FormSection title={t("location_label")}>
+                  <ScheduleDateTime
+                    data={detailedData[0]}
+                    selectDateTimeSlotHandle={selectDateTimeSlotHandle}
+                    initialDate={scheduleDate}
+                    initialSlot={scheduleSlot}
+                    locationID={locationID}
+                  />
+                  <Dropdown label={t("form_f10")} options={servicesState} breakpoint={false} onChange={setService} value={service} />
+                </FormSection>
+
+                <div className="space-y-3 rounded-xl border border-gray-100 bg-white p-4">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      className="mt-0.5 rounded border-gray-300 text-[#C1001F] focus:ring-[#C1001F]"
+                      checked={email_opt}
+                      onChange={(e) => setEmail_opt(e.target.checked)}
+                      type="checkbox"
+                    />
+                    <span className="text-xs sm:text-sm text-[#3D3D3C] leading-relaxed">{t("email_consent")}</span>
                   </label>
-                  <label className="flex items-start gap-2 sm:gap-3 cursor-pointer group">
-                    <input className="mt-0.5 sm:mt-1 rounded text-[#C1001F] focus:ring-[#C1001F] flex-shrink-0" checked={text_opt} onChange={(e) => setText_opt(e.target.checked)} type="checkbox" />
-                    <span className="text-xs sm:text-sm text-gray-600 leading-tight">I agree to receive SMS notifications and reminders.</span>
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      className="mt-0.5 rounded border-gray-300 text-[#C1001F] focus:ring-[#C1001F]"
+                      checked={text_opt}
+                      onChange={(e) => setText_opt(e.target.checked)}
+                      type="checkbox"
+                    />
+                    <span className="text-xs sm:text-sm text-[#3D3D3C] leading-relaxed">{t("sms_consent")}</span>
                   </label>
                 </div>
               </div>
@@ -414,21 +496,26 @@ export const RequestAppointment = ({
           </div>
         </Modal.Body>
 
-        <Modal.Footer className="border-t border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex flex-row items-center justify-center bg-white sticky bottom-0">
-          <div className="w-full sm:max-w-none">
-            <Button
-              text={t("button_label")}
-              size={{ width: "100%", height: "44px" }}
-              bgColor={"#C1001F"}
-              textColor={"#ffffff"}
-              disabled={isSubmitting}
-              onClick={() => {
-                if (validateCurrentPage()) {
-                  submitAppointmentDetails();
-                }
-              }}
-            />
-          </div>
+        <Modal.Footer className="border-t border-gray-100 px-4 sm:px-6 py-4 bg-white sticky bottom-0">
+          <button
+            type="button"
+            disabled={isSubmitting}
+            onClick={() => {
+              if (validateCurrentPage()) {
+                submitAppointmentDetails();
+              }
+            }}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#C1001F] px-6 py-3.5 text-sm font-semibold font-poppins text-white shadow-sm hover:bg-[#a30019] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                {t("button_label")}
+              </>
+            ) : (
+              t("button_label")
+            )}
+          </button>
         </Modal.Footer>
       </div>
     </Modal>

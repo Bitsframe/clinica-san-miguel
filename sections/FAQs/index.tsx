@@ -26,9 +26,9 @@ const AccordionItem = ({
         onClick={toggleAccordion}
         className="w-full flex justify-between items-center px-6 py-5 text-left transition-colors hover:bg-[#D1D5DB]/20"
       >
-        <h4 className="text-[16px] font-poppins font-normal text-[#0D0D28]">
+        <span className="text-[16px] font-poppins font-normal text-[#0D0D28]">
           {question}
-        </h4>
+        </span>
         <motion.div
           initial={{ rotate: 0 }}
           animate={{ rotate: isOpen ? 180 : 0 }}
@@ -55,27 +55,16 @@ const AccordionItem = ({
   );
 };
 
-export const FAQs = () => {
+export const FAQs = ({ initialFaqsData = [] }: { initialFaqsData?: any[] }) => {
   const [openAccordion, setOpenAccordion] = useState<number | null>(null);
-  const [faqsData, setFaqsData] = useState<any[]>([]);
-  const [hasFetched, setHasFetched] = useState(false);
+  
+  // Data is passed from server component
+  const faqsData = initialFaqsData;
+  const hasFetched = true;
 
   const t = useTranslations("home");
   const locale = useLocale();
-  const { fetchLocalizedTable } = useSupabase();
-  const { ref, isVisible } = useLazyLoad({ triggerOnce: true });
-
-  useEffect(() => {
-    if (isVisible && !hasFetched) {
-      fetchLocalizedTable("FAQs", locale)
-        .then((rows) => {
-          setFaqsData(rows);
-          setHasFetched(true);
-          console.log("✅ FAQs data fetched");
-        })
-        .catch((err) => console.error("❌ FAQs fetch error:", err));
-    }
-  }, [isVisible, hasFetched, fetchLocalizedTable, locale]);
+  // Removed client-side fetching as data comes from server
 
   const toggleAccordion = (index: number) => {
     setOpenAccordion((prev) => (prev === index ? null : index));
@@ -83,15 +72,34 @@ export const FAQs = () => {
 
   return (
     <section
-      ref={ref}
       className="flex w-full flex-col items-center py-[4%] bg-[#F4F5F6] mt-20"
     >
-      <h1 className={`${styles.sectionHeadText} text-[#0D0D28]`}>
+      <h2 className={`${styles.sectionHeadText} text-[#0D0D28]`}>
         {t("faq_title")}
-      </h1>
-      <h3 className="text-base text-[#606877] text-center max-w-xl mt-2 leading-relaxed">
+      </h2>
+      <p className="text-base text-[#4B5563] text-center max-w-xl mt-2 leading-relaxed">
         {t("faq_subtitle")}
-      </h3>
+      </p>
+
+      {faqsData && faqsData.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: faqsData.map((faq: any) => ({
+                "@type": "Question",
+                name: faq.question,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: faq.answer,
+                },
+              })),
+            }),
+          }}
+        />
+      )}
 
       <div className="flex flex-col w-full max-w-2xl gap-4 mt-10 px-4 sm:px-0">
         {!hasFetched ? (

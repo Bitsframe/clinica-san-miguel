@@ -228,7 +228,7 @@ export function useRequestAppointmentLogic({
     }));
   };
 
-  const selectDateTimeSlotHandle = (date: Date | '', time?: string | '') => {
+  const selectDateTimeSlotHandle = useCallback((date: Date | '', time?: string | '') => {
     if (date && time) {
       setScheduleDate(date as Date);
       setScheduleSlot(time as string);
@@ -240,7 +240,7 @@ export function useRequestAppointmentLogic({
       setScheduleSlot("");
       setDate_and_time("");
     }
-  };
+  }, [locationID]);
 
   const resetForm = () => {
     setFirstName("");
@@ -423,13 +423,18 @@ export function useRequestAppointmentLogic({
 
       // Prepare date_and_time in format: "locationID|DD-MM-YYYY - HH:MM AM/PM"
       let formattedDateTime: string | null = null;
+      let appointmentDate = "";
+      let appointmentTime = "";
       if (scheduleDate && scheduleSlot) {
         const day = String(scheduleDate.getDate()).padStart(2, '0');
         const month = String(scheduleDate.getMonth() + 1).padStart(2, '0');
         const year = scheduleDate.getFullYear();
-        
+
+        appointmentDate = `${day}-${month}-${year}`;
+        appointmentTime = scheduleSlot;
+
         // Format: "11|19-02-2026 - 5:00 PM"
-        formattedDateTime = `${locationID}|${day}-${month}-${year} - ${scheduleSlot}`;
+        formattedDateTime = `${locationID}|${appointmentDate} - ${appointmentTime}`;
       }
 
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
@@ -485,8 +490,14 @@ export function useRequestAppointmentLogic({
         const emailData: any = {
           email,
           name: `${firstName} ${lastName}`,
-          location: detailedData[0],
+          location: {
+            title: detailedData[0]?.title ?? "",
+            address: detailedData[0]?.address ?? "",
+            phone: detailedData[0]?.phone ?? "",
+          },
           service: service,
+          date: appointmentDate,
+          time: appointmentTime,
         };
 
         try {

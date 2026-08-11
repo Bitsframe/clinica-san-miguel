@@ -28,35 +28,6 @@ export const Hero = () => {
 
   const data = locale === "es" ? heroSection_es[0] : heroSection[0];
   const [shouldScroll, setShouldScroll] = useState(false);
-  const [nearestPhone, setNearestPhone] = useState("(832) 849-0946");
-  const { locations } = useSupabase();
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && navigator.geolocation && locations?.length > 0) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
-          let minDistance = Infinity;
-          let bestPhone = "(832) 849-0946";
-          for (const loc of locations) {
-            const coords = parseLatLngFromDirection(loc.direction as string);
-            if (coords) {
-              const dist = calculateDistance(userLat, userLng, coords.lat, coords.lng);
-              if (dist < minDistance && loc.phone) {
-                minDistance = dist;
-                bestPhone = loc.phone;
-              }
-            }
-          }
-          setNearestPhone(bestPhone);
-        },
-        () => {
-          // Keep default if geolocation denied
-        }
-      );
-    }
-  }, [locations]);
 
   const go_to_contact_handle = () => {
     router.push(`/contact`);
@@ -375,7 +346,7 @@ const SLIDES_ES: HeroSlide[] = [
 
 // ─── BannerSlide ──────────────────────────────────────────────────────────────
 
-function BannerSlide({ slide, onBookNow }: { slide: HeroSlide; onBookNow: () => void }) {
+function BannerSlide({ slide, onBookNow, nearestPhone }: { slide: HeroSlide; onBookNow: () => void; nearestPhone: string }) {
   return (
     <div
       className="absolute inset-0 flex items-stretch overflow-hidden"
@@ -485,6 +456,36 @@ export const HeroTopSection = () => {
   const [current, setCurrent] = useState(0);
   const [isNavigating, setIsNavigating] = useState(false);
 
+  const [nearestPhone, setNearestPhone] = useState("(832) 849-0946");
+  const { locations } = useSupabase();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && navigator.geolocation && locations?.length > 0) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          let minDistance = Infinity;
+          let bestPhone = "(832) 849-0946";
+          for (const loc of locations) {
+            const coords = parseLatLngFromDirection(loc.direction as string);
+            if (coords) {
+              const dist = calculateDistance(userLat, userLng, coords.lat, coords.lng);
+              if (dist < minDistance && loc.phone) {
+                minDistance = dist;
+                bestPhone = loc.phone;
+              }
+            }
+          }
+          setNearestPhone(bestPhone);
+        },
+        () => {
+          // Keep default if geolocation denied
+        }
+      );
+    }
+  }, [locations]);
+
   const slides = locale === "es" ? SLIDES_ES : SLIDES_EN;
   const total = slides.length;
 
@@ -549,7 +550,7 @@ export const HeroTopSection = () => {
                   i === current ? "opacity-100" : "opacity-0 pointer-events-none"
                 }`}
               >
-                <BannerSlide slide={slide} onBookNow={redirectToContact} />
+                <BannerSlide slide={slide} onBookNow={redirectToContact} nearestPhone={nearestPhone} />
               </div>
             ))}
             

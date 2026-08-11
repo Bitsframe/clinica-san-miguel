@@ -145,7 +145,7 @@ export const Treatments = ({ initialTreatments = [] }: { initialTreatments?: Tre
                       <div className="w-full h-48 pt-3 px-3 overflow-hidden rounded-md">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={getSupabaseImageUrl(treatment.image, { width: 384, quality: 75 })}
+                          src={treatment.image}
                           alt={treatment.title || ""}
                           loading="lazy"
                           className="w-full h-full object-cover rounded-md"

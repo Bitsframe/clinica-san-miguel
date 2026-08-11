@@ -10,16 +10,19 @@ import { styles } from "../../app/[locale]/styles";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
-import { useSupabase } from "@/context/supabaseContext";
 import { useTranslations } from "next-intl";
+
+type TestimonialsProps = {
+  headingFlag: boolean;
+  mode: string;
+  initialTestimonials?: any[];
+};
 
 export const Testimonials = ({
   headingFlag,
   mode,
-}: {
-  headingFlag: boolean;
-  mode: string;
-}) => {
+  initialTestimonials = [],
+}: TestimonialsProps) => {
   const slider = useRef(null);
 
   const settings = {
@@ -82,7 +85,7 @@ export const Testimonials = ({
   };
   const t = useTranslations("common");
 
-  const { testinomial } = useSupabase();
+  const testinomial = initialTestimonials;
 
   return (
     <>

@@ -3,10 +3,10 @@
 import { direction } from "@/assets/images";
 import Image from "next/image";
 import { Map } from "../Map";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/navigation";
 import { Loader2, MapPin, Navigation, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { Link } from "@/navigation";
 
 function formatDistance(miles: number) {
   return miles < 10 ? miles.toFixed(1) : Math.round(miles).toString();
@@ -23,7 +23,7 @@ export const Location = ({
   rank,
   className = "",
 }: {
-  id: number | null;
+  id?: number | string | null;
   locationName: string | null;
   number: string | null;
   route: string | null;
@@ -36,13 +36,6 @@ export const Location = ({
   const router = useRouter();
   const t = useTranslations("contact_page");
   const tLoc = useTranslations("location_buttons");
-  const [isNavigating, setIsNavigating] = useState(false);
-
-  const handleLocation = () => {
-    if (!id || isNavigating) return;
-    setIsNavigating(true);
-    router.push(`/contact/${id}`);
-  };
 
   if (!location) return null;
 
@@ -110,23 +103,12 @@ export const Location = ({
 
         <div className="flex flex-col sm:flex-row gap-2">
           {id != null && (
-            <button
-              type="button"
-              onClick={handleLocation}
-              disabled={isNavigating}
-              className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#C1001F] px-4 py-2.5 text-sm font-medium font-poppins text-white hover:bg-[#a30019] transition-colors disabled:opacity-80 disabled:cursor-wait"
+            <Link
+              href={`/contact/${id}`}
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#C1001F] px-4 py-2.5 text-sm font-medium font-poppins text-white hover:bg-[#a30019] transition-colors"
             >
-              {isNavigating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t("loading_details")}
-                </>
-              ) : (
-                <>
-                  {tLoc("viewDetails")} →
-                </>
-              )}
-            </button>
+              {tLoc("viewDetails")} →
+            </Link>
           )}
           {number && (
             <a

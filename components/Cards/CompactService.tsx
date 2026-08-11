@@ -2,7 +2,7 @@
 
 import { Link } from "@/navigation";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/navigation";
 import { useMemo, useState } from "react";
 import { getSupabaseImageUrl } from "@/utils/supabaseImage";
 

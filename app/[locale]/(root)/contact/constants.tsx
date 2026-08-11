@@ -232,7 +232,7 @@ export const LocationsData = () => {
             return (
               <Location
                 key={location.id}
-                id={location.id}
+                id={(location.slug as string) || location.id}
                 locationName={location.title}
                 number={location.phone}
                 route=""

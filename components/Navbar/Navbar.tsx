@@ -80,6 +80,7 @@ export const Navbar = () => {
               src={Logo}
               alt="Clinica San Miguel"
               priority
+              sizes="(max-width: 640px) 160px, (max-width: 1024px) 192px, 208px"
               className="h-10 w-auto sm:h-11 md:h-12 lg:h-[52px] object-contain"
             />
           </Link>

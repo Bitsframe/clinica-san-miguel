@@ -18,9 +18,11 @@ export const metadata: Metadata = {
 import { Link } from "@/navigation";
 import { Opportunities } from "@/sections/Career/Opportunities";
 import { Briefcase, HeartHandshake, TrendingUp, Users } from "lucide-react";
+import { supabase } from "@/supabaseClient";
 
-export default async function CareerPage() {
-  const t = await getTranslations("career");
+export default async function CareerPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "career" });
 
   const pillars = [
     {
@@ -39,6 +41,15 @@ export default async function CareerPage() {
       description: t("pillar_3_desc"),
     },
   ];
+
+  const tableName = locale === "es" ? "career_es" : "career";
+  const { data: rawOpportunities } = await supabase.from(tableName).select("*");
+  let opportunities = rawOpportunities || [];
+  
+  if (locale === "es" && opportunities.length === 0) {
+    const { data: baseData } = await supabase.from("career").select("*");
+    opportunities = baseData || [];
+  }
 
   return (
     <main className="w-full py-8 sm:py-12">
@@ -107,7 +118,7 @@ export default async function CareerPage() {
               {t("opportunities_subtitle")}
             </p>
           </div>
-          <Opportunities />
+          <Opportunities initialOpportunities={opportunities} />
         </div>
       </section>
 
@@ -119,12 +130,12 @@ export default async function CareerPage() {
           <p className="text-base text-[#3D3D3C] font-inter max-w-xl mx-auto leading-relaxed">
             {t("cta_description")}
           </p>
-          <Link
-            href="/contact"
+          <a
+            href="mailto:careers@clinicsanmiguel.com"
             className="inline-flex items-center justify-center rounded-full bg-[#C1001F] px-8 py-3.5 text-sm font-semibold font-poppins text-white shadow-sm hover:bg-[#a30019] transition-colors"
           >
             {t("cta_button")}
-          </Link>
+          </a>
         </div>
       </section>
     </main>

@@ -10,7 +10,7 @@ import { TreatmentSliderSkeleton } from "@/components/loading/TreatmentSliderSke
 import { useSupabase } from "@/context/supabaseContext";
 import { TableRow } from "@/@types/database.types";
 import { useLazyLoad } from "@/hooks/useLazyLoad";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "@/navigation"; 
 
 type TreatmentRow = TableRow<"services">;
 

@@ -35,17 +35,10 @@ type AboutRow = {
   image_5?: string | null;
 };
 
-const AboutScreen = () => {
+const AboutScreen = ({ initialData = null }: { initialData?: AboutRow | null }) => {
   const t = useTranslations("about_page");
   const locale = useLocale();
-  const { fetchLocalizedTable } = useSupabase();
-  const [data, setData] = useState<AboutRow | null>(null);
-
-  useEffect(() => {
-    fetchLocalizedTable("about", locale)
-      .then((rows) => setData(rows[0] ?? null))
-      .catch(() => {});
-  }, [locale, fetchLocalizedTable]);
+  const data = initialData;
 
   const { eyebrow, headline } = useMemo(
     () => splitTitle(data?.title_1),

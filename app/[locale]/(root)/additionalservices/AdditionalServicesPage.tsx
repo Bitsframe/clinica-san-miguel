@@ -1,7 +1,7 @@
 "use client";
 
 import { AdditionalService } from "@/components";
-import { Locations, Services, Testimonials } from "@/sections";
+import { Locations, Services } from "@/sections";
 import { additionalServices } from "@/constants";
 import { styles } from "@/app/[locale]/styles";
 
@@ -37,7 +37,7 @@ export default function AdditionalServicesPage() {
         <Services />
       </div>
       <Locations />
-      <Testimonials headingFlag={true} mode={"light"} />
+
     </main>
   );
 }

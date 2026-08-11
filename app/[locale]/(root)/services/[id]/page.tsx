@@ -72,6 +72,24 @@ export default function ServicePage() {
 
   return (
     <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
+      {combined?.title && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Service",
+              "serviceType": combined.title,
+              "provider": {
+                "@type": "MedicalClinic",
+                "name": "Clinica San Miguel",
+                "url": "https://www.clinicsanmiguel.com"
+              },
+              "description": combined.description || undefined
+            }),
+          }}
+        />
+      )}
       <AboutService
         title={combined.title}
         about_content={combined.description ?? null}

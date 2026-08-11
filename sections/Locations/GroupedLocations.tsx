@@ -275,7 +275,7 @@ export const GroupedLocations = () => {
                   locationData.map((loc, index) => (
                     <LocationDetailedCard
                       key={loc.id}
-                      id={loc.id}
+                      id={(loc.slug as string) || loc.id}
                       address={loc.address}
                       name={loc.title}
                       phone={loc.phone}

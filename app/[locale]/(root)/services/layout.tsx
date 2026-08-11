@@ -1,4 +1,4 @@
-import { Testimonials } from "@/sections";
+import {  } from "@/sections";
 // import { useRouter } from 'next/router'
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
       {/* <div className="w-full flex justify-center">
         <Services />
       </div> */}
-      {/* <Testimonials headingFlag={true} mode={"light"} /> */}
+
     </main>
   );
 }

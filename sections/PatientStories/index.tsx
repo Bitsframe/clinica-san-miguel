@@ -13,27 +13,15 @@ import "slick-carousel/slick/slick-theme.css";
 
 type Testimonial = TableRow<"Testinomial">;
 
-export function PatientStories() {
+export function PatientStories({ initialTestimonials = [] }: { initialTestimonials?: Testimonial[] }) {
   const t = useTranslations("testimonies");
   const sliderRef = useRef<any>(null);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [hasFetched, setHasFetched] = useState(false);
+  const testimonials = initialTestimonials;
+  const hasFetched = true;
 
   // Lazy loading hook
   const { ref, isVisible } = useLazyLoad({ triggerOnce: true });
-
-  useEffect(() => {
-    if (isVisible && !hasFetched) {
-      // Fetch testimonials when the section is visible
-      fetchTableRows("Testinomial")
-        .then((rows) => {
-          setTestimonials(rows);
-          setHasFetched(true);
-        })
-        .catch(() => {});
-    }
-  }, [isVisible, hasFetched]);
-
+  // Removed client-side fetching as data comes from server
   const settings = {
     dots: false,
     infinite: true,

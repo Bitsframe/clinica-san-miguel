@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getTranslations, getLocale } from "next-intl/server";
 
 export const metadata: Metadata = {
-  title: "Clinica San Miguel – Affordable Family Medicine in Texas",
+  title: { absolute: "Clinica San Miguel – Affordable Family Medicine in Texas" },
   description:
     "Clinica San Miguel provides affordable, compassionate family healthcare across Texas. Walk-ins welcome. Serving Houston, San Antonio, and surrounding communities.",
   openGraph: {
@@ -25,13 +25,14 @@ import {
   Testimonials,
   Treatments,
   WeCare,
-  PatientStories,
+
   TrustedPartner,
   AboveFooter,
   StickyMobileButton,
 } from "@/sections";
 import PhoneNumbersBar from "@/components/PhoneNumbersBar";
 import Script from "next/script";
+import { supabase } from "@/supabaseClient";
 
 const localBusinessSchema = {
   "@context": "https://schema.org",
@@ -72,9 +73,14 @@ const localBusinessSchema = {
   sameAs: [],
 };
 
-export default async function Home() {
-  const locale = await getLocale(); 
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
+
+  const [{ data: faqs }, { data: testimonials }] = await Promise.all([
+    supabase.from(`FAQs${locale === "es" ? "_es" : ""}`).select("*"),
+    supabase.from("Testinomial").select("*")
+  ]);
 
   return (
     <main className="flex flex-col justify-center items-center overflow-x-hidden gap-10">
@@ -120,9 +126,9 @@ export default async function Home() {
       <Treatments />
       <CommunityMission />
       <WeCare />
-      <PatientStories />
+
       <TrustedPartner />
-      <FAQs />
+      <FAQs initialFaqsData={faqs || undefined} />
       <AboveFooter />
       <StickyMobileButton />
     </main>

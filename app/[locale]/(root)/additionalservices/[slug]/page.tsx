@@ -1,7 +1,7 @@
 "use client";
 
 import { AdditionalService } from "@/components";
-import { Services, Testimonials } from "@/sections";
+import { Services } from "@/sections";
 import { additionalServices } from "@/constants";
 import { styles } from "@/app/[locale]/styles";
 
@@ -36,7 +36,7 @@ const AdditionalServicesDetails = () => {
       <div className="w-full flex justify-center">
         <Services />
       </div>
-      <Testimonials headingFlag={true} mode={"light"} />
+
     </main>
   );
 };

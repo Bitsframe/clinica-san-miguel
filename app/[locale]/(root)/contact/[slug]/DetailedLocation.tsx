@@ -66,9 +66,18 @@ function LocationDetailSkeleton() {
   );
 }
 
-export const DetailedLocation = ({ slug }: { slug: string }) => {
+export const DetailedLocation = ({ 
+  slug,
+  initialLocation,
+  initialImages,
+
+}: { 
+  slug: string;
+  initialLocation: any;
+  initialImages: (string | null)[];
+
+}) => {
   const [openAppointmentModal, setOpenAppointmentModal] = useState(false);
-  const [locationGallery, setLocationGallery] = useState<(string | null)[]>();
   const [totalRatings, setTotalRatings] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -78,49 +87,23 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
   const { services, services_es } = useSupabase();
   const services_data = locale === "es" ? services_es : services;
 
-  const {
-    detailData,
-    filteredData,
-    locationImages,
-    fetchDetailedData,
-    fetchFilteredData,
-  } = useSupabase();
+  const detailData = useSupabase().detailData;
 
-  const fetchDataCallback = useCallback(() => {
-    fetchDetailedData("Locations", parseInt(slug));
-  }, [fetchDetailedData, slug]);
-
-  const fetchTestimonialsData = useCallback(() => {
-    fetchFilteredData("Testinomial", "location_id", parseInt(slug));
-  }, [fetchFilteredData, slug]);
+  const location = initialLocation;
+  const locationGallery = initialImages;
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    fetchTestimonialsData();
-  }, [fetchTestimonialsData]);
-
-  useEffect(() => {
-    if (filteredData) {
-      const ratings = filteredData.map((item) => parseFloat(item.rating));
+    if (filteredData && filteredData.length > 0) {
+      const ratings = filteredData.map((item: any) => parseFloat(item.rating));
       const totalResults = ratings.length;
-      const sumOfRatings = ratings.reduce((acc, rating) => acc + rating, 0);
+      const sumOfRatings = ratings.reduce((acc: number, rating: number) => acc + rating, 0);
       setTotalRatings(totalResults > 0 ? sumOfRatings / totalResults : 0);
     }
   }, [filteredData]);
-
-  useEffect(() => {
-    fetchDataCallback();
-  }, [fetchDataCallback]);
-
-  const hasLoadedLocation = Object.prototype.hasOwnProperty.call(
-    detailData,
-    "Locations"
-  );
-  const detailedData = detailData["Locations"] || [];
-  const location = detailedData[0];
 
   const {
     id,
@@ -136,17 +119,6 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
     sunday_timing,
     direction,
   } = location || {};
-
-  useEffect(() => {
-    const data = locationImages
-      .filter((item) => item.location_id === id)
-      .map((item) => item.image);
-    setLocationGallery(data);
-  }, [id, locationImages]);
-
-  if (!hasLoadedLocation) {
-    return <LocationDetailSkeleton />;
-  }
 
   if (!location) {
     return (
@@ -273,58 +245,7 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
           </div>
         </section>
 
-        {filteredData && filteredData.length > 0 && (
-          <section className="space-y-6">
-            <h2 className="text-2xl sm:text-3xl font-bold font-poppins text-[#19192C]">
-              {t("str4")}
-            </h2>
 
-            <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-gray-100 bg-[#F8F5F0] px-6 py-5">
-              <span className="text-4xl sm:text-5xl font-bold text-[#19192C] leading-none">
-                {totalRatings.toFixed(1)}
-              </span>
-              <div className="space-y-1">
-                {isMounted && (
-                  <StarRatings
-                    rating={totalRatings}
-                    starDimension="22px"
-                    starSpacing="2px"
-                    numberOfStars={5}
-                    starRatedColor="#C1001F"
-                  />
-                )}
-                <p className="text-sm text-[#6C7582] font-poppins">
-                  {filteredData.length} {tc("reviews_count")}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredData.map((item) => (
-                <article
-                  key={item.id}
-                  className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm space-y-3"
-                >
-                  <p className="text-sm text-[#3D3D3C] font-inter leading-relaxed line-clamp-4">
-                    &ldquo;{item.review}&rdquo;
-                  </p>
-                  <div className="pt-2 border-t border-gray-100 space-y-1">
-                    <p className="text-sm font-semibold text-[#19192C]">{item.name}</p>
-                    {isMounted && (
-                      <StarRatings
-                        rating={parseFloat(item.rating)}
-                        starDimension="16px"
-                        starSpacing="1px"
-                        numberOfStars={5}
-                        starRatedColor="#C1001F"
-                      />
-                    )}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
 
         <section className="space-y-6">
           <h2 className="text-2xl sm:text-3xl font-bold font-poppins text-[#19192C]">
@@ -357,7 +278,7 @@ export const DetailedLocation = ({ slug }: { slug: string }) => {
 
       {openAppointmentModal && (
         <RequestAppointment
-          detailedData={detailedData}
+          detailedData={[location]}
           locationID={parseInt(slug)}
           handleClose={() => setOpenAppointmentModal(false)}
           openModal={openAppointmentModal}

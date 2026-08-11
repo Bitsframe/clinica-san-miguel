@@ -14,13 +14,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function About({
+import { supabase } from "@/supabaseClient";
+
+export default async function About({
   params,
 }: {
-  params: Promise<{ locale: string }>; // ✅ Fake Promise type to satisfy Next.js page type check
+  params: Promise<{ locale: string }>;
 }) {
-  // You can access the locale like this if needed:
-  // const { locale } = await params;
+  const { locale } = await params;
+  
+  const tableName = locale === "es" ? "about_es" : "about";
+  const { data: aboutData } = await supabase.from(tableName).select("*");
+  let finalData = aboutData || [];
+  
+  if (locale === "es" && finalData.length === 0) {
+    const { data: fallbackData } = await supabase.from("about").select("*");
+    finalData = fallbackData || [];
+  }
 
-  return <AboutScreen />;
+  return <AboutScreen initialData={finalData[0] || null} />;
 }

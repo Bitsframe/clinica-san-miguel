@@ -23,25 +23,14 @@ function OpportunitySkeleton() {
   );
 }
 
-export const Opportunities = () => {
-  const locale = useLocale();
+export const Opportunities = ({ initialOpportunities = [] }: { initialOpportunities?: { id: number; Text: string | null }[] }) => {
   const t = useTranslations("career");
-  const { fetchLocalizedTable } = useSupabase();
-  const [opportunities, setOpportunities] = useState<{ id: number; Text: string | null }[]>([]);
-  const [hasFetched, setHasFetched] = useState(false);
 
   const { ref, isVisible } = useLazyLoad({ triggerOnce: true });
 
-  useEffect(() => {
-    if (isVisible && !hasFetched) {
-      fetchLocalizedTable("career", locale)
-        .then((rows) => {
-          setOpportunities(rows);
-          setHasFetched(true);
-        })
-        .catch(() => {});
-    }
-  }, [isVisible, hasFetched, fetchLocalizedTable, locale]);
+  // Now we are server-rendered, so we can just use the passed props immediately.
+  const opportunities = initialOpportunities;
+  const hasFetched = true;
 
   return (
     <section ref={ref}>

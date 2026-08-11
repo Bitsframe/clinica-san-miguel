@@ -1,4 +1,4 @@
-import { Testimonials } from "@/sections";
+import {  } from "@/sections";
 import { styles } from "@/app/[locale]/styles";
 import Image from "next/image";
 import {
@@ -55,7 +55,7 @@ export default function RegistrationPage() {
         </article>
       </section>
 
-      <Testimonials headingFlag={true} mode={"light"} />
+
     </main>
   );
 }

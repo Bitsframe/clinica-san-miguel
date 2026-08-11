@@ -3,14 +3,14 @@
 import { styles } from "@/app/[locale]/styles";
 import { about } from "@/assets/images";
 import { About } from "@/components";
-import { useSupabase } from "@/context/supabaseContext";
 import { useLocale, useTranslations } from "next-intl";
 
-export const AboutSection = () => {
+export const AboutSection = ({ initialAboutShort = [] }: { initialAboutShort?: any[] }) => {
   const t = useTranslations("common");
   const locale = useLocale();
 
-  const { aboutShort, aboutShort_es } = useSupabase();
+  const aboutShort = initialAboutShort;
+  const aboutShort_es = initialAboutShort;
 
   // console.log("LOCale:", locale);
 

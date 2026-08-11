@@ -13,11 +13,12 @@ import { HeroBox } from "@/components";
 import { useSupabase } from "@/context/supabaseContext";
 import { Button, IconButton } from "@/utils";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { FaPhoneFlip } from "react-icons/fa6";
 import { useCallback, useEffect, useState } from "react";
 import { GroupedLocations } from "@/sections/Locations/GroupedLocations";  
+import { calculateDistance, parseLatLngFromDirection } from "@/utils/zipcodeService";
 
 export const Hero = () => {
   const t = useTranslations("home");
@@ -27,6 +28,35 @@ export const Hero = () => {
 
   const data = locale === "es" ? heroSection_es[0] : heroSection[0];
   const [shouldScroll, setShouldScroll] = useState(false);
+  const [nearestPhone, setNearestPhone] = useState("(832) 849-0946");
+  const { locations } = useSupabase();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && navigator.geolocation && locations?.length > 0) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          let minDistance = Infinity;
+          let bestPhone = "(832) 849-0946";
+          for (const loc of locations) {
+            const coords = parseLatLngFromDirection(loc.direction as string);
+            if (coords) {
+              const dist = calculateDistance(userLat, userLng, coords.lat, coords.lng);
+              if (dist < minDistance && loc.phone) {
+                minDistance = dist;
+                bestPhone = loc.phone;
+              }
+            }
+          }
+          setNearestPhone(bestPhone);
+        },
+        () => {
+          // Keep default if geolocation denied
+        }
+      );
+    }
+  }, [locations]);
 
   const go_to_contact_handle = () => {
     router.push(`/contact`);
@@ -81,7 +111,7 @@ export const Hero = () => {
             </div>
           </div>
         </div>
-        <div className="w-full sm:w-[90%] flex justify-center md:justify-start order-1 md:order-2 md:w-1/2">
+        <div className="w-full sm:w-[90%] flex justify-center md:justify-start order-1 md:order-2 md:w-1/2 min-h-[450px] sm:min-h-[550px] md:min-h-[600px] aspect-[4/5] md:aspect-auto">
           <HeroBox />
         </div>
       </article>
@@ -169,7 +199,7 @@ export const Hero = () => {
 //               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.39 2.463a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.39-2.462a1 1 0 00-1.176 0l-3.39 2.462c-.785.57-1.84-.197-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.17 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" />
 //             </svg>
 //           ))}
-//           <span className="text-xs sm:text-sm md:text-base font-light">{t("section1_span")}</span>
+
 //         </div>
 
 //         {/* 🧭 Heading */}
@@ -274,7 +304,7 @@ const SLIDES_EN: HeroSlide[] = [
     pricePrefix: "Only",
     price: "$80",
     subtext: "Fast • Certified • Same-Day Results Available",
-    checklist: ["DOT Compliant Testing", "Certified Medical Staff", "Certified Medical Staff", "Walk-ins Welcome"],
+    checklist: ["DOT Compliant Testing", "Certified Medical Staff", "Same-Day Results", "Walk-ins Welcome"],
     checklistGrid: true,
     btnText: "Book Now →",
     photo: dotImg,
@@ -323,7 +353,7 @@ const SLIDES_ES: HeroSlide[] = [
     pricePrefix: "Solo",
     price: "$80",
     subtext: "Rápido • Certificado • Resultados Disponibles el Mismo Día",
-    checklist: ["Pruebas Conforme a DOT", "Personal Médico Certificado", "Personal Médico Certificado", "Aceptamos Sin Cita"],
+    checklist: ["Pruebas Conforme a DOT", "Personal Médico Certificado", "Resultados el Mismo Día", "Aceptamos Sin Cita"],
     checklistGrid: true,
     btnText: "Reservar Ahora →",
     photo: dotImg,
@@ -415,7 +445,7 @@ function BannerSlide({ slide, onBookNow }: { slide: HeroSlide; onBookNow: () => 
             {slide.btnText}
           </button>
           <div className="text-[17px] sm:text-[18px] lg:text-[22px] font-extrabold text-[#182238]">
-            (832) 834-4426
+            <a href={`tel:1${nearestPhone.replace(/\D/g, "")}`}>{nearestPhone}</a>
           </div>
           <div className="hidden sm:block text-[11px] lg:text-[15px] text-[#3a4356] font-medium mt-0.5">
             www.clinicsanmiguel.com
@@ -435,7 +465,7 @@ function BannerSlide({ slide, onBookNow }: { slide: HeroSlide; onBookNow: () => 
               alt={slide.photoAlt}
               fill
               className="object-cover"
-              sizes="42vw"
+              sizes="(max-width: 640px) 100vw, 42vw"
             />
             <span className="absolute bottom-2 sm:bottom-3.5 right-2 sm:right-3.5 text-white text-base sm:text-xl opacity-90 z-10 select-none">
               ✦
@@ -508,9 +538,10 @@ export const HeroTopSection = () => {
       )}
 
       <div className="my-4 mx-3 md:mx-6">
-        {/* Mobile — no arrows, dots sit below the slide */}
-        <div className="block sm:hidden">
-          <div className="relative rounded-2xl overflow-hidden shadow-md h-[320px]">
+        {/* Unified Responsive Carousel */}
+        <div className="relative rounded-2xl shadow-md flex flex-col h-auto">
+          {/* Main slide container - responsive height */}
+          <div className="relative rounded-2xl overflow-hidden h-[320px] sm:h-[440px] md:h-[540px] lg:h-[620px] xl:h-[680px]">
             {slides.map((slide, i) => (
               <div
                 key={i}
@@ -521,9 +552,16 @@ export const HeroTopSection = () => {
                 <BannerSlide slide={slide} onBookNow={redirectToContact} />
               </div>
             ))}
+            
+            {/* Desktop controls inside the image */}
+            <div className="hidden sm:block">
+              <ArrowButtons />
+              <DotNav />
+            </div>
           </div>
-          {/* Dots below slide on mobile */}
-          <div className="flex justify-center gap-2 mt-2">
+
+          {/* Mobile dots below the slide */}
+          <div className="flex sm:hidden justify-center gap-2 mt-2 pb-2">
             {slides.map((_, i) => (
               <button
                 key={i}
@@ -535,22 +573,6 @@ export const HeroTopSection = () => {
               />
             ))}
           </div>
-        </div>
-
-        {/* Desktop / Tablet */}
-        <div className="relative hidden sm:block rounded-2xl overflow-hidden shadow-md h-[440px] md:h-[540px] lg:h-[620px] xl:h-[680px]">
-          {slides.map((slide, i) => (
-            <div
-              key={i}
-              className={`absolute inset-0 transition-opacity duration-700 ${
-                i === current ? "opacity-100" : "opacity-0 pointer-events-none"
-              }`}
-            >
-              <BannerSlide slide={slide} onBookNow={redirectToContact} />
-            </div>
-          ))}
-          <ArrowButtons />
-          <DotNav />
         </div>
       </div>
     </section>

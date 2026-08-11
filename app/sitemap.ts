@@ -24,13 +24,15 @@ const routes: RouteConfig[] = [
   { path: "/contact", changeFrequency: "monthly", priority: 0.9 },
   { path: "/about", changeFrequency: "monthly", priority: 0.8 },
   { path: "/career", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/testimonials", changeFrequency: "monthly", priority: 0.7 },
+
   { path: "/additionalservices", changeFrequency: "monthly", priority: 0.7 },
   { path: "/registration", changeFrequency: "yearly", priority: 0.6 },
   { path: "/special", changeFrequency: "monthly", priority: 0.6 },
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+import { supabase } from "@/supabaseClient";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   for (const route of routes) {
@@ -62,6 +64,56 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       },
     });
+  }
+
+  // Fetch dynamic locations
+  const { data: locations } = await supabase.from("locations").select("id");
+  if (locations) {
+    for (const location of locations) {
+      const path = `/contact/${location.id}`;
+      const enUrl = `${siteUrl}${path}`;
+      const esUrl = `${siteUrl}/es${path}`;
+      
+      entries.push({
+        url: enUrl,
+        lastModified: new Date(),
+        changeFrequency: "weekly",
+        priority: 0.9,
+        alternates: { languages: { en: enUrl, es: esUrl } },
+      });
+      entries.push({
+        url: esUrl,
+        lastModified: new Date(),
+        changeFrequency: "weekly",
+        priority: 0.8,
+        alternates: { languages: { en: enUrl, es: esUrl } },
+      });
+    }
+  }
+
+  // Fetch dynamic services
+  const { data: services } = await supabase.from("services").select("id");
+  if (services) {
+    for (const service of services) {
+      const path = `/services/${service.id}`;
+      const enUrl = `${siteUrl}${path}`;
+      const esUrl = `${siteUrl}/es${path}`;
+      
+      entries.push({
+        url: enUrl,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.8,
+        alternates: { languages: { en: enUrl, es: esUrl } },
+      });
+      entries.push({
+        url: esUrl,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.7,
+        alternates: { languages: { en: enUrl, es: esUrl } },
+      });
+    }
   }
 
   return entries;

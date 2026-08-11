@@ -121,7 +121,7 @@ export const Locations = () => {
               route={""}
               location={location.direction}
               address={location.address}
-              id={null}
+              id={(location.slug as string) || location.id}
             />
           ))}
         </Slider>

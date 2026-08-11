@@ -10,7 +10,7 @@ import {
   doctor,
 } from "@/assets/images/cover";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/navigation";
 
 const collageImages = [
   { src: elderly_left, alt: "Doctor with patient", className: "col-span-1 row-span-1" },
@@ -46,14 +46,6 @@ export function AboveFooter() {
               </button>
             </div>
 
-            <div className="flex items-center gap-2 text-sm">
-              <div className="flex gap-0.5 text-yellow-400">
-                {Array.from({ length: 5 }).map((_, idx) => (
-                  <AiFillStar key={idx} size={16} />
-                ))}
-              </div>
-              <span className="text-gray-200 font-poppins">{t("reviews")}</span>
-            </div>
           </div>
 
           <div className="hidden sm:grid grid-cols-4 grid-rows-3 gap-2.5 h-[240px] md:h-[280px] lg:h-[300px] w-full max-w-lg lg:max-w-none lg:ml-auto">

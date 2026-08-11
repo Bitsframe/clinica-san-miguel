@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { Loader2, MapPin, Navigation, Phone } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Link } from "@/navigation";
 import { LocationCardSkeleton } from "@/components/loading/LocationCardSkeleton";
 
 type LocationCardProps = {
-  id: number | null;
+  id: number | string | null;
   name?: string | null;
   address?: string | null;
   phone?: string | null;
@@ -31,16 +31,8 @@ export const LocationDetailedCard = ({
   onMapClick,
   loading,
 }: LocationCardProps) => {
-  const router = useRouter();
-  const [isNavigating, setIsNavigating] = useState(false);
   const t = useTranslations("location_buttons");
   const tc = useTranslations("contact_page");
-
-  const handleLocation = () => {
-    if (!id || isNavigating) return;
-    setIsNavigating(true);
-    router.push(`/contact/${id}`);
-  };
 
   if (loading) {
     return <LocationCardSkeleton />;
@@ -88,23 +80,22 @@ export const LocationDetailedCard = ({
       )}
 
       <div className="flex flex-col sm:flex-row gap-2">
-        <button
-          type="button"
-          onClick={handleLocation}
-          disabled={isNavigating}
-          className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#C1001F] px-4 py-2.5 text-sm font-medium font-poppins text-white hover:bg-[#a30019] transition-colors disabled:opacity-80 disabled:cursor-wait"
-        >
-          {isNavigating ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              {tc("loading_details")}
-            </>
-          ) : (
-            <>
-              {t("viewDetails")} →
-            </>
-          )}
-        </button>
+        {id != null ? (
+          <Link
+            href={`/contact/${id}`}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#C1001F] px-4 py-2.5 text-sm font-medium font-poppins text-white hover:bg-[#a30019] transition-colors"
+          >
+            {t("viewDetails")} →
+          </Link>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#C1001F] px-4 py-2.5 text-sm font-medium font-poppins text-white opacity-80 cursor-not-allowed"
+          >
+            {t("viewDetails")} →
+          </button>
+        )}
 
         <button
           type="button"

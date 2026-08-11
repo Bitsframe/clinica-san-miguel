@@ -67,10 +67,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Fetch dynamic locations
-  const { data: locations } = await supabase.from("locations").select("id");
+  const { data: locations } = await supabase.from("locations").select("slug").eq("is_active", true);
   if (locations) {
     for (const location of locations) {
-      const path = `/contact/${location.id}`;
+      const path = `/contact/${location.slug}`;
       const enUrl = `${siteUrl}${path}`;
       const esUrl = `${siteUrl}/es${path}`;
       

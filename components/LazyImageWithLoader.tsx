@@ -31,13 +31,7 @@ export function LazyImageWithLoader({
 }: LazyImageWithLoaderProps) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
-  const optimizedSrc = useMemo(
-    () => getSupabaseImageUrl(src, { width, quality }),
-    [src, width, quality]
-  );
-  // Posters: use the original file so aspect ratio is never altered by transforms.
-  const displaySrc =
-    layout === "responsive" || layout === "poster" ? src : optimizedSrc;
+
 
   const imageClassName = `${className} transition-opacity duration-300 ${
     loaded ? "opacity-100" : "opacity-0"
@@ -60,14 +54,13 @@ export function LazyImageWithLoader({
             Image unavailable
           </div>
         ) : (
-          // Stable deployment: fixed width, natural height — full poster visible.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={displaySrc}
+          <Image
+            src={src}
             alt={alt}
-            decoding="async"
-            loading={priority ? "eager" : "lazy"}
-            fetchPriority={priority ? "high" : undefined}
+            width={0}
+            height={0}
+            sizes="(max-width: 768px) 100vw, 500px"
+            priority={priority}
             className={`mx-auto h-auto w-full max-w-[340px] rounded-xl md:max-w-[500px] ${imageClassName}`}
             onLoad={() => setLoaded(true)}
             onError={() => setError(true)}
@@ -94,13 +87,12 @@ export function LazyImageWithLoader({
             Image unavailable
           </div>
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={displaySrc}
+          <Image
+            src={src}
             alt={alt}
-            decoding="async"
-            loading={priority ? "eager" : "lazy"}
-            fetchPriority={priority ? "high" : undefined}
+            fill
+            sizes={sizes}
+            priority={priority}
             className={`max-h-full max-w-full object-contain ${imageClassName}`}
             onLoad={() => setLoaded(true)}
             onError={() => setError(true)}
@@ -124,7 +116,7 @@ export function LazyImageWithLoader({
         </div>
       ) : (
         <Image
-          src={optimizedSrc}
+          src={src}
           alt={alt}
           fill
           sizes={sizes}

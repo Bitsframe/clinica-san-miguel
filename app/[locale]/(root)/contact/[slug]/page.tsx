@@ -154,7 +154,7 @@ export default async function LocationDetails({
       }
     } : {}),
     "openingHoursSpecification": openingHoursSpecification.length > 0 ? openingHoursSpecification : undefined,
-    "image": images.length > 0 ? images[0] : undefined
+    "image": images.length > 0 ? images[0].url : undefined
   };
 
   return (

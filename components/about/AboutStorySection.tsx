@@ -15,9 +15,7 @@ type AboutStorySectionProps = {
   heading: string;
 };
 
-const customLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
-  return getSupabaseImageUrl(src, { width, quality: quality ?? 75 });
-};
+
 
 export default function AboutStorySection({ items, heading }: AboutStorySectionProps) {
   if (items.length === 0) return null;
@@ -44,8 +42,8 @@ export default function AboutStorySection({ items, heading }: AboutStorySectionP
                   src={item.image}
                   alt=""
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-contain p-4 sm:p-6"
-                  {...(typeof item.image === "string" ? { loader: customLoader } : {})}
                 />
               </div>
 

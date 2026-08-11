@@ -32,12 +32,21 @@ export const LocationsData = ({ initialLocations = [] }: { initialLocations?: an
   const [isLoading, setIsLoading] = useState(initialLocations.length === 0);
   const [zipRanking, setZipRanking] = useState(false);
 
-  const tabs = [
-    { id: 1, name: th("all"), value: "" },
-    { id: 2, name: th("dallas"), value: "A" },
-    { id: 3, name: th("houston"), value: "B" },
-    { id: 4, name: th("sanAntonio"), value: "C" },
-  ];
+  const tabs = useMemo(() => {
+    const defaultTabs = [{ id: 1, name: th("all"), value: "" }];
+    const cities = new Set<string>();
+    allLocations.forEach((loc) => {
+      const match = loc.address?.match(/,\s*([^,]+),\s*TX/i);
+      if (match && match[1]) {
+        cities.add(match[1].trim());
+      }
+    });
+    const sortedCities = Array.from(cities).sort();
+    sortedCities.forEach((city, index) => {
+      defaultTabs.push({ id: index + 2, name: city, value: city });
+    });
+    return defaultTabs;
+  }, [allLocations, th]);
 
   const activeZip = normalizeZip5(debouncedQuery.trim());
   const isZipSearch = Boolean(activeZip && !isPartialNumericZipInput(debouncedQuery.trim()));
@@ -47,19 +56,16 @@ export const LocationsData = ({ initialLocations = [] }: { initialLocations?: an
       : undefined;
 
   useEffect(() => {
-    if (cityParam) {
-      const cityMap: Record<string, string> = {
-        all: "",
-        dallas: "A",
-        houston: "B",
-        sanantonio: "C",
-      };
-      const groupValue = cityMap[cityParam.toLowerCase()];
-      if (groupValue !== undefined) {
-        setSelectedLocationGroup(groupValue);
+    if (cityParam && tabs.length > 1) {
+      const paramLower = cityParam.toLowerCase();
+      // Handle legacy param format
+      const normalizedParam = paramLower === "sanantonio" ? "san antonio" : paramLower;
+      const matchedTab = tabs.find(t => t.value.toLowerCase() === normalizedParam);
+      if (matchedTab) {
+        setSelectedLocationGroup(matchedTab.value);
       }
     }
-  }, [cityParam]);
+  }, [cityParam, tabs]);
 
   useEffect(() => {
     const ms = zipSearchDebounceMs(query);
@@ -91,7 +97,11 @@ export const LocationsData = ({ initialLocations = [] }: { initialLocations?: an
       let filtered = [...allLocations];
 
       if (selectedLocationGroup !== "") {
-        filtered = filtered.filter((loc) => loc.Group === selectedLocationGroup);
+        filtered = filtered.filter((loc) => {
+          const match = loc.address?.match(/,\s*([^,]+),\s*TX/i);
+          const city = match ? match[1].trim() : "";
+          return city === selectedLocationGroup;
+        });
       }
 
       const q = debouncedQuery.trim();

@@ -94,12 +94,13 @@ export default async function LocationDetails({
 
   const [imagesRes] = await Promise.all([
     supabase
-      .from("LocationImages")
-      .select("url, alt_text")
+      .from("Images")
+      .select("image")
       .eq("location_id", locationId),
   ]);
 
   const images = imagesRes.data || [];
+  const imageUrls = images.map((img: { image: string }) => img.image);
 
   // Parse Coordinates for JSON-LD
   const coords = parseLatLngFromDirection(location.direction);
@@ -119,9 +120,6 @@ export default async function LocationDetails({
   for (const [dbKey, dayName] of Object.entries(daysMap)) {
     const timing = location[dbKey];
     if (timing && timing.trim() !== "" && timing.toLowerCase() !== "closed") {
-      // Very basic parsing for schema: standardizing "8:00 AM - 5:00 PM" to "08:00-17:00" if possible
-      // Or just outputting the string as is (Google supports text representations often, though HH:MM is preferred)
-      // For simplicity, we just add the days and text representation.
       openingHoursSpecification.push({
         "@type": "OpeningHoursSpecification",
         "dayOfWeek": dayName,
@@ -154,7 +152,7 @@ export default async function LocationDetails({
       }
     } : {}),
     "openingHoursSpecification": openingHoursSpecification.length > 0 ? openingHoursSpecification : undefined,
-    "image": images.length > 0 ? images[0].url : undefined
+    "image": imageUrls.length > 0 ? imageUrls[0] : undefined
   };
 
   return (
@@ -166,7 +164,7 @@ export default async function LocationDetails({
       <DetailedLocation 
         slug={slug} 
         initialLocation={location}
-        initialImages={images}
+        initialImages={imageUrls}
 
       />
     </>

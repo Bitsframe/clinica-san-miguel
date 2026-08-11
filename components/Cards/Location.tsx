@@ -90,7 +90,7 @@ export const Location = ({
               )}
               {number && (
                 <a
-                  href={`tel:${number.replace(/\D/g, "")}`}
+                  href={`tel:+1${number.replace(/\D/g, "")}`}
                   className="inline-flex items-center gap-2 text-sm text-[#3D3D3C] hover:text-[#C1001F] transition-colors"
                 >
                   <Phone className="h-4 w-4 text-[#C1001F] shrink-0" />
@@ -112,8 +112,8 @@ export const Location = ({
           )}
           {number && (
             <a
-              href={`tel:${number.replace(/\D/g, "")}`}
-              className="flex-1 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium font-poppins text-[#19192C] text-center hover:bg-gray-50 transition-colors"
+              href={`tel:+1${number.replace(/\D/g, "")}`}
+              className="flex-1 rounded-xl bg-white border border-[#C1001F] py-3 text-center text-sm font-semibold text-[#C1001F] shadow-sm transition-all hover:bg-gray-50 transition-colors"
             >
               {t("call_clinic")}
             </a>

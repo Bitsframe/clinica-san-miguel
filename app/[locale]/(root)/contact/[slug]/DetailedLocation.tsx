@@ -96,14 +96,7 @@ export const DetailedLocation = ({
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (filteredData && filteredData.length > 0) {
-      const ratings = filteredData.map((item: any) => parseFloat(item.rating));
-      const totalResults = ratings.length;
-      const sumOfRatings = ratings.reduce((acc: number, rating: number) => acc + rating, 0);
-      setTotalRatings(totalResults > 0 ? sumOfRatings / totalResults : 0);
-    }
-  }, [filteredData]);
+
 
   const {
     id,
@@ -196,8 +189,8 @@ export const DetailedLocation = ({
                       {t("str1")}
                     </h3>
                     <a
-                      href={`tel:${phone.replace(/\D/g, "")}`}
-                      className="text-base text-[#3D3D3C] hover:text-[#C1001F] transition-colors"
+                      href={`tel:+1${phone.replace(/\D/g, "")}`}
+                      className="inline-flex items-center gap-2 text-[#3D3D3C] hover:text-[#C1001F] transition-colors"
                     >
                       {phone}
                     </a>

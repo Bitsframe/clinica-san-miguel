@@ -7,21 +7,27 @@ const supabaseKey = process.env.SUPABASE_SECRET_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  const enText5 = "Our state-of-the-art facilities and dedicated physicians are equipped to serve the diverse healthcare needs of communities across Texas.";
-  const esText5 = "Nuestras instalaciones de última generación y médicos dedicados están equipados para servir las diversas necesidades de salud de las comunidades en Texas.";
+  const { data, error } = await supabase
+    .from("Locations")
+    .select("id, title, address, phone, slug")
+  // 1. Disable duplicate Fort Worth (id: 9)
+  await supabase.from("Locations").update({ is_active: false }).eq("id", 9);
 
-  const { data: enData, error: enError } = await supabase
-    .from("about")
-    .update({ text_5: enText5 })
-    .eq("id", 1);
+  // 2. Set Kempwood slug
+  await supabase.from("Locations").update({ slug: "kempwood" }).eq("id", 28);
 
-  const { data: esData, error: esError } = await supabase
-    .from("about_es")
-    .update({ text_5: esText5 })
-    .eq("id", 1);
+  // 3. Fix accent slugs
+  await supabase.from("Locations").update({ slug: "blanco" }).eq("id", 26);
+  await supabase.from("Locations").update({ slug: "jefferson" }).eq("id", 27);
 
-  console.log("Updated En Error:", enError);
-  console.log("Updated Es Error:", esError);
+  // 4. Fix Fresno slug
+  await supabase.from("Locations").update({ slug: "fresno-tx" }).eq("id", 16);
+
+  // 5. Fix mismatched titles
+  await supabase.from("Locations").update({ title: "Clinica San Miguel Dallas East" }).eq("id", 6);
+  await supabase.from("Locations").update({ title: "Clinica San Miguel Spring" }).eq("id", 13);
+
+  console.log("Location data fixed!");
 }
 
 run();

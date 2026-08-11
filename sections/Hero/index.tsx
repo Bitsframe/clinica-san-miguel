@@ -416,7 +416,7 @@ function BannerSlide({ slide, onBookNow, nearestPhone }: { slide: HeroSlide; onB
             {slide.btnText}
           </button>
           <div className="text-[17px] sm:text-[18px] lg:text-[22px] font-extrabold text-[#182238]">
-            <a href={`tel:1${nearestPhone.replace(/\D/g, "")}`}>{nearestPhone}</a>
+            <a href={`tel:+1${nearestPhone.replace(/\D/g, "")}`}>{nearestPhone}</a>
           </div>
           <div className="hidden sm:block text-[11px] lg:text-[15px] text-[#3a4356] font-medium mt-0.5">
             www.clinicsanmiguel.com

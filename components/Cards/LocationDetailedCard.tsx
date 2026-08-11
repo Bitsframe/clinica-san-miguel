@@ -63,8 +63,8 @@ export const LocationDetailedCard = ({
         <div className="rounded-lg border border-gray-100 bg-[#FAFAFA] px-3 py-2.5 space-y-2 mb-4">
           {phone && (
             <a
-              href={`tel:${phone.replace(/\D/g, "")}`}
-              className="flex items-center gap-2 text-sm text-[#3D3D3C] hover:text-[#C1001F] transition-colors"
+              href={`tel:+1${phone.replace(/\D/g, "")}`}
+              className="inline-flex items-center gap-2 text-sm text-[#3D3D3C] hover:text-[#C1001F] transition-colors"
             >
               <Phone className="h-4 w-4 text-[#C1001F] shrink-0" />
               {phone}

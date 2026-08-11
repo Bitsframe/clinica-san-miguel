@@ -20,6 +20,8 @@ export async function generateMetadata({
   });
 }
 
+export const revalidate = 0;
+
 const Contact = async ({
   params,
 }: {
@@ -29,11 +31,11 @@ const Contact = async ({
   const t = await getTranslations({ locale, namespace: "common" });
 
   const tableName = locale === "es" ? "Locations_es" : "Locations";
-  const { data: rawLocations } = await supabase.from(tableName).select("*");
+  const { data: rawLocations } = await supabase.from(tableName).select("*").eq("is_active", true);
   let locationsData = rawLocations || [];
   
   if (locale === "es" && locationsData.length === 0) {
-    const { data: fallbackData } = await supabase.from("Locations").select("*");
+    const { data: fallbackData } = await supabase.from("Locations").select("*").eq("is_active", true);
     locationsData = fallbackData || [];
   }
 

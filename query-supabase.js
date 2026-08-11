@@ -7,10 +7,10 @@ const supabaseKey = process.env.SUPABASE_SECRET_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  const { data: d1, error: e1 } = await supabase.from("services").select("id");
-  console.log("lowercase 'services':", d1?.length, e1);
-  const { data: d2, error: e2 } = await supabase.from("Services").select("id");
-  console.log("Capital 'Services':", d2?.length, e2);
+  const { error: e1 } = await supabase.from("Locations").update({ slug: "spring" }).eq("id", 13);
+  console.log("Spring updated:", e1);
+  const { error: e2 } = await supabase.from("Locations").update({ slug: "dallas-east" }).eq("id", 6);
+  console.log("Dallas East updated:", e2);
 }
 
 run();

@@ -27,7 +27,8 @@ export async function fetchClinicaTenantLocationIds(
   const { data, error } = await supabase
     .from("Locations")
     .select("id")
-    .eq("tenant_id", CLINICA_TENANT_ID);
+    .eq("tenant_id", CLINICA_TENANT_ID)
+    .eq("is_active", true);
 
   if (error) {
     return [];
@@ -42,7 +43,8 @@ export async function fetchClinicaLocations(
   const { data, error } = await supabase
     .from("Locations")
     .select("*")
-    .eq("tenant_id", CLINICA_TENANT_ID);
+    .eq("tenant_id", CLINICA_TENANT_ID)
+    .eq("is_active", true);
 
   if (error) {
     return [];

@@ -3,6 +3,8 @@ import AboutScreen from "./AboutScreen";
 
 import { buildPageMetadata } from "@/utils/seo";
 
+export const revalidate = 0;
+
 export async function generateMetadata({
   params,
 }: {

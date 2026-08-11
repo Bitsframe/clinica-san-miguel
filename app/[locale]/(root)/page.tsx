@@ -2,17 +2,21 @@
 import type { Metadata } from "next";
 import { getTranslations, getLocale } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: { absolute: "Clinica San Miguel – Affordable Family Medicine in Texas" },
-  description:
-    "Clinica San Miguel provides affordable, compassionate family healthcare across Texas. Walk-ins welcome. Serving Houston, San Antonio, and surrounding communities.",
-  openGraph: {
+import { buildPageMetadata } from "@/utils/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
+    locale,
     title: "Clinica San Miguel – Affordable Family Medicine in Texas",
-    description:
-      "Walk-in family medicine clinics in Texas offering primary care, pediatrics, and more. Serving Houston, San Antonio, and surrounding areas.",
-    type: "website",
-  },
-};
+    description: "Clinica San Miguel provides affordable, compassionate family healthcare across Texas. Walk-ins welcome. Serving Houston, San Antonio, and surrounding communities.",
+    path: "/",
+  });
+}
 import {
   AboutProfessionals,
   AboutSection,
@@ -77,9 +81,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
 
-  const [{ data: faqs }, { data: testimonials }] = await Promise.all([
+  const [{ data: faqs }, { data: servicesData }] = await Promise.all([
     supabase.from(`FAQs${locale === "es" ? "_es" : ""}`).select("*"),
-    supabase.from("Testinomial").select("*")
+    supabase.from(`services${locale === "es" ? "_es" : ""}`).select("*")
   ]);
 
   return (
@@ -123,7 +127,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       />
       
       <GroupedLocations />
-      <Treatments />
+      <Treatments initialTreatments={servicesData || []} />
       <CommunityMission />
       <WeCare />
 

@@ -3,18 +3,21 @@ import { career_cover } from "@/assets/images";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Careers",
-  description:
-    "Join the Clinica San Miguel team. We're hiring compassionate healthcare professionals across Texas. Explore open positions and apply today.",
-  alternates: {
-    canonical: "/career",
-    languages: {
-      en: "/career",
-      es: "/es/career",
-    },
-  },
-};
+import { buildPageMetadata } from "@/utils/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
+    locale,
+    title: "Careers",
+    description: "Join the Clinica San Miguel team. We're hiring compassionate healthcare professionals across Texas. Explore open positions and apply today.",
+    path: "/career",
+  });
+}
 import { Link } from "@/navigation";
 import { Opportunities } from "@/sections/Career/Opportunities";
 import { Briefcase, HeartHandshake, TrendingUp, Users } from "lucide-react";

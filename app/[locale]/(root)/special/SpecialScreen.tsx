@@ -42,6 +42,7 @@ type SpecialScreenProps = {
   ctaTitle: string;
   ctaDescription: string;
   ctaButton: string;
+  initialSpecials?: SpecialItem[];
 };
 
 export default function SpecialScreen({
@@ -52,53 +53,12 @@ export default function SpecialScreen({
   ctaTitle,
   ctaDescription,
   ctaButton,
+  initialSpecials = [],
 }: SpecialScreenProps) {
-  const [specials, setSpecials] = useState<SpecialItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { ref, isVisible } = useLazyLoad({ triggerOnce: true, rootMargin: "200px" });
+  const [specials, setSpecials] = useState<SpecialItem[]>(initialSpecials);
+  const { ref } = useLazyLoad({ triggerOnce: true, rootMargin: "200px" });
 
-  useEffect(() => {
-    if (!isVisible) return;
-
-    let mounted = true;
-
-    const fetchSpecials = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("special_picture")
-          .select("id,file_path,title,created_at")
-          .eq("display", true)
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          return;
-        }
-
-        const mapped = (data ?? []).map((row: SpecialPictureRow) => {
-          const { data: publicUrl } = supabase.storage
-            .from("special_picture")
-            .getPublicUrl(row.file_path);
-
-          return {
-            id: row.id,
-            title: row.title?.trim() || "Special Offer",
-            imageUrl: publicUrl.publicUrl,
-          };
-        });
-
-        if (mounted) setSpecials(mapped);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
-    void fetchSpecials();
-    return () => {
-      mounted = false;
-    };
-  }, [isVisible]);
-
-  const showGridSkeleton = !isVisible || loading;
+  const showGridSkeleton = false;
 
   return (
     <>

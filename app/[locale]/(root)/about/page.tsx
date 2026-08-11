@@ -1,19 +1,21 @@
 import { Metadata } from "next";
 import AboutScreen from "./AboutScreen";
 
-export const metadata: Metadata = {
-  title: "About Us",
-  description:
-    "Learn about Clinica San Miguel — our mission, our team, and our commitment to providing affordable, quality healthcare to Texas families.",
-  alternates: {
-    canonical: "/about",
-    languages: {
-      en: "/about",
-      es: "/es/about",
-    },
-  },
-};
+import { buildPageMetadata } from "@/utils/seo";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
+    locale,
+    title: "About Us",
+    description: "Learn about Clinica San Miguel — our mission, our team, and our commitment to providing affordable, quality healthcare to Texas families.",
+    path: "/about",
+  });
+}
 import { supabase } from "@/supabaseClient";
 
 export default async function About({

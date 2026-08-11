@@ -2,18 +2,23 @@ import { Metadata } from "next";
 import { LocationsData } from "./constants";
 import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Find a Clinic Near You",
-  description:
-    "Find your nearest Clinica San Miguel location in Texas. Walk-ins welcome. Clinics serving Houston, San Antonio, and surrounding communities.",
-  alternates: {
-    canonical: "/contact",
-    languages: {
-      en: "/contact",
-      es: "/es/contact",
-    },
-  },
-};
+import { supabase } from "@/supabaseClient";
+
+import { buildPageMetadata } from "@/utils/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata({
+    locale,
+    title: "Find a Clinic Near You",
+    description: "Find your nearest Clinica San Miguel location in Texas. Walk-ins welcome. Clinics serving Houston, San Antonio, and surrounding communities.",
+    path: "/contact",
+  });
+}
 
 const Contact = async ({
   params,
@@ -22,6 +27,15 @@ const Contact = async ({
 }) => {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "common" });
+
+  const tableName = locale === "es" ? "Locations_es" : "Locations";
+  const { data: rawLocations } = await supabase.from(tableName).select("*");
+  let locationsData = rawLocations || [];
+  
+  if (locale === "es" && locationsData.length === 0) {
+    const { data: fallbackData } = await supabase.from("Locations").select("*");
+    locationsData = fallbackData || [];
+  }
 
   return (
     <main className="w-full py-8 sm:py-12">
@@ -39,7 +53,7 @@ const Contact = async ({
         </div>
       </section>
 
-      <LocationsData />
+      <LocationsData initialLocations={locationsData} />
     </main>
   );
 };

@@ -16,7 +16,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Loader2, MapPin, Search } from "lucide-react";
 
-export const LocationsData = () => {
+export const LocationsData = ({ initialLocations = [] }: { initialLocations?: any[] }) => {
   const { fetchLocalizedTable } = useSupabase();
   const locale = useLocale();
   const th = useTranslations("home");
@@ -24,12 +24,12 @@ export const LocationsData = () => {
   const searchParams = useSearchParams();
   const cityParam = searchParams.get("city");
 
-  const [allLocations, setAllLocations] = useState<any[]>([]);
-  const [locationData, setLocationData] = useState<any[]>([]);
+  const [allLocations, setAllLocations] = useState<any[]>(initialLocations);
+  const [locationData, setLocationData] = useState<any[]>(initialLocations);
   const [selectedLocationGroup, setSelectedLocationGroup] = useState("");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(initialLocations.length === 0);
   const [zipRanking, setZipRanking] = useState(false);
 
   const tabs = [

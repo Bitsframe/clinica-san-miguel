@@ -36,7 +36,20 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  return getRootMetadata(locale);
+  const rootMetadata = getRootMetadata(locale);
+  
+  if (
+    process.env.RAILWAY_ENVIRONMENT ||
+    process.env.NEXT_PUBLIC_SITE_URL?.includes("railway.app") ||
+    process.env.VERCEL_ENV === "preview"
+  ) {
+    rootMetadata.robots = {
+      index: false,
+      follow: false,
+    };
+  }
+  
+  return rootMetadata;
 }
 
 export default async function RootLayout(props: {

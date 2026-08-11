@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
 import Slider from "react-slick";
-import Link from "next/link";
+import { Link } from "@/navigation";
 import { getSupabaseImageUrl } from "@/utils/supabaseImage";
 import { TreatmentSliderSkeleton } from "@/components/loading/TreatmentSliderSkeleton";
 import { useSupabase } from "@/context/supabaseContext";
@@ -32,15 +32,15 @@ function isCompleteTreatment(treatment: TreatmentRow): boolean {
   );
 }
 
-export const Treatments = () => {
+export const Treatments = ({ initialTreatments = [] }: { initialTreatments?: TreatmentRow[] }) => {
   const t = useTranslations("home");
   const locale = useLocale();
   const { fetchLocalizedTable } = useSupabase();
   const router = useRouter(); // ✅ Initialize router
 
-  const [data, setData] = useState<TreatmentRow[]>([]);
-  const [hasFetched, setHasFetched] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<TreatmentRow[]>(initialTreatments);
+  const [hasFetched, setHasFetched] = useState(initialTreatments.length > 0);
+  const [loading, setLoading] = useState(initialTreatments.length === 0);
   const [brokenImageIds, setBrokenImageIds] = useState<Set<number>>(new Set());
 
   const markBrokenImage = useCallback((id: number) => {

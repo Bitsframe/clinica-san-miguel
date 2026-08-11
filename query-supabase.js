@@ -7,13 +7,10 @@ const supabaseKey = process.env.SUPABASE_SECRET_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  const { data: loc } = await supabase.from("Locations").select("id, title, slug").eq("slug", "fort-worth-tx-office");
-  console.log("Location:", loc);
-  if (loc && loc.length > 0) {
-    const { data: images, error } = await supabase.from("Images").select("*").eq("location_id", loc[0].id);
-    console.log("Images count:", images?.length, "Error:", error);
-    if (images && images.length > 0) console.log("Sample:", images[0]);
-  }
+  const { data: d1, error: e1 } = await supabase.from("services").select("id");
+  console.log("lowercase 'services':", d1?.length, e1);
+  const { data: d2, error: e2 } = await supabase.from("Services").select("id");
+  console.log("Capital 'Services':", d2?.length, e2);
 }
 
 run();

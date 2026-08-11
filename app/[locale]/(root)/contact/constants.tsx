@@ -1,7 +1,7 @@
 "use client";
 
 import { useSupabase } from "@/context/supabaseContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Location } from "@/components";
 import LoadingLocationCard from "@/components/loading/LoadingLocationCard";

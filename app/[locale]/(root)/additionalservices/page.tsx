@@ -8,10 +8,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const isEs = locale === "es";
 
   return buildPageMetadata({
     locale,
-    title: "Additional Services",
+    title: isEs ? "Servicios Adicionales" : "Additional Services",
     description:
       locale === "es"
         ? "Servicios médicos adicionales en Clínica San Miguel. Atención rápida sin cita en Texas."

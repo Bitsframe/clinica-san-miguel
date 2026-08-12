@@ -14,6 +14,12 @@ export function getSiteDescription(locale: string): string {
   return locale === "es" ? descriptions.es : descriptions.en;
 }
 
+export function formatLocationName(title: string | undefined): string {
+  if (!title) return "";
+  // Clean up trailing commas and spaces like "Clinica San Miguel Fresno,TX " -> "Clinica San Miguel Fresno, TX"
+  return title.replace(/,\s*TX\s*$/i, ", TX").trim();
+}
+
 export function buildPageMetadata({
   locale,
   title,
@@ -61,6 +67,7 @@ export function buildPageMetadata({
       languages: {
         en: enUrl,
         es: esUrl,
+        "x-default": enUrl,
       },
     },
     robots: {
@@ -102,6 +109,7 @@ export function getRootMetadata(locale: string): Metadata {
       languages: {
         en: siteUrl,
         es: `${siteUrl}/es`,
+        "x-default": siteUrl,
       },
     },
     robots: {

@@ -12,10 +12,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const isEs = locale === "es";
   return buildPageMetadata({
     locale,
-    title: "Find a Clinic Near You",
-    description: "Find your nearest Clinica San Miguel location in Texas. Walk-ins welcome. Clinics serving Houston, San Antonio, and surrounding communities.",
+    title: isEs ? "Encuentra una Clínica Cerca de Ti" : "Find a Clinic Near You",
+    description: isEs
+      ? "Encuentra tu centro de Clínica San Miguel más cercano en Texas. Sin cita previa. Clínicas en Houston, San Antonio y comunidades cercanas."
+      : "Find your nearest Clinica San Miguel location in Texas. Walk-ins welcome. Clinics serving Houston, San Antonio, and surrounding communities.",
     path: "/contact",
   });
 }

@@ -1,14 +1,17 @@
-"use client";
-
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { getTranslations, getLocale } from "next-intl/server";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import logo from "@/assets/images/logo/logo.png";
 import { Link } from "@/navigation";
 import NewsletterSignup from "./NewsletterSignup";
+import { fetchClinicaLocations } from "@/utils/clinicaLocations";
+import { supabase } from "@/supabaseClient";
 
-export const Footer = () => {
-  const t = useTranslations("common");
+export const Footer = async () => {
+  const locale = await getLocale();
+  const t = await getTranslations("common");
+  const validLocations = await fetchClinicaLocations(supabase);
+  const count = validLocations.length;
 
   const pages = [
     { id: 1, name: t("link_home"), route: "/" },
@@ -57,7 +60,7 @@ export const Footer = () => {
         <div className="flex flex-col sm:flex-row justify-between gap-10 text-center md:text-left w-full md:w-2/3 md:pl-8 lg:pl-0">
           {/* Quick Links */}
           <div className="flex-1">
-            <h4 className="font-semibold mb-3">Quick Links</h4>
+            <h4 className="font-semibold mb-3">{t("quick_links")}</h4>
             <ul className="space-y-2 text-sm text-gray-700">
               {pages.map((page) => (
                 <li key={page.id}>
@@ -69,7 +72,7 @@ export const Footer = () => {
 
           {/* Our Locations */}
           <div className="flex-1">
-            <h4 className="font-semibold mb-3">Our Locations</h4>
+            <h4 className="font-semibold mb-3">{t("our_locations")}</h4>
             <ul className="space-y-2 text-sm text-gray-700">
               <li>
                 <Link href="/contact?city=dallas" className="hover:text-[#C1001F] transition">
@@ -88,7 +91,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link href="/contact?city=all" className="hover:text-[#C1001F] transition">
-                  See all 18 clinics
+                  {t("see_all_clinics", { count })}
                 </Link>
               </li>
             </ul>
@@ -96,7 +99,7 @@ export const Footer = () => {
 
           {/* Socials */}
           <div className="flex-1">
-            <h4 className="font-semibold mb-3">Socials</h4>
+            <h4 className="font-semibold mb-3">{t("socials")}</h4>
             <ul className="space-y-2 text-sm text-gray-700">
               {socialLinks.map((social) => (
                 <li

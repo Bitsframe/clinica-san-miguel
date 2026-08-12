@@ -11,10 +11,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const isEs = locale === "es";
   return buildPageMetadata({
     locale,
-    title: "About Us",
-    description: "Learn about Clinica San Miguel — our mission, our team, and our commitment to providing affordable, quality healthcare to Texas families.",
+    title: isEs ? "Sobre Nosotros" : "About Us",
+    description: isEs 
+      ? "Conozca Clínica San Miguel — nuestra misión, nuestro equipo y nuestro compromiso de brindar atención médica asequible y de calidad a las familias de Texas."
+      : "Learn about Clinica San Miguel — our mission, our team, and our commitment to providing affordable, quality healthcare to Texas families.",
     path: "/about",
   });
 }

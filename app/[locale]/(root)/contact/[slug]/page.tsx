@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { buildPageMetadata } from "@/utils/seo";
+import { buildPageMetadata, formatLocationName } from "@/utils/seo";
 import { supabase } from "@/supabaseClient";
 import { CLINICA_TENANT_ID, EXCLUDED_LOCATION_SLUGS } from "@/utils/clinicaLocations";
 import { DetailedLocation } from "./DetailedLocation";
@@ -53,7 +53,8 @@ export async function generateMetadata({
     .maybeSingle();
 
   const data = _data as { title: string; address: string } | null;
-  const title = data?.title || "Clinic Location";
+  const rawTitle = data?.title || "Clinic Location";
+  const title = formatLocationName(rawTitle);
   const address = data?.address ? ` Located at ${data.address}.` : "";
   const description =
     locale === "es"
@@ -134,7 +135,7 @@ export default async function LocationDetails({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "MedicalClinic",
-    "name": location.title,
+    "name": formatLocationName(location.title),
     "address": {
       "@type": "PostalAddress",
       "streetAddress": location.address,

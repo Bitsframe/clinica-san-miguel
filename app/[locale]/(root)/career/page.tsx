@@ -11,10 +11,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const isEs = locale === "es";
   return buildPageMetadata({
     locale,
-    title: "Careers",
-    description: "Join the Clinica San Miguel team. We're hiring compassionate healthcare professionals across Texas. Explore open positions and apply today.",
+    title: isEs ? "Carreras" : "Careers",
+    description: isEs
+      ? "Únete al equipo de Clínica San Miguel. Estamos contratando profesionales de la salud en Texas. Explora nuestras posiciones abiertas y aplica hoy."
+      : "Join the Clinica San Miguel team. We're hiring compassionate healthcare professionals across Texas. Explore open positions and apply today.",
     path: "/career",
   });
 }

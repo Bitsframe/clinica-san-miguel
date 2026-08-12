@@ -110,6 +110,27 @@ const nextConfig = {
         destination: "/:locale/contact",
         permanent: true,
       },
+      // Legacy Tebra doctor/provider redirects
+      {
+        source: "/doctor/:path*",
+        destination: "/about",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|es)/doctor/:path*",
+        destination: "/:locale/about",
+        permanent: true,
+      },
+      {
+        source: "/provider/:path*",
+        destination: "/about",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|es)/provider/:path*",
+        destination: "/:locale/about",
+        permanent: true,
+      },
       // Updated slugs
       { source: "/:locale(en|es)/contact/houston-tx-office", destination: "/:locale/contact/spring", permanent: true },
       { source: "/contact/houston-tx-office", destination: "/contact/spring", permanent: true },

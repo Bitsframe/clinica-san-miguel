@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/utils/seo";
 import { supabase } from "@/supabaseClient";
-import { CLINICA_TENANT_ID } from "@/utils/clinicaLocations";
+import { CLINICA_TENANT_ID, EXCLUDED_LOCATION_SLUGS } from "@/utils/clinicaLocations";
 import { DetailedLocation } from "./DetailedLocation";
 
 export const revalidate = 0;
@@ -11,7 +11,8 @@ export async function generateStaticParams() {
     .from("Locations")
     .select("slug")
     .eq("tenant_id", CLINICA_TENANT_ID)
-    .not("slug", "is", null);
+    .not("slug", "is", null)
+    .not("slug", "in", `(${EXCLUDED_LOCATION_SLUGS.join(",")})`);
 
   if (!locations) return [];
 
@@ -36,7 +37,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
 
-  if (!slug) {
+  if (!slug || EXCLUDED_LOCATION_SLUGS.includes(slug)) {
     return buildPageMetadata({
       locale,
       title: "Clinic Location",
@@ -76,7 +77,7 @@ export default async function LocationDetails({
 }) {
   const { slug } = await params;
 
-  if (!slug) {
+  if (!slug || EXCLUDED_LOCATION_SLUGS.includes(slug)) {
     return null;
   }
 

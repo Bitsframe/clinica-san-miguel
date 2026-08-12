@@ -31,6 +31,7 @@ const routes: RouteConfig[] = [
 ];
 
 import { supabase } from "@/supabaseClient";
+import { CLINICA_TENANT_ID, EXCLUDED_LOCATION_SLUGS } from "@/utils/clinicaLocations";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
@@ -67,7 +68,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Fetch dynamic locations
-  const { data: locations } = await supabase.from("Locations").select("slug").eq("is_active", true);
+  const { data: locations } = await supabase
+    .from("Locations")
+    .select("slug")
+    .eq("tenant_id", CLINICA_TENANT_ID)
+    .eq("is_active", true)
+    .not("slug", "in", `(${EXCLUDED_LOCATION_SLUGS.join(",")})`);
+    
   if (locations) {
     for (const location of locations) {
       const path = `/contact/${location.slug}`;

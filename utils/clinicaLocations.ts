@@ -3,6 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 /** Clinica San Miguel website only serves locations for this tenant. */
 export const CLINICA_TENANT_ID = 1;
 
+// Kempwood location (id: 28, slug: 'kempwood') should be kept in DB but removed from the site completely.
+export const EXCLUDED_LOCATION_IDS = [28];
+export const EXCLUDED_LOCATION_SLUGS = ["kempwood"];
+
 export type LocationWithTenant = {
   id: number;
   tenant_id?: number | null;
@@ -12,6 +16,7 @@ export type LocationWithTenant = {
 export function isClinicaTenantLocation(
   location: LocationWithTenant
 ): boolean {
+  if (EXCLUDED_LOCATION_IDS.includes(location.id)) return false;
   return Number(location.tenant_id) === CLINICA_TENANT_ID;
 }
 
@@ -34,7 +39,9 @@ export async function fetchClinicaTenantLocationIds(
     return [];
   }
 
-  return (data ?? []).map((row) => row.id);
+  return (data ?? [])
+    .map((row) => row.id)
+    .filter((id) => !EXCLUDED_LOCATION_IDS.includes(id));
 }
 
 export async function fetchClinicaLocations(

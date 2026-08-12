@@ -67,7 +67,7 @@ export default async function RootLayout(props: {
   }
 
   const messages = (await import(`../../messages/${locale}.json`)).default;
-  const gtmId = process.env.NEXT_PUBLIC_GTM_ID || '';
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-MFKTKNX';
 
   return (
     <html

@@ -4,6 +4,8 @@ import { supabase } from "@/supabaseClient";
 import { CLINICA_TENANT_ID } from "@/utils/clinicaLocations";
 import { DetailedLocation } from "./DetailedLocation";
 
+export const revalidate = 0;
+
 export async function generateStaticParams() {
   const { data: locations } = await supabase
     .from("Locations")

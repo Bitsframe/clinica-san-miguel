@@ -38,3 +38,17 @@ next-env.d.ts
 
 # Contentlayer
 .contentlayer
+
+# marketing-mcp -- local-only tooling, never published.
+# Covers the MCP server config, the vendored Google Ads server, its
+# virtualenv, and every OAuth2 credential the servers write.
+/.mcp.json
+/marketing-mcp/
+/mcp-context.md
+
+# Credential filenames, ignored anywhere in the tree as a second line of
+# defence in case any of the above is ever moved or un-ignored.
+client_secrets.json
+token.json
+credentials.json
+.gsc_token.json

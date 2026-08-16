@@ -66,7 +66,7 @@ export async function generateMetadata({
   const city = getCityBySlug(citySlug);
   const service = await getService(serviceSlug);
 
-  if (!city || !service) {
+  if (!city || !service || EXCLUDED_SERVICE_IDS.includes(service.id)) {
     return buildPageMetadata({ locale, title: "Services", path: "/services" });
   }
 
@@ -98,7 +98,7 @@ export default async function CityServicePage({
   const city = getCityBySlug(citySlug);
   const service = await getService(serviceSlug);
 
-  if (!city || !service) {
+  if (!city || !service || EXCLUDED_SERVICE_IDS.includes(service.id)) {
     notFound();
   }
 

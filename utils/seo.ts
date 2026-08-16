@@ -54,13 +54,13 @@ export function buildPageMetadata({
       siteName,
       title: formattedTitle,
       description: desc,
-      images: ["/apple-icon.png"],
+      images: ["/api/og"],
     },
     twitter: {
       card: "summary_large_image",
       title: formattedTitle,
       description: desc,
-      images: ["/apple-icon.png"],
+      images: ["/api/og"],
     },
     alternates: {
       canonical,
@@ -96,13 +96,13 @@ export function getRootMetadata(locale: string): Metadata {
       siteName,
       title: siteName,
       description,
-      images: ["/apple-icon.png"],
+      images: ["/api/og"],
     },
     twitter: {
       card: "summary_large_image",
       title: siteName,
       description,
-      images: ["/apple-icon.png"],
+      images: ["/api/og"],
     },
     alternates: {
       canonical,

@@ -65,8 +65,8 @@ export function buildPageMetadata({
     alternates: {
       canonical,
       languages: {
-        en: enUrl,
-        es: esUrl,
+        "en-US": enUrl,
+        "es-US": esUrl,
         "x-default": enUrl,
       },
     },
@@ -107,8 +107,8 @@ export function getRootMetadata(locale: string): Metadata {
     alternates: {
       canonical,
       languages: {
-        en: siteUrl,
-        es: `${siteUrl}/es`,
+        "en-US": siteUrl,
+        "es-US": `${siteUrl}/es`,
         "x-default": siteUrl,
       },
     },

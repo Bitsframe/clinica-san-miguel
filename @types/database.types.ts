@@ -176,6 +176,8 @@ export interface Database {
           Group: string | null;
           tenant_id: number | null;
           is_active: boolean | null;
+          slug: string | null;
+          city: string | null;
         };
       };
       Images: {
@@ -196,6 +198,7 @@ export interface Database {
           image: string | null;
           description: string | null;
           icon: string | null;
+          slug: string | null;
         };
       };
       services_es: {

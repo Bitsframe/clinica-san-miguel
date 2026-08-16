@@ -32,6 +32,9 @@ const routes: RouteConfig[] = [
 
 import { supabase } from "@/supabaseClient";
 import { CLINICA_TENANT_ID, EXCLUDED_LOCATION_SLUGS } from "@/utils/clinicaLocations";
+import { CITIES } from "@/utils/cities";
+
+const EXCLUDED_SERVICE_IDS = [50];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
@@ -86,14 +89,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date(),
         changeFrequency: "weekly",
         priority: 0.9,
-        alternates: { languages: { en: enUrl, es: esUrl } },
+        alternates: { languages: { "en-US": enUrl, "es-US": esUrl } },
       });
       entries.push({
         url: esUrl,
         lastModified: new Date(),
         changeFrequency: "weekly",
         priority: 0.8,
-        alternates: { languages: { en: enUrl, es: esUrl } },
+        alternates: { languages: { "en-US": enUrl, "es-US": esUrl } },
       });
     }
   }
@@ -111,14 +114,69 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: new Date(),
         changeFrequency: "monthly",
         priority: 0.8,
-        alternates: { languages: { en: enUrl, es: esUrl } },
+        alternates: { languages: { "en-US": enUrl, "es-US": esUrl } },
       });
       entries.push({
         url: esUrl,
         lastModified: new Date(),
         changeFrequency: "monthly",
         priority: 0.7,
-        alternates: { languages: { en: enUrl, es: esUrl } },
+        alternates: { languages: { "en-US": enUrl, "es-US": esUrl } },
+      });
+    }
+  }
+
+  // City hub pages
+  for (const city of CITIES) {
+    const path = `/${city.slug}`;
+    const enUrl = `${siteUrl}${path}`;
+    const esUrl = `${siteUrl}/es${path}`;
+
+    entries.push({
+      url: enUrl,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+      alternates: { languages: { "en-US": enUrl, "es-US": esUrl } },
+    });
+    entries.push({
+      url: esUrl,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.75,
+      alternates: { languages: { "en-US": enUrl, "es-US": esUrl } },
+    });
+  }
+
+  // City x service pages
+  const { data: serviceSlugs } = await supabase
+    .from("services")
+    .select("id, slug")
+    .not("slug", "is", null);
+
+  const citySlugsForServices = (serviceSlugs ?? []).filter(
+    (s) => !EXCLUDED_SERVICE_IDS.includes(s.id)
+  );
+
+  for (const city of CITIES) {
+    for (const service of citySlugsForServices) {
+      const path = `/${city.slug}/${service.slug}`;
+      const enUrl = `${siteUrl}${path}`;
+      const esUrl = `${siteUrl}/es${path}`;
+
+      entries.push({
+        url: enUrl,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.7,
+        alternates: { languages: { "en-US": enUrl, "es-US": esUrl } },
+      });
+      entries.push({
+        url: esUrl,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.6,
+        alternates: { languages: { "en-US": enUrl, "es-US": esUrl } },
       });
     }
   }

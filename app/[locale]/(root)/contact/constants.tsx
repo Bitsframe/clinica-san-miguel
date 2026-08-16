@@ -155,7 +155,7 @@ export const LocationsData = ({ initialLocations = [] }: { initialLocations?: an
   return (
     <div className="w-full max-w-6xl mx-auto flex flex-col gap-8 px-4 sm:px-0">
       <div className="rounded-2xl border border-gray-100 bg-white p-5 sm:p-6 shadow-sm space-y-5">
-        <div className="relative">
+        <div className="relative flex items-center">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6C7582]" />
           <input
             type="text"
@@ -169,8 +169,17 @@ export const LocationsData = ({ initialLocations = [] }: { initialLocations?: an
               }
             }}
             placeholder={tc("search_placeholder")}
-            className="w-full rounded-full border border-gray-200 bg-white pl-12 pr-4 py-3.5 text-base text-[#19192C] placeholder:text-[#6C7582] font-poppins shadow-sm focus:border-[#C1001F] focus:outline-none focus:ring-2 focus:ring-[#C1001F]/20"
+            className="w-full rounded-full border border-gray-200 bg-white pl-12 pr-32 sm:pr-36 py-3.5 text-base text-[#19192C] placeholder:text-[#6C7582] font-poppins shadow-sm focus:border-[#C1001F] focus:outline-none focus:ring-2 focus:ring-[#C1001F]/20"
           />
+          <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+            <span className="inline-flex items-center rounded-full bg-[#F8F5F0] border border-gray-200/80 px-3 py-1 text-xs font-semibold text-[#19192C] font-poppins whitespace-nowrap">
+              {isLoading
+                ? "..."
+                : locationData.length === 1
+                  ? tc("locations_count_one", { count: locationData.length })
+                  : tc("locations_count_many", { count: locationData.length })}
+            </span>
+          </div>
         </div>
 
         {isPartialNumericZipInput(query.trim()) && (

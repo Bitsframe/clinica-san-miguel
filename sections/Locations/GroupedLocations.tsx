@@ -194,7 +194,7 @@ export const GroupedLocations = () => {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8 items-start">
             <div className="lg:col-span-2 flex flex-col gap-4 min-h-0">
               <div className="rounded-xl border border-gray-100 bg-[#FAFAFA] p-4 sm:p-5 space-y-4 shrink-0">
-            <div className="relative">
+            <div className="relative flex items-center">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#6C7582]" />
               <input
                 type="text"
@@ -208,8 +208,17 @@ export const GroupedLocations = () => {
                   }
                 }}
                 placeholder={tc("search_placeholder")}
-                className="w-full rounded-full border border-gray-200 bg-white pl-12 pr-4 py-3 text-sm sm:text-base text-[#19192C] placeholder:text-[#6C7582] font-poppins shadow-sm focus:border-[#C1001F] focus:outline-none focus:ring-2 focus:ring-[#C1001F]/20"
+                className="w-full rounded-full border border-gray-200 bg-white pl-12 pr-32 sm:pr-36 py-3 text-sm sm:text-base text-[#19192C] placeholder:text-[#6C7582] font-poppins shadow-sm focus:border-[#C1001F] focus:outline-none focus:ring-2 focus:ring-[#C1001F]/20"
               />
+              <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+                <span className="inline-flex items-center rounded-full bg-[#F8F5F0] border border-gray-200/80 px-3 py-1 text-xs font-semibold text-[#19192C] font-poppins whitespace-nowrap">
+                  {loading
+                    ? "..."
+                    : locationData.length === 1
+                      ? tc("locations_count_one", { count: locationData.length })
+                      : tc("locations_count_many", { count: locationData.length })}
+                </span>
+              </div>
             </div>
 
             {isPartialNumericZipInput(query.trim()) && (

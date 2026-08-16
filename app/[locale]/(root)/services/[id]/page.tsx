@@ -11,6 +11,15 @@ import FAQs from "@/components/services/FAQs";
 import EndNote from "@/components/services/EndNote";
 import ServiceSkeleton from "@/components/services/ServiceSkeleton";
 
+/**
+ * Confirmed cash prices, by service id. Only add an entry here once the price is verified —
+ * this feeds Offer schema shown directly in Google search results, so it must be accurate.
+ * Source: service 25's own title states "$220"; other services have no price data yet.
+ */
+const KNOWN_SERVICE_PRICES: Record<string, number> = {
+  "25": 220, // Immigration Medical Exam (USCIS civil surgeon)
+};
+
 type ServiceDetail = {
   title?: string | null;
   description?: string | null;
@@ -85,7 +94,16 @@ export default function ServicePage() {
                 "name": "Clinica San Miguel",
                 "url": "https://www.clinicsanmiguel.com"
               },
-              "description": combined.description || undefined
+              "description": combined.description || undefined,
+              ...(KNOWN_SERVICE_PRICES[id] != null
+                ? {
+                    "offers": {
+                      "@type": "Offer",
+                      "price": String(KNOWN_SERVICE_PRICES[id]),
+                      "priceCurrency": "USD",
+                    },
+                  }
+                : {}),
             }),
           }}
         />

@@ -34,7 +34,7 @@ import { supabase } from "@/supabaseClient";
 import { CLINICA_TENANT_ID, EXCLUDED_LOCATION_SLUGS } from "@/utils/clinicaLocations";
 import { CITIES } from "@/utils/cities";
 
-const EXCLUDED_SERVICE_IDS = [50];
+const EXCLUDED_SERVICE_IDS = [24, 50]; // Dentist (24) and the "Others" catch-all (50)
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];

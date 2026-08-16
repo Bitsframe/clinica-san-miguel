@@ -9,8 +9,12 @@ import { parseLatLngFromDirection } from "@/utils/zipcodeService";
 
 export const revalidate = 0;
 
-/** id 50 ("Others") is a catch-all row, not a real service — excluded from city×service pages. */
-const EXCLUDED_SERVICE_IDS = [50];
+/**
+ * id 50 ("Others") is a catch-all row, not a real service.
+ * id 24 (Dentist) is excluded per request — dental isn't offered at every medical location
+ * (the separate "Dentista San Miguel" GMB listings confirm it's a distinct sub-brand/address).
+ */
+const EXCLUDED_SERVICE_IDS = [24, 50];
 
 export async function generateStaticParams() {
   const { data: services } = await supabase

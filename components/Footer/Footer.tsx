@@ -85,17 +85,17 @@ export const Footer = async () => {
             <h4 className="font-semibold mb-3">{t("our_locations")}</h4>
             <ul className="space-y-2 text-sm text-gray-700">
               <li>
-                <Link href="/contact?city=dallas" className="hover:text-[#C1001F] transition">
+                <Link href="/dallas" className="hover:text-[#C1001F] transition">
                   Dallas
                 </Link>
               </li>
               <li>
-                <Link href="/contact?city=houston" className="hover:text-[#C1001F] transition">
+                <Link href="/houston" className="hover:text-[#C1001F] transition">
                   Houston
                 </Link>
               </li>
               <li>
-                <Link href="/contact?city=sanantonio" className="hover:text-[#C1001F] transition">
+                <Link href="/san-antonio" className="hover:text-[#C1001F] transition">
                   San Antonio
                 </Link>
               </li>

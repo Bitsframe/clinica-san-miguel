@@ -137,7 +137,7 @@ export default async function CareerPage({ params }: { params: Promise<{ locale:
             {t("cta_description")}
           </p>
           <a
-            href="mailto:careers@clinicsanmiguel.com"
+            href="mailto:contact@clinicsanmiguel.com"
             className="inline-flex items-center justify-center rounded-full bg-[#C1001F] px-8 py-3.5 text-sm font-semibold font-poppins text-white shadow-sm hover:bg-[#a30019] transition-colors"
           >
             {t("cta_button")}

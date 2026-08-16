@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations, getLocale } from "next-intl/server";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
+import { Mail } from "lucide-react";
 import logo from "@/assets/images/logo/logo.png";
 import { Link } from "@/navigation";
 import NewsletterSignup from "./NewsletterSignup";
@@ -43,7 +44,7 @@ export const Footer = async () => {
   return (
     <footer className="bg-white border-t border-gray-200 text-[#0F172A] mt-12">
       <div className="container mx-auto px-6 py-12 flex flex-col md:flex-row md:justify-between gap-10">
-        {/* Left Column: Logo and Newsletter */}
+        {/* Left Column: Logo, Contact Email and Newsletter */}
         <div className="flex flex-col space-y-4 text-center md:text-left md:w-1/3 w-full">
           <Image
             src={logo}
@@ -52,7 +53,16 @@ export const Footer = async () => {
             height={60}
             className="mx-auto md:mx-0"
           />
-          <p className="font-semibold">{t("footer_news_letter_title")}</p>
+          <div className="flex items-center gap-2 justify-center md:justify-start text-sm text-gray-700">
+            <Mail className="h-4 w-4 text-[#C1001F] shrink-0" />
+            <a
+              href="mailto:contact@clinicsanmiguel.com"
+              className="hover:text-[#C1001F] font-medium transition-colors"
+            >
+              contact@clinicsanmiguel.com
+            </a>
+          </div>
+          <p className="font-semibold pt-2">{t("footer_news_letter_title")}</p>
           <NewsletterSignup />
         </div>
 

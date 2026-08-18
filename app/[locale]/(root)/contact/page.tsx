@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { supabase } from "@/supabaseClient";
 
 import { buildPageMetadata } from "@/utils/seo";
+import { CLINICA_TENANT_ID } from "@/utils/clinicaLocations";
 
 export async function generateMetadata({
   params,
@@ -34,11 +35,25 @@ const Contact = async ({
   const t = await getTranslations({ locale, namespace: "common" });
 
   const tableName = locale === "es" ? "Locations_es" : "Locations";
-  const { data: rawLocations } = await supabase.from(tableName).select("*").eq("is_active", true);
+  // tenant filter matters here: without it, other tenants' clinics (e.g. Kempwood)
+  // can leak into the public locations list. Ordered so cards don't reshuffle.
+  const { data: rawLocations } = await supabase
+    .from(tableName)
+    .select("*")
+    .eq("is_active", true)
+    .eq("tenant_id", CLINICA_TENANT_ID)
+    .order("city", { ascending: true })
+    .order("title", { ascending: true });
   let locationsData = rawLocations || [];
-  
+
   if (locale === "es" && locationsData.length === 0) {
-    const { data: fallbackData } = await supabase.from("Locations").select("*").eq("is_active", true);
+    const { data: fallbackData } = await supabase
+      .from("Locations")
+      .select("*")
+      .eq("is_active", true)
+      .eq("tenant_id", CLINICA_TENANT_ID)
+      .order("city", { ascending: true })
+      .order("title", { ascending: true });
     locationsData = fallbackData || [];
   }
 

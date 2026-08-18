@@ -100,7 +100,7 @@ export const Footer = async () => {
                 </Link>
               </li>
               <li>
-                <Link href="/contact?city=all" className="hover:text-[#C1001F] transition">
+                <Link href="/contact" className="hover:text-[#C1001F] transition">
                   {t("see_all_clinics", { count })}
                 </Link>
               </li>

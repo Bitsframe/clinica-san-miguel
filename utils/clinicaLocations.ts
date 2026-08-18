@@ -51,7 +51,11 @@ export async function fetchClinicaLocations(
     .from("Locations")
     .select("*")
     .eq("tenant_id", CLINICA_TENANT_ID)
-    .eq("is_active", true);
+    .eq("is_active", true)
+    // Deterministic order — without this Postgres returns rows in arbitrary
+    // order and the location cards visibly reshuffle between page loads.
+    .order("city", { ascending: true })
+    .order("title", { ascending: true });
 
   if (error) {
     return [];

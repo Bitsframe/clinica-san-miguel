@@ -53,7 +53,8 @@ async function getCityLocations(cityName: string) {
     .select("*")
     .eq("tenant_id", CLINICA_TENANT_ID)
     .eq("is_active", true)
-    .eq("city", cityName);
+    .eq("city", cityName)
+    .order("title", { ascending: true });
   return data ?? [];
 }
 

@@ -20,6 +20,25 @@ export function formatLocationName(title: string | undefined): string {
   return title.replace(/,\s*TX\s*$/i, ", TX").trim();
 }
 
+/**
+ * URL for the dynamic Open Graph card. Passing the page title makes each
+ * share preview specific instead of every page showing the same brand image;
+ * locale switches the card's strapline to Spanish.
+ */
+export function buildOgImageUrl({
+  locale,
+  title,
+}: {
+  locale: string;
+  title?: string;
+}): string {
+  const params = new URLSearchParams();
+  if (title) params.set("title", title);
+  if (locale === "es") params.set("locale", "es");
+  const qs = params.toString();
+  return qs ? `/api/og?${qs}` : "/api/og";
+}
+
 export function buildPageMetadata({
   locale,
   title,
@@ -39,9 +58,19 @@ export function buildPageMetadata({
   const esUrl = `${siteUrl}/es${path}`;
 
   const isHome = path === "/";
-  const formattedTitle = title 
-    ? (isHome ? title : `${title} | ${siteName}`) 
+  const formattedTitle = title
+    ? (isHome ? title : `${title} | ${siteName}`)
     : siteName;
+
+  // Page-specific OG card. Width/height are declared explicitly because
+  // WhatsApp (a primary sharing channel for this audience) frequently skips
+  // rendering a preview when dimensions aren't in the markup.
+  const ogImage = {
+    url: buildOgImageUrl({ locale, title }),
+    width: 1200,
+    height: 630,
+    alt: formattedTitle,
+  };
 
   return {
     metadataBase: new URL(siteUrl),
@@ -54,13 +83,13 @@ export function buildPageMetadata({
       siteName,
       title: formattedTitle,
       description: desc,
-      images: ["/api/og"],
+      images: [ogImage],
     },
     twitter: {
       card: "summary_large_image",
       title: formattedTitle,
       description: desc,
-      images: ["/api/og"],
+      images: [ogImage],
     },
     alternates: {
       canonical,
@@ -82,6 +111,15 @@ export function getRootMetadata(locale: string): Metadata {
   const description = getSiteDescription(locale);
   const canonical = locale === "es" ? `${siteUrl}/es` : siteUrl;
 
+  // Homepage keeps the brand card (no page title), but still declares
+  // dimensions so WhatsApp/Facebook render the preview reliably.
+  const rootOgImage = {
+    url: buildOgImageUrl({ locale }),
+    width: 1200,
+    height: 630,
+    alt: siteName,
+  };
+
   return {
     metadataBase: new URL(siteUrl),
     title: {
@@ -96,13 +134,13 @@ export function getRootMetadata(locale: string): Metadata {
       siteName,
       title: siteName,
       description,
-      images: ["/api/og"],
+      images: [rootOgImage],
     },
     twitter: {
       card: "summary_large_image",
       title: siteName,
       description,
-      images: ["/api/og"],
+      images: [rootOgImage],
     },
     alternates: {
       canonical,

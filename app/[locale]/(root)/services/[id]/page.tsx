@@ -1,20 +1,17 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useSupabase } from "@/context/supabaseContext";
-import { useLocale, useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { supabase } from "@/supabaseClient";
 import AboutService from "@/components/services/AboutService";
 import SubContentSection from "@/components/services/SubContentSection";
 import QuestionAnswers from "@/components/services/QuestionAnswers";
 import FAQs from "@/components/services/FAQs";
 import EndNote from "@/components/services/EndNote";
-import ServiceSkeleton from "@/components/services/ServiceSkeleton";
+
+export const revalidate = 0;
 
 /**
- * Confirmed cash prices, by service id. Only add an entry here once the price is verified —
- * this feeds Offer schema shown directly in Google search results, so it must be accurate.
- * Source: service 25's own title states "$220"; other services have no price data yet.
+ * Confirmed cash prices, by service id. Only add an entry here once the price is
+ * verified — this feeds Offer schema shown directly in Google search results.
  */
 const KNOWN_SERVICE_PRICES: Record<string, number> = {
   "25": 220, // Immigration Medical Exam (USCIS civil surgeon)
@@ -39,102 +36,123 @@ type ServiceDetail = {
   note?: string | null;
 };
 
-export default function ServicePage() {
-  const { fetchLocalizedRowById } = useSupabase();
-  const locale = useLocale();
-  const params = useParams();
-  const id = params?.id as string;
-  const t = useTranslations("service_detail");
+/**
+ * Fetch a service, falling back to the English row when a localized row is
+ * missing so a partially-translated table never produces an empty page.
+ */
+async function getService(
+  id: number,
+  locale: string
+): Promise<ServiceDetail | null> {
+  const isEs = locale === "es";
 
-  const [combined, setCombined] = useState<ServiceDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const read = async (
+    base: "services" | "allservices"
+  ): Promise<Record<string, unknown> | null> => {
+    const table = isEs ? `${base}_es` : base;
+    const { data } = await supabase
+      .from(table)
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (data) return data as unknown as Record<string, unknown>;
+    if (!isEs) return null;
+    const { data: fallback } = await supabase
+      .from(base)
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    return fallback ? (fallback as unknown as Record<string, unknown>) : null;
+  };
 
-  useEffect(() => {
-    if (!id) return;
+  const [base, detail] = await Promise.all([read("services"), read("allservices")]);
+  if (!base && !detail) return null;
 
-    const fetchData = async () => {
-      setLoading(true);
-      const [baseData, detailData] = await Promise.all([
-        fetchLocalizedRowById("services", locale, Number(id)),
-        fetchLocalizedRowById("allservices", locale, Number(id)),
-      ]);
+  return { ...(base ?? {}), ...(detail ?? {}) } as ServiceDetail;
+}
 
-      setCombined({
-        ...(baseData || {}),
-        ...(detailData || {}),
-      } as ServiceDetail);
-      setLoading(false);
-    };
+export default async function ServicePage({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}) {
+  const { locale, id } = await params;
+  const t = await getTranslations({ locale, namespace: "service_detail" });
 
-    fetchData();
-  }, [locale, id, fetchLocalizedRowById]);
+  // `/services/[id]` matches any string, so legacy slug URLs such as
+  // /services/dentistry used to return HTTP 200 with a "not found" message —
+  // a soft 404. Resolve known slugs to their real page, and hard-404 the rest
+  // so crawlers get an honest status instead of a 200.
+  if (!/^\d+$/.test(id)) {
+    const { data: bySlug } = await supabase
+      .from("services")
+      .select("id")
+      .eq("slug", id)
+      .maybeSingle();
 
-  if (loading) return <ServiceSkeleton />;
-
-  if (!combined?.title) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
-        <p className="text-lg font-medium text-[#C1001F]">{t("not_found")}</p>
-      </div>
-    );
+    const matchedId = (bySlug as { id?: number } | null)?.id;
+    if (matchedId != null) {
+      redirect(locale === "es" ? `/es/services/${matchedId}` : `/services/${matchedId}`);
+    }
+    notFound();
   }
+
+  const service = await getService(Number(id), locale);
+
+  if (!service?.title) {
+    notFound();
+  }
+
+  const price = KNOWN_SERVICE_PRICES[id];
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    serviceType: service!.title,
+    provider: {
+      "@type": "MedicalClinic",
+      name: "Clinica San Miguel",
+      url: "https://www.clinicsanmiguel.com",
+    },
+    description: service!.description || undefined,
+    ...(price != null
+      ? { offers: { "@type": "Offer", price: String(price), priceCurrency: "USD" } }
+      : {}),
+  };
 
   return (
     <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
-      {combined?.title && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Service",
-              "serviceType": combined.title,
-              "provider": {
-                "@type": "MedicalClinic",
-                "name": "Clinica San Miguel",
-                "url": "https://www.clinicsanmiguel.com"
-              },
-              "description": combined.description || undefined,
-              ...(KNOWN_SERVICE_PRICES[id] != null
-                ? {
-                    "offers": {
-                      "@type": "Offer",
-                      "price": String(KNOWN_SERVICE_PRICES[id]),
-                      "priceCurrency": "USD",
-                    },
-                  }
-                : {}),
-            }),
-          }}
-        />
-      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <AboutService
-        title={combined.title}
-        about_content={combined.description ?? null}
-        image_url={combined.image ?? null}
+        title={service!.title}
+        about_content={service!.about_content ?? service!.description ?? null}
+        image_url={service!.image ?? null}
         backLabel={t("back_to_services")}
       />
 
       <SubContentSection
-        subheading={combined.subheading ?? null}
-        sub_content={combined.sub_content ?? null}
+        subheading={service!.subheading ?? null}
+        sub_content={service!.sub_content ?? null}
       />
 
-      {combined.question_answers && combined.question_answers.length > 0 && (
+      {service!.question_answers && service!.question_answers.length > 0 && (
         <QuestionAnswers
-          items={combined.question_answers}
+          items={service!.question_answers}
           heading={t("learn_more")}
         />
       )}
 
-      {combined.faqs && combined.faqs.length > 0 && (
-        <FAQs faqs={combined.faqs} heading={t("faqs_heading")} />
+      {service!.faqs && service!.faqs.length > 0 && (
+        <FAQs faqs={service!.faqs} heading={t("faqs_heading")} />
       )}
 
-      {(combined.end_tagline || combined.note) && (
+      {(service!.end_tagline || service!.note) && (
         <EndNote
-          end_tagline={combined.end_tagline ?? null}
-          note={combined.note ?? null}
+          end_tagline={service!.end_tagline ?? null}
+          note={service!.note ?? null}
         />
       )}
     </main>

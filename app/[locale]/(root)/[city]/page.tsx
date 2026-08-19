@@ -85,32 +85,49 @@ export default async function CityPage({
 
   const isEs = locale === "es";
 
-  const jsonLd = locations.map((loc: any) => {
-    const coords = parseLatLngFromDirection(loc.direction);
-    return {
-      "@context": "https://schema.org",
-      "@type": "MedicalClinic",
-      name: formatLocationName(loc.title),
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: loc.address,
-        addressLocality: city!.name,
-        addressRegion: "TX",
-        addressCountry: "US",
-      },
-      telephone: loc.phone,
-      url: `https://www.clinicsanmiguel.com/contact/${loc.slug}`,
-      ...(coords
-        ? {
-            geo: {
-              "@type": "GeoCoordinates",
-              latitude: coords.lat,
-              longitude: coords.lng,
-            },
-          }
-        : {}),
-    };
-  });
+  // ItemList wrapping each clinic as a MedicalClinic — gives Google an explicit
+  // ordered set for this city rather than a bare array of disconnected entities.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: isEs
+      ? `Clínicas de Clínica San Miguel en ${cityName}, TX`
+      : `Clinica San Miguel locations in ${cityName}, TX`,
+    numberOfItems: locations.length,
+    itemListElement: locations.map((loc: any, i: number) => {
+      const coords = parseLatLngFromDirection(loc.direction);
+      return {
+        "@type": "ListItem",
+        position: i + 1,
+        item: {
+          "@type": "MedicalClinic",
+          name: formatLocationName(loc.title),
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: loc.address,
+            addressLocality: city!.name,
+            addressRegion: "TX",
+            addressCountry: "US",
+          },
+          telephone: loc.phone,
+          url: `https://www.clinicsanmiguel.com/contact/${loc.slug}`,
+          availableLanguage: [
+            { "@type": "Language", name: "English" },
+            { "@type": "Language", name: "Spanish" },
+          ],
+          ...(coords
+            ? {
+                geo: {
+                  "@type": "GeoCoordinates",
+                  latitude: coords.lat,
+                  longitude: coords.lng,
+                },
+              }
+            : {}),
+        },
+      };
+    }),
+  };
 
   return (
     <main className="w-full py-8 sm:py-12">

@@ -101,11 +101,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Fetch dynamic services
-  const { data: services } = await supabase.from("services").select("id");
-  if (services) {
+  // Fetch dynamic services. Slugs are canonical — emitting numeric ids here
+  // would fill the sitemap with URLs that only redirect.
+  const { data: servicesRaw } = await supabase.from("services").select("id, slug");
+  const services = (servicesRaw ?? []) as unknown as Array<{
+    id: number;
+    slug: string | null;
+  }>;
+  if (services.length) {
     for (const service of services) {
-      const path = `/services/${service.id}`;
+      if (EXCLUDED_SERVICE_IDS.includes(service.id)) continue;
+      const path = `/services/${service.slug ?? service.id}`;
       const enUrl = `${siteUrl}${path}`;
       const esUrl = `${siteUrl}/es${path}`;
       

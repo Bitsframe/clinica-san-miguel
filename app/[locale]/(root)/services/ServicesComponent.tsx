@@ -24,6 +24,7 @@ export const ServicesComponent = ({ initialServices = [] }: { initialServices?: 
         sortedData.map((service) => (
           <CompactService
             id={service.id}
+            slug={service.slug}
             heading={service.title}
             icon={service.icon}
             description={service.description}

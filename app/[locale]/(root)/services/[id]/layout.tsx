@@ -13,12 +13,27 @@ export async function generateMetadata({
   // Per-service title/description so each page is distinct to crawlers,
   // and so the canonical/hreflang self-reference rather than pointing at
   // the /services index.
+  // `id` is normally a slug now; numeric ids still resolve for old links.
+  const isNumeric = /^\d+$/.test(id);
+  let numericId: number | null = isNumeric ? Number(id) : null;
+
+  if (!isNumeric) {
+    const { data: bySlug } = await supabase
+      .from("services")
+      .select("id")
+      .eq("slug", id)
+      .maybeSingle();
+    numericId = (bySlug as { id?: number } | null)?.id ?? null;
+  }
+
   const table = isEs ? "services_es" : "services";
-  const { data } = await supabase
-    .from(table)
-    .select("title, description")
-    .eq("id", Number(id))
-    .maybeSingle();
+  const { data } = numericId
+    ? await supabase
+        .from(table)
+        .select("title, description")
+        .eq("id", numericId)
+        .maybeSingle()
+    : { data: null };
 
   const serviceTitle = (data as { title?: string } | null)?.title?.trim();
   const serviceDesc = (data as { description?: string } | null)?.description?.trim();

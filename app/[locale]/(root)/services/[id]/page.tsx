@@ -79,31 +79,45 @@ export default async function ServicePage({
   const { locale, id } = await params;
   const t = await getTranslations({ locale, namespace: "service_detail" });
 
-  // `/services/[id]` matches any string, so legacy slug URLs such as
-  // /services/dentistry used to return HTTP 200 with a "not found" message —
-  // a soft 404. Resolve known slugs to their real page, and hard-404 the rest
-  // so crawlers get an honest status instead of a 200.
-  if (!/^\d+$/.test(id)) {
-    const { data: bySlug } = await supabase
+  // Slugs are the canonical form. A numeric id is accepted for backwards
+  // compatibility but redirects to its slug, so the two URL systems collapse
+  // into one instead of competing for the same content.
+  if (/^\d+$/.test(id)) {
+    const { data: byId } = await supabase
       .from("services")
-      .select("id")
-      .eq("slug", id)
+      .select("slug")
+      .eq("id", Number(id))
       .maybeSingle();
 
-    const matchedId = (bySlug as { id?: number } | null)?.id;
-    if (matchedId != null) {
-      redirect(locale === "es" ? `/es/services/${matchedId}` : `/services/${matchedId}`);
+    const slug = (byId as { slug?: string | null } | null)?.slug;
+    if (slug) {
+      redirect(locale === "es" ? `/es/services/${slug}` : `/services/${slug}`);
     }
+  }
+
+  // `/services/[id]` matches any string, so unknown values such as
+  // /services/typo used to return HTTP 200 with a "not found" message — a soft
+  // 404. Resolve real slugs, and hard-404 anything else so crawlers get an
+  // honest status instead of a 200.
+  const { data: bySlug } = await supabase
+    .from("services")
+    .select("id")
+    .eq("slug", id)
+    .maybeSingle();
+
+  const resolvedId = (bySlug as { id?: number } | null)?.id;
+  if (resolvedId == null) {
     notFound();
   }
 
-  const service = await getService(Number(id), locale);
+  const service = await getService(resolvedId!, locale);
 
   if (!service?.title) {
     notFound();
   }
 
-  const price = KNOWN_SERVICE_PRICES[id];
+  // Keyed by numeric id, not the slug param.
+  const price = KNOWN_SERVICE_PRICES[String(resolvedId)];
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",

@@ -8,12 +8,14 @@ import { getSupabaseImageUrl } from "@/utils/supabaseImage";
 
 export const CompactService = ({
   id,
+  slug,
   heading,
   icon,
   description,
   mode,
 }: {
   id: number;
+  slug?: string | null;
   heading: string | null | undefined;
   icon: string | null | undefined;
   description: string | null | undefined;
@@ -38,12 +40,16 @@ export const CompactService = ({
     [icon]
   );
 
+  // Prefer the slug so the index links straight to the canonical URL instead
+  // of the numeric id, which only redirects there.
+  const href = `/services/${slug || id}`;
+
   const handleService = () => {
-    router.push(`/services/${id}`);
+    router.push(href);
   };
 
   return (
-    <Link href={`/services/${id}`}>
+    <Link href={href}>
       <article
         className="w-[300px] h-[300px] m-5 rounded-[10px] cursor-pointer flex flex-col gap-3 justify-evenly p-5 py-14"
         style={{

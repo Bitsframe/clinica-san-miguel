@@ -4,6 +4,7 @@ import { buildPageMetadata, formatLocationName } from "@/utils/seo";
 import { supabase } from "@/supabaseClient";
 import { CLINICA_TENANT_ID } from "@/utils/clinicaLocations";
 import { CITIES, getCityBySlug } from "@/utils/cities";
+import { getCityCopy } from "@/utils/cityContent";
 import { Location } from "@/components";
 import { parseLatLngFromDirection } from "@/utils/zipcodeService";
 
@@ -84,6 +85,7 @@ export default async function CityPage({
   }
 
   const isEs = locale === "es";
+  const copy = getCityCopy(city!.slug, locale);
 
   // ItemList wrapping each clinic as a MedicalClinic — gives Google an explicit
   // ordered set for this city rather than a bare array of disconnected entities.
@@ -149,6 +151,28 @@ export default async function CityPage({
             : `${locations.length} ${locations.length === 1 ? "location" : "locations"} in ${cityName} offering walk-in family medical care, cash-pay pricing, and bilingual staff.`}
         </p>
       </section>
+
+      {copy && (
+        <section className="mx-auto mb-12 sm:mb-16 max-w-3xl px-4 space-y-5 text-[#3D3D3C] font-inter">
+          <p className="text-base leading-relaxed">{copy.intro}</p>
+
+          <div className="space-y-2">
+            <h2 className="text-lg sm:text-xl font-semibold font-poppins text-[#19192C]">
+              {isEs
+                ? `Servicios en ${cityName}`
+                : `Services in ${cityName}`}
+            </h2>
+            <p className="text-base leading-relaxed">{copy.services}</p>
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-lg sm:text-xl font-semibold font-poppins text-[#19192C]">
+              {isEs ? "Horarios y visitas" : "Hours and visiting"}
+            </h2>
+            <p className="text-base leading-relaxed">{copy.visiting}</p>
+          </div>
+        </section>
+      )}
 
       <section className="flex flex-wrap justify-center gap-6 px-4">
         {locations.map((loc: any) => (

@@ -37,6 +37,16 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    // Vercel's image optimizer is returning 402 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED
+    // — the plan's optimization allowance is exhausted, so every remotely-hosted
+    // image (all Supabase service and clinic photos) fails to load while the
+    // underlying files serve 200 fine.
+    //
+    // Bypassing the optimizer restores the images immediately at the cost of
+    // automatic resizing and AVIF/WebP conversion, so pages are heavier. Revert
+    // this once the Vercel plan is upgraded, or move resizing to Supabase's own
+    // transformation API.
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {

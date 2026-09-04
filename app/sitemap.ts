@@ -26,7 +26,6 @@ const routes: RouteConfig[] = [
   { path: "/career", changeFrequency: "monthly", priority: 0.7 },
 
   { path: "/additionalservices", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/registration", changeFrequency: "yearly", priority: 0.6 },
   { path: "/special", changeFrequency: "monthly", priority: 0.6 },
 ];
 

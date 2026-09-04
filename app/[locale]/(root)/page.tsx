@@ -14,8 +14,13 @@ export async function generateMetadata({
   const { locale } = await params;
   return buildPageMetadata({
     locale,
-    title: "Clinica San Miguel – Affordable Family Medicine in Texas",
-    description: "Clinica San Miguel provides affordable, compassionate family healthcare across Texas. Walk-ins welcome. Serving Houston, San Antonio, and surrounding communities.",
+    title:
+      locale === "es"
+        ? "Clínica San Miguel – Medicina Familiar Asequible en Texas"
+        : "Clinica San Miguel – Affordable Family Medicine in Texas",
+    // Description intentionally omitted: getSiteDescription() supplies the
+    // locale-correct text. Hardcoding it here served English copy on /es and
+    // dropped Dallas from the city list.
     path: "/",
   });
 }

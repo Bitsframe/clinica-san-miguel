@@ -44,11 +44,15 @@ export function buildPageMetadata({
   title,
   description,
   path = "",
+  noindex = false,
 }: {
   locale: string;
   title?: string;
   description?: string;
   path?: string;
+  /** Keep the page out of search results. For pages that collect personal
+   *  information and have no search value (e.g. the registration form). */
+  noindex?: boolean;
 }): Metadata {
   const lang = locale === "es" ? "es" : "en";
   const desc = description ?? getSiteDescription(locale);
@@ -100,8 +104,8 @@ export function buildPageMetadata({
       },
     },
     robots: {
-      index: true,
-      follow: true,
+      index: !noindex,
+      follow: !noindex,
     },
   };
 }

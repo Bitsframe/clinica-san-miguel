@@ -265,6 +265,14 @@ const nextConfig = {
       { source: "/contact/16", destination: "/contact/fresno-tx", permanent: true },
       // T-2: Legacy /services/* soft 404s -> exact service pages
 
+      // Sports physicals: no distinct service record exists, and "sports
+      // physicals near me" already draws paid traffic that was hitting a 404.
+      // Temporary (307) — flip to a real page if a Services row is added.
+      { source: "/:locale(en|es)/services/sports-physical", destination: "/:locale/services/school-physical", permanent: false },
+      { source: "/services/sports-physical", destination: "/services/school-physical", permanent: false },
+      { source: "/:locale(en|es)/services/sports-physicals", destination: "/:locale/services/school-physical", permanent: false },
+      { source: "/services/sports-physicals", destination: "/services/school-physical", permanent: false },
+
       // Legacy service slugs whose slug has since changed. Aliases matching a
       // current slug are deliberately absent — they would collide with the
       // canonical URL and produce a redirect loop.

@@ -200,8 +200,8 @@ export const RequestAppointment = ({
     }
   }, [visitType, inOfficePatient, setInOfficePatient]);
 
-  // SmartyStreets Integration State
-  const [isSmartyIntegrated, setIsSmartyIntegrated] = useState<boolean | null>(null);
+  // Address autocomplete (Mapbox) integration state
+  const [isAddressAutocompleteEnabled, setIsAddressAutocompleteEnabled] = useState<boolean | null>(null);
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
   const [isAddressSuggestionsLoading, setIsAddressSuggestionsLoading] = useState(false);
   const isAddressSelectedRef = useRef(false); // Track if user selected from dropdown (ref = no re-render)
@@ -212,22 +212,22 @@ export const RequestAppointment = ({
   const visibleAddressSuggestions = addressSuggestions.filter(Boolean);
   const showAddressSuggestions = visibleAddressSuggestions.length > 0;
 
-  // Check SmartyStreets integration status on mount
+  // Check address autocomplete availability on mount
   useEffect(() => {
-    const checkSmartyIntegration = async () => {
+    const checkAddressAutocomplete = async () => {
       try {
         const response = await fetch("/api/address/status");
         if (!response.ok) {
-          setIsSmartyIntegrated(false);
+          setIsAddressAutocompleteEnabled(false);
           return;
         }
         const data = await response.json();
-        setIsSmartyIntegrated(data.integrated);
+        setIsAddressAutocompleteEnabled(data.integrated);
       } catch {
-        setIsSmartyIntegrated(false);
+        setIsAddressAutocompleteEnabled(false);
       }
     };
-    checkSmartyIntegration();
+    checkAddressAutocomplete();
   }, []);
 
   // Close address suggestions when clicking outside the address field
@@ -258,7 +258,7 @@ export const RequestAppointment = ({
 
     const query = street_address.trim();
 
-    if (!query || query.length < 4 || !isSmartyIntegrated) {
+    if (!query || query.length < 4 || !isAddressAutocompleteEnabled) {
       setAddressSuggestions([]);
       setIsAddressSuggestionsLoading(false);
       return;
@@ -291,7 +291,7 @@ export const RequestAppointment = ({
         clearTimeout(addressFetchTimeoutRef.current);
       }
     };
-  }, [street_address, isSmartyIntegrated]);
+  }, [street_address, isAddressAutocompleteEnabled]);
 
   // Handle address suggestion click
   const handleAddressSuggestionClick = (suggestion: string) => {
@@ -432,7 +432,7 @@ export const RequestAppointment = ({
                       label={
                         <span className="flex flex-wrap items-center gap-2">
                           <span>{t("form_f9")}</span>
-                          {isSmartyIntegrated !== null && !isSmartyIntegrated && (
+                          {isAddressAutocompleteEnabled !== null && !isAddressAutocompleteEnabled && (
                             <span className="text-xs font-medium text-[#6C7582]">(Manual entry)</span>
                           )}
                         </span>

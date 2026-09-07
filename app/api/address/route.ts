@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 
+/** One feature from the Mapbox Geocoding v6 forward endpoint. Only the fields
+ *  used to rebuild a flat address line are typed. */
+interface MapboxFeature {
+  properties?: {
+    name?: string;
+    context?: {
+      place?: { name?: string };
+      region?: { region_code?: string };
+      postcode?: { name?: string };
+    };
+  };
+}
+
 export async function POST(req: Request) {
   try {
     const { address } = await req.json();
@@ -9,43 +22,46 @@ export async function POST(req: Request) {
       return NextResponse.json({ suggestions: [] }, { status: 200 });
     }
 
-    const authId = process.env.SMARTY_AUTH_ID;
-    const authToken = process.env.SMARTY_AUTH_TOKEN;
+    const accessToken = process.env.MAPBOX_ACCESS_TOKEN;
 
-    if (!authId || !authToken) {
+    if (!accessToken) {
       return NextResponse.json({ suggestions: [] }, { status: 200 });
     }
 
     const response = await axios.get(
-      "https://us-autocomplete-pro.api.smartystreets.com/lookup",
+      "https://api.mapbox.com/search/geocode/v6/forward",
       {
         params: {
-          "auth-id": authId,
-          "auth-token": authToken,
-          search: address,
-          max_results: 5,
+          q: address,
+          access_token: accessToken,
+          country: "us",
+          types: "address",
+          autocomplete: true,
+          limit: 5,
         },
       }
     );
 
+    // Rebuilt from context rather than using properties.full_address, which
+    // spells the state out ("Texas") and appends ", United States". The client
+    // runs extractStateZip() over this string and needs it to end in the
+    // two-letter state followed by the ZIP.
     const suggestions =
-      response.data?.suggestions?.map((s: {
-        street_line?: string;
-        secondary?: string;
-        city?: string;
-        state?: string;
-        zipcode?: string;
-      }) => {
-        const parts = [
-          s.street_line,
-          s.secondary,
-          s.city,
-          s.state,
-          s.zipcode,
-        ].filter(Boolean);
+      response.data?.features
+        ?.map((feature: MapboxFeature) => {
+          const props = feature.properties;
+          const context = props?.context;
 
-        return parts.join(" ");
-      }) || [];
+          const parts = [
+            props?.name,
+            context?.place?.name,
+            context?.region?.region_code,
+            context?.postcode?.name,
+          ].filter(Boolean);
+
+          return parts.join(" ");
+        })
+        .filter((s: string) => s.length > 0) || [];
 
     return NextResponse.json({ suggestions });
   } catch (error) {

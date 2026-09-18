@@ -278,10 +278,12 @@ export const DetailedLocation = ({
         </section>
       </main>
 
-      {openAppointmentModal && (
+      {openAppointmentModal && location?.id != null && (
         <RequestAppointment
           detailedData={[location]}
-          locationID={parseInt(slug)}
+          /* The route param is the location's text slug, so parsing it as a
+             number yields NaN. The numeric id lives on the fetched row. */
+          locationID={Number(location.id)}
           handleClose={() => setOpenAppointmentModal(false)}
           openModal={openAppointmentModal}
         />

@@ -1,11 +1,12 @@
 
 "use client";
 import React, { useEffect, useMemo } from "react";
-import { Label, Modal, Select } from "flowbite-react";
+import { Modal } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import ScheduleDateTime from "./ScheduleDateTime";
+import SelectMenu from "./SelectMenu";
 import PhoneNumberInput from "../PhoneNumberInput";
 import { useRequestAppointmentLogic, medicalFields, perPage } from "./logic";
 import { CalendarDays, Loader2, MapPin } from "lucide-react";
@@ -116,38 +117,6 @@ const Input = ({
       onChange={(e) => onChange(e.target.value)}
       aria-busy={ariaBusy || undefined}
     />
-  </div>
-);
-
-const Dropdown = ({
-  label,
-  options,
-  breakpoint,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: string[] | null | undefined;
-  breakpoint: boolean;
-  value: string;
-  onChange: (value: string) => void;
-}) => (
-  <div className={`flex flex-col items-start w-full ${breakpoint ? "md:w-1/2" : ""}`}>
-    <label className="text-sm font-semibold text-[#19192C] font-poppins mb-1.5">
-      {label}
-    </label>
-    <select
-      className="w-full h-11 border border-gray-200 text-sm text-[#19192C] px-4 bg-white outline-none rounded-xl focus:ring-2 focus:ring-[#C1001F]/20 focus:border-[#C1001F] shadow-sm"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    >
-      <option value="" disabled>Select {label}</option>
-      {options?.map((option, index) => (
-        <option key={index} value={option}>
-          {option}
-        </option>
-      ))}
-    </select>
   </div>
 );
 
@@ -295,7 +264,7 @@ export const RequestAppointment = ({
                     initialSlot={scheduleSlot}
                     locationID={locationID}
                   />
-                  <Dropdown label={t("form_f10")} options={servicesState} breakpoint={false} onChange={setService} value={service} />
+                  <SelectMenu label={t("form_f10")} options={servicesState} onChange={setService} value={service} />
                 </FormSection>
 
                 <div className="space-y-3 rounded-xl border border-gray-100 bg-white p-4">

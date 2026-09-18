@@ -1,17 +1,13 @@
 
 "use client";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Label, Modal, Select } from "flowbite-react";
 import { useLocale, useTranslations } from "next-intl";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import ScheduleDateTime from "./ScheduleDateTime";
-import { usStates } from "@/utils/us-states";
 import PhoneNumberInput from "../PhoneNumberInput";
 import { useRequestAppointmentLogic, medicalFields, perPage } from "./logic";
-import { useState } from "react";
-import { extractStateZip } from "@/utils/addressExtractor";
-import CustomDatePicker from "../CustomDatePicker";
 import { CalendarDays, Loader2, MapPin } from "lucide-react";
 
 const FormSection = ({
@@ -180,12 +176,12 @@ export const RequestAppointment = ({
   const selectedLocation = detailedData?.[0];
 
   const {
-    firstName, lastName, email, dob, sex, state, zipcode, street_address,
+    firstName, lastName, email, sex,
     service, phone, inOfficePatient, date_and_time, email_opt, text_opt,
     page, isSubmitting, onsetDate, reliefOther, surgeryChoice, allergyChoice,
     medicalForm, scheduleDate, scheduleSlot, servicesState, totalPages,
-    setFirstName, setLastName, setEmail, setDob, setSex, setState, setzipcode,
-    setStreet_address, setService, setPhone, setInOfficePatient, setPage,
+    setFirstName, setLastName, setEmail, setSex,
+    setService, setPhone, setInOfficePatient, setPage,
     setEmail_opt, setText_opt, setReliefOther, setSurgeryChoice, setAllergyChoice,
     setMedicalForm, handleMedicalChange, handleFamilyHistoryChange, handleBooleanFieldChange,
     handleOnsetDateChange, selectDateTimeSlotHandle, submitAppointmentDetails, resetForm
@@ -200,123 +196,6 @@ export const RequestAppointment = ({
     }
   }, [visitType, inOfficePatient, setInOfficePatient]);
 
-  // Address autocomplete (Mapbox) integration state
-  const [isAddressAutocompleteEnabled, setIsAddressAutocompleteEnabled] = useState<boolean | null>(null);
-  const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
-  const [isAddressSuggestionsLoading, setIsAddressSuggestionsLoading] = useState(false);
-  const isAddressSelectedRef = useRef(false); // Track if user selected from dropdown (ref = no re-render)
-  const addressFetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const addressContainerRef = useRef<HTMLDivElement>(null);
-
-  // Computed values for address suggestions
-  const visibleAddressSuggestions = addressSuggestions.filter(Boolean);
-  const showAddressSuggestions = visibleAddressSuggestions.length > 0;
-
-  // Check address autocomplete availability on mount
-  useEffect(() => {
-    const checkAddressAutocomplete = async () => {
-      try {
-        const response = await fetch("/api/address/status");
-        if (!response.ok) {
-          setIsAddressAutocompleteEnabled(false);
-          return;
-        }
-        const data = await response.json();
-        setIsAddressAutocompleteEnabled(data.integrated);
-      } catch {
-        setIsAddressAutocompleteEnabled(false);
-      }
-    };
-    checkAddressAutocomplete();
-  }, []);
-
-  // Close address suggestions when clicking outside the address field
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        addressContainerRef.current &&
-        !addressContainerRef.current.contains(event.target as Node)
-      ) {
-        setAddressSuggestions([]);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Fetch address suggestions with debouncing
-  useEffect(() => {
-    if (isAddressSelectedRef.current) {
-      isAddressSelectedRef.current = false;
-      return;
-    }
-    
-    // Clear previous timeout
-    if (addressFetchTimeoutRef.current) {
-      clearTimeout(addressFetchTimeoutRef.current);
-    }
-
-    const query = street_address.trim();
-
-    if (!query || query.length < 4 || !isAddressAutocompleteEnabled) {
-      setAddressSuggestions([]);
-      setIsAddressSuggestionsLoading(false);
-      return;
-    }
-
-    setIsAddressSuggestionsLoading(true);
-
-    // Debounce: Wait 300ms after user stops typing
-    addressFetchTimeoutRef.current = setTimeout(async () => {
-      try {
-        const response = await fetch("/api/address", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address: query })
-        });
-
-        const data = await response.json();
-        const suggestions = Array.isArray(data?.suggestions) ? data.suggestions : [];
-        setAddressSuggestions(suggestions);
-      } catch {
-        setAddressSuggestions([]);
-      } finally {
-        setIsAddressSuggestionsLoading(false);
-      }
-    }, 300);
-
-    // Cleanup on unmount or re-run
-    return () => {
-      if (addressFetchTimeoutRef.current) {
-        clearTimeout(addressFetchTimeoutRef.current);
-      }
-    };
-  }, [street_address, isAddressAutocompleteEnabled]);
-
-  // Handle address suggestion click
-  const handleAddressSuggestionClick = (suggestion: string) => {
-    // Set flag to prevent refetching (ref avoids triggering re-render → effect loop)
-    isAddressSelectedRef.current = true;
-    
-    // Store the full address in the street_address field (no extraction for UI)
-    setStreet_address(suggestion);
-    
-    // Extract state and zipcode for backend submission (hidden from user)
-    const extracted = extractStateZip(suggestion);
-    if (extracted) {
-      setState(extracted.state);
-      setzipcode(extracted.zip);
-    }
-
-    setAddressSuggestions([]); // Clear suggestions
-
-    setIsAddressSuggestionsLoading(false);
-    if (addressFetchTimeoutRef.current) {
-      clearTimeout(addressFetchTimeoutRef.current);
-      addressFetchTimeoutRef.current = null;
-    }
-  };
-
   // --- ENHANCED VALIDATION LOGIC ---
   const validateCurrentPage = () => {
     const missingFields: string[] = [];
@@ -324,9 +203,7 @@ export const RequestAppointment = ({
     if (!firstName.trim()) missingFields.push("First Name");
     if (!lastName.trim()) missingFields.push("Last Name");
     if (!phone.trim()) missingFields.push("Mobile Number");
-    if (!dob) missingFields.push("Date of Birth");
     if (!sex) missingFields.push("Gender");
-    if (!street_address.trim()) missingFields.push("Street Address");
     if (!service) missingFields.push("Service Type");
     if (!scheduleDate) missingFields.push("Schedule Date");
     if (!scheduleSlot) missingFields.push("Schedule Time");
@@ -405,59 +282,9 @@ export const RequestAppointment = ({
 
                   <Input label={t("form_f5")} placeholder="email@example.com" breakpoint={false} onChange={setEmail} value={email} />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <PhoneNumberInput label={t("form_f6")} placeholder="(555) 000-0000" breakpoint={false} onChange={setPhone} value={phone} />
-                    <CustomDatePicker
-                      label={t("form_f7")}
-                      placeholder="YYYY-MM-DD"
-                      value={dob}
-                      onChange={setDob}
-                      maxDate={new Date()}
-                    />
-                  </div>
+                  <PhoneNumberInput label={t("form_f6")} placeholder="(555) 000-0000" breakpoint={false} onChange={setPhone} value={phone} />
 
                   <RadioButtons name="gender" options={genderOptions} label={t("form_f8")} onChange={setSex} selectedValue={sex} />
-                </FormSection>
-
-                <FormSection>
-                  <div className="relative" ref={addressContainerRef}>
-                    {isAddressSuggestionsLoading && (
-                      <div className="absolute right-3 top-[42px] pointer-events-none z-10 flex h-11 items-center">
-                        <Loader2 className="h-4 w-4 animate-spin text-[#C1001F]" aria-hidden />
-                      </div>
-                    )}
-
-                    <Input
-                      breakpoint={false}
-                      label={
-                        <span className="flex flex-wrap items-center gap-2">
-                          <span>{t("form_f9")}</span>
-                          {isAddressAutocompleteEnabled !== null && !isAddressAutocompleteEnabled && (
-                            <span className="text-xs font-medium text-[#6C7582]">(Manual entry)</span>
-                          )}
-                        </span>
-                      }
-                      value={street_address}
-                      onChange={setStreet_address}
-                      placeholder="123 Clinic St"
-                      inputClassName={isAddressSuggestionsLoading ? "pr-10" : ""}
-                      ariaBusy={isAddressSuggestionsLoading}
-                    />
-
-                    {showAddressSuggestions && (
-                      <ul className="absolute left-0 right-0 top-full mt-1 w-full border border-gray-200 rounded-xl bg-white max-h-48 overflow-auto z-50 shadow-lg">
-                        {visibleAddressSuggestions.map((suggestion, index) => (
-                          <li
-                            key={`${suggestion}-${index}`}
-                            className="w-full px-4 py-3 cursor-pointer hover:bg-[#F8F5F0] transition-colors text-sm text-[#19192C]"
-                            onClick={() => handleAddressSuggestionClick(suggestion)}
-                          >
-                            {suggestion}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
                 </FormSection>
 
                 <FormSection title={t("location_label")}>

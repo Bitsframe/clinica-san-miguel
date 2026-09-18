@@ -111,11 +111,7 @@ export function useRequestAppointmentLogic({
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [dob, setDob] = useState<Date | null>(null);
   const [sex, setSex] = useState("");
-  const [state, setState] = useState('');
-  const [zipcode, setzipcode] = useState('');
-  const [street_address, setStreet_address] = useState('');
   const [service, setService] = useState("");
   const [phone, setPhone] = useState("");
   const [inOfficePatient, setInOfficePatient] = useState("");
@@ -246,7 +242,6 @@ export function useRequestAppointmentLogic({
     setFirstName("");
     setLastName("");
     setEmail("");
-    setDob(null);
     setSex("");
     setService("");
     setPhone("");
@@ -254,9 +249,6 @@ export function useRequestAppointmentLogic({
     setDate_and_time("");
     setEmail_opt(false);
     setText_opt(false);
-    setState('');
-    setzipcode('');
-    setStreet_address('');
     setReliefOther("");
     setReliefSelect("");
     setSurgeryChoice("");
@@ -275,11 +267,7 @@ export function useRequestAppointmentLogic({
       last_name: 'Patient',
       email_address: 'test@example.com',
       phone: '+1 (555) 123-4567',
-      dob: new Date('1990-05-10'),
       sex: genderOptions[0] || 'Male',
-      state: 'Texas',
-      zipcode: '75001',
-      street_address: '123 Demo Street',
       service: servicesState?.[0] || 'Test Service',
       visit_type: visitType[0] || '',
       patient_type: patientType[0] || '',
@@ -318,11 +306,7 @@ export function useRequestAppointmentLogic({
     setLastName(sample.last_name);
     setEmail(sample.email_address);
     setPhone(sample.phone);
-    setDob(sample.dob);
     setSex(sample.sex);
-    setState(sample.state);
-    setzipcode(sample.zipcode);
-    setStreet_address(sample.street_address);
     setService(sample.service as string);
     setInOfficePatient(sample.visit_type);
     setDate_and_time(sample.date_and_time);
@@ -379,19 +363,13 @@ export function useRequestAppointmentLogic({
         'sex',
         'phone',
         'service',
-        'dob',
-        'street_address',
         'date_and_time',
       ];
 
-      const validateData = validateFormData(
-        {
-          email: email || '', // Provide empty string if email is null/undefined
-          phone,
-          street_address,
-        },
-        true
-      );
+      const validateData = validateFormData({
+        email: email || '', // Provide empty string if email is null/undefined
+        phone,
+      });
 
       if (!validateData) {
         setIsSubmitting(false);
@@ -411,8 +389,6 @@ export function useRequestAppointmentLogic({
           sex,
           phone,
           service,
-          dob: dob ? dob.toISOString().split('T')[0] : null,
-          street_address,
           date_and_time,
         }[field]) {
           toast.warning(`Please fill in the ${field}`);
@@ -461,12 +437,12 @@ export function useRequestAppointmentLogic({
             email: email && email.trim() ? email : null,
             phone: phone.startsWith('+1') ? phone : `+1${phone}`,
             gender: sex,
-            dob: dob ? dob.toISOString().split('T')[0] : null,
+            dob: null,
             locationid: locationID,
             onsite: false,
             text_opt,
             email_opt,
-            address: `${street_address}, ${state}, ${zipcode}`,
+            address: null,
             service: service,
             date_and_time: formattedDateTime,
           }),
@@ -529,11 +505,7 @@ export function useRequestAppointmentLogic({
     firstName,
     lastName,
     email,
-    dob,
     sex,
-    state,
-    zipcode,
-    street_address,
     service,
     phone,
     inOfficePatient,
@@ -558,11 +530,7 @@ export function useRequestAppointmentLogic({
     setFirstName,
     setLastName,
     setEmail,
-    setDob,
     setSex,
-    setState,
-    setzipcode,
-    setStreet_address,
     setService,
     setPhone,
     setInOfficePatient,
